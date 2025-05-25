@@ -45,11 +45,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     try {
+      console.log('Tentative de connexion pour:', data.email);
       // Simuler une authentification
       const users = JSON.parse(localStorage.getItem('dory_users') || '[]');
+      console.log('Utilisateurs trouvés:', users);
       const user = users.find((u: any) => u.email === data.email && u.password === data.password);
       
       if (user && user.isApproved) {
+        console.log('Utilisateur trouvé et approuvé:', user);
         const { password, ...userWithoutPassword } = user;
         setAuthState({
           user: userWithoutPassword,
@@ -66,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         return true;
       }
+      console.log('Utilisateur non trouvé ou non approuvé');
       return false;
     } catch (error) {
       console.error('Erreur lors de la connexion:', error);
@@ -75,6 +79,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
     try {
+      console.log('Création de compte pour:', data.email);
+      
+      // Vérifier si l'email existe déjà
+      const existingUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
+      const emailExists = existingUsers.find((u: any) => u.email === data.email);
+      
+      if (emailExists) {
+        console.log('Email déjà utilisé:', data.email);
+        return false;
+      }
+
       const newUser: User & { password: string } = {
         id: Date.now().toString(),
         ...data,
@@ -82,13 +97,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         createdAt: new Date().toISOString(),
       };
 
-      // Sauvegarder le nouvel utilisateur (en attente d'approbation)
-      const users = JSON.parse(localStorage.getItem('dory_users') || '[]');
-      users.push(newUser);
-      localStorage.setItem('dory_users', JSON.stringify(users));
+      console.log('Nouvel utilisateur créé:', newUser);
 
-      // Envoyer la demande d'approbation (simulation)
-      console.log('Demande de création de compte envoyée pour:', data.email);
+      // Sauvegarder le nouvel utilisateur (en attente d'approbation)
+      const users = [...existingUsers, newUser];
+      localStorage.setItem('dory_users', JSON.stringify(users));
+      
+      console.log('Utilisateurs après sauvegarde:', JSON.parse(localStorage.getItem('dory_users') || '[]'));
       
       return true;
     } catch (error) {

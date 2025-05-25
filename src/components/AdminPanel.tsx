@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,11 +31,14 @@ export const AdminPanel = () => {
   }, []);
 
   const loadUsers = () => {
+    console.log('Chargement des utilisateurs...');
     const savedUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
+    console.log('Utilisateurs chargés depuis localStorage:', savedUsers);
     setUsers(savedUsers);
   };
 
   const updateUserStatus = (userId: string, isApproved: boolean) => {
+    console.log(`Mise à jour du statut de l'utilisateur ${userId} vers ${isApproved ? 'approuvé' : 'rejeté'}`);
     const updatedUsers = users.map(user => 
       user.id === userId ? { ...user, isApproved } : user
     );
@@ -52,6 +56,7 @@ export const AdminPanel = () => {
   };
 
   const deleteUser = (userId: string) => {
+    console.log(`Suppression de l'utilisateur ${userId}`);
     const updatedUsers = users.filter(user => user.id !== userId);
     localStorage.setItem('dory_users', JSON.stringify(updatedUsers));
     setUsers(updatedUsers);
@@ -71,6 +76,9 @@ export const AdminPanel = () => {
 
   const pendingUsers = users.filter(user => !user.isApproved);
   const approvedUsers = users.filter(user => user.isApproved);
+
+  console.log('Utilisateurs en attente:', pendingUsers);
+  console.log('Utilisateurs approuvés:', approvedUsers);
 
   return (
     <div className="min-h-screen gradient-bg p-6">
@@ -93,7 +101,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Demandes en attente</p>
-                  <p className="text-2xl font-semibold text-bright-turquoise text-sharp">{pendingUsers.length}</p>
+                  <p className="text-2xl font-semibold text-bright-turquoise font-sharp">{pendingUsers.length}</p>
                 </div>
                 <Clock className="h-8 w-8 text-bright-turquoise/60" />
               </div>
@@ -105,7 +113,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Utilisateurs approuvés</p>
-                  <p className="text-2xl font-semibold text-green-500 text-sharp">{approvedUsers.length}</p>
+                  <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
               </div>
@@ -117,7 +125,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total utilisateurs</p>
-                  <p className="text-2xl font-semibold text-sharp">{users.length}</p>
+                  <p className="text-2xl font-semibold font-sharp">{users.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -125,10 +133,28 @@ export const AdminPanel = () => {
           </Card>
         </div>
 
+        {/* Bouton pour recharger les données */}
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                Debug: {users.length} utilisateur(s) total - {pendingUsers.length} en attente - {approvedUsers.length} approuvé(s)
+              </p>
+              <Button 
+                onClick={loadUsers}
+                variant="outline"
+                className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
+              >
+                Actualiser
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {pendingUsers.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardHeader>
-              <CardTitle className="text-xl text-bright-turquoise flex items-center gap-2 text-sharp">
+              <CardTitle className="text-xl text-bright-turquoise flex items-center gap-2 font-sharp">
                 <Clock className="h-5 w-5" />
                 Demandes en attente ({pendingUsers.length})
               </CardTitle>
@@ -148,7 +174,7 @@ export const AdminPanel = () => {
                 <TableBody>
                   {pendingUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium text-sharp">
+                      <TableCell className="font-medium font-sharp">
                         {user.firstName} {user.lastName}
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -196,7 +222,7 @@ export const AdminPanel = () => {
         {approvedUsers.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardHeader>
-              <CardTitle className="text-xl text-green-500 flex items-center gap-2 text-sharp">
+              <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
                 <UserCheck className="h-5 w-5" />
                 Utilisateurs approuvés ({approvedUsers.length})
               </CardTitle>
@@ -216,7 +242,7 @@ export const AdminPanel = () => {
                 <TableBody>
                   {approvedUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium text-sharp">
+                      <TableCell className="font-medium font-sharp">
                         {user.firstName} {user.lastName}
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -267,7 +293,7 @@ export const AdminPanel = () => {
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-12 text-center">
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2 text-sharp">Aucun utilisateur</h3>
+              <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
                 Aucune demande de création de compte n'a été reçue pour le moment.
               </p>
