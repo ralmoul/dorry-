@@ -1,11 +1,15 @@
+
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useAuth } from '@/hooks/useAuth';
+import { Zap } from 'lucide-react';
+
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
 }
+
 export const VoiceRecorder = ({
   onOpenSettings
 }: VoiceRecorderProps) => {
@@ -69,9 +73,37 @@ export const VoiceRecorder = ({
               <AIVisualizer isRecording={isRecording} onRecordingToggle={handleRecordingToggle} isProcessing={isProcessing} />
             </div>
 
-            {/* Instructions */}
-            <div className="text-center relative z-10">
-              
+            {/* Bloc explicatif IA */}
+            <div className="relative z-10 max-w-md w-full">
+              <div className="bg-gradient-to-br from-bright-turquoise/10 to-electric-blue/10 backdrop-blur-sm border border-bright-turquoise/20 rounded-2xl p-6 shadow-2xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-dark-navy" />
+                  </div>
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+                    IA & automatisation
+                  </h3>
+                </div>
+                
+                <p className="text-muted-foreground mb-4 text-sm leading-relaxed">
+                  Dory reçoit vos audios et :
+                </p>
+                
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2 text-muted-foreground">
+                    <span className="text-bright-turquoise mt-1">•</span>
+                    <span>Analyse ce qui a été dit</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-muted-foreground">
+                    <span className="text-bright-turquoise mt-1">•</span>
+                    <span>Détecte les informations du porteur de projet</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-muted-foreground">
+                    <span className="text-bright-turquoise mt-1">•</span>
+                    <span>Identifie si la personne est en QPV</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </>}
       </div>
