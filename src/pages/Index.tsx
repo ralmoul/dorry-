@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { Settings } from '@/components/Settings';
 import { AuthScreen } from '@/components/AuthScreen';
@@ -8,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<'recorder' | 'settings'>('recorder');
   const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -27,10 +29,17 @@ const Index = () => {
     return <AuthScreen />;
   }
 
+  const handleOpenUpcomingFeatures = () => {
+    navigate('/upcoming-features');
+  };
+
   return (
     <>
       {currentScreen === 'recorder' && (
-        <VoiceRecorder onOpenSettings={() => setCurrentScreen('settings')} />
+        <VoiceRecorder 
+          onOpenSettings={() => setCurrentScreen('settings')}
+          onOpenUpcomingFeatures={handleOpenUpcomingFeatures}
+        />
       )}
       {currentScreen === 'settings' && (
         <Settings onBack={() => setCurrentScreen('recorder')} />
