@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Users, UserCheck, Clock, Trash2 } from 'lucide-react';
+import { Check, X, Users, UserCheck, Clock, Trash2, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { UserDetailsModal } from './admin/UserDetailsModal';
 
 interface PendingUser {
   id: string;
@@ -21,6 +21,8 @@ interface PendingUser {
 
 export const AdminPanel = () => {
   const [users, setUsers] = useState<PendingUser[]>([]);
+  const [selectedUser, setSelectedUser] = useState<PendingUser | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export const AdminPanel = () => {
     
     localStorage.setItem('dory_users', JSON.stringify(updatedUsers));
     setUsers(updatedUsers);
+    setIsModalOpen(false);
     
     const action = isApproved ? 'approuvé' : 'rejeté';
     toast({
@@ -52,12 +55,18 @@ export const AdminPanel = () => {
     const updatedUsers = users.filter(user => user.id !== userId);
     localStorage.setItem('dory_users', JSON.stringify(updatedUsers));
     setUsers(updatedUsers);
+    setIsModalOpen(false);
     
     toast({
       title: "Utilisateur supprimé",
       description: "Le compte a été supprimé définitivement.",
       variant: "destructive",
     });
+  };
+
+  const openUserDetails = (user: PendingUser) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
   };
 
   const pendingUsers = users.filter(user => !user.isApproved);
@@ -78,14 +87,13 @@ export const AdminPanel = () => {
           </CardHeader>
         </Card>
 
-        {/* Statistiques */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Demandes en attente</p>
-                  <p className="text-2xl font-semibold text-bright-turquoise">{pendingUsers.length}</p>
+                  <p className="text-2xl font-semibold text-bright-turquoise text-sharp">{pendingUsers.length}</p>
                 </div>
                 <Clock className="h-8 w-8 text-bright-turquoise/60" />
               </div>
@@ -97,7 +105,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Utilisateurs approuvés</p>
-                  <p className="text-2xl font-semibold text-green-500">{approvedUsers.length}</p>
+                  <p className="text-2xl font-semibold text-green-500 text-sharp">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
               </div>
@@ -109,7 +117,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total utilisateurs</p>
-                  <p className="text-2xl font-semibold">{users.length}</p>
+                  <p className="text-2xl font-semibold text-sharp">{users.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -117,11 +125,10 @@ export const AdminPanel = () => {
           </Card>
         </div>
 
-        {/* Demandes en attente */}
         {pendingUsers.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardHeader>
-              <CardTitle className="text-xl text-bright-turquoise flex items-center gap-2">
+              <CardTitle className="text-xl text-bright-turquoise flex items-center gap-2 text-sharp">
                 <Clock className="h-5 w-5" />
                 Demandes en attente ({pendingUsers.length})
               </CardTitle>
@@ -141,7 +148,7 @@ export const AdminPanel = () => {
                 <TableBody>
                   {pendingUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-sharp">
                         {user.firstName} {user.lastName}
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -152,6 +159,14 @@ export const AdminPanel = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openUserDetails(user)}
+                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -178,11 +193,10 @@ export const AdminPanel = () => {
           </Card>
         )}
 
-        {/* Utilisateurs approuvés */}
         {approvedUsers.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardHeader>
-              <CardTitle className="text-xl text-green-500 flex items-center gap-2">
+              <CardTitle className="text-xl text-green-500 flex items-center gap-2 text-sharp">
                 <UserCheck className="h-5 w-5" />
                 Utilisateurs approuvés ({approvedUsers.length})
               </CardTitle>
@@ -202,7 +216,7 @@ export const AdminPanel = () => {
                 <TableBody>
                   {approvedUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-sharp">
                         {user.firstName} {user.lastName}
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -215,6 +229,14 @@ export const AdminPanel = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openUserDetails(user)}
+                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -245,7 +267,7 @@ export const AdminPanel = () => {
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-12 text-center">
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Aucun utilisateur</h3>
+              <h3 className="text-lg font-semibold mb-2 text-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
                 Aucune demande de création de compte n'a été reçue pour le moment.
               </p>
@@ -253,6 +275,16 @@ export const AdminPanel = () => {
           </Card>
         )}
       </div>
+
+      <UserDetailsModal
+        user={selectedUser}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onApprove={(userId) => updateUserStatus(userId, true)}
+        onReject={(userId) => deleteUser(userId)}
+        onRevoke={(userId) => updateUserStatus(userId, false)}
+        onDelete={(userId) => deleteUser(userId)}
+      />
     </div>
   );
 };
