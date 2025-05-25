@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
@@ -20,6 +21,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
     company: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
   const { toast } = useToast();
@@ -120,14 +122,23 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange('password')}
-                required
-                className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleInputChange('password')}
+                  required
+                  className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-bright-turquoise"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button
               type="submit"

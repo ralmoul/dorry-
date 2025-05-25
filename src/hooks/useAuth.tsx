@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User, AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 
 interface AuthContextType extends AuthState {
-  login: (data: LoginFormData) => Promise<boolean>;
+  login: (data: LoginFormData & { rememberMe?: boolean }) => Promise<boolean>;
   signup: (data: SignupFormData) => Promise<boolean>;
   logout: () => void;
 }
@@ -20,9 +20,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Vérifier si l'utilisateur est déjà connecté
     const savedUser = localStorage.getItem('dory_user');
-    if (savedUser) {
+    const sessionUser = sessionStorage.getItem('dory_user');
+    
+    const userToLoad = savedUser || sessionUser;
+    
+    if (userToLoad) {
       try {
-        const user = JSON.parse(savedUser);
+        const user = JSON.parse(userToLoad);
         setAuthState({
           user,
           isAuthenticated: true,
@@ -31,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error('Erreur lors du chargement des données utilisateur:', error);
         localStorage.removeItem('dory_user');
+        sessionStorage.removeItem('dory_user');
         setAuthState(prev => ({ ...prev, isLoading: false }));
       }
     } else {
@@ -38,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = async (data: LoginFormData): Promise<boolean> => {
+  const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     try {
       // Simuler une authentification
       const users = JSON.parse(localStorage.getItem('dory_users') || '[]');
@@ -51,7 +56,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isAuthenticated: true,
           isLoading: false,
         });
-        localStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+        
+        // Stocker selon la préférence de l'utilisateur
+        if (data.rememberMe) {
+          localStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+        } else {
+          sessionStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+        }
+        
         return true;
       }
       return false;
@@ -92,6 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isLoading: false,
     });
     localStorage.removeItem('dory_user');
+    sessionStorage.removeItem('dory_user');
   };
 
   return (
