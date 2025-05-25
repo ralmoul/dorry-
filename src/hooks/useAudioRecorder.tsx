@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 export const useAudioRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [recordingBlob, setRecordingBlob] = useState<Blob | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
@@ -29,6 +31,8 @@ export const useAudioRecorder = () => {
       
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
+      setRecordingBlob(null);
+      setShowConfirmation(false);
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -38,13 +42,20 @@ export const useAudioRecorder = () => {
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm;codecs=opus' });
-        await sendAudioToWebhook(audioBlob);
+        setRecordingBlob(audioBlob);
+        setShowConfirmation(true);
         
         // Arrêter le stream
         stream.getTracks().forEach(track => track.stop());
+        
+        toast({
+          title: "Enregistrement terminé",
+          description: "Choisissez si vous voulez envoyer ou recommencer",
+        });
       };
 
-      mediaRecorder.start(1000); // Collecter les données toutes les secondes
+      // Enregistrement continu sans limite de temps
+      mediaRecorder.start();
       setIsRecording(true);
       
       toast({
@@ -65,14 +76,27 @@ export const useAudioRecorder = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      setIsProcessing(true);
-      
-      toast({
-        title: "Enregistrement terminé",
-        description: "Transmission de votre message à l'intelligence automatisée...",
-      });
     }
-  }, [isRecording, toast]);
+  }, [isRecording]);
+
+  const confirmSend = useCallback(async () => {
+    if (recordingBlob) {
+      setShowConfirmation(false);
+      setIsProcessing(true);
+      await sendAudioToWebhook(recordingBlob);
+    }
+  }, [recordingBlob]);
+
+  const restartRecording = useCallback(() => {
+    setShowConfirmation(false);
+    setRecordingBlob(null);
+    startRecording();
+  }, [startRecording]);
+
+  const cancelRecording = useCallback(() => {
+    setShowConfirmation(false);
+    setRecordingBlob(null);
+  }, []);
 
   const sendAudioToWebhook = async (audioBlob: Blob) => {
     console.log('Début de l\'envoi vers le webhook:', WEBHOOK_URL);
@@ -92,9 +116,8 @@ export const useAudioRecorder = () => {
         timestamp: new Date().toISOString()
       });
 
-      // Tentative avec timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 secondes pour les longs enregistrements
 
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
@@ -144,7 +167,6 @@ export const useAudioRecorder = () => {
         variant: "destructive",
       });
 
-      // Essayer de sauvegarder localement en cas d'échec
       try {
         const audioUrl = URL.createObjectURL(audioBlob);
         console.log('Audio sauvegardé localement. URL:', audioUrl);
@@ -157,13 +179,18 @@ export const useAudioRecorder = () => {
       }
     } finally {
       setIsProcessing(false);
+      setRecordingBlob(null);
     }
   };
 
   return {
     isRecording,
     isProcessing,
+    showConfirmation,
     startRecording,
     stopRecording,
+    confirmSend,
+    restartRecording,
+    cancelRecording,
   };
 };
