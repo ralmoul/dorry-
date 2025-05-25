@@ -38,7 +38,7 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
             onClick={onOpenSettings}
             className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10"
           >
-            Paramètres
+            ⚙️
           </Button>
           <Button
             variant="ghost"
@@ -66,27 +66,14 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
           </p>
         </div>
 
-        {/* Visualiseur IA */}
+        {/* Visualiseur IA avec bouton intégré */}
         <div className="mb-12">
-          <AIVisualizer isRecording={isRecording} />
+          <AIVisualizer 
+            isRecording={isRecording} 
+            onRecordingToggle={handleRecordingToggle}
+            isProcessing={isProcessing}
+          />
         </div>
-
-        {/* Bouton d'enregistrement */}
-        <Button
-          onClick={handleRecordingToggle}
-          disabled={isProcessing}
-          className={`
-            w-24 h-24 rounded-full text-2xl font-bold transition-all duration-300
-            ${isRecording 
-              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 animate-glow' 
-              : 'bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80'
-            }
-            ${isProcessing ? 'opacity-50' : ''}
-            text-dark-navy shadow-lg hover:shadow-xl transform hover:scale-105
-          `}
-        >
-          {isRecording ? '⏹' : isProcessing ? '⟳' : '🎤'}
-        </Button>
 
         <p className="mt-4 text-sm text-muted-foreground text-center">
           {isRecording 

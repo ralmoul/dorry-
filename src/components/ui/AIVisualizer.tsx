@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 interface AIVisualizerProps {
   isRecording: boolean;
   className?: string;
+  onRecordingToggle: () => void;
+  isProcessing: boolean;
 }
 
-export const AIVisualizer = ({ isRecording, className = '' }: AIVisualizerProps) => {
+export const AIVisualizer = ({ isRecording, className = '', onRecordingToggle, isProcessing }: AIVisualizerProps) => {
   const [waves, setWaves] = useState<number[]>([]);
 
   useEffect(() => {
@@ -30,7 +32,16 @@ export const AIVisualizer = ({ isRecording, className = '' }: AIVisualizerProps)
         <div className="relative">
           <div className="w-32 h-32 rounded-full bg-gradient-to-r from-bright-turquoise/20 to-electric-blue/20 animate-pulse-ai"></div>
           <div className="absolute inset-4 rounded-full bg-gradient-to-r from-bright-turquoise/40 to-electric-blue/40 animate-pulse-ai"></div>
-          <div className="absolute inset-8 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-glow"></div>
+          <div 
+            className="absolute inset-8 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-glow cursor-pointer flex items-center justify-center text-2xl font-bold text-dark-navy transition-all duration-300 hover:scale-105"
+            onClick={onRecordingToggle}
+            style={{ 
+              opacity: isProcessing ? 0.5 : 1,
+              pointerEvents: isProcessing ? 'none' : 'auto'
+            }}
+          >
+            {isProcessing ? '⟳' : '🎤'}
+          </div>
         </div>
       </div>
     );
@@ -61,8 +72,13 @@ export const AIVisualizer = ({ isRecording, className = '' }: AIVisualizerProps)
           </div>
         </div>
         
-        {/* Centre lumineux */}
-        <div className="absolute inset-8 w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-glow"></div>
+        {/* Centre lumineux avec bouton intégré */}
+        <div 
+          className="absolute inset-8 w-16 h-16 rounded-full bg-gradient-to-r from-red-500 to-red-600 animate-glow cursor-pointer flex items-center justify-center text-2xl font-bold text-white transition-all duration-300 hover:scale-105"
+          onClick={onRecordingToggle}
+        >
+          ⏹
+        </div>
       </div>
     </div>
   );
