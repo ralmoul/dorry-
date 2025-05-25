@@ -21,9 +21,9 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
   };
 
   return (
-    <div className="min-h-screen gradient-bg flex flex-col">
+    <div className="min-h-screen gradient-bg flex flex-col relative">
       {/* Header */}
-      <div className="flex justify-between items-center p-6">
+      <div className="flex justify-between items-center p-6 relative z-10">
         <div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             Dory
@@ -51,8 +51,9 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
       </div>
 
       {/* Zone centrale */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="text-center mb-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
+        {/* Titre et description */}
+        <div className="text-center mb-8 relative z-10">
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             {isRecording ? 'Je vous écoute...' : 'Votre assistant vocal intelligent vous écoute'}
           </h2>
@@ -66,8 +67,8 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
           </p>
         </div>
 
-        {/* Visualiseur IA avec bouton intégré */}
-        <div className="mb-12">
+        {/* Visualiseur IA - Zone isolée pour éviter les superpositions */}
+        <div className="relative z-20 mb-8">
           <AIVisualizer 
             isRecording={isRecording} 
             onRecordingToggle={handleRecordingToggle}
@@ -75,18 +76,21 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
           />
         </div>
 
-        <p className="mt-4 text-sm text-muted-foreground text-center">
-          {isRecording 
-            ? 'Appuyez pour arrêter l\'enregistrement' 
-            : isProcessing
-              ? 'Traitement en cours...'
-              : 'Appuyez pour commencer l\'enregistrement'
-          }
-        </p>
+        {/* Instructions - Positionnées sous le visualiseur */}
+        <div className="text-center relative z-10">
+          <p className="text-sm text-muted-foreground">
+            {isRecording 
+              ? 'Appuyez pour arrêter l\'enregistrement' 
+              : isProcessing
+                ? 'Traitement en cours...'
+                : 'Appuyez pour commencer l\'enregistrement'
+            }
+          </p>
+        </div>
       </div>
 
       {/* Footer */}
-      <div className="p-6 text-center">
+      <div className="p-6 text-center relative z-10">
         <p className="text-xs text-muted-foreground">
           L'enregistrement continue même si votre téléphone se verrouille
         </p>
