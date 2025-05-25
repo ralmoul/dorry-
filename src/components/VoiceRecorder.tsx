@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
@@ -8,10 +7,12 @@ import { Zap } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
+  onOpenUpcomingFeatures: () => void;
 }
 
 export const VoiceRecorder = ({
-  onOpenSettings
+  onOpenSettings,
+  onOpenUpcomingFeatures
 }: VoiceRecorderProps) => {
   const {
     isRecording,
@@ -46,6 +47,9 @@ export const VoiceRecorder = ({
           </p>
         </div>
         <div className="flex gap-2 sm:gap-3">
+          <Button variant="ghost" size="sm" onClick={onOpenUpcomingFeatures} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
+            🔮
+          </Button>
           <Button variant="ghost" size="sm" onClick={onOpenSettings} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
             ⚙️
           </Button>
