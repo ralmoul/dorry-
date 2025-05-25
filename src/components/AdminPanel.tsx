@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Users, UserCheck, Clock } from 'lucide-react';
+import { Check, X, Users, UserCheck, Clock, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface PendingUser {
@@ -16,6 +16,7 @@ interface PendingUser {
   company: string;
   isApproved: boolean;
   createdAt: string;
+  password?: string;
 }
 
 export const AdminPanel = () => {
@@ -47,6 +48,18 @@ export const AdminPanel = () => {
     });
   };
 
+  const deleteUser = (userId: string) => {
+    const updatedUsers = users.filter(user => user.id !== userId);
+    localStorage.setItem('dory_users', JSON.stringify(updatedUsers));
+    setUsers(updatedUsers);
+    
+    toast({
+      title: "Utilisateur supprimé",
+      description: "Le compte a été supprimé définitivement.",
+      variant: "destructive",
+    });
+  };
+
   const pendingUsers = users.filter(user => !user.isApproved);
   const approvedUsers = users.filter(user => user.isApproved);
 
@@ -55,7 +68,7 @@ export const AdminPanel = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
+            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <Users className="h-8 w-8 text-bright-turquoise" />
               Administration Dory
             </CardTitle>
@@ -72,7 +85,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Demandes en attente</p>
-                  <p className="text-2xl font-bold text-bright-turquoise">{pendingUsers.length}</p>
+                  <p className="text-2xl font-semibold text-bright-turquoise">{pendingUsers.length}</p>
                 </div>
                 <Clock className="h-8 w-8 text-bright-turquoise/60" />
               </div>
@@ -84,7 +97,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Utilisateurs approuvés</p>
-                  <p className="text-2xl font-bold text-green-500">{approvedUsers.length}</p>
+                  <p className="text-2xl font-semibold text-green-500">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
               </div>
@@ -96,7 +109,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total utilisateurs</p>
-                  <p className="text-2xl font-bold">{users.length}</p>
+                  <p className="text-2xl font-semibold">{users.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -150,10 +163,10 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, false)}
+                            onClick={() => deleteUser(user.id)}
                             className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
                           >
-                            <X className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -201,14 +214,24 @@ export const AdminPanel = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateUserStatus(user.id, false)}
-                          className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
-                        >
-                          Révoquer
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateUserStatus(user.id, false)}
+                            className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
+                          >
+                            Révoquer
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteUser(user.id)}
+                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

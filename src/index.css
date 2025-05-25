@@ -54,6 +54,37 @@
   body {
     @apply bg-dark-navy text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Améliorer la netteté des textes en gras et blancs */
+  .font-bold,
+  .font-semibold,
+  strong,
+  b {
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.025em;
+  }
+
+  /* Spécifiquement pour les titres et textes importants */
+  h1, h2, h3, h4, h5, h6 {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.025em;
+  }
+
+  /* Améliorer le rendu des textes avec dégradés */
+  .bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -71,5 +102,12 @@
   
   .ai-glow {
     box-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
+  }
+
+  /* Classe utilitaire pour les textes nets */
+  .text-sharp {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
