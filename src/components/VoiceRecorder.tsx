@@ -1,9 +1,10 @@
+
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useAuth } from '@/hooks/useAuth';
-import { Zap } from 'lucide-react';
+import { Zap, LogOut } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
@@ -53,8 +54,8 @@ export const VoiceRecorder = ({
           <Button variant="ghost" size="sm" onClick={onOpenSettings} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
             ⚙️
           </Button>
-          <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-foreground hover:bg-foreground/10 text-xs sm:text-sm px-2 sm:px-3">
-            Déconnexion
+          <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-foreground hover:bg-foreground/10 p-2">
+            <LogOut className="w-4 h-4" />
           </Button>
         </div>
       </div>
