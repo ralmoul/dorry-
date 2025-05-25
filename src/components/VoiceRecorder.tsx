@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
@@ -101,6 +100,10 @@ export const VoiceRecorder = ({
                   <li className="flex items-start gap-2 text-muted-foreground">
                     <span className="text-bright-turquoise mt-1">•</span>
                     <span>Identifie si la personne est en QPV</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-muted-foreground">
+                    <span className="text-bright-turquoise mt-1">•</span>
+                    <span>Vous envoie directement le compte rendu dans votre boite mail</span>
                   </li>
                 </ul>
               </div>
