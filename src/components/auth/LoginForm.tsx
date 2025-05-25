@@ -45,30 +45,30 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-bg p-4">
-      <Card className="w-full max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-        <CardHeader className="text-center">
-          <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-3xl">
+      <Card className="w-full max-w-sm sm:max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+        <CardHeader className="text-center p-4 sm:p-6">
+          <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-2xl sm:text-3xl">
             Dory
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
+          <CardDescription className="text-muted-foreground text-sm sm:text-base">
             Votre assistante vocal intelligent vous attend
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="email" className="text-sm">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise"
+                className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-10 sm:h-11"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="password" className="text-sm">Mot de passe</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -76,7 +76,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10"
+                  className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11"
                 />
                 <button
                   type="button"
@@ -94,23 +94,23 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 className="border-bright-turquoise/50 data-[state=checked]:bg-bright-turquoise data-[state=checked]:border-bright-turquoise"
               />
-              <Label htmlFor="rememberMe" className="text-sm text-muted-foreground">
+              <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-muted-foreground">
                 Rester connecté
               </Label>
             </div>
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold"
+              className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base"
             >
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </form>
-          <div className="mt-4 text-center">
+          <div className="mt-3 sm:mt-4 text-center">
             <button
               type="button"
               onClick={onSwitchToSignup}
-              className="text-bright-turquoise hover:text-bright-turquoise/80 text-sm"
+              className="text-bright-turquoise hover:text-bright-turquoise/80 text-xs sm:text-sm"
             >
               Créer un compte
             </button>
