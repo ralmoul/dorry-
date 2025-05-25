@@ -1,13 +1,41 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from 'react';
+import { VoiceRecorder } from '@/components/VoiceRecorder';
+import { Settings } from '@/components/Settings';
+import { AuthScreen } from '@/components/AuthScreen';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+  const [currentScreen, setCurrentScreen] = useState<'recorder' | 'settings'>('recorder');
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen gradient-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-pulse-ai mx-auto mb-4"></div>
+          <h2 className="text-xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+            Dory
+          </h2>
+          <p className="text-muted-foreground">Initialisation...</p>
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthScreen />;
+  }
+
+  return (
+    <>
+      {currentScreen === 'recorder' && (
+        <VoiceRecorder onOpenSettings={() => setCurrentScreen('settings')} />
+      )}
+      {currentScreen === 'settings' && (
+        <Settings onBack={() => setCurrentScreen('recorder')} />
+      )}
+    </>
   );
 };
 

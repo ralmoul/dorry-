@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,23 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Palette futuriste Dory
+				'dark-navy': '#0a0a0f',
+				'bright-turquoise': '#00d4aa',
+				'carbon-black': '#1a1a1a',
+				'electric-blue': '#0066ff',
+				'holographic': {
+					'50': '#f0f9ff',
+					'100': '#e0f2fe',
+					'200': '#bae6fd',
+					'300': '#7dd3fc',
+					'400': '#38bdf8',
+					'500': '#0ea5e9',
+					'600': '#0284c7',
+					'700': '#0369a1',
+					'800': '#075985',
+					'900': '#0c4a6e'
 				}
 			},
 			borderRadius: {
@@ -84,11 +102,37 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-ai': {
+					'0%, 100%': { 
+						transform: 'scale(1)',
+						opacity: '1'
+					},
+					'50%': { 
+						transform: 'scale(1.1)',
+						opacity: '0.8'
+					}
+				},
+				'wave': {
+					'0%': { transform: 'scaleY(1)' },
+					'50%': { transform: 'scaleY(1.5)' },
+					'100%': { transform: 'scaleY(1)' }
+				},
+				'glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 20px rgba(0, 212, 170, 0.5)'
+					},
+					'50%': { 
+						boxShadow: '0 0 40px rgba(0, 212, 170, 0.8)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-ai': 'pulse-ai 2s ease-in-out infinite',
+				'wave': 'wave 1s ease-in-out infinite',
+				'glow': 'glow 2s ease-in-out infinite'
 			}
 		}
 	},
