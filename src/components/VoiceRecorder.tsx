@@ -78,7 +78,7 @@ export const VoiceRecorder = ({ onOpenSettings }: VoiceRecorderProps) => {
               </h2>
               <p className="text-muted-foreground text-lg">
                 {isRecording 
-                  ? 'Exprimez vos idées librement - durée illimitée' 
+                  ? 'Exprimez vos idées librement' 
                   : isProcessing 
                     ? 'Transmission en cours...'
                     : 'Vos idées sont automatiquement transmises à votre intelligence automatisée'
