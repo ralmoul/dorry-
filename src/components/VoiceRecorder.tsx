@@ -95,10 +95,10 @@ export const VoiceRecorder = ({
 
             {/* Bloc explicatif IA */}
             <div className="relative z-10 max-w-sm sm:max-w-md w-full px-4">
-              <div className="bg-gradient-to-br from-bright-turquoise/10 to-electric-blue/10 backdrop-blur-sm border border-bright-turquoise/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl">
+              <div className="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-dark-navy" />
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
                     IA & automatisation
