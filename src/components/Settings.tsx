@@ -2,9 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
 
 interface SettingsProps {
   onBack: () => void;
@@ -12,7 +10,6 @@ interface SettingsProps {
 
 export const Settings = ({ onBack }: SettingsProps) => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen gradient-bg p-6">
@@ -31,28 +28,8 @@ export const Settings = ({ onBack }: SettingsProps) => {
       </div>
 
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Paramètres d'affichage */}
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-bright-turquoise">Affichage</CardTitle>
-            <CardDescription>Personnalisez l'apparence de l'application</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Mode sombre</p>
-                <p className="text-sm text-muted-foreground">Basculer entre le mode clair et sombre</p>
-              </div>
-              <Switch
-                checked={theme === 'dark'}
-                onCheckedChange={toggleTheme}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Informations du profil */}
-        <Card className="glass-card">
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
             <CardTitle className="text-bright-turquoise">Profil utilisateur</CardTitle>
             <CardDescription>Vos informations personnelles</CardDescription>
@@ -88,7 +65,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
         </Card>
 
         {/* Configuration technique */}
-        <Card className="glass-card">
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
             <CardTitle className="text-bright-turquoise">Configuration</CardTitle>
             <CardDescription>Paramètres techniques de l'application</CardDescription>
@@ -119,7 +96,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
         </Card>
 
         {/* Actions */}
-        <Card className="glass-card">
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
             <CardTitle className="text-bright-turquoise">Actions</CardTitle>
             <CardDescription>Gérer votre session</CardDescription>
