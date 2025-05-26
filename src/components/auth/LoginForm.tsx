@@ -91,18 +91,18 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
         <CardContent className="p-4 sm:p-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="email" className="text-sm">Email</Label>
+              <Label htmlFor="email" className="text-sm text-white">Email</Label>
               <Input 
                 id="email" 
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
-                className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-10 sm:h-11" 
+                className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-10 sm:h-11 text-white placeholder:text-gray-400" 
               />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="password" className="text-sm">Mot de passe</Label>
+              <Label htmlFor="password" className="text-sm text-white">Mot de passe</Label>
               <div className="relative">
                 <Input 
                   id="password" 
@@ -110,7 +110,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                   required 
-                  className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11" 
+                  className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11 text-white placeholder:text-gray-400" 
                 />
                 <button 
                   type="button" 
