@@ -157,47 +157,76 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Check if email already exists - improved query
-      console.log('🔍 [SIGNUP] Checking if email exists:', data.email);
+      // Clean and prepare email
+      const cleanEmail = data.email.toLowerCase().trim();
+      console.log('🔍 [SIGNUP] Checking if email exists:', cleanEmail);
+      
+      // First, let's check what's in the database
+      console.log('📊 [SIGNUP] Querying all users to debug...');
+      const { data: allUsers, error: debugError } = await supabase
+        .from('users')
+        .select('id, email, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (debugError) {
+        console.error('⚠️ [SIGNUP] Debug query error:', debugError);
+      } else {
+        console.log('📊 [SIGNUP] Recent users in database:', allUsers);
+      }
+      
+      // Now check for the specific email
       const { data: existingUsers, error: checkError } = await supabase
         .from('users')
-        .select('id, email')
-        .eq('email', data.email.toLowerCase().trim())
-        .limit(1);
+        .select('id, email, created_at')
+        .eq('email', cleanEmail);
       
       if (checkError) {
         console.error('⚠️ [SIGNUP] Error checking existing email:', checkError);
+        console.error('⚠️ [SIGNUP] Full error details:', JSON.stringify(checkError, null, 2));
         return false;
       }
       
-      console.log('📊 [SIGNUP] Existing users found:', existingUsers?.length || 0);
+      console.log('📊 [SIGNUP] Query result for email check:', existingUsers);
+      console.log('📊 [SIGNUP] Number of existing users found:', existingUsers?.length || 0);
       
       if (existingUsers && existingUsers.length > 0) {
-        console.error('⚠️ [SIGNUP] Email already in use:', data.email);
+        console.error('⚠️ [SIGNUP] Email already exists in database!');
+        console.error('⚠️ [SIGNUP] Existing user data:', existingUsers[0]);
+        console.error('⚠️ [SIGNUP] Searched email:', cleanEmail);
         return false;
       }
       
       console.log('✅ [SIGNUP] Email is available, proceeding with account creation');
       
-      // Create new user (storing password as plain text for now - this should be updated)
+      // Create new user
+      const newUserData = {
+        first_name: data.firstName.trim(),
+        last_name: data.lastName.trim(),
+        email: cleanEmail,
+        phone: data.phone.trim(),
+        company: data.company.trim(),
+        password_hash: data.password, // Temporary: storing as plain text
+        is_approved: false
+      };
+      
+      console.log('📝 [SIGNUP] Creating user with data:', { ...newUserData, password_hash: '[HIDDEN]' });
+      
       const { data: newUser, error: insertError } = await supabase
         .from('users')
-        .insert([
-          {
-            first_name: data.firstName.trim(),
-            last_name: data.lastName.trim(),
-            email: data.email.toLowerCase().trim(),
-            phone: data.phone.trim(),
-            company: data.company.trim(),
-            password_hash: data.password, // Temporary: storing as plain text
-            is_approved: false
-          }
-        ])
+        .insert([newUserData])
         .select()
         .single();
       
       if (insertError) {
         console.error('💥 [SIGNUP] Error creating user:', insertError);
+        console.error('💥 [SIGNUP] Full insert error details:', JSON.stringify(insertError, null, 2));
+        
+        // Check if it's a unique constraint violation
+        if (insertError.code === '23505') {
+          console.error('💥 [SIGNUP] Unique constraint violation - email already exists!');
+        }
+        
         return false;
       }
       
@@ -205,6 +234,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return true;
     } catch (error) {
       console.error('💥 [SIGNUP] Error during signup:', error);
+      console.error('💥 [SIGNUP] Full error details:', JSON.stringify(error, null, 2));
       return false;
     }
   };
