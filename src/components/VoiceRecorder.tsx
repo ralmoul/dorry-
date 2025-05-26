@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
@@ -45,7 +46,7 @@ export const VoiceRecorder = ({
       <div className="flex justify-between items-center p-4 sm:p-6 relative z-10">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
-            Dory
+            Dorry
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground text-sharp">
             Bonjour, {user?.firstName}
@@ -119,7 +120,7 @@ export const VoiceRecorder = ({
                 </div>
                 
                 <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed text-sharp">
-                  Dory reçoit vos audios et :
+                  Dorry reçoit vos audios et :
                 </p>
                 
                 <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">

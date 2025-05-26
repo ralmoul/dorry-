@@ -82,7 +82,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       <Card className="w-full max-w-sm sm:max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
         <CardHeader className="text-center p-4 sm:p-6">
           <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-2xl sm:text-3xl">
-            Dory
+            Dorry
           </CardTitle>
           <CardDescription className="text-muted-foreground text-sm sm:text-base">
             Votre assistante vocal intelligent vous attend

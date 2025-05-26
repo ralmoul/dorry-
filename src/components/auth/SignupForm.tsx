@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,7 +131,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       <Card className="w-full max-w-sm sm:max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
         <CardHeader className="text-center p-4 sm:p-6">
           <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
-            Rejoindre Dory
+            Rejoindre Dorry
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">

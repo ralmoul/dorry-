@@ -17,7 +17,7 @@ const Index = () => {
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-pulse-ai mx-auto mb-4"></div>
           <h2 className="text-xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
-            Dory
+            Dorry
           </h2>
           <p className="text-muted-foreground">Initialisation...</p>
         </div>

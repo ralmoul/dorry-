@@ -48,7 +48,7 @@ const Landing = () => {
             <span className="text-white font-bold text-lg">D</span>
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
-            Dory
+            Dorry
           </h1>
         </div>
         
@@ -67,7 +67,7 @@ const Landing = () => {
         <div className="mb-8">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6 leading-tight">
             <TypewriterText 
-              text="Dory, l'assistante IA qui révolutionne l'accompagnement de projet" 
+              text="Dorry, l'assistante IA qui révolutionne l'accompagnement de projet" 
               delay={50}
             />
           </h1>
@@ -87,7 +87,7 @@ const Landing = () => {
 
         <div className="max-w-4xl mx-auto text-lg text-gray-600 mb-8">
           <p className="animate-fade-in">
-            Dory vous accompagne lors de chaque réunion ou entretien, capte chaque moment, analyse, détecte les informations essentielles et livre un compte rendu précis, sans que vous ayez à lever le petit doigt. Plus qu'un assistant, Dory est votre copilote IA pour des suivis irréprochables, même quand vous n'avez pas le temps, même quand vous décrochez.
+            Dorry vous accompagne lors de chaque réunion ou entretien, capte chaque moment, analyse, détecte les informations essentielles et livre un compte rendu précis, sans que vous ayez à lever le petit doigt. Plus qu'un assistant, Dorry est votre copilote IA pour des suivis irréprochables, même quand vous n'avez pas le temps, même quand vous décrochez.
           </p>
         </div>
 
@@ -104,7 +104,7 @@ const Landing = () => {
       <section className="py-20 px-6 bg-white/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">
-            Comment Dory vous simplifie la vie ?
+            Comment Dorry vous simplifie la vie ?
           </h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -113,7 +113,7 @@ const Landing = () => {
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
                   <Mic className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Parlez, Dory écoute</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Parlez, Dorry écoute</h3>
                 <p className="text-gray-600">Enregistrez vos réunions ou entretiens, même en mains libres !</p>
               </CardContent>
             </Card>
@@ -124,7 +124,7 @@ const Landing = () => {
                   <Brain className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Analyse instantanée par IA</h3>
-                <p className="text-gray-600">Dory comprend chaque échange, détecte les points clés, les adresses, les RDV pris…</p>
+                <p className="text-gray-600">Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris…</p>
               </CardContent>
             </Card>
 
@@ -151,11 +151,11 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Pourquoi choisir Dory */}
+      {/* Pourquoi choisir Dorry */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">
-            Pourquoi choisir Dory ?
+            Pourquoi choisir Dorry ?
           </h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -165,7 +165,7 @@ const Landing = () => {
                   <Clock className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Gagnez un temps précieux</h3>
-                <p className="text-gray-600">Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dory s'occupe du reste.</p>
+                <p className="text-gray-600">Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste.</p>
               </CardContent>
             </Card>
 
@@ -185,7 +185,7 @@ const Landing = () => {
                   <Zap className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Analyse IA intelligente</h3>
-                <p className="text-gray-600">Dory reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.</p>
+                <p className="text-gray-600">Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.</p>
               </CardContent>
             </Card>
 
@@ -226,7 +226,7 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-lg font-bold mb-4">Dory</h3>
+              <h3 className="text-lg font-bold mb-4">Dorry</h3>
               <p className="text-gray-300">L'assistante IA qui révolutionne l'accompagnement de projet</p>
             </div>
             <div>
@@ -250,7 +250,7 @@ const Landing = () => {
           </div>
           
           <div className="border-t border-gray-700 pt-8 text-center text-gray-300">
-            <p>Dory est une solution créée par Synkros.AI</p>
+            <p>Dorry est une solution créée par Synkros.AI</p>
           </div>
         </div>
       </footer>
