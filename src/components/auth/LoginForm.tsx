@@ -44,7 +44,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-sm sm:max-w-md bg-white/80 backdrop-blur-lg border-bright-turquoise/20 shadow-xl">
         <CardHeader className="text-center p-4 sm:p-6">
           <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-2xl sm:text-3xl">
