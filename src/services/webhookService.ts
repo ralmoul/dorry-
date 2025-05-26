@@ -1,7 +1,6 @@
-
 import { User } from '@/types/auth';
 
-const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
+const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2';
 
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
   console.log('🚀 [WEBHOOK] Début de l\'envoi vers:', WEBHOOK_URL);
