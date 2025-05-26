@@ -138,30 +138,30 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div className="grid grid-cols-2 gap-2 sm:gap-4">
               <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="firstName" className="text-sm">Prénom *</Label>
-                <Input id="firstName" value={formData.firstName} onChange={handleInputChange('firstName')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm" />
+                <Label htmlFor="firstName" className="text-sm text-white">Prénom *</Label>
+                <Input id="firstName" value={formData.firstName} onChange={handleInputChange('firstName')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
               </div>
               <div className="space-y-1.5 sm:space-y-2">
-                <Label htmlFor="lastName" className="text-sm">Nom *</Label>
-                <Input id="lastName" value={formData.lastName} onChange={handleInputChange('lastName')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm" />
+                <Label htmlFor="lastName" className="text-sm text-white">Nom *</Label>
+                <Input id="lastName" value={formData.lastName} onChange={handleInputChange('lastName')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
               </div>
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="email" className="text-sm">Email *</Label>
-              <Input id="email" type="email" value={formData.email} onChange={handleInputChange('email')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm" />
+              <Label htmlFor="email" className="text-sm text-white">Email *</Label>
+              <Input id="email" type="email" value={formData.email} onChange={handleInputChange('email')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="phone" className="text-sm">Téléphone *</Label>
-              <Input id="phone" type="tel" value={formData.phone} onChange={handleInputChange('phone')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm" />
+              <Label htmlFor="phone" className="text-sm text-white">Téléphone *</Label>
+              <Input id="phone" type="tel" value={formData.phone} onChange={handleInputChange('phone')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="company" className="text-sm">Entreprise *</Label>
-              <Input id="company" value={formData.company} onChange={handleInputChange('company')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm" />
+              <Label htmlFor="company" className="text-sm text-white">Entreprise *</Label>
+              <Input id="company" value={formData.company} onChange={handleInputChange('company')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="password" className="text-sm">Mot de passe * (min. 6 caractères)</Label>
+              <Label htmlFor="password" className="text-sm text-white">Mot de passe * (min. 6 caractères)</Label>
               <div className="relative">
-                <Input id="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleInputChange('password')} required minLength={6} className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-9 sm:h-11 text-sm" />
+                <Input id="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleInputChange('password')} required minLength={6} className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-bright-turquoise">
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
