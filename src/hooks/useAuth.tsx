@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -156,32 +157,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Check if email already exists
+      // Check if email already exists - improved query
+      console.log('🔍 [SIGNUP] Checking if email exists:', data.email);
       const { data: existingUsers, error: checkError } = await supabase
         .from('users')
-        .select('email')
-        .eq('email', data.email);
+        .select('id, email')
+        .eq('email', data.email.toLowerCase().trim())
+        .limit(1);
       
       if (checkError) {
         console.error('⚠️ [SIGNUP] Error checking existing email:', checkError);
         return false;
       }
       
+      console.log('📊 [SIGNUP] Existing users found:', existingUsers?.length || 0);
+      
       if (existingUsers && existingUsers.length > 0) {
         console.error('⚠️ [SIGNUP] Email already in use:', data.email);
         return false;
       }
+      
+      console.log('✅ [SIGNUP] Email is available, proceeding with account creation');
       
       // Create new user (storing password as plain text for now - this should be updated)
       const { data: newUser, error: insertError } = await supabase
         .from('users')
         .insert([
           {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            email: data.email,
-            phone: data.phone,
-            company: data.company,
+            first_name: data.firstName.trim(),
+            last_name: data.lastName.trim(),
+            email: data.email.toLowerCase().trim(),
+            phone: data.phone.trim(),
+            company: data.company.trim(),
             password_hash: data.password, // Temporary: storing as plain text
             is_approved: false
           }
