@@ -71,8 +71,8 @@ const Support = () => {
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">Puis-je essayer Dorry gratuitement ?</h3>
-              <p className="text-gray-600">Oui ! Dorry propose une période d'essai gratuite vous permettant de tester toutes les fonctionnalités pendant 14 jours.</p>
+              
+              
             </div>
             
             <div>
@@ -86,9 +86,7 @@ const Support = () => {
           <CardContent className="p-8 text-center">
             <MessageCircle className="w-12 h-12 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-4">Besoin d'une démonstration personnalisée ?</h3>
-            <p className="mb-6 opacity-90">
-              Découvrez comment Dory peut transformer votre façon d'accompagner les porteurs de projet.
-            </p>
+            <p className="mb-6 opacity-90">Découvrez comment Dorry peut révolutionner votre accompagnement, quel que soit votre public.</p>
             <Button className="bg-white text-bright-turquoise hover:bg-gray-100">
               Demander une démo
             </Button>
