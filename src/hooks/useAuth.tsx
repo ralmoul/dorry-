@@ -29,11 +29,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const user = JSON.parse(userToLoad);
         console.log('AuthProvider: User found in storage', user);
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        
+        // Verify the user is still valid in the database
+        supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .eq('is_approved', true)
+          .single()
+          .then(({ data, error }) => {
+            if (error || !data) {
+              console.log('AuthProvider: User no longer valid, clearing storage');
+              localStorage.removeItem('dory_user');
+              sessionStorage.removeItem('dory_user');
+              setAuthState({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+              });
+            } else {
+              console.log('AuthProvider: User verified, maintaining session');
+              setAuthState({
+                user,
+                isAuthenticated: true,
+                isLoading: false,
+              });
+            }
+          });
       } catch (error) {
         console.error('Error loading user data:', error);
         localStorage.removeItem('dory_user');
@@ -100,11 +122,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading: false,
       });
       
+      // Clear both storages first to avoid conflicts
+      localStorage.removeItem('dory_user');
+      sessionStorage.removeItem('dory_user');
+      
       // Store according to user preference
       if (data.rememberMe) {
+        console.log('💾 Stockage persistant activé (localStorage)');
         localStorage.setItem('dory_user', JSON.stringify(user));
+        // Also store a flag to remember the preference
+        localStorage.setItem('dory_remember_me', 'true');
       } else {
+        console.log('🔄 Stockage session uniquement (sessionStorage)');
         sessionStorage.setItem('dory_user', JSON.stringify(user));
+        localStorage.setItem('dory_remember_me', 'false');
       }
       
       return true;
@@ -180,6 +211,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     localStorage.removeItem('dory_user');
     sessionStorage.removeItem('dory_user');
+    localStorage.removeItem('dory_remember_me');
   };
 
   console.log('AuthProvider: Current auth state', authState);
