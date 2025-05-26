@@ -2,7 +2,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
+import { Moon, Sun } from 'lucide-react';
 
 interface SettingsProps {
   onBack: () => void;
@@ -10,6 +14,7 @@ interface SettingsProps {
 
 export const Settings = ({ onBack }: SettingsProps) => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen gradient-bg p-6">
@@ -28,6 +33,32 @@ export const Settings = ({ onBack }: SettingsProps) => {
       </div>
 
       <div className="max-w-2xl mx-auto space-y-6">
+        {/* Préférences d'affichage */}
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+          <CardHeader>
+            <CardTitle className="text-bright-turquoise">Préférences d'affichage</CardTitle>
+            <CardDescription>Personnalisez l'apparence de l'application</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                {theme === 'light' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                <Label htmlFor="theme-toggle" className="text-sm font-medium">
+                  Mode sombre
+                </Label>
+              </div>
+              <Switch
+                id="theme-toggle"
+                checked={theme === 'dark'}
+                onCheckedChange={toggleTheme}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Basculez entre le mode clair et sombre selon vos préférences
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Informations du profil */}
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
