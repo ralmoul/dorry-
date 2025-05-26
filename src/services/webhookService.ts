@@ -1,7 +1,7 @@
 
 import { User } from '@/types/auth';
 
-const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2';
+const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
 
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
   console.log('🚀 [WEBHOOK] DÉBUT - URL utilisée:', WEBHOOK_URL);
@@ -10,10 +10,10 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
   console.log('🚀 [WEBHOOK] DÉBUT - Utilisateur:', user?.email || 'non connecté');
   
   // Vérification stricte de l'URL
-  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2') {
+  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2') {
     console.error('❌ [WEBHOOK] ERREUR CRITIQUE: URL incorrecte!');
     console.error('❌ [WEBHOOK] URL actuelle:', WEBHOOK_URL);
-    console.error('❌ [WEBHOOK] URL attendue: https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2');
+    console.error('❌ [WEBHOOK] URL attendue: https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2');
     throw new Error('URL webhook incorrecte');
   }
   
