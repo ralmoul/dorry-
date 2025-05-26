@@ -4,27 +4,46 @@ import { User } from '@/types/auth';
 const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2';
 
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
-  console.log('🚀 [WEBHOOK] URL DE TEST UTILISÉE:', WEBHOOK_URL);
-  console.log('🚀 [WEBHOOK] Début de l\'envoi vers:', WEBHOOK_URL);
-  console.log('📊 [WEBHOOK] Taille du fichier audio:', audioBlob.size, 'bytes');
-  console.log('🎵 [WEBHOOK] Type audio:', audioBlob.type);
-  console.log('👤 [WEBHOOK] Utilisateur:', user?.email || 'non connecté');
+  console.log('🚀 [WEBHOOK] DÉBUT - URL utilisée:', WEBHOOK_URL);
+  console.log('🚀 [WEBHOOK] DÉBUT - Taille audio:', audioBlob.size, 'bytes');
+  console.log('🚀 [WEBHOOK] DÉBUT - Type audio:', audioBlob.type);
+  console.log('🚀 [WEBHOOK] DÉBUT - Utilisateur:', user?.email || 'non connecté');
   
-  // Vérification que l'URL contient bien "webhook-test"
-  if (!WEBHOOK_URL.includes('webhook-test')) {
-    console.error('❌ [WEBHOOK] ERREUR: URL ne contient pas webhook-test!');
+  // Vérification stricte de l'URL
+  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2') {
+    console.error('❌ [WEBHOOK] ERREUR CRITIQUE: URL incorrecte!');
+    console.error('❌ [WEBHOOK] URL actuelle:', WEBHOOK_URL);
+    console.error('❌ [WEBHOOK] URL attendue: https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2');
     throw new Error('URL webhook incorrecte');
   }
+  
+  console.log('✅ [WEBHOOK] URL vérifiée et correcte');
+  
+  // Vérification de la taille du fichier
+  if (audioBlob.size === 0) {
+    console.error('❌ [WEBHOOK] ERREUR: Fichier audio vide!');
+    throw new Error('Fichier audio vide');
+  }
+  
+  if (audioBlob.size > 25 * 1024 * 1024) { // 25MB limit
+    console.error('❌ [WEBHOOK] ERREUR: Fichier trop volumineux:', audioBlob.size, 'bytes');
+    throw new Error('Fichier audio trop volumineux (max 25MB)');
+  }
+  
+  console.log('✅ [WEBHOOK] Taille du fichier validée');
   
   try {
     const formData = new FormData();
     
     // Créer un nom de fichier avec l'extension appropriée
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const isMP4 = audioBlob.type.includes('mp4');
     const extension = isMP4 ? 'mp4' : 'webm';
     const fileName = `recording_${user?.id || 'unknown'}_${Date.now()}.${extension}`;
     
+    console.log('📝 [WEBHOOK] Nom du fichier:', fileName);
+    
+    // Ajouter tous les champs au FormData
     formData.append('audio', audioBlob, fileName);
     formData.append('userId', user?.id || 'unknown');
     formData.append('userEmail', user?.email || 'unknown');
@@ -36,44 +55,47 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     formData.append('audioType', audioBlob.type);
     formData.append('audioFormat', extension);
 
-    console.log('📤 [WEBHOOK] URL FINALE UTILISÉE:', WEBHOOK_URL);
-    console.log('📤 [WEBHOOK] Données à envoyer:', {
-      fileName,
-      audioSize: audioBlob.size,
-      audioType: audioBlob.type,
-      audioFormat: extension,
-      userId: user?.id,
-      userEmail: user?.email,
-      userFirstName: user?.firstName,
-      userLastName: user?.lastName,
-      userCompany: user?.company,
-      timestamp
-    });
+    console.log('📦 [WEBHOOK] FormData préparé avec les champs:');
+    console.log('   - audio: fichier de', audioBlob.size, 'bytes');
+    console.log('   - userId:', user?.id || 'unknown');
+    console.log('   - userEmail:', user?.email || 'unknown');
+    console.log('   - userFirstName:', user?.firstName || 'unknown');
+    console.log('   - userLastName:', user?.lastName || 'unknown');
+    console.log('   - userCompany:', user?.company || 'unknown');
+    console.log('   - timestamp:', timestamp);
+    console.log('   - audioSize:', audioBlob.size.toString());
+    console.log('   - audioType:', audioBlob.type);
+    console.log('   - audioFormat:', extension);
 
-    console.log('🌐 [WEBHOOK] Envoi de la requête POST vers:', WEBHOOK_URL);
+    console.log('🌐 [WEBHOOK] ENVOI vers:', WEBHOOK_URL);
+    console.log('🌐 [WEBHOOK] Méthode: POST');
+    console.log('🌐 [WEBHOOK] Content-Type: multipart/form-data (automatique)');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      console.log('⏰ [WEBHOOK] Timeout atteint, annulation...');
+      console.log('⏰ [WEBHOOK] TIMEOUT après 30 secondes');
       controller.abort();
-    }, 60000); // 60 secondes
+    }, 30000); // 30 secondes
 
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       body: formData,
       signal: controller.signal,
-      // Pas de headers personnalisés pour FormData
     });
 
     clearTimeout(timeoutId);
 
-    console.log('📨 [WEBHOOK] Réponse reçue de:', WEBHOOK_URL);
-    console.log('📨 [WEBHOOK] Status:', response.status, response.statusText);
-    console.log('📨 [WEBHOOK] Headers:', Object.fromEntries(response.headers.entries()));
+    console.log('📨 [WEBHOOK] RÉPONSE reçue:');
+    console.log('   - Status:', response.status);
+    console.log('   - StatusText:', response.statusText);
+    console.log('   - Headers:', Object.fromEntries(response.headers.entries()));
+    console.log('   - URL finale:', response.url);
 
     if (response.ok) {
       let responseData;
       const contentType = response.headers.get('content-type');
+      
+      console.log('📋 [WEBHOOK] Type de contenu de la réponse:', contentType);
       
       try {
         if (contentType && contentType.includes('application/json')) {
@@ -88,13 +110,21 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
         responseData = 'Réponse reçue mais non parsable';
       }
       
-      console.log('✅ [WEBHOOK] Envoi réussi vers:', WEBHOOK_URL);
-      return { success: true, message: "Message transmis vers webhook-test" };
-    } else {
-      console.error('❌ [WEBHOOK] Erreur HTTP vers:', WEBHOOK_URL);
-      console.error('❌ [WEBHOOK] Status:', response.status, response.statusText);
+      console.log('✅ [WEBHOOK] SUCCÈS - Transmission réussie!');
+      console.log('✅ [WEBHOOK] Données envoyées vers N8N avec succès');
       
-      // Essayer de lire le corps de la réponse d'erreur
+      return { 
+        success: true, 
+        message: "Message vocal transmis avec succès vers N8N",
+        response: responseData,
+        url: WEBHOOK_URL
+      };
+    } else {
+      console.error('❌ [WEBHOOK] ERREUR HTTP:');
+      console.error('   - Status:', response.status);
+      console.error('   - StatusText:', response.statusText);
+      console.error('   - URL:', response.url);
+      
       let errorBody;
       try {
         errorBody = await response.text();
@@ -103,28 +133,29 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
         console.error('⚠️ [WEBHOOK] Impossible de lire le corps de l\'erreur');
       }
       
-      throw new Error(`Erreur HTTP: ${response.status} ${response.statusText}${errorBody ? ' - ' + errorBody : ''}`);
+      throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}${errorBody ? ' - ' + errorBody : ''}`);
     }
   } catch (error) {
-    console.error('💥 [WEBHOOK] Erreur détaillée lors de l\'envoi vers:', WEBHOOK_URL);
-    console.error('💥 [WEBHOOK] Erreur:', error);
+    console.error('💥 [WEBHOOK] ERREUR CRITIQUE:');
+    console.error('💥 [WEBHOOK] Type d\'erreur:', error?.constructor?.name);
+    console.error('💥 [WEBHOOK] Message:', error instanceof Error ? error.message : String(error));
+    console.error('💥 [WEBHOOK] Stack:', error instanceof Error ? error.stack : 'Pas de stack trace');
     
-    let errorMessage = "Impossible de transmettre le message.";
+    let errorMessage = "Transmission impossible vers N8N.";
     
     if (error instanceof Error) {
-      console.error('📝 [WEBHOOK] Message d\'erreur:', error.message);
-      console.error('🔍 [WEBHOOK] Stack trace:', error.stack);
-      
       if (error.name === 'AbortError') {
-        errorMessage = "Timeout: La transmission a pris trop de temps.";
+        errorMessage = "Timeout: La transmission vers N8N a pris trop de temps.";
+        console.error('⏰ [WEBHOOK] Timeout détecté');
       } else if (error.message.includes('Failed to fetch')) {
-        errorMessage = "Erreur de connexion. Vérifiez votre connexion internet.";
+        errorMessage = "Erreur de connexion vers N8N. Vérifiez votre connexion internet.";
+        console.error('🌐 [WEBHOOK] Erreur de fetch détectée');
       } else if (error.message.includes('NetworkError')) {
-        errorMessage = "Erreur réseau. Le serveur n'est peut-être pas accessible.";
-      } else if (error.message.includes('ERR_NETWORK')) {
-        errorMessage = "Erreur réseau. Le webhook n'est peut-être pas accessible.";
+        errorMessage = "Erreur réseau. Le serveur N8N n'est peut-être pas accessible.";
+        console.error('📡 [WEBHOOK] Erreur réseau détectée');
       } else {
-        errorMessage = `Erreur: ${error.message}`;
+        errorMessage = `Erreur N8N: ${error.message}`;
+        console.error('🔍 [WEBHOOK] Erreur spécifique détectée');
       }
     }
 
@@ -133,19 +164,20 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       const audioUrl = URL.createObjectURL(audioBlob);
       console.log('💾 [WEBHOOK] Audio sauvegardé localement. URL:', audioUrl);
       
-      // Optionnel: télécharger automatiquement le fichier
+      // Créer un lien de téléchargement automatique
       const a = document.createElement('a');
       a.href = audioUrl;
       const isMP4 = audioBlob.type.includes('mp4');
       const extension = isMP4 ? 'mp4' : 'webm';
       a.download = `recording_backup_${Date.now()}.${extension}`;
-      console.log('⬇️ [WEBHOOK] Lien de téléchargement créé');
+      console.log('⬇️ [WEBHOOK] Lien de téléchargement créé:', a.download);
     } catch (saveError) {
       console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
     }
 
+    console.log('🏁 [WEBHOOK] FIN avec erreur');
     throw new Error(errorMessage);
   } finally {
-    console.log('🏁 [WEBHOOK] Processus terminé pour URL:', WEBHOOK_URL);
+    console.log('🏁 [WEBHOOK] Processus terminé pour:', WEBHOOK_URL);
   }
 };

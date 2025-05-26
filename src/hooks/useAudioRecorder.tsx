@@ -24,15 +24,17 @@ export const useAudioRecorder = () => {
 
   const startRecording = useCallback(async () => {
     try {
+      console.log('🎤 [AUDIO_RECORDER] Démarrage de l\'enregistrement...');
       await startMediaRecording();
       setShowConfirmation(false);
       
+      console.log('✅ [AUDIO_RECORDER] Enregistrement démarré avec succès');
       toast({
         title: "Enregistrement démarré",
         description: "Votre assistant vocal intelligent vous écoute...",
       });
     } catch (error) {
-      console.error('❌ Erreur lors du démarrage de l\'enregistrement:', error);
+      console.error('❌ [AUDIO_RECORDER] Erreur lors du démarrage:', error);
       toast({
         title: "Erreur",
         description: "Impossible d'accéder au microphone. Vérifiez les autorisations.",
@@ -42,9 +44,11 @@ export const useAudioRecorder = () => {
   }, [startMediaRecording, toast]);
 
   const stopRecording = useCallback(() => {
+    console.log('⏹️ [AUDIO_RECORDER] Arrêt de l\'enregistrement...');
     stopMediaRecording();
     setShowConfirmation(true);
     
+    console.log('✅ [AUDIO_RECORDER] Enregistrement arrêté, confirmation demandée');
     toast({
       title: "Enregistrement terminé",
       description: "Choisissez si vous voulez envoyer ou recommencer",
@@ -52,45 +56,65 @@ export const useAudioRecorder = () => {
   }, [stopMediaRecording, toast]);
 
   const confirmSend = useCallback(async () => {
-    if (recordingBlob) {
-      console.log('✅ Confirmation d\'envoi reçue');
-      setShowConfirmation(false);
-      setIsProcessing(true);
+    if (!recordingBlob) {
+      console.error('❌ [AUDIO_RECORDER] Pas de blob audio disponible');
+      toast({
+        title: "Erreur",
+        description: "Aucun enregistrement disponible",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('📤 [AUDIO_RECORDER] Confirmation d\'envoi reçue');
+    console.log('📊 [AUDIO_RECORDER] Blob audio:', {
+      size: recordingBlob.size,
+      type: recordingBlob.type
+    });
+    console.log('👤 [AUDIO_RECORDER] Utilisateur:', user?.email || 'non connecté');
+    
+    setShowConfirmation(false);
+    setIsProcessing(true);
+    
+    try {
+      console.log('🚀 [AUDIO_RECORDER] Appel de sendAudioToWebhook...');
+      const result = await sendAudioToWebhook(recordingBlob, user);
       
-      try {
-        await sendAudioToWebhook(recordingBlob, user);
-        toast({
-          title: "Message transmis",
-          description: "Vos idées ont été automatiquement transmises à votre intelligence.",
-        });
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Impossible de transmettre le message.";
-        toast({
-          title: "Erreur de transmission",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        
-        toast({
-          title: "Sauvegarde locale",
-          description: "L'enregistrement a été sauvegardé localement en cas de problème.",
-        });
-      } finally {
-        setIsProcessing(false);
-        clearRecording();
-      }
+      console.log('✅ [AUDIO_RECORDER] Transmission réussie:', result);
+      toast({
+        title: "Message transmis",
+        description: "Vos idées ont été automatiquement transmises vers N8N.",
+      });
+    } catch (error) {
+      console.error('❌ [AUDIO_RECORDER] Erreur de transmission:', error);
+      const errorMessage = error instanceof Error ? error.message : "Impossible de transmettre le message.";
+      
+      toast({
+        title: "Erreur de transmission",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      toast({
+        title: "Sauvegarde locale",
+        description: "L'enregistrement a été sauvegardé localement en cas de problème.",
+      });
+    } finally {
+      console.log('🏁 [AUDIO_RECORDER] Processus terminé');
+      setIsProcessing(false);
+      clearRecording();
     }
   }, [recordingBlob, user, toast, clearRecording]);
 
   const restartRecording = useCallback(() => {
-    console.log('🔄 Redémarrage de l\'enregistrement');
+    console.log('🔄 [AUDIO_RECORDER] Redémarrage de l\'enregistrement');
     setShowConfirmation(false);
     clearRecording();
     startRecording();
   }, [startRecording, clearRecording]);
 
   const cancelRecording = useCallback(() => {
-    console.log('❌ Annulation de l\'enregistrement');
+    console.log('❌ [AUDIO_RECORDER] Annulation de l\'enregistrement');
     setShowConfirmation(false);
     clearRecording();
   }, [clearRecording]);
