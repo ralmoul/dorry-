@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
@@ -19,6 +18,8 @@ export const VoiceRecorder = ({
     isRecording,
     isProcessing,
     showConfirmation,
+    recordingTime,
+    formatTime,
     startRecording,
     stopRecording,
     confirmSend,
@@ -82,6 +83,18 @@ export const VoiceRecorder = ({
               <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-2 text-sharp">
                 {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Appuyer sur le micro pour commencer'}
               </p>
+              
+              {/* Affichage du temps d'enregistrement */}
+              {isRecording && (
+                <div className="mt-4">
+                  <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-red-500 font-mono text-lg font-semibold">
+                      {formatTime(recordingTime)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Visualiseur IA */}
