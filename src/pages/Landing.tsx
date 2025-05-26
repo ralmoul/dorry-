@@ -32,11 +32,11 @@ const Landing = () => {
   }, []);
 
   const handleGetStarted = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   const handleLogin = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   return (
