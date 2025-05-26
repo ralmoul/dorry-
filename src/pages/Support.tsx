@@ -19,7 +19,7 @@ const Support = () => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Mail className="w-5 h-5 text-bright-turquoise" />
-                <span>Support par email</span>
+                <span className="font-normal text-gray-950">Support par email</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -32,22 +32,7 @@ const Support = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-bright-turquoise/20">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Phone className="w-5 h-5 text-bright-turquoise" />
-                <span>Support téléphonique</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">
-                Besoin d'aide immédiate ? Appelez-nous du lundi au vendredi, 9h-18h.
-              </p>
-              <Button className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white">
-                +33 1 23 45 67 89
-              </Button>
-            </CardContent>
-          </Card>
+          
         </div>
 
         <Card className="bg-white/80 backdrop-blur-sm border-bright-turquoise/20 mb-8">
