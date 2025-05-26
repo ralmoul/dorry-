@@ -5,43 +5,43 @@
 
 @layer base {
   :root {
-    --background: 248 250 252;
-    --foreground: 30 41 59;
+    --background: 10 10 15;
+    --foreground: 250 250 250;
 
-    --card: 255 255 255;
-    --card-foreground: 30 41 59;
+    --card: 10 10 15;
+    --card-foreground: 250 250 250;
 
-    --popover: 255 255 255;
-    --popover-foreground: 30 41 59;
+    --popover: 10 10 15;
+    --popover-foreground: 250 250 250;
 
     --primary: 180 100% 41%;
-    --primary-foreground: 15 23 42;
+    --primary-foreground: 10 10 15;
 
-    --secondary: 241 245 249;
-    --secondary-foreground: 30 41 59;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 250 250 250;
 
-    --muted: 248 250 252;
-    --muted-foreground: 100 116 139;
+    --muted: 0 0% 10%;
+    --muted-foreground: 163 163 163;
 
-    --accent: 241 245 249;
-    --accent-foreground: 30 41 59;
+    --accent: 0 0% 10%;
+    --accent-foreground: 250 250 250;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 248 250 252;
+    --destructive-foreground: 250 250 250;
 
-    --border: 226 232 240;
-    --input: 226 232 240;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
     --ring: 180 100% 41%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 248 250 252;
-    --sidebar-foreground: 30 41 59;
+    --sidebar-background: 10 10 15;
+    --sidebar-foreground: 250 250 250;
     --sidebar-primary: 180 100% 41%;
-    --sidebar-primary-foreground: 15 23 42;
-    --sidebar-accent: 241 245 249;
-    --sidebar-accent-foreground: 30 41 59;
-    --sidebar-border: 226 232 240;
+    --sidebar-primary-foreground: 10 10 15;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 250 250 250;
+    --sidebar-border: 0 0% 15%;
     --sidebar-ring: 180 100% 41%;
   }
 }
@@ -52,12 +52,11 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 text-gray-800;
+    @apply bg-dark-navy text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    min-height: 100vh;
   }
 
   /* Améliorer la netteté des textes en gras et blancs */
@@ -73,7 +72,6 @@
 
   /* Spécifiquement pour les titres et textes importants */
   h1, h2, h3, h4, h5, h6 {
-    @apply text-gray-800;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -88,17 +86,11 @@
     font-weight: 600;
     letter-spacing: -0.025em;
   }
-
-  /* Textes roses pour les sous-titres */
-  .text-pink-accent {
-    @apply text-pink-500;
-  }
 }
 
 @layer components {
   .gradient-bg {
-    background: linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(219, 234, 254, 0.8) 50%, rgba(221, 214, 254, 0.7) 100%);
-    backdrop-filter: blur(10px);
+    background: radial-gradient(ellipse at top, rgba(0, 212, 170, 0.1) 0%, rgba(10, 10, 15, 1) 70%);
   }
   
   .holographic-border {
@@ -117,49 +109,5 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-  }
-
-  /* Animation keyframes */
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes pulse-ai {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.05);
-      opacity: 0.9;
-    }
-  }
-
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 40px rgba(0, 212, 170, 0.8);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.8s ease-out;
-  }
-
-  .animate-pulse-ai {
-    animation: pulse-ai 3s ease-in-out infinite;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
   }
 }

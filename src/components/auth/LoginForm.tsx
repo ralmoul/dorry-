@@ -44,31 +44,31 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-sm sm:max-w-md bg-white/80 backdrop-blur-lg border-bright-turquoise/20 shadow-xl">
+    <div className="min-h-screen flex items-center justify-center gradient-bg p-4">
+      <Card className="w-full max-w-sm sm:max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
         <CardHeader className="text-center p-4 sm:p-6">
           <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-2xl sm:text-3xl">
             Dory
           </CardTitle>
-          <CardDescription className="text-gray-600 text-sm sm:text-base">
+          <CardDescription className="text-muted-foreground text-sm sm:text-base">
             Votre assistante vocal intelligent vous attend
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="email" className="text-sm text-gray-700">Email</Label>
+              <Label htmlFor="email" className="text-sm">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="bg-white/70 border-gray-300 focus:border-bright-turquoise h-10 sm:h-11"
+                className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-10 sm:h-11"
               />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="password" className="text-sm text-gray-700">Mot de passe</Label>
+              <Label htmlFor="password" className="text-sm">Mot de passe</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -76,12 +76,12 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  className="bg-white/70 border-gray-300 focus:border-bright-turquoise pr-10 h-10 sm:h-11"
+                  className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-bright-turquoise"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-bright-turquoise"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -94,14 +94,14 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 className="border-bright-turquoise/50 data-[state=checked]:bg-bright-turquoise data-[state=checked]:border-bright-turquoise"
               />
-              <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-gray-600">
+              <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-muted-foreground">
                 Rester connecté
               </Label>
             </div>
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-white font-semibold h-10 sm:h-11 text-sm sm:text-base"
+              className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base"
             >
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </Button>
