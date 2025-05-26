@@ -74,7 +74,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
             <div>
               <p className="text-sm text-muted-foreground">URL de transmission</p>
               <p className="font-mono text-xs bg-background/50 p-2 rounded break-all">
-                https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2
+                https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Tous vos messages vocaux sont automatiquement transmis à cette adresse
