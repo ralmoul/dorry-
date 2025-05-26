@@ -2,12 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MessageCircle, HelpCircle } from 'lucide-react';
-
 const Support = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
@@ -17,25 +14,25 @@ const Support = () => {
           <p className="text-lg text-gray-600">Notre équipe est là pour vous accompagner dans l'utilisation de Dorry.</p>
         </div>
 
-        <div className="flex justify-center mb-8">
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl">
-            <Card className="bg-white/80 backdrop-blur-sm border-bright-turquoise/20">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Mail className="w-5 h-5 text-bright-turquoise" />
-                  <span className="font-normal text-gray-950">Support par email</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  Pour toute question technique ou commerciale, notre équipe vous répond sous 24h.
-                </p>
-                <Button className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white">
-                  support@dory.ai
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <Card className="bg-white/80 backdrop-blur-sm border-bright-turquoise/20">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Mail className="w-5 h-5 text-bright-turquoise" />
+                <span className="font-normal text-gray-950">Support par email</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-4">
+                Pour toute question technique ou commerciale, notre équipe vous répond sous 24h.
+              </p>
+              <Button className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white">
+                support@dory.ai
+              </Button>
+            </CardContent>
+          </Card>
+
+          
         </div>
 
         <Card className="bg-white/80 backdrop-blur-sm border-bright-turquoise/20 mb-8">
@@ -81,8 +78,6 @@ const Support = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Support;
