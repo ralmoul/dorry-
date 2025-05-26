@@ -48,34 +48,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     try {
-      console.log('Login attempt for:', data.email);
+      console.log('🔐 [LOGIN] Starting login attempt');
+      console.log('📧 [LOGIN] Email:', data.email);
+      console.log('🔑 [LOGIN] Password provided:', data.password ? 'YES' : 'NO');
       
       // Search for user in Supabase
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
-        .eq('email', data.email)
-        .eq('is_approved', true);
+        .eq('email', data.email);
       
       if (error) {
-        console.error('Error searching user:', error);
+        console.error('❌ [LOGIN] Error searching user:', error);
         return false;
       }
       
+      console.log('👥 [LOGIN] Users found:', users?.length || 0);
+      
       if (!users || users.length === 0) {
-        console.log('User not found or not approved');
+        console.log('❌ [LOGIN] No user found with this email');
         return false;
       }
       
       const dbUser = users[0];
+      console.log('👤 [LOGIN] User found:', {
+        id: dbUser.id,
+        email: dbUser.email,
+        is_approved: dbUser.is_approved,
+        password_hash_exists: !!dbUser.password_hash
+      });
       
-      // Vérifier le mot de passe avec celui stocké dans la base de données
-      if (data.password !== dbUser.password_hash) {
-        console.log('Invalid password - provided:', data.password, 'expected:', dbUser.password_hash);
+      // Check if user is approved
+      if (!dbUser.is_approved) {
+        console.log('❌ [LOGIN] User not approved yet');
         return false;
       }
       
-      console.log('User found and approved:', dbUser);
+      // Check password
+      console.log('🔍 [LOGIN] Comparing passwords...');
+      console.log('🔍 [LOGIN] Provided password:', `"${data.password}"`);
+      console.log('🔍 [LOGIN] Stored password:', `"${dbUser.password_hash}"`);
+      console.log('🔍 [LOGIN] Passwords match:', data.password === dbUser.password_hash);
+      
+      if (data.password !== dbUser.password_hash) {
+        console.log('❌ [LOGIN] Password mismatch');
+        return false;
+      }
+      
+      console.log('✅ [LOGIN] Authentication successful!');
       
       // Transform database user to User interface format
       const user: User = {
@@ -98,13 +118,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Store according to user preference
       if (data.rememberMe) {
         localStorage.setItem('dory_user', JSON.stringify(user));
+        console.log('💾 [LOGIN] User saved to localStorage');
       } else {
         sessionStorage.setItem('dory_user', JSON.stringify(user));
+        console.log('💾 [LOGIN] User saved to sessionStorage');
       }
       
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('💥 [LOGIN] Login error:', error);
       return false;
     }
   };
