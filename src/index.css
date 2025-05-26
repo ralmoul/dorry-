@@ -5,44 +5,78 @@
 
 @layer base {
   :root {
-    --background: 10 10 15;
-    --foreground: 250 250 250;
+    /* Mode Light (par défaut) */
+    --background: 245 247 250;
+    --background-secondary: 232 240 254;
+    --foreground: 15 23 42;
 
-    --card: 10 10 15;
-    --card-foreground: 250 250 250;
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
 
-    --popover: 10 10 15;
-    --popover-foreground: 250 250 250;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
 
-    --primary: 180 100% 41%;
-    --primary-foreground: 10 10 15;
+    --primary: 59 130 246;
+    --primary-foreground: 255 255 255;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 250 250 250;
+    --secondary: 241 245 249;
+    --secondary-foreground: 51 65 85;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 163 163 163;
+    --muted: 248 250 252;
+    --muted-foreground: 100 116 139;
 
-    --accent: 0 0% 10%;
-    --accent-foreground: 250 250 250;
+    --accent: 239 246 255;
+    --accent-foreground: 59 130 246;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 250 250 250;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 180 100% 41%;
+    --border: 226 232 240;
+    --input: 241 245 249;
+    --ring: 59 130 246;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 10 10 15;
-    --sidebar-foreground: 250 250 250;
-    --sidebar-primary: 180 100% 41%;
-    --sidebar-primary-foreground: 10 10 15;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 250 250 250;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 180 100% 41%;
+    /* Couleurs IA spécifiques */
+    --ai-cyan: 6 182 212;
+    --ai-blue: 59 130 246;
+    --ai-purple: 147 51 234;
+    --ai-pink: 236 72 153;
+    --ai-green: 16 185 129;
+  }
+
+  .dark {
+    /* Mode Dark */
+    --background: 15 24 42;
+    --background-secondary: 32 43 61;
+    --foreground: 248 250 252;
+
+    --card: 30 41 59;
+    --card-foreground: 248 250 252;
+
+    --popover: 30 41 59;
+    --popover-foreground: 248 250 252;
+
+    --primary: 59 130 246;
+    --primary-foreground: 255 255 255;
+
+    --secondary: 51 65 85;
+    --secondary-foreground: 226 232 240;
+
+    --muted: 51 65 85;
+    --muted-foreground: 148 163 184;
+
+    --accent: 51 65 85;
+    --accent-foreground: 148 163 184;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+
+    --border: 51 65 85;
+    --input: 51 65 85;
+    --ring: 59 130 246;
+
+    /* Les couleurs IA restent identiques */
   }
 }
 
@@ -52,25 +86,19 @@
   }
 
   body {
-    @apply bg-dark-navy text-foreground;
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-gradient-to-br text-foreground;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background-secondary)) 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    min-height: 100vh;
   }
 
-  /* Améliorer la netteté des textes en gras et blancs */
-  .font-bold,
-  .font-semibold,
-  strong,
-  b {
-    font-weight: 600;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.025em;
+  .dark body {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background-secondary)) 100%);
   }
 
-  /* Spécifiquement pour les titres et textes importants */
   h1, h2, h3, h4, h5, h6 {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -78,7 +106,6 @@
     letter-spacing: -0.025em;
   }
 
-  /* Améliorer le rendu des textes avec dégradés */
   .bg-clip-text {
     -webkit-background-clip: text;
     background-clip: text;
@@ -89,25 +116,41 @@
 }
 
 @layer components {
-  .gradient-bg {
-    background: radial-gradient(ellipse at top, rgba(0, 212, 170, 0.1) 0%, rgba(10, 10, 15, 1) 70%);
-  }
-  
-  .holographic-border {
-    border: 1px solid transparent;
-    background: linear-gradient(45deg, #00d4aa, #0066ff, #00d4aa) border-box;
-    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-  }
-  
-  .ai-glow {
-    box-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
 
-  /* Classe utilitaire pour les textes nets */
-  .text-sharp {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  .dark .glassmorphism {
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
+
+  .ai-glow {
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+  }
+
+  .mic-glow {
+    box-shadow: 
+      0 0 20px rgba(6, 182, 212, 0.4),
+      0 0 40px rgba(59, 130, 246, 0.3),
+      0 0 60px rgba(147, 51, 234, 0.2);
+  }
+}
+
+@layer utilities {
+  .text-ai-cyan { color: rgb(var(--ai-cyan)); }
+  .text-ai-blue { color: rgb(var(--ai-blue)); }
+  .text-ai-purple { color: rgb(var(--ai-purple)); }
+  .text-ai-pink { color: rgb(var(--ai-pink)); }
+  .text-ai-green { color: rgb(var(--ai-green)); }
+  
+  .bg-ai-cyan { background-color: rgb(var(--ai-cyan)); }
+  .bg-ai-blue { background-color: rgb(var(--ai-blue)); }
+  .bg-ai-purple { background-color: rgb(var(--ai-purple)); }
+  .bg-ai-pink { background-color: rgb(var(--ai-pink)); }
+  .bg-ai-green { background-color: rgb(var(--ai-green)); }
 }

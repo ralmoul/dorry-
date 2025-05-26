@@ -4,7 +4,7 @@ import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useAuth } from '@/hooks/useAuth';
-import { Zap, LogOut } from 'lucide-react';
+import { Settings, Zap, LogOut } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
@@ -25,10 +25,7 @@ export const VoiceRecorder = ({
     restartRecording,
     cancelRecording
   } = useAudioRecorder();
-  const {
-    user,
-    logout
-  } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleRecordingToggle = () => {
     if (isRecording) {
@@ -39,32 +36,55 @@ export const VoiceRecorder = ({
   };
 
   return (
-    <div className="min-h-screen gradient-bg flex flex-col relative">
-      {/* Header */}
-      <div className="flex justify-between items-center p-4 sm:p-6 relative z-10">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
+    <div className="min-h-screen flex">
+      {/* Sidebar gauche */}
+      <div className="w-64 bg-card/50 backdrop-blur-sm border-r border-border p-6 flex flex-col">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-ai-cyan to-ai-blue bg-clip-text text-transparent">
             Dory
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground text-sharp">
-            Bonjour, {user?.firstName}
+          <p className="text-sm text-muted-foreground mt-2">
+            Assistant vocal IA
           </p>
         </div>
-        <div className="flex gap-2 sm:gap-3">
-          <Button variant="ghost" size="sm" onClick={onOpenUpcomingFeatures} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
-            🔮
+        
+        {user && (
+          <div className="mb-auto">
+            <p className="text-sm text-muted-foreground">Bonjour,</p>
+            <p className="text-lg font-semibold text-foreground">{user.firstName}</p>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-muted-foreground hover:text-ai-blue hover:bg-accent"
+            onClick={onOpenUpcomingFeatures}
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Fonctionnalités
           </Button>
-          <Button variant="ghost" size="sm" onClick={onOpenSettings} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
-            ⚙️
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-muted-foreground hover:text-ai-blue hover:bg-accent"
+            onClick={onOpenSettings}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Paramètres
           </Button>
-          <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-foreground hover:bg-foreground/10 p-2">
-            <LogOut className="w-4 h-4" />
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-accent"
+            onClick={logout}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Déconnexion
           </Button>
         </div>
       </div>
 
-      {/* Zone centrale */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 relative">
+      {/* Zone principale */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 relative">
         {showConfirmation ? (
           <RecordingConfirmation 
             onSend={confirmSend} 
@@ -74,18 +94,20 @@ export const VoiceRecorder = ({
           />
         ) : (
           <>
-            {/* Titre et description */}
-            <div className="text-center mb-6 sm:mb-8 relative z-10 px-2">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent leading-tight text-sharp">
+            {/* Titre principal */}
+            <div className="text-center mb-12 max-w-2xl">
+              <h2 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-ai-cyan to-ai-blue bg-clip-text text-transparent leading-tight">
                 {isRecording ? 'Je vous écoute...' : 'Votre assistant vocal intelligent vous écoute'}
               </h2>
-              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-2 text-sharp">
-                {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Vos idées sont automatiquement transmises à votre intelligence automatisée'}
+              <p className="text-lg lg:text-xl text-ai-pink/80 leading-relaxed">
+                {isRecording ? 'Exprimez vos idées librement' : 
+                 isProcessing ? 'Transmission en cours...' : 
+                 'Vos idées sont automatiquement transmises à votre intelligence automatisée'}
               </p>
             </div>
 
-            {/* Visualiseur IA */}
-            <div className="relative z-20 mb-6 sm:mb-8">
+            {/* Visualiseur IA avec micro */}
+            <div className="mb-12">
               <AIVisualizer 
                 isRecording={isRecording} 
                 onRecordingToggle={handleRecordingToggle} 
@@ -93,49 +115,44 @@ export const VoiceRecorder = ({
               />
             </div>
 
-            {/* Bloc explicatif IA */}
-            <div className="relative z-10 max-w-sm sm:max-w-md w-full px-4">
-              <div className="bg-gradient-to-br from-bright-turquoise/10 to-electric-blue/10 backdrop-blur-sm border border-bright-turquoise/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl">
-                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-dark-navy" />
+            {/* Carte explicative avec glassmorphism */}
+            <div className="max-w-md w-full">
+              <div className="glassmorphism rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-ai-green to-ai-cyan flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
+                  <h3 className="text-xl font-semibold bg-gradient-to-r from-ai-blue to-ai-green bg-clip-text text-transparent">
                     IA & automatisation
                   </h3>
                 </div>
                 
-                <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed text-sharp">
+                <p className="text-muted-foreground mb-4 text-sm">
                   Dory reçoit vos audios et :
                 </p>
                 
-                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-start gap-3 text-foreground">
+                    <span className="text-ai-cyan mt-1 text-xs">•</span>
                     <span>Analyse ce qui a été dit</span>
                   </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
+                  <li className="flex items-start gap-3 text-foreground">
+                    <span className="text-ai-blue mt-1 text-xs">•</span>
                     <span>Détecte les informations du porteur de projet</span>
                   </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
+                  <li className="flex items-start gap-3 text-foreground">
+                    <span className="text-ai-purple mt-1 text-xs">•</span>
                     <span>Identifie si la personne est en QPV</span>
                   </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
-                    <span>Vous envoie directement le compte rendu dans votre boite mail</span>
+                  <li className="flex items-start gap-3 text-foreground">
+                    <span className="text-ai-pink mt-1 text-xs">•</span>
+                    <span>Vous envoie directement le compte rendu dans votre boîte mail</span>
                   </li>
                 </ul>
               </div>
             </div>
           </>
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="p-4 sm:p-6 text-center relative z-10">
-        
       </div>
     </div>
   );
