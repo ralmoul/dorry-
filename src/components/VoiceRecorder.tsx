@@ -79,7 +79,7 @@ export const VoiceRecorder = ({
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent leading-tight text-sharp">
                 {isRecording ? 'Je vous écoute...' : 'Votre assistant vocal intelligent vous écoute'}
               </h2>
-              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-2 text-sharp">
+              <p className="text-pink-description text-sm sm:text-base lg:text-lg px-2 text-sharp">
                 {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Vos idées sont automatiquement transmises à votre intelligence automatisée'}
               </p>
             </div>
@@ -105,24 +105,24 @@ export const VoiceRecorder = ({
                   </h3>
                 </div>
                 
-                <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed text-sharp">
+                <p className="text-pink-description mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed text-sharp">
                   Dory reçoit vos audios et :
                 </p>
                 
                 <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
+                  <li className="flex items-start gap-2 text-pink-description text-sharp">
                     <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
                     <span>Analyse ce qui a été dit</span>
                   </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
+                  <li className="flex items-start gap-2 text-pink-description text-sharp">
                     <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
                     <span>Détecte les informations du porteur de projet</span>
                   </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
+                  <li className="flex items-start gap-2 text-pink-description text-sharp">
                     <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
                     <span>Identifie si la personne est en QPV</span>
                   </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
+                  <li className="flex items-start gap-2 text-pink-description text-sharp">
                     <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
                     <span>Vous envoie directement le compte rendu dans votre boite mail</span>
                   </li>

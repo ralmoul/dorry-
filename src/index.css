@@ -168,4 +168,13 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 212, 170, 0.2);
   }
+
+  /* Couleurs roses pour les textes de description */
+  .text-pink-description {
+    color: #ec4899;
+  }
+  
+  .dark .text-pink-description {
+    color: #f472b6;
+  }
 }
