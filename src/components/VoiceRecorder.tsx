@@ -80,7 +80,7 @@ export const VoiceRecorder = ({
                 {isRecording ? 'Je vous écoute...' : 'Votre assistante vocal intelligente vous écoute'}
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-2 text-sharp">
-                {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Vos idées sont automatiquement transmises à votre intelligence automatisée'}
+                {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Appuyer sur le micro pour commencer'}
               </p>
             </div>
 
