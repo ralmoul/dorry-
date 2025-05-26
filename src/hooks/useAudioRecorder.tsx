@@ -14,7 +14,7 @@ export const useAudioRecorder = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2';
+  const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
 
   // Timer effect for recording time
   useEffect(() => {
