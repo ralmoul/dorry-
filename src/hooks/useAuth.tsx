@@ -1,5 +1,8 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, SignupFormData, LoginFormData } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
+import bcrypt from 'bcryptjs';
 
 interface AuthContextType extends AuthState {
   login: (data: LoginFormData & { rememberMe?: boolean }) => Promise<boolean>;
@@ -18,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     console.log('AuthProvider: Initializing auth state');
-    // Vérifier si l'utilisateur est déjà connecté
+    // Check if user is already connected
     const savedUser = localStorage.getItem('dory_user');
     const sessionUser = sessionStorage.getItem('dory_user');
     
@@ -34,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isLoading: false,
         });
       } catch (error) {
-        console.error('Erreur lors du chargement des données utilisateur:', error);
+        console.error('Error loading user data:', error);
         localStorage.removeItem('dory_user');
         sessionStorage.removeItem('dory_user');
         setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -47,102 +50,116 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     try {
-      console.log('Tentative de connexion pour:', data.email);
-      // Simuler une authentification
-      const users = JSON.parse(localStorage.getItem('dory_users') || '[]');
-      console.log('Utilisateurs trouvés:', users);
-      const user = users.find((u: any) => u.email === data.email && u.password === data.password);
+      console.log('Login attempt for:', data.email);
       
-      if (user && user.isApproved) {
-        console.log('Utilisateur trouvé et approuvé:', user);
-        const { password, ...userWithoutPassword } = user;
-        setAuthState({
-          user: userWithoutPassword,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        
-        // Stocker selon la préférence de l'utilisateur
-        if (data.rememberMe) {
-          localStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
-        } else {
-          sessionStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
-        }
-        
-        return true;
+      // Search for user in Supabase
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', data.email)
+        .eq('is_approved', true);
+      
+      if (error) {
+        console.error('Error searching user:', error);
+        return false;
       }
-      console.log('Utilisateur non trouvé ou non approuvé');
-      return false;
+      
+      if (!users || users.length === 0) {
+        console.log('User not found or not approved');
+        return false;
+      }
+      
+      const user = users[0];
+      
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(data.password, user.password_hash);
+      
+      if (!isPasswordValid) {
+        console.log('Invalid password');
+        return false;
+      }
+      
+      console.log('User found and approved:', user);
+      
+      // Remove password from user object
+      const { password_hash, ...userWithoutPassword } = user;
+      
+      setAuthState({
+        user: userWithoutPassword,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      
+      // Store according to user preference
+      if (data.rememberMe) {
+        localStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+      } else {
+        sessionStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+      }
+      
+      return true;
     } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
+      console.error('Login error:', error);
       return false;
     }
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
     try {
-      console.log('🚀 [SIGNUP] Début de la création de compte');
-      console.log('📋 [SIGNUP] Données reçues:', { ...data, password: '[HIDDEN]' });
+      console.log('🚀 [SIGNUP] Starting account creation');
+      console.log('📋 [SIGNUP] Data received:', { ...data, password: '[HIDDEN]' });
       
-      // Vérifier que tous les champs sont remplis
+      // Verify that all fields are filled
       if (!data.firstName || !data.lastName || !data.email || !data.phone || !data.company || !data.password) {
-        console.error('❌ [SIGNUP] Certains champs sont manquants:', {
-          firstName: !!data.firstName,
-          lastName: !!data.lastName,
-          email: !!data.email,
-          phone: !!data.phone,
-          company: !!data.company,
-          password: !!data.password
-        });
+        console.error('❌ [SIGNUP] Some fields are missing');
         return false;
       }
       
-      // Vérifier si l'email existe déjà
-      const existingUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
-      console.log('👥 [SIGNUP] Utilisateurs existants dans localStorage:', existingUsers);
-      console.log('📊 [SIGNUP] Nombre d\'utilisateurs existants:', existingUsers.length);
+      // Check if email already exists
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', data.email);
       
-      const emailExists = existingUsers.find((u: any) => u.email === data.email);
-      
-      if (emailExists) {
-        console.error('⚠️ [SIGNUP] Email déjà utilisé:', data.email);
+      if (checkError) {
+        console.error('⚠️ [SIGNUP] Error checking existing email:', checkError);
         return false;
       }
-
-      const newUser: User & { password: string } = {
-        id: Date.now().toString(),
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        company: data.company,
-        password: data.password,
-        isApproved: false,
-        createdAt: new Date().toISOString(),
-      };
-
-      console.log('✨ [SIGNUP] Nouvel utilisateur créé:', { ...newUser, password: '[HIDDEN]' });
-
-      // Sauvegarder le nouvel utilisateur (en attente d'approbation)
-      const users = [...existingUsers, newUser];
-      console.log('💾 [SIGNUP] Tentative de sauvegarde, total utilisateurs:', users.length);
       
-      localStorage.setItem('dory_users', JSON.stringify(users));
-      
-      // Vérifier que la sauvegarde a fonctionné
-      const savedUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
-      console.log('✅ [SIGNUP] Vérification post-sauvegarde:', savedUsers.length, 'utilisateurs');
-      console.log('🔍 [SIGNUP] Dernier utilisateur sauvegardé:', savedUsers[savedUsers.length - 1] ? { ...savedUsers[savedUsers.length - 1], password: '[HIDDEN]' } : 'Aucun');
-      
-      if (savedUsers.length === users.length) {
-        console.log('🎉 [SIGNUP] Sauvegarde réussie !');
-        return true;
-      } else {
-        console.error('💥 [SIGNUP] Erreur de sauvegarde - nombre différent');
+      if (existingUsers && existingUsers.length > 0) {
+        console.error('⚠️ [SIGNUP] Email already in use:', data.email);
         return false;
       }
+      
+      // Hash password
+      const passwordHash = await bcrypt.hash(data.password, 10);
+      
+      // Create new user
+      const { data: newUser, error: insertError } = await supabase
+        .from('users')
+        .insert([
+          {
+            first_name: data.firstName,
+            last_name: data.lastName,
+            email: data.email,
+            phone: data.phone,
+            company: data.company,
+            password_hash: passwordHash,
+            is_approved: false
+          }
+        ])
+        .select()
+        .single();
+      
+      if (insertError) {
+        console.error('💥 [SIGNUP] Error creating user:', insertError);
+        return false;
+      }
+      
+      console.log('🎉 [SIGNUP] User created successfully!', { ...newUser, password_hash: '[HIDDEN]' });
+      return true;
     } catch (error) {
-      console.error('💥 [SIGNUP] Erreur lors de l\'inscription:', error);
+      console.error('💥 [SIGNUP] Error during signup:', error);
       return false;
     }
   };
@@ -178,7 +195,7 @@ export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     console.error('useAuth called outside of AuthProvider');
-    throw new Error('useAuth doit être utilisé dans un AuthProvider');
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };
