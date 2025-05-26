@@ -14,6 +14,8 @@ import TermsOfService from "./pages/TermsOfService";
 import LegalNotice from "./pages/LegalNotice";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/app" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/upcoming-features" element={<UpcomingFeatures onBack={() => window.history.back()} />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
