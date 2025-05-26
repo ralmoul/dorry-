@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,10 +69,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const dbUser = users[0];
       
-      // For now, we'll use a simple password check (this should be replaced with proper server-side authentication)
-      // Note: This is not secure and should be updated to use proper authentication
-      if (data.password !== 'temp123') { // Temporary password for testing
-        console.log('Invalid password');
+      // Vérifier le mot de passe avec celui stocké dans la base de données
+      if (data.password !== dbUser.password_hash) {
+        console.log('Invalid password - provided:', data.password, 'expected:', dbUser.password_hash);
         return false;
       }
       
