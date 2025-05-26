@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
+    console.log('AuthProvider: Initializing auth state');
     // Vérifier si l'utilisateur est déjà connecté
     const savedUser = localStorage.getItem('dory_user');
     const sessionUser = sessionStorage.getItem('dory_user');
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (userToLoad) {
       try {
         const user = JSON.parse(userToLoad);
+        console.log('AuthProvider: User found in storage', user);
         setAuthState({
           user,
           isAuthenticated: true,
@@ -39,6 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAuthState(prev => ({ ...prev, isLoading: false }));
       }
     } else {
+      console.log('AuthProvider: No user found in storage');
       setAuthState(prev => ({ ...prev, isLoading: false }));
     }
   }, []);
@@ -127,6 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    console.log('AuthProvider: Logging out user');
     setAuthState({
       user: null,
       isAuthenticated: false,
@@ -135,6 +139,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('dory_user');
     sessionStorage.removeItem('dory_user');
   };
+
+  console.log('AuthProvider: Current auth state', authState);
 
   return (
     <AuthContext.Provider
@@ -153,6 +159,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
+    console.error('useAuth called outside of AuthProvider');
     throw new Error('useAuth doit être utilisé dans un AuthProvider');
   }
   return context;
