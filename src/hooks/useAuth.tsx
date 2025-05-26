@@ -79,10 +79,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
     try {
-      console.log('Création de compte pour:', data.email);
+      console.log('Tentative de création de compte pour:', data.email);
+      console.log('Données reçues:', data);
+      
+      // Vérifier que tous les champs sont remplis
+      if (!data.firstName || !data.lastName || !data.email || !data.phone || !data.company || !data.password) {
+        console.log('Certains champs sont manquants');
+        return false;
+      }
       
       // Vérifier si l'email existe déjà
       const existingUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
+      console.log('Utilisateurs existants:', existingUsers);
+      
       const emailExists = existingUsers.find((u: any) => u.email === data.email);
       
       if (emailExists) {
@@ -92,18 +101,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const newUser: User & { password: string } = {
         id: Date.now().toString(),
-        ...data,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        company: data.company,
+        password: data.password,
         isApproved: false,
         createdAt: new Date().toISOString(),
       };
 
-      console.log('Nouvel utilisateur créé:', newUser);
+      console.log('Nouvel utilisateur créé:', { ...newUser, password: '[HIDDEN]' });
 
       // Sauvegarder le nouvel utilisateur (en attente d'approbation)
       const users = [...existingUsers, newUser];
       localStorage.setItem('dory_users', JSON.stringify(users));
       
-      console.log('Utilisateurs après sauvegarde:', JSON.parse(localStorage.getItem('dory_users') || '[]'));
+      console.log('Nombre d\'utilisateurs après sauvegarde:', JSON.parse(localStorage.getItem('dory_users') || '[]').length);
       
       return true;
     } catch (error) {
