@@ -4,7 +4,6 @@ import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
 import { Zap, LogOut } from 'lucide-react';
 
 interface VoiceRecorderProps {
@@ -30,7 +29,6 @@ export const VoiceRecorder = ({
     user,
     logout
   } = useAuth();
-  const { theme } = useTheme();
 
   const handleRecordingToggle = () => {
     if (isRecording) {
@@ -41,7 +39,7 @@ export const VoiceRecorder = ({
   };
 
   return (
-    <div className={`min-h-screen gradient-bg ${theme} flex flex-col relative`}>
+    <div className="min-h-screen gradient-bg flex flex-col relative">
       {/* Header */}
       <div className="flex justify-between items-center p-4 sm:p-6 relative z-10">
         <div>
@@ -100,7 +98,7 @@ export const VoiceRecorder = ({
               <div className="bg-gradient-to-br from-bright-turquoise/10 to-electric-blue/10 backdrop-blur-sm border border-bright-turquoise/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl">
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white dark:text-dark-navy" />
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-dark-navy" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
                     IA & automatisation
