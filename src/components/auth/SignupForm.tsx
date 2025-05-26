@@ -5,13 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+
 interface SignupFormProps {
   onSwitchToLogin: () => void;
 }
-export const SignupForm = ({
-  onSwitchToLogin
-}: SignupFormProps) => {
+
+export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -109,9 +109,26 @@ export const SignupForm = ({
     }
     setIsLoading(false);
   };
-  return <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[#4649ee]/75">
+
+  const handleBackToHome = () => {
+    window.location.href = '/';
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[#4649ee]/75">
       <Card className="w-full max-w-sm sm:max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
         <CardHeader className="text-center p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToHome}
+              className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Accueil
+            </Button>
+          </div>
           <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             Rejoindre Dory
           </CardTitle>
@@ -160,5 +177,6 @@ export const SignupForm = ({
           </div>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
