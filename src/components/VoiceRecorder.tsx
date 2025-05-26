@@ -77,7 +77,7 @@ export const VoiceRecorder = ({
             {/* Titre et description */}
             <div className="text-center mb-6 sm:mb-8 relative z-10 px-2">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent leading-tight text-sharp">
-                {isRecording ? 'Je vous écoute...' : 'Votre assistant vocal intelligent vous écoute'}
+                {isRecording ? 'Je vous écoute...' : 'Votre assistante vocal intelligente vous écoute'}
               </h2>
               <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-2 text-sharp">
                 {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Vos idées sont automatiquement transmises à votre intelligence automatisée'}
