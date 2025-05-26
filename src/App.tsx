@@ -15,8 +15,8 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
+    <TooltipProvider>
+      <ThemeProvider>
         <AuthProvider>
           <Toaster />
           <Sonner />
@@ -25,12 +25,13 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/upcoming-features" element={<UpcomingFeatures onBack={() => window.history.back()} />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
