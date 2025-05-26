@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -67,7 +66,7 @@ const Landing = () => {
         <div className="mb-8">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6 leading-tight">
             <TypewriterText 
-              text="Dorry, l'assistante IA qui révolutionne l'accompagnement de projet" 
+              text="Dorry, l'assistante IA qui révolutionne vos échanges" 
               delay={50}
             />
           </h1>
