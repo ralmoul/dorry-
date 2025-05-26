@@ -26,9 +26,7 @@ const Support = () => {
               <p className="text-gray-600 mb-4">
                 Pour toute question technique ou commerciale, notre équipe vous répond sous 24h.
               </p>
-              <Button className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white">
-                support@dory.ai
-              </Button>
+              <Button className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white">contact@dorry.app</Button>
             </CardContent>
           </Card>
 
