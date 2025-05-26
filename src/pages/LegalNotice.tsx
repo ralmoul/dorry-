@@ -18,7 +18,7 @@ const LegalNotice = () => {
           </Button>
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Mentions légales</h1>
           <p className="text-lg text-gray-600">
-            Informations légales concernant Dory et Synkros.AI.
+            Informations légales concernant Dorry.
           </p>
         </div>
 
@@ -26,21 +26,20 @@ const LegalNotice = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Éditeur du site</h2>
             <div className="text-gray-600 space-y-2">
-              <p><strong>Raison sociale :</strong> Synkros.AI</p>
-              <p><strong>Forme juridique :</strong> Société par actions simplifiée</p>
-              <p><strong>Capital social :</strong> 10 000 €</p>
-              <p><strong>Siège social :</strong> 123 Avenue de l'Innovation, 75001 Paris</p>
-              <p><strong>RCS :</strong> Paris B 123 456 789</p>
-              <p><strong>SIRET :</strong> 123 456 789 00012</p>
-              <p><strong>TVA intracommunautaire :</strong> FR12 123456789</p>
+              <p><strong>Raison sociale :</strong> Thomas Bouziza</p>
+              <p><strong>Nom commercial :</strong> Thomas Bouziza</p>
+              <p><strong>Forme juridique :</strong> Exploitation personnelle</p>
+              <p><strong>Adresse du siège / établissement principal :</strong> Val-de-reuil 27100</p>
+              <p><strong>Immatriculation au RCS :</strong> 883 178 394 R.C.S. Rouen</p>
+              <p><strong>Date d'immatriculation :</strong> 14/01/2025</p>
+              <p><strong>Activité :</strong> Programmation informatique et automatisation</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Directeur de publication</h2>
             <p className="text-gray-600">
-              <strong>Nom :</strong> Thomas Synkros<br />
-              <strong>Qualité :</strong> Président de Synkros.AI
+              <strong>Nom :</strong> Thomas Bouziza
             </p>
           </section>
 
@@ -56,16 +55,16 @@ const LegalNotice = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Propriété intellectuelle</h2>
             <p className="text-gray-600">
-              L'ensemble du contenu de ce site (textes, images, logos, icônes) est la propriété exclusive de Synkros.AI, sauf mention contraire. Toute reproduction, même partielle, est interdite sans autorisation préalable.
+              L'ensemble du contenu de ce site (textes, images, logos, icônes) est la propriété exclusive de Thomas Bouziza, sauf mention contraire. Toute reproduction, même partielle, est interdite sans autorisation préalable.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Contact</h2>
             <div className="text-gray-600 space-y-2">
-              <p><strong>Email :</strong> contact@synkros.ai</p>
-              <p><strong>Téléphone :</strong> +33 1 23 45 67 89</p>
-              <p><strong>Adresse :</strong> 123 Avenue de l'Innovation, 75001 Paris</p>
+              <p><strong>Email :</strong> contact@dorry.app</p>
+              <p><strong>Téléphone :</strong> +33 6 52 64 10 56</p>
+              <p><strong>Adresse :</strong> Val-de-reuil 27100</p>
             </div>
           </section>
         </div>
