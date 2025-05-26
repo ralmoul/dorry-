@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 
@@ -82,23 +81,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
     try {
-      console.log('Tentative de création de compte pour:', data.email);
-      console.log('Données reçues:', data);
+      console.log('🚀 [SIGNUP] Début de la création de compte');
+      console.log('📋 [SIGNUP] Données reçues:', { ...data, password: '[HIDDEN]' });
       
       // Vérifier que tous les champs sont remplis
       if (!data.firstName || !data.lastName || !data.email || !data.phone || !data.company || !data.password) {
-        console.log('Certains champs sont manquants');
+        console.error('❌ [SIGNUP] Certains champs sont manquants:', {
+          firstName: !!data.firstName,
+          lastName: !!data.lastName,
+          email: !!data.email,
+          phone: !!data.phone,
+          company: !!data.company,
+          password: !!data.password
+        });
         return false;
       }
       
       // Vérifier si l'email existe déjà
       const existingUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
-      console.log('Utilisateurs existants:', existingUsers);
+      console.log('👥 [SIGNUP] Utilisateurs existants dans localStorage:', existingUsers);
+      console.log('📊 [SIGNUP] Nombre d\'utilisateurs existants:', existingUsers.length);
       
       const emailExists = existingUsers.find((u: any) => u.email === data.email);
       
       if (emailExists) {
-        console.log('Email déjà utilisé:', data.email);
+        console.error('⚠️ [SIGNUP] Email déjà utilisé:', data.email);
         return false;
       }
 
@@ -114,17 +121,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         createdAt: new Date().toISOString(),
       };
 
-      console.log('Nouvel utilisateur créé:', { ...newUser, password: '[HIDDEN]' });
+      console.log('✨ [SIGNUP] Nouvel utilisateur créé:', { ...newUser, password: '[HIDDEN]' });
 
       // Sauvegarder le nouvel utilisateur (en attente d'approbation)
       const users = [...existingUsers, newUser];
+      console.log('💾 [SIGNUP] Tentative de sauvegarde, total utilisateurs:', users.length);
+      
       localStorage.setItem('dory_users', JSON.stringify(users));
       
-      console.log('Nombre d\'utilisateurs après sauvegarde:', JSON.parse(localStorage.getItem('dory_users') || '[]').length);
+      // Vérifier que la sauvegarde a fonctionné
+      const savedUsers = JSON.parse(localStorage.getItem('dory_users') || '[]');
+      console.log('✅ [SIGNUP] Vérification post-sauvegarde:', savedUsers.length, 'utilisateurs');
+      console.log('🔍 [SIGNUP] Dernier utilisateur sauvegardé:', savedUsers[savedUsers.length - 1] ? { ...savedUsers[savedUsers.length - 1], password: '[HIDDEN]' } : 'Aucun');
       
-      return true;
+      if (savedUsers.length === users.length) {
+        console.log('🎉 [SIGNUP] Sauvegarde réussie !');
+        return true;
+      } else {
+        console.error('💥 [SIGNUP] Erreur de sauvegarde - nombre différent');
+        return false;
+      }
     } catch (error) {
-      console.error('Erreur lors de l\'inscription:', error);
+      console.error('💥 [SIGNUP] Erreur lors de l\'inscription:', error);
       return false;
     }
   };
