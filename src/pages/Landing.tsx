@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -32,11 +31,11 @@ const Landing = () => {
   }, []);
 
   const handleGetStarted = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   const handleLogin = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   return (
