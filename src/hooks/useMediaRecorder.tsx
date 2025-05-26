@@ -18,8 +18,18 @@ export const useMediaRecorder = () => {
     });
     
     console.log('✅ Permission accordée, création du MediaRecorder...');
+    
+    // Essayer MP4 en premier, puis fallback vers webm
+    let mimeType = 'audio/mp4';
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = 'audio/webm;codecs=opus';
+      console.log('⚠️ MP4 non supporté, utilisation de WebM');
+    } else {
+      console.log('✅ Utilisation du format MP4');
+    }
+    
     const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'audio/webm;codecs=opus'
+      mimeType: mimeType
     });
     
     mediaRecorderRef.current = mediaRecorder;
@@ -35,8 +45,9 @@ export const useMediaRecorder = () => {
 
     mediaRecorder.onstop = async () => {
       console.log('⏹️ Enregistrement arrêté, création du blob...');
-      const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm;codecs=opus' });
-      console.log('📦 Blob créé, taille:', audioBlob.size, 'bytes');
+      const finalMimeType = mediaRecorderRef.current?.mimeType || mimeType;
+      const audioBlob = new Blob(chunksRef.current, { type: finalMimeType });
+      console.log('📦 Blob créé, taille:', audioBlob.size, 'bytes, type:', finalMimeType);
       setRecordingBlob(audioBlob);
       
       // Arrêter le stream
@@ -46,7 +57,7 @@ export const useMediaRecorder = () => {
     // Enregistrement continu sans limite de temps
     mediaRecorder.start();
     setIsRecording(true);
-    console.log('🔴 Enregistrement démarré');
+    console.log('🔴 Enregistrement démarré avec le format:', mimeType);
   }, []);
 
   const stopRecording = useCallback(() => {

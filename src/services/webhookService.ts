@@ -1,3 +1,4 @@
+
 import { User } from '@/types/auth';
 
 const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
@@ -5,14 +6,17 @@ const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
   console.log('🚀 [WEBHOOK] Début de l\'envoi vers:', WEBHOOK_URL);
   console.log('📊 [WEBHOOK] Taille du fichier audio:', audioBlob.size, 'bytes');
+  console.log('🎵 [WEBHOOK] Type audio:', audioBlob.type);
   console.log('👤 [WEBHOOK] Utilisateur:', user?.email || 'non connecté');
   
   try {
     const formData = new FormData();
     
-    // Créer un nom de fichier unique avec timestamp
+    // Créer un nom de fichier avec l'extension appropriée
     const timestamp = new Date().toISOString();
-    const fileName = `recording_${user?.id || 'unknown'}_${Date.now()}.webm`;
+    const isMP4 = audioBlob.type.includes('mp4');
+    const extension = isMP4 ? 'mp4' : 'webm';
+    const fileName = `recording_${user?.id || 'unknown'}_${Date.now()}.${extension}`;
     
     formData.append('audio', audioBlob, fileName);
     formData.append('userId', user?.id || 'unknown');
@@ -23,11 +27,13 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     formData.append('timestamp', timestamp);
     formData.append('audioSize', audioBlob.size.toString());
     formData.append('audioType', audioBlob.type);
+    formData.append('audioFormat', extension);
 
     console.log('📤 [WEBHOOK] Données à envoyer:', {
       fileName,
       audioSize: audioBlob.size,
       audioType: audioBlob.type,
+      audioFormat: extension,
       userId: user?.id,
       userEmail: user?.email,
       userFirstName: user?.firstName,
@@ -123,7 +129,9 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       // Optionnel: télécharger automatiquement le fichier
       const a = document.createElement('a');
       a.href = audioUrl;
-      a.download = `recording_backup_${Date.now()}.webm`;
+      const isMP4 = audioBlob.type.includes('mp4');
+      const extension = isMP4 ? 'mp4' : 'webm';
+      a.download = `recording_backup_${Date.now()}.${extension}`;
       console.log('⬇️ [WEBHOOK] Lien de téléchargement créé');
     } catch (saveError) {
       console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
