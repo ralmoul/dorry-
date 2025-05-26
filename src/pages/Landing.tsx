@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, Brain, MapPin, Mail, Clock, Shield, Zap, Users } from 'lucide-react';
-
-const TypewriterText = ({ text, delay = 100 }: { text: string; delay?: number }) => {
+const TypewriterText = ({
+  text,
+  delay = 100
+}: {
+  text: string;
+  delay?: number;
+}) => {
   const [displayText, setDisplayText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {
@@ -17,29 +21,22 @@ const TypewriterText = ({ text, delay = 100 }: { text: string; delay?: number })
       return () => clearTimeout(timeout);
     }
   }, [currentIndex, text, delay]);
-
   return <span>{displayText}</span>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [showSubtitle, setShowSubtitle] = useState(false);
-
   useEffect(() => {
     const timer = setTimeout(() => setShowSubtitle(true), 3000);
     return () => clearTimeout(timer);
   }, []);
-
   const handleGetStarted = () => {
     navigate('/signup');
   };
-
   const handleLogin = () => {
     navigate('/login');
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       {/* Header */}
       <header className="flex justify-between items-center p-6 max-w-7xl mx-auto">
         <div className="flex items-center space-x-3">
@@ -65,17 +62,12 @@ const Landing = () => {
       <section className="text-center py-20 px-6 max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6 leading-tight">
-            <TypewriterText 
-              text="Dorry, l'assistante IA qui révolutionne vos échanges" 
-              delay={50}
-            />
+            <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos échanges" delay={50} />
           </h1>
           
-          {showSubtitle && (
-            <p className="text-xl md:text-2xl text-pink-500 animate-fade-in mb-8">
+          {showSubtitle && <p className="text-xl md:text-2xl text-pink-500 animate-fade-in mb-8">
               Votre copilote de confiance pour des suivis sans effort et des comptes rendus ultra-fiables
-            </p>
-          )}
+            </p>}
         </div>
 
         <div className="mb-12 animate-pulse-ai">
@@ -85,16 +77,10 @@ const Landing = () => {
         </div>
 
         <div className="max-w-4xl mx-auto text-lg text-gray-600 mb-8">
-          <p className="animate-fade-in">
-            Dorry vous accompagne lors de chaque réunion ou entretien, capte chaque moment, analyse, détecte les informations essentielles et livre un compte rendu précis, sans que vous ayez à lever le petit doigt. Plus qu'un assistant, Dorry est votre copilote IA pour des suivis irréprochables, même quand vous n'avez pas le temps, même quand vous décrochez.
-          </p>
+          <p className="animate-fade-in">Dorry vous accompagne lors de chaque réunion ou entretien, capte chaque moment, analyse, détecte les informations essentielles et livre un compte rendu précis, sans que vous ayez à lever le petit doigt. Plus qu'une assistante, Dorry est votre copilote IA pour des suivis irréprochables, même quand vous n'avez pas le temps, même quand vous décrochez.</p>
         </div>
 
-        <Button 
-          onClick={handleGetStarted}
-          size="lg"
-          className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white text-xl px-8 py-4 hover:opacity-90 animate-glow"
-        >
+        <Button onClick={handleGetStarted} size="lg" className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white text-xl px-8 py-4 hover:opacity-90 animate-glow">
           Essayez dès aujourd'hui
         </Button>
       </section>
@@ -210,11 +196,7 @@ const Landing = () => {
           <p className="text-xl mb-8 opacity-90">
             L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
           </p>
-          <Button 
-            onClick={handleGetStarted}
-            size="lg"
-            className="bg-white text-bright-turquoise text-xl px-8 py-4 hover:bg-gray-100"
-          >
+          <Button onClick={handleGetStarted} size="lg" className="bg-white text-bright-turquoise text-xl px-8 py-4 hover:bg-gray-100">
             Commencer gratuitement
           </Button>
         </div>
@@ -253,8 +235,6 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
