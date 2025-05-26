@@ -1,12 +1,20 @@
+
 import { User } from '@/types/auth';
 
 const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2';
 
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
+  console.log('🚀 [WEBHOOK] URL DE TEST UTILISÉE:', WEBHOOK_URL);
   console.log('🚀 [WEBHOOK] Début de l\'envoi vers:', WEBHOOK_URL);
   console.log('📊 [WEBHOOK] Taille du fichier audio:', audioBlob.size, 'bytes');
   console.log('🎵 [WEBHOOK] Type audio:', audioBlob.type);
   console.log('👤 [WEBHOOK] Utilisateur:', user?.email || 'non connecté');
+  
+  // Vérification que l'URL contient bien "webhook-test"
+  if (!WEBHOOK_URL.includes('webhook-test')) {
+    console.error('❌ [WEBHOOK] ERREUR: URL ne contient pas webhook-test!');
+    throw new Error('URL webhook incorrecte');
+  }
   
   try {
     const formData = new FormData();
@@ -28,6 +36,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     formData.append('audioType', audioBlob.type);
     formData.append('audioFormat', extension);
 
+    console.log('📤 [WEBHOOK] URL FINALE UTILISÉE:', WEBHOOK_URL);
     console.log('📤 [WEBHOOK] Données à envoyer:', {
       fileName,
       audioSize: audioBlob.size,
@@ -41,7 +50,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       timestamp
     });
 
-    console.log('🌐 [WEBHOOK] Envoi de la requête POST...');
+    console.log('🌐 [WEBHOOK] Envoi de la requête POST vers:', WEBHOOK_URL);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -58,12 +67,9 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
 
     clearTimeout(timeoutId);
 
-    console.log('📨 [WEBHOOK] Réponse reçue:', {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries())
-    });
+    console.log('📨 [WEBHOOK] Réponse reçue de:', WEBHOOK_URL);
+    console.log('📨 [WEBHOOK] Status:', response.status, response.statusText);
+    console.log('📨 [WEBHOOK] Headers:', Object.fromEntries(response.headers.entries()));
 
     if (response.ok) {
       let responseData;
@@ -82,10 +88,11 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
         responseData = 'Réponse reçue mais non parsable';
       }
       
-      console.log('✅ [WEBHOOK] Envoi réussi!');
-      return { success: true, message: "Message transmis" };
+      console.log('✅ [WEBHOOK] Envoi réussi vers:', WEBHOOK_URL);
+      return { success: true, message: "Message transmis vers webhook-test" };
     } else {
-      console.error('❌ [WEBHOOK] Erreur HTTP:', response.status, response.statusText);
+      console.error('❌ [WEBHOOK] Erreur HTTP vers:', WEBHOOK_URL);
+      console.error('❌ [WEBHOOK] Status:', response.status, response.statusText);
       
       // Essayer de lire le corps de la réponse d'erreur
       let errorBody;
@@ -99,7 +106,8 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       throw new Error(`Erreur HTTP: ${response.status} ${response.statusText}${errorBody ? ' - ' + errorBody : ''}`);
     }
   } catch (error) {
-    console.error('💥 [WEBHOOK] Erreur détaillée lors de l\'envoi:', error);
+    console.error('💥 [WEBHOOK] Erreur détaillée lors de l\'envoi vers:', WEBHOOK_URL);
+    console.error('💥 [WEBHOOK] Erreur:', error);
     
     let errorMessage = "Impossible de transmettre le message.";
     
@@ -138,6 +146,6 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
 
     throw new Error(errorMessage);
   } finally {
-    console.log('🏁 [WEBHOOK] Processus terminé');
+    console.log('🏁 [WEBHOOK] Processus terminé pour URL:', WEBHOOK_URL);
   }
 };
