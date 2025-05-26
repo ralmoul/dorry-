@@ -1,33 +1,21 @@
-
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(-1)}
-            className="mb-4"
-          >
+          <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
             ← Retour
           </Button>
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Politique de confidentialité</h1>
-          <p className="text-lg text-gray-600">
-            Chez Dory, votre vie privée est notre priorité. Découvrez comment nous protégeons et utilisons vos données.
-          </p>
+          <p className="text-lg text-gray-600">Chez Dorry, votre vie privée est notre priorité. Découvrez comment nous protégeons et utilisons vos données.</p>
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 space-y-6">
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">1. Collecte des données</h2>
-            <p className="text-gray-600 mb-4">
-              Dory collecte uniquement les données nécessaires au fonctionnement de l'application :
-            </p>
+            <p className="text-gray-600 mb-4">Dorry collecte uniquement les données nécessaires au fonctionnement de l'application :</p>
             <ul className="list-disc list-inside text-gray-600 space-y-2">
               <li>Informations d'inscription (nom, prénom, email, entreprise)</li>
               <li>Enregistrements audio des réunions et entretiens</li>
@@ -57,14 +45,10 @@ const PrivacyPolicy = () => {
 
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">4. Vos droits</h2>
-            <p className="text-gray-600">
-              Vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à privacy@dory.ai.
-            </p>
+            <p className="text-gray-600">Vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à contact@dorry.app.</p>
           </section>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PrivacyPolicy;
