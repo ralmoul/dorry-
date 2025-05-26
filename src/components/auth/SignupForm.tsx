@@ -115,20 +115,20 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[#4649ee]/75">
+    <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[#4649ee]/75 relative">
+      {/* Bouton retour en haut à gauche de la page */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleBackToHome}
+        className="absolute top-6 left-6 text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 z-10"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Accueil
+      </Button>
+
       <Card className="w-full max-w-sm sm:max-w-md bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
         <CardHeader className="text-center p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToHome}
-              className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Accueil
-            </Button>
-          </div>
           <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             Rejoindre Dory
           </CardTitle>
