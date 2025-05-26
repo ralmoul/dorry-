@@ -231,7 +231,7 @@ const Landing = () => {
           </div>
           
           <div className="border-t border-gray-700 pt-8 text-center text-gray-300">
-            <p>Dorry est une solution créée par Synkros.AI</p>
+            <p>© 2025 Dorry. Tous droits réservés.</p>
           </div>
         </div>
       </footer>
