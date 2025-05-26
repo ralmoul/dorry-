@@ -69,32 +69,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      const user = users[0];
+      const dbUser = users[0];
       
       // Verify password
-      const isPasswordValid = await bcrypt.compare(data.password, user.password_hash);
+      const isPasswordValid = await bcrypt.compare(data.password, dbUser.password_hash);
       
       if (!isPasswordValid) {
         console.log('Invalid password');
         return false;
       }
       
-      console.log('User found and approved:', user);
+      console.log('User found and approved:', dbUser);
       
-      // Remove password from user object
-      const { password_hash, ...userWithoutPassword } = user;
+      // Transform database user to User interface format
+      const user: User = {
+        id: dbUser.id,
+        firstName: dbUser.first_name,
+        lastName: dbUser.last_name,
+        email: dbUser.email,
+        phone: dbUser.phone,
+        company: dbUser.company,
+        isApproved: dbUser.is_approved,
+        createdAt: dbUser.created_at,
+      };
       
       setAuthState({
-        user: userWithoutPassword,
+        user,
         isAuthenticated: true,
         isLoading: false,
       });
       
       // Store according to user preference
       if (data.rememberMe) {
-        localStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+        localStorage.setItem('dory_user', JSON.stringify(user));
       } else {
-        sessionStorage.setItem('dory_user', JSON.stringify(userWithoutPassword));
+        sessionStorage.setItem('dory_user', JSON.stringify(user));
       }
       
       return true;
