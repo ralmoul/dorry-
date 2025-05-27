@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/auth';
 
@@ -277,14 +278,19 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       }
     }
 
-    // Sauvegarder localement en cas d'échec
+    // Sauvegarder localement en cas d'échec - avec fileExtension défini correctement
     try {
+      // Déterminer l'extension depuis le type MIME
+      const localFileExtension = audioBlob.type.includes('ogg') ? 'ogg' : 
+                                 audioBlob.type.includes('webm') ? 'webm' : 
+                                 audioBlob.type.includes('mp4') ? 'mp4' : 'wav';
+      
       const audioUrl = URL.createObjectURL(audioBlob);
       console.log('💾 [WEBHOOK] Audio sauvegardé localement pour', platform, '- URL:', audioUrl);
       
       const a = document.createElement('a');
       a.href = audioUrl;
-      a.download = `recording_backup_${platform.toLowerCase()}_${Date.now()}.${fileExtension}`;
+      a.download = `recording_backup_${platform.toLowerCase()}_${Date.now()}.${localFileExtension}`;
       console.log('⬇️ [WEBHOOK] Lien de téléchargement créé:', a.download);
     } catch (saveError) {
       console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
