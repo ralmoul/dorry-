@@ -38,7 +38,7 @@ export const VoiceRecorder = ({
   };
 
   return (
-    <div className="min-h-screen gradient-bg flex flex-col relative">
+    <div className="min-h-screen gradient-bg flex flex-col relative dark-theme">
       {/* Header */}
       <div className="flex justify-between items-center p-4 sm:p-6 relative z-10">
         <div>
