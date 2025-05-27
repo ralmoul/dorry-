@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, Brain, MapPin, Mail, Clock, Shield, Zap, Users } from 'lucide-react';
-
 const TypewriterText = ({
   text,
   delay = 100
@@ -24,92 +23,76 @@ const TypewriterText = ({
   }, [currentIndex, text, delay]);
   return <span>{displayText}</span>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [showSubtitle, setShowSubtitle] = useState(false);
-
   useEffect(() => {
     const timer = setTimeout(() => setShowSubtitle(true), 3000);
     return () => clearTimeout(timer);
   }, []);
-
   const handleGetStarted = () => {
     navigate('/signup');
   };
-
   const handleLogin = () => {
     navigate('/login');
   };
-
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       {/* Header */}
-      <header className="flex flex-col sm:flex-row justify-between items-center p-4 sm:p-6 max-w-7xl mx-auto gap-4 sm:gap-0">
+      <header className="flex justify-between items-center p-6 max-w-7xl mx-auto">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-base sm:text-lg">D</span>
+          <div className="w-10 h-10 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-lg">D</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             Dorry
           </h1>
         </div>
         
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-          <Button 
-            variant="outline" 
-            onClick={handleLogin} 
-            className="border-bright-turquoise text-bright-turquoise hover:bg-bright-turquoise hover:text-white w-full sm:w-auto text-sm sm:text-base px-4 py-2"
-          >
+        <div className="flex space-x-4">
+          <Button variant="outline" onClick={handleLogin} className="border-bright-turquoise text-bright-turquoise hover:bg-bright-turquoise hover:text-white">
             Se connecter
           </Button>
-          <Button 
-            onClick={handleGetStarted} 
-            className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white hover:opacity-90 w-full sm:w-auto text-sm sm:text-base px-4 py-2"
-          >
+          <Button onClick={handleGetStarted} className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white hover:opacity-90">
             S'inscrire
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="text-center py-12 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6 leading-tight px-2">
+      <section className="text-center py-20 px-6 max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6 leading-tight">
             <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos échanges" delay={50} />
           </h1>
           
-          {showSubtitle && <p className="text-lg sm:text-xl md:text-2xl text-pink-500 animate-fade-in mb-6 sm:mb-8 px-4">
+          {showSubtitle && <p className="text-xl md:text-2xl text-pink-500 animate-fade-in mb-8">
               Votre copilote de confiance pour des suivis sans effort et des comptes rendus ultra-fiables
             </p>}
         </div>
 
-        <div className="mb-8 sm:mb-12 animate-pulse-ai">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center shadow-2xl">
-            <Mic className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+        <div className="mb-12 animate-pulse-ai">
+          <div className="w-32 h-32 mx-auto bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center shadow-2xl">
+            <Mic className="w-16 h-16 text-white" />
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 px-4">
+        <div className="max-w-4xl mx-auto text-lg text-gray-600 mb-8">
           <p className="animate-fade-in">Dorry vous accompagne lors de chaque réunion ou entretien, capte chaque moment, analyse, détecte les informations essentielles et livre un compte rendu précis, sans que vous ayez à lever le petit doigt. Plus qu'une assistante, Dorry est votre copilote IA pour des suivis irréprochables, même quand vous n'avez pas le temps, même quand vous décrochez.</p>
         </div>
 
-        <Button 
-          onClick={handleGetStarted} 
-          size="lg" 
-          className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 hover:opacity-90 animate-glow w-full sm:w-auto max-w-sm sm:max-w-none mx-auto"
-        >
+        <Button onClick={handleGetStarted} size="lg" className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white text-xl px-8 py-4 hover:opacity-90 animate-glow">
           Essayez dès aujourd'hui
         </Button>
       </section>
 
       {/* Comment ça marche */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-white/50 backdrop-blur-sm">
+      <section className="py-20 px-6 bg-white/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-16 px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">
             Comment Dorry vous simplifie la vie ?
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="hover:scale-105 transition-transform duration-300 bg-white/80 backdrop-blur-sm border-bright-turquoise/20">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
@@ -154,13 +137,13 @@ const Landing = () => {
       </section>
 
       {/* Pourquoi choisir Dorry */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6">
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8 sm:mb-16 px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">
             Pourquoi choisir Dorry ?
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="hover:scale-105 transition-transform duration-300 bg-white/80 backdrop-blur-sm border-bright-turquoise/20">
               <CardContent className="p-6 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
@@ -205,28 +188,24 @@ const Landing = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-r from-bright-turquoise to-electric-blue">
+      <section className="py-20 px-6 bg-gradient-to-r from-bright-turquoise to-electric-blue">
         <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 px-4">
+          <h2 className="text-4xl font-bold mb-6">
             Rejoignez la nouvelle génération d'accompagnateurs augmentés par l'IA !
           </h2>
-          <p className="text-lg sm:text-xl mb-6 sm:mb-8 opacity-90 px-4">
+          <p className="text-xl mb-8 opacity-90">
             L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
           </p>
-          <Button 
-            onClick={handleGetStarted} 
-            size="lg" 
-            className="bg-white text-bright-turquoise text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 hover:bg-gray-100 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto"
-          >
+          <Button onClick={handleGetStarted} size="lg" className="bg-white text-bright-turquoise text-xl px-8 py-4 hover:bg-gray-100">
             Commencer gratuitement
           </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8 sm:py-12 px-4 sm:px-6">
+      <footer className="bg-gray-800 text-white py-12 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <h3 className="text-lg font-bold mb-4">Dorry</h3>
               <p className="text-gray-300">L'assistante IA qui révolutionne l'accompagnement de projet</p>
@@ -251,12 +230,11 @@ const Landing = () => {
             </div>
           </div>
           
-          <div className="border-t border-gray-700 pt-6 sm:pt-8 text-center text-gray-300">
+          <div className="border-t border-gray-700 pt-8 text-center text-gray-300">
             <p>© 2025 Dorry. Tous droits réservés.</p>
           </div>
         </div>
       </footer>
     </div>;
 };
-
 export default Landing;
