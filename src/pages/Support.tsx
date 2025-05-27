@@ -9,7 +9,26 @@ const Support = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
-      <div className="max-w-4xl mx-auto">
+      <style>
+        {`
+          .support-page h3 {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            line-height: 1.4;
+          }
+          
+          @media (max-width: 768px) {
+            .support-page h3 {
+              font-size: 1rem;
+              line-height: 1.3;
+              word-break: break-word;
+              white-space: normal;
+            }
+          }
+        `}
+      </style>
+      <div className="max-w-4xl mx-auto support-page">
         <div className="mb-8">
           <Button 
             variant="outline" 
@@ -52,19 +71,19 @@ const Support = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-semibold !text-gray-900 mb-2">Comment fonctionne l'analyse IA de Dorry ?</h3>
+              <h3 className="font-semibold !text-gray-900 mb-2 text-sm sm:text-base leading-tight">Comment fonctionne l'analyse IA de Dorry ?</h3>
               <p className="!text-gray-800">Dorry utilise des modèles d'intelligence artificielle avancés pour analyser vos enregistrements, détecter les informations clés, et générer automatiquement des comptes rendus structurés.</p>
             </div>
             
             <div>
-              <h3 className="font-semibold !text-gray-900 mb-2">Mes données sont-elles sécurisées ?</h3>
+              <h3 className="font-semibold !text-gray-900 mb-2 text-sm sm:text-base leading-tight">Mes données sont-elles sécurisées ?</h3>
               <p className="!text-gray-800">
                 Absolument. Toutes vos données sont chiffrées et stockées de manière sécurisée. Nous respectons le RGPD et ne partageons jamais vos informations avec des tiers.
               </p>
             </div>
             
             <div>
-              <h3 className="font-semibold !text-gray-900 mb-2">Comment obtenir le consentement pour l'enregistrement ?</h3>
+              <h3 className="font-semibold !text-gray-900 mb-2 text-sm sm:text-base leading-tight">Comment obtenir le consentement pour l'enregistrement ?</h3>
               <p className="!text-gray-800">Il est important d'informer et d'obtenir le consentement explicite de tous les participants avant de commencer un enregistrement. Dorry peut vous aider avec des modèles de formulaires de consentement.</p>
             </div>
           </CardContent>
