@@ -80,11 +80,10 @@ const Landing = () => {
           <div className="flex items-center justify-between gap-16">
             <div className="flex-1 max-w-2xl">
               <h1 className="text-6xl font-bold mb-8 leading-tight">
-                <TypewriterText text="Dorry, l'assistante IA qui " className="block" />
+                <TypewriterText text="Dorry, l'assistante IA qui" className="block" />
                 <span className="block text-7xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent my-4">
-                  révolutionne
+                  révolutionne vos réunions
                 </span>
-                <TypewriterText text="vos réunions" className="block" delay={150} />
               </h1>
               <p className="text-xl text-slate-300 mb-8">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
