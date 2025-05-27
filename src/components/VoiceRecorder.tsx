@@ -1,152 +1,283 @@
 
-import { Button } from '@/components/ui/button';
-import { AIVisualizer } from '@/components/ui/AIVisualizer';
-import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
-import { useAudioRecorder } from '@/hooks/useAudioRecorder';
-import { useAuth } from '@/hooks/useAuth';
-import { Zap, LogOut } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
   onOpenUpcomingFeatures: () => void;
 }
 
-export const VoiceRecorder = ({
+export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onOpenSettings,
-  onOpenUpcomingFeatures
-}: VoiceRecorderProps) => {
-  const {
-    isRecording,
-    isProcessing,
-    showConfirmation,
-    recordingTime,
-    formatTime,
-    startRecording,
-    stopRecording,
-    confirmSend,
-    cancelRecording
-  } = useAudioRecorder();
+  onOpenUpcomingFeatures,
+}) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const waveformRef = useRef<NodeJS.Timeout | null>(null);
   
-  const { user, logout } = useAuth();
-
-  const handleRecordingToggle = () => {
+  // Simule l'animation des ondes vocales
+  useEffect(() => {
     if (isRecording) {
-      stopRecording();
+      waveformRef.current = setInterval(() => {
+        setWaveform(prev => 
+          prev.map(() => Math.floor(Math.random() * 30) + 5)
+        );
+      }, 150);
+      
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
     } else {
-      startRecording();
+      if (waveformRef.current) clearInterval(waveformRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setWaveform(Array(20).fill(5));
+    }
+    
+    return () => {
+      if (waveformRef.current) clearInterval(waveformRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isRecording]);
+  
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const handleMicClick = () => {
+    setIsRecording(!isRecording);
+    if (!isRecording) {
+      setRecordingTime(0);
     }
   };
-
+  
   return (
-    <div className="min-h-screen gradient-bg flex flex-col relative dark-theme">
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
+      {/* Particules d'arrière-plan */}
+      <div className="absolute inset-0 z-0">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue opacity-20"
+            initial={{ 
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200), 
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800) 
+            }}
+            animate={{ 
+              x: [
+                Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200), 
+                Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200)
+              ],
+              y: [
+                Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800), 
+                Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800)
+              ] 
+            }}
+            transition={{ 
+              duration: Math.random() * 20 + 10, 
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+        ))}
+      </div>
+      
       {/* Header */}
-      <div className="flex justify-between items-center p-4 sm:p-6 relative z-10">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
+      <div className="w-full flex justify-between items-center mb-8 z-10">
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             Dorry
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground text-sharp">
-            Bonjour, {user?.firstName}
-          </p>
+          <span className="ml-4 text-gray-300">Bonjour, thomas</span>
         </div>
-        <div className="flex gap-2 sm:gap-3">
-          <Button variant="ghost" size="sm" onClick={onOpenUpcomingFeatures} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
-            ✨
-          </Button>
-          <Button variant="ghost" size="sm" onClick={onOpenSettings} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
-            ⚙️
-          </Button>
-          <Button variant="ghost" size="sm" onClick={logout} className="hover:bg-foreground/10 p-2 text-red-600">
-            <LogOut className="w-4 h-4" />
-          </Button>
+        <div className="flex items-center space-x-4">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onOpenUpcomingFeatures}
+            className="text-gray-300 hover:text-white"
+          >
+            <span className="text-xl">✨</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onOpenSettings}
+            className="text-gray-300 hover:text-white"
+          >
+            <span className="text-xl">⚙️</span>
+          </motion.button>
         </div>
       </div>
-
-      {/* Zone centrale */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 relative">
-        {showConfirmation ? (
-          <RecordingConfirmation 
-            onSend={confirmSend}
-            onCancel={cancelRecording}
-            isProcessing={isProcessing}
-          />
+      
+      {/* Titre principal avec animation */}
+      <motion.h2 
+        className="text-3xl md:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        Votre assistante vocal intelligente vous écoute
+      </motion.h2>
+      
+      <AnimatePresence mode="wait">
+        {isRecording ? (
+          <motion.div 
+            key="recording"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="text-white text-xl mb-8"
+          >
+            Enregistrement en cours... {formatTime(recordingTime)}
+          </motion.div>
         ) : (
-          <>
-            {/* Titre et description */}
-            <div className="text-center mb-6 sm:mb-8 relative z-10 px-2">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent leading-tight text-sharp">
-                {isRecording ? 'Je vous écoute...' : 'Votre assistante vocal intelligente vous écoute'}
-              </h2>
-              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg px-2 text-sharp">
-                {isRecording ? 'Exprimez vos idées librement' : isProcessing ? 'Transmission en cours...' : 'Appuyer sur le micro pour commencer'}
-              </p>
-              
-              {/* Affichage du temps d'enregistrement */}
-              {isRecording && (
-                <div className="mt-4">
-                  <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-red-500 font-mono text-lg font-semibold">
-                      {formatTime(recordingTime)}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Visualiseur IA */}
-            <div className="relative z-20 mb-6 sm:mb-8">
-              <AIVisualizer 
-                isRecording={isRecording} 
-                onRecordingToggle={handleRecordingToggle} 
-                isProcessing={isProcessing} 
-              />
-            </div>
-
-            {/* Bloc explicatif IA */}
-            <div className="relative z-10 max-w-sm sm:max-w-md w-full px-4">
-              <div className="bg-gradient-to-br from-bright-turquoise/10 to-electric-blue/10 backdrop-blur-sm border border-bright-turquoise/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl">
-                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-dark-navy" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-sharp">
-                    IA & automatisation
-                  </h3>
-                </div>
-                
-                <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed text-sharp">
-                  Dorry reçoit vos audios et :
-                </p>
-                
-                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
-                    <span>Analyse ce qui a été dit</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
-                    <span>Détecte les informations du porteur de projet</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
-                    <span>Identifie si la personne est en QPV</span>
-                  </li>
-                  <li className="flex items-start gap-2 text-muted-foreground text-sharp">
-                    <span className="text-bright-turquoise mt-0.5 sm:mt-1">•</span>
-                    <span>Vous envoie directement le compte rendu dans votre boite mail</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </>
+          <motion.div 
+            key="instruction"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="text-gray-300 text-xl mb-8"
+          >
+            Appuyer sur le micro pour commencer
+          </motion.div>
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="p-4 sm:p-6 text-center relative z-10">
+      </AnimatePresence>
+      
+      {/* Visualisation des ondes vocales */}
+      <div className="relative mb-8">
+        {/* Cercles concentriques animés */}
+        <AnimatePresence>
+          {isRecording && (
+            <>
+              <motion.div
+                initial={{ scale: 0, opacity: 0.7 }}
+                animate={{ scale: 1.5, opacity: 0 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 2,
+                  ease: "easeOut"
+                }}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-bright-turquoise"
+              />
+              <motion.div
+                initial={{ scale: 0, opacity: 0.5 }}
+                animate={{ scale: 1.2, opacity: 0 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 1.5,
+                  ease: "easeOut",
+                  delay: 0.3
+                }}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-electric-blue"
+              />
+            </>
+          )}
+        </AnimatePresence>
         
+        {/* Visualisation des ondes autour du bouton */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 flex items-center justify-center">
+          <div className="flex items-center justify-center w-full h-full">
+            {waveform.map((height, index) => (
+              <motion.div
+                key={index}
+                className="w-1 mx-0.5 rounded-full bg-gradient-to-t from-bright-turquoise to-electric-blue"
+                style={{ 
+                  height: `${height}px`,
+                  opacity: isRecording ? 0.8 : 0.3
+                }}
+                animate={{ 
+                  height: `${height}px`,
+                  opacity: isRecording ? 0.8 : 0.3
+                }}
+                transition={{ duration: 0.1 }}
+              />
+            ))}
+          </div>
+        </div>
+        
+        {/* Bouton du micro */}
+        <motion.button
+          onClick={handleMicClick}
+          className={`relative z-10 w-24 h-24 rounded-full flex items-center justify-center focus:outline-none ${
+            isRecording 
+              ? 'bg-gradient-to-r from-red-500 to-red-600' 
+              : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{ 
+            boxShadow: isRecording 
+              ? ['0 0 0 0 rgba(239, 68, 68, 0)', '0 0 0 15px rgba(239, 68, 68, 0.3)', '0 0 0 0 rgba(239, 68, 68, 0)'] 
+              : ['0 0 0 0 rgba(0, 184, 212, 0)', '0 0 0 10px rgba(0, 184, 212, 0.3)', '0 0 0 0 rgba(0, 184, 212, 0)']
+          }}
+          transition={{ 
+            boxShadow: { 
+              repeat: Infinity, 
+              duration: 1.5 
+            }
+          }}
+        >
+          <motion.span 
+            className="text-white text-2xl"
+            animate={{ 
+              scale: isRecording ? [1, 1.2, 1] : 1
+            }}
+            transition={{ 
+              scale: { 
+                repeat: isRecording ? Infinity : 0, 
+                duration: 1 
+              }
+            }}
+          >
+            🎤
+          </motion.span>
+        </motion.button>
       </div>
+      
+      {/* Carte d'information */}
+      <motion.div 
+        className="w-full max-w-md bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
+            <span className="text-white text-lg">⚡</span>
+          </div>
+          <h3 className="ml-3 text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+            IA & automatisation
+          </h3>
+        </div>
+        
+        <p className="text-gray-300 mb-4">Dorry reçoit vos audios et :</p>
+        
+        <ul className="space-y-3">
+          {[
+            "Analyse ce qui a été dit",
+            "Détecte les informations du porteur de projet",
+            "Identifie si la personne est en QPV",
+            "Vous envoie directement le compte rendu dans votre boîte mail"
+          ].map((item, index) => (
+            <motion.li 
+              key={index}
+              className="flex items-start"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
+            >
+              <span className="text-bright-turquoise mr-2">•</span>
+              <span className="text-gray-200">{item}</span>
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
     </div>
   );
 };
