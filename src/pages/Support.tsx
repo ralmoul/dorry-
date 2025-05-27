@@ -18,7 +18,7 @@ const Support = () => {
           >
             ← Retour
           </Button>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Support Dorry</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent mb-4">Support Dorry</h1>
           <p className="text-lg text-gray-600">
             Notre équipe est là pour vous accompagner dans l'utilisation de Dorry.
           </p>
@@ -29,7 +29,7 @@ const Support = () => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Mail className="w-5 h-5 text-bright-turquoise" />
-                <span className="font-normal text-gray-950">Support par email</span>
+                <span className="font-normal text-gray-800">Support par email</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -47,7 +47,7 @@ const Support = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <HelpCircle className="w-5 h-5 text-bright-turquoise" />
-              <span>Questions fréquentes</span>
+              <span className="text-gray-800">Questions fréquentes</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">

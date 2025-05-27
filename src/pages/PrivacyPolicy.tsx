@@ -1,14 +1,22 @@
+
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
-  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)} 
+            className="mb-4"
+          >
             ← Retour
           </Button>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Politique de confidentialité</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent mb-4">Politique de confidentialité</h1>
           <p className="text-lg text-gray-600">Chez Dorry, votre vie privée est notre priorité. Découvrez comment nous protégeons et utilisons vos données.</p>
         </div>
 
@@ -49,6 +57,8 @@ const PrivacyPolicy = () => {
           </section>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default PrivacyPolicy;

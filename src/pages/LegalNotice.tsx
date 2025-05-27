@@ -16,7 +16,7 @@ const LegalNotice = () => {
           >
             ← Retour
           </Button>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Mentions légales</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent mb-4">Mentions légales</h1>
           <p className="text-lg text-gray-600">
             Informations légales concernant Dorry.
           </p>
@@ -26,29 +26,29 @@ const LegalNotice = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Éditeur du site</h2>
             <div className="text-gray-600 space-y-2">
-              <p><strong>Raison sociale :</strong> Thomas Bouziza</p>
-              <p><strong>Nom commercial :</strong> Thomas Bouziza</p>
-              <p><strong>Forme juridique :</strong> Exploitation personnelle</p>
-              <p><strong>Adresse du siège / établissement principal :</strong> Val-de-reuil 27100</p>
-              <p><strong>Immatriculation au RCS :</strong> 883 178 394 R.C.S. Rouen</p>
-              <p><strong>Date d'immatriculation :</strong> 14/01/2025</p>
-              <p><strong>Activité :</strong> Programmation informatique et automatisation</p>
+              <p><strong className="text-gray-800">Raison sociale :</strong> Thomas Bouziza</p>
+              <p><strong className="text-gray-800">Nom commercial :</strong> Thomas Bouziza</p>
+              <p><strong className="text-gray-800">Forme juridique :</strong> Exploitation personnelle</p>
+              <p><strong className="text-gray-800">Adresse du siège / établissement principal :</strong> Val-de-reuil 27100</p>
+              <p><strong className="text-gray-800">Immatriculation au RCS :</strong> 883 178 394 R.C.S. Rouen</p>
+              <p><strong className="text-gray-800">Date d'immatriculation :</strong> 14/01/2025</p>
+              <p><strong className="text-gray-800">Activité :</strong> Programmation informatique et automatisation</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Directeur de publication</h2>
             <p className="text-gray-600">
-              <strong>Nom :</strong> Thomas Bouziza
+              <strong className="text-gray-800">Nom :</strong> Thomas Bouziza
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Hébergement</h2>
             <div className="text-gray-600 space-y-2">
-              <p><strong>Hébergeur :</strong> OVH SAS</p>
-              <p><strong>Adresse :</strong> 2 rue Kellermann, 59100 Roubaix</p>
-              <p><strong>Téléphone :</strong> 09 72 10 10 07</p>
+              <p><strong className="text-gray-800">Hébergeur :</strong> OVH SAS</p>
+              <p><strong className="text-gray-800">Adresse :</strong> 2 rue Kellermann, 59100 Roubaix</p>
+              <p><strong className="text-gray-800">Téléphone :</strong> 09 72 10 10 07</p>
             </div>
           </section>
 
@@ -62,9 +62,9 @@ const LegalNotice = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Contact</h2>
             <div className="text-gray-600 space-y-2">
-              <p><strong>Email :</strong> contact@dorry.app</p>
-              <p><strong>Téléphone :</strong> +33 6 52 64 10 56</p>
-              <p><strong>Adresse :</strong> Val-de-reuil 27100</p>
+              <p><strong className="text-gray-800">Email :</strong> contact@dorry.app</p>
+              <p><strong className="text-gray-800">Téléphone :</strong> +33 6 52 64 10 56</p>
+              <p><strong className="text-gray-800">Adresse :</strong> Val-de-reuil 27100</p>
             </div>
           </section>
         </div>
