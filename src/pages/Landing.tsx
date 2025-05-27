@@ -5,6 +5,7 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X } from 'lucide-react';
+
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,6 +26,7 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
+  
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -32,12 +34,14 @@ const Landing = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
+  
   const handleMouseMove = (e: React.MouseEvent) => {
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
@@ -46,6 +50,7 @@ const Landing = () => {
       heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     }
   };
+
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
@@ -97,10 +102,21 @@ const Landing = () => {
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
-            <div className="flex-1 max-w-2xl text-center md:text-left order-2 md:order-1">
+            {/* Text content - order changes on mobile vs desktop */}
+            <div className="flex-1 max-w-2xl text-center md:text-left order-1 md:order-1">
               <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 md:mb-8 leading-tight">
                 <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos réunions" className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" />
               </h1>
+              
+              {/* Image positioned after title on mobile only */}
+              <div className="flex md:hidden justify-center items-center relative mb-6">
+                <div className="relative">
+                  <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
+                    <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
+                  </div>
+                </div>
+              </div>
+              
               <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
@@ -111,7 +127,8 @@ const Landing = () => {
               </div>
             </div>
             
-            <div className="flex-1 flex justify-center items-center relative order-1 md:order-2">
+            {/* Image for desktop only - hidden on mobile */}
+            <div className="hidden md:flex flex-1 justify-center items-center relative order-2">
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
