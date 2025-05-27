@@ -13,7 +13,7 @@ const Index = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+      <div className="min-h-screen gradient-bg flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-pulse-ai mx-auto mb-4"></div>
           <h2 className="text-xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
@@ -34,7 +34,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <>
       {currentScreen === 'recorder' && (
         <VoiceRecorder 
           onOpenSettings={() => setCurrentScreen('settings')}
@@ -44,7 +44,7 @@ const Index = () => {
       {currentScreen === 'settings' && (
         <Settings onBack={() => setCurrentScreen('recorder')} />
       )}
-    </div>
+    </>
   );
 };
 

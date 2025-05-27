@@ -1,13 +1,16 @@
+
 import { Button } from '@/components/ui/button';
 import { AIVisualizer } from '@/components/ui/AIVisualizer';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useAuth } from '@/hooks/useAuth';
 import { Zap, LogOut } from 'lucide-react';
+
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
   onOpenUpcomingFeatures: () => void;
 }
+
 export const VoiceRecorder = ({
   onOpenSettings,
   onOpenUpcomingFeatures
@@ -28,6 +31,7 @@ export const VoiceRecorder = ({
     user,
     logout
   } = useAuth();
+
   const handleRecordingToggle = () => {
     if (isRecording) {
       stopRecording();
@@ -35,7 +39,9 @@ export const VoiceRecorder = ({
       startRecording();
     }
   };
-  return <div className="min-h-screen gradient-bg flex flex-col relative">
+
+  return (
+    <div className="min-h-screen gradient-bg flex flex-col relative">
       {/* Header */}
       <div className="flex justify-between items-center p-4 sm:p-6 relative z-10">
         <div>
@@ -53,7 +59,7 @@ export const VoiceRecorder = ({
           <Button variant="ghost" size="sm" onClick={onOpenSettings} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
             ⚙️
           </Button>
-          <Button variant="ghost" size="sm" onClick={logout} className="hover:bg-foreground/10 p-2 text-red-600">
+          <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-foreground hover:bg-foreground/10 p-2">
             <LogOut className="w-4 h-4" />
           </Button>
         </div>
@@ -61,7 +67,15 @@ export const VoiceRecorder = ({
 
       {/* Zone centrale */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 relative">
-        {showConfirmation ? <RecordingConfirmation onSend={confirmSend} onRestart={restartRecording} onCancel={cancelRecording} isProcessing={isProcessing} /> : <>
+        {showConfirmation ? (
+          <RecordingConfirmation 
+            onSend={confirmSend} 
+            onRestart={restartRecording} 
+            onCancel={cancelRecording} 
+            isProcessing={isProcessing} 
+          />
+        ) : (
+          <>
             {/* Titre et description */}
             <div className="text-center mb-6 sm:mb-8 relative z-10 px-2">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-3 sm:mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent leading-tight text-sharp">
@@ -72,19 +86,25 @@ export const VoiceRecorder = ({
               </p>
               
               {/* Affichage du temps d'enregistrement */}
-              {isRecording && <div className="mt-4">
+              {isRecording && (
+                <div className="mt-4">
                   <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                     <span className="text-red-500 font-mono text-lg font-semibold">
                       {formatTime(recordingTime)}
                     </span>
                   </div>
-                </div>}
+                </div>
+              )}
             </div>
 
             {/* Visualiseur IA */}
             <div className="relative z-20 mb-6 sm:mb-8">
-              <AIVisualizer isRecording={isRecording} onRecordingToggle={handleRecordingToggle} isProcessing={isProcessing} />
+              <AIVisualizer 
+                isRecording={isRecording} 
+                onRecordingToggle={handleRecordingToggle} 
+                isProcessing={isProcessing} 
+              />
             </div>
 
             {/* Bloc explicatif IA */}
@@ -123,12 +143,14 @@ export const VoiceRecorder = ({
                 </ul>
               </div>
             </div>
-          </>}
+          </>
+        )}
       </div>
 
       {/* Footer */}
       <div className="p-4 sm:p-6 text-center relative z-10">
         
       </div>
-    </div>;
+    </div>
+  );
 };
