@@ -107,7 +107,7 @@ const Landing = () => {
 
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity">
           <span className="text-sm uppercase tracking-widest mb-2">Découvrir</span>
-          <div className="w-8 h-8 border-r-2 border-b-2 border-cyan-400 transform rotate-45 animate-bounce"></div>
+          <div className="w-8 h-8 border-r-2 border-b-2 border-cyan-400 transform rotate-[225deg] animate-bounce"></div>
         </div>
       </section>
 
