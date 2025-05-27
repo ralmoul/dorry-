@@ -19,6 +19,9 @@ const LegalNotice = () => {
             -webkit-text-fill-color: transparent !important;
             color: transparent !important;
           }
+          .legal-notice-page .white-button {
+            color: white !important;
+          }
         `}
       </style>
       <div className="max-w-4xl mx-auto legal-notice-page">
@@ -26,7 +29,7 @@ const LegalNotice = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate(-1)}
-            className="mb-4"
+            className="mb-4 white-button"
           >
             ← Retour
           </Button>
