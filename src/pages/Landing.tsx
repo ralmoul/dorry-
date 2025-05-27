@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, Brain, MapPin, Mail, Clock, Shield, Zap, Users } from 'lucide-react';
+
 const TypewriterText = ({
   text,
   delay = 100
@@ -23,36 +24,50 @@ const TypewriterText = ({
   }, [currentIndex, text, delay]);
   return <span>{displayText}</span>;
 };
+
 const Landing = () => {
   const navigate = useNavigate();
   const [showSubtitle, setShowSubtitle] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => setShowSubtitle(true), 3000);
     return () => clearTimeout(timer);
   }, []);
+
   const handleGetStarted = () => {
     navigate('/signup');
   };
+
   const handleLogin = () => {
     navigate('/login');
   };
+
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       {/* Header */}
-      <header className="flex justify-between items-center p-6 max-w-7xl mx-auto">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-lg">D</span>
+      <header className="flex justify-between items-center p-4 md:p-6 max-w-7xl mx-auto">
+        <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-bright-turquoise to-electric-blue rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-base md:text-lg">D</span>
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+          <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
             Dorry
           </h1>
         </div>
         
-        <div className="flex space-x-4">
-          <Button variant="outline" onClick={handleLogin} className="border-bright-turquoise text-bright-turquoise hover:bg-bright-turquoise hover:text-white">
+        <div className="flex space-x-2 md:space-x-4 ml-auto">
+          <Button 
+            variant="outline" 
+            onClick={handleLogin} 
+            size="sm"
+            className="text-xs md:text-sm px-3 md:px-4 py-1 md:py-2 border-bright-turquoise text-bright-turquoise hover:bg-bright-turquoise hover:text-white"
+          >
             Se connecter
           </Button>
-          <Button onClick={handleGetStarted} className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white hover:opacity-90">
+          <Button 
+            onClick={handleGetStarted} 
+            size="sm"
+            className="text-xs md:text-sm px-3 md:px-4 py-1 md:py-2 bg-gradient-to-r from-bright-turquoise to-electric-blue text-white hover:opacity-90"
+          >
             S'inscrire
           </Button>
         </div>
@@ -237,4 +252,5 @@ const Landing = () => {
       </footer>
     </div>;
 };
+
 export default Landing;
