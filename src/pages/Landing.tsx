@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -107,15 +106,15 @@ const Landing = () => {
         <FloatingParticles />
         
         <div className="container mx-auto px-4 sm:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
-            <div className="flex-1 max-w-2xl text-center lg:text-left order-2 lg:order-1">
+          <div className="flex flex-col items-center justify-center gap-8 lg:gap-16">
+            <div className="max-w-4xl text-center order-1">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8 leading-tight">
                 <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos réunions" className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" />
               </h1>
               <p className="text-lg sm:text-xl text-slate-300 mb-6 sm:mb-8 px-2 sm:px-0">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
-              <div className="flex justify-center lg:justify-start">
+              <div className="flex justify-center">
                 <ConfettiButton 
                   href="/support"
                   className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all"
@@ -125,7 +124,7 @@ const Landing = () => {
               </div>
             </div>
             
-            <div className="flex-1 flex justify-center items-center relative order-1 lg:order-2 mb-8 lg:mb-0">
+            <div className="flex justify-center items-center relative order-2 mb-8 lg:mb-0">
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
