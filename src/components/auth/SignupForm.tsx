@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -122,7 +121,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
         variant="ghost"
         size="sm"
         onClick={handleBackToHome}
-        className="absolute top-6 left-6 text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 z-10"
+        className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Accueil
@@ -168,7 +167,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
               </div>
             </div>
             <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base">
-              {isLoading ? 'Envoi...' : 'Demander l\'accès'}
+              {isLoading ? 'Envoi...' : "Demander l'accès"}
             </Button>
           </form>
           <div className="mt-3 sm:mt-4 text-center">
