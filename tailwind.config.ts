@@ -63,11 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Palette futuriste Dory
+				// Palette futuriste Dory améliorée
 				'dark-navy': '#0a0a0f',
 				'bright-turquoise': '#00d4aa',
 				'carbon-black': '#1a1a1a',
 				'electric-blue': '#0066ff',
+				'purple-gradient': '#6a11cb',
+				'turquoise-gradient': '#00b8d4',
 				'holographic': {
 					'50': '#f0f9ff',
 					'100': '#e0f2fe',
@@ -80,6 +82,10 @@ export default {
 					'800': '#075985',
 					'900': '#0c4a6e'
 				}
+			},
+			fontFamily: {
+				'montserrat': ['Montserrat', 'sans-serif'],
+				'inter': ['Inter', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -125,6 +131,52 @@ export default {
 					'50%': { 
 						boxShadow: '0 0 40px rgba(0, 212, 170, 0.8)'
 					}
+				},
+				'typewriter': {
+					'from': { width: '0' },
+					'to': { width: '100%' }
+				},
+				'blink': {
+					'50%': { borderColor: 'transparent' }
+				},
+				'fadeInUp': {
+					'from': {
+						opacity: '0',
+						transform: 'translateY(30px)'
+					},
+					'to': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'slideInLeft': {
+					'from': {
+						opacity: '0',
+						transform: 'translateX(-50px)'
+					},
+					'to': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'slideInRight': {
+					'from': {
+						opacity: '0',
+						transform: 'translateX(50px)'
+					},
+					'to': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+					'33%': { transform: 'translateY(-10px) rotate(1deg)' },
+					'66%': { transform: 'translateY(-5px) rotate(-1deg)' }
+				},
+				'confetti': {
+					'0%': { transform: 'translateY(0) rotate(0deg)', opacity: '1' },
+					'100%': { transform: 'translateY(-100px) rotate(720deg)', opacity: '0' }
 				}
 			},
 			animation: {
@@ -132,7 +184,13 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-ai': 'pulse-ai 2s ease-in-out infinite',
 				'wave': 'wave 1s ease-in-out infinite',
-				'glow': 'glow 2s ease-in-out infinite'
+				'glow': 'glow 2s ease-in-out infinite',
+				'typewriter': 'typewriter 3s steps(40) 1s forwards, blink 0.5s step-end infinite alternate',
+				'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+				'slide-in-left': 'slideInLeft 0.8s ease-out forwards',
+				'slide-in-right': 'slideInRight 0.8s ease-out forwards',
+				'float': 'float 6s ease-in-out infinite',
+				'confetti': 'confetti 1s ease-out forwards'
 			}
 		}
 	},

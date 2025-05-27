@@ -57,9 +57,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
   }
 
-  /* Améliorer la netteté des textes en gras et blancs */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.025em;
+  }
+
   .font-bold,
   .font-semibold,
   strong,
@@ -70,15 +78,6 @@
     letter-spacing: -0.025em;
   }
 
-  /* Spécifiquement pour les titres et textes importants */
-  h1, h2, h3, h4, h5, h6 {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    letter-spacing: -0.025em;
-  }
-
-  /* Améliorer le rendu des textes avec dégradés */
   .bg-clip-text {
     -webkit-background-clip: text;
     background-clip: text;
@@ -93,6 +92,28 @@
     background: radial-gradient(ellipse at top, rgba(0, 212, 170, 0.1) 0%, rgba(10, 10, 15, 1) 70%);
   }
   
+  .immersive-bg {
+    background: linear-gradient(135deg, 
+      rgba(0, 184, 212, 0.1) 0%, 
+      rgba(106, 17, 203, 0.05) 25%,
+      rgba(10, 10, 15, 0.95) 50%,
+      rgba(0, 102, 255, 0.05) 75%,
+      rgba(0, 212, 170, 0.1) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .immersive-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2300d4aa' fill-opacity='0.02'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+    animation: float 20s ease-in-out infinite;
+  }
+  
   .holographic-border {
     border: 1px solid transparent;
     background: linear-gradient(45deg, #00d4aa, #0066ff, #00d4aa) border-box;
@@ -104,10 +125,238 @@
     box-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
   }
 
-  /* Classe utilitaire pour les textes nets */
+  .holographic-card {
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(0, 212, 170, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .holographic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent 0%,
+      rgba(0, 212, 170, 0.4) 50%,
+      transparent 100%);
+    transition: left 0.5s ease;
+  }
+
+  .holographic-card:hover::before {
+    left: 100%;
+  }
+
   .text-sharp {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  .floating-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(0, 212, 170, 0.6);
+    border-radius: 50%;
+    animation: float-particle 15s linear infinite;
+  }
+
+  .voice-wave {
+    width: 4px;
+    background: linear-gradient(to top, #00d4aa, #0066ff);
+    border-radius: 2px;
+    animation: voice-wave 1.5s ease-in-out infinite;
+    transform-origin: bottom;
+  }
+
+  .navbar-blur {
+    backdrop-filter: blur(20px);
+    background: rgba(10, 10, 15, 0.8);
+    border-bottom: 1px solid rgba(0, 212, 170, 0.1);
+  }
+
+  .hero-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+  }
+
+  .stats-counter {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00d4aa, #0066ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(-5px) rotate(-1deg); }
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes voice-wave {
+  0%, 100% { 
+    transform: scaleY(0.5);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: scaleY(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-ai {
+  '0%, 100%': { 
+    transform: 'scale(1)',
+    opacity: '1'
+  },
+  '50%': { 
+    transform: 'scale(1.1)',
+    opacity: '0.8'
+  }
+}
+
+@keyframes wave {
+  '0%': { transform: 'scaleY(1)' },
+  '50%': { transform: 'scaleY(1.5)' },
+  '100%': { transform: 'scaleY(1)' }
+}
+
+@keyframes glow {
+  '0%, 100%': { 
+    boxShadow: '0 0 20px rgba(0, 212, 170, 0.5)'
+  },
+  '50%': { 
+    boxShadow: '0 0 40px rgba(0, 212, 170, 0.8)'
+  }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+.animate-typewriter {
+  overflow: hidden;
+  border-right: 2px solid #00d4aa;
+  white-space: nowrap;
+  animation: typewriter 3s steps(40) 1s forwards, blink 0.5s step-end infinite alternate;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.8s ease-out forwards;
+}
+
+.animate-confetti {
+  animation: confetti 1s ease-out forwards;
+}
+
+.animate-pulse-ai {
+  animation: pulse-ai 2s ease-in-out infinite;
+}
+
+.animate-wave {
+  animation: wave 1s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Responsive animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-typewriter,
+  .animate-fade-in-up,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-pulse-ai,
+  .animate-wave,
+  .animate-glow {
+    animation: none;
   }
 }
