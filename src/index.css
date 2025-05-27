@@ -21,7 +21,7 @@
     --secondary-foreground: 250 250 250;
 
     --muted: 0 0% 10%;
-    --muted-foreground: 163 163 163;
+    --muted-foreground: 200 200 200;
 
     --accent: 0 0% 10%;
     --accent-foreground: 250 250 250;
@@ -66,6 +66,11 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     letter-spacing: -0.025em;
+    color: rgb(250 250 250);
+  }
+
+  p, span, div {
+    color: rgb(250 250 250);
   }
 
   .font-bold,
@@ -76,6 +81,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.025em;
+    color: rgb(250 250 250);
   }
 
   .bg-clip-text {
@@ -84,6 +90,52 @@
     -webkit-text-fill-color: transparent;
     font-weight: 600;
     letter-spacing: -0.025em;
+  }
+
+  /* Mobile-specific text improvements */
+  @media (max-width: 768px) {
+    body {
+      color: rgb(250 250 250) !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: rgb(250 250 250) !important;
+    }
+    
+    p, span, div {
+      color: rgb(250 250 250) !important;
+    }
+    
+    .text-slate-300 {
+      color: rgb(200 200 200) !important;
+    }
+    
+    .text-slate-400 {
+      color: rgb(180 180 180) !important;
+    }
+    
+    .text-gray-300 {
+      color: rgb(200 200 200) !important;
+    }
+    
+    .text-white {
+      color: rgb(255 255 255) !important;
+    }
+    
+    /* Ensure buttons have proper contrast */
+    button {
+      color: inherit;
+    }
+    
+    /* Fix input text color */
+    input, textarea {
+      color: rgb(250 250 250) !important;
+    }
+    
+    /* Ensure links are visible */
+    a {
+      color: rgb(0 212 170) !important;
+    }
   }
 }
 
@@ -134,6 +186,7 @@
     border: 1px solid rgba(0, 212, 170, 0.2);
     position: relative;
     overflow: hidden;
+    color: rgb(250 250 250);
   }
 
   .holographic-card::before {
@@ -158,6 +211,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    color: rgb(250 250 250);
   }
 
   .floating-particles {
@@ -204,7 +258,32 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Mobile-specific component improvements */
+  @media (max-width: 768px) {
+    .holographic-card {
+      color: rgb(250 250 250) !important;
+    }
+    
+    .holographic-card * {
+      color: rgb(250 250 250) !important;
+    }
+    
+    .text-sharp {
+      color: rgb(250 250 250) !important;
+    }
+    
+    .navbar-blur {
+      background: rgba(10, 10, 15, 0.95);
+    }
+    
+    .navbar-blur * {
+      color: rgb(250 250 250) !important;
+    }
+  }
 }
+
+/* ... keep existing code (all keyframes and animations) */
 
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }

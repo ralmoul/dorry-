@@ -12,8 +12,7 @@ export const getAudioConstraints = (deviceInfo: DeviceInfo): MediaStreamConstrai
         noiseSuppression: true,
         autoGainControl: true,
         sampleRate: 22050, // Réduction pour iOS
-        channelCount: 1,
-        volume: 1.0
+        channelCount: 1
       }
     };
   } else if (isAndroid) {
@@ -24,8 +23,7 @@ export const getAudioConstraints = (deviceInfo: DeviceInfo): MediaStreamConstrai
         noiseSuppression: true,
         autoGainControl: true,
         sampleRate: 44100,
-        channelCount: 1,
-        volume: 1.0
+        channelCount: 1
       }
     };
   } else if (isMobile) {
