@@ -1,13 +1,19 @@
-
 import { ArrowLeft, Zap, Building2, MessageCircle, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 interface UpcomingFeaturesProps {
   onBack: () => void;
 }
 
 const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
+  const navigate = useNavigate();
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   const features = [
     {
       icon: Target,
@@ -69,8 +75,8 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
         <div className="flex items-center mb-6">
           <Button
             variant="ghost"
-            onClick={onBack}
-            className="p-2 mr-3 hover:bg-bright-turquoise/10"
+            onClick={handleBackToHome}
+            className="p-2 mr-3 hover:bg-white/10 text-white hover:text-white/80"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
