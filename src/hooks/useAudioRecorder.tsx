@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,10 +28,6 @@ export const useAudioRecorder = () => {
       setShowConfirmation(false);
       
       console.log('✅ [AUDIO_RECORDER] Enregistrement démarré avec succès');
-      toast({
-        title: "Enregistrement démarré",
-        description: "Votre assistant vocal intelligent vous écoute...",
-      });
     } catch (error) {
       console.error('❌ [AUDIO_RECORDER] Erreur lors du démarrage:', error);
       toast({
