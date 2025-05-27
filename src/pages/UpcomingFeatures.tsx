@@ -11,7 +11,7 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
   const navigate = useNavigate();
 
   const handleBackToHome = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   const features = [
