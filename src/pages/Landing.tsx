@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
@@ -101,7 +102,7 @@ const Landing = () => {
             <div className="flex-1 flex justify-center items-center relative">
               <div className="relative">
                 <div className="hero-image w-96 h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
-                  <img src="/lovable-uploads/4bd5664e-7cc0-4c85-81dd-1ee48bc86ba9.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
+                  <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
                 </div>
               </div>
             </div>
