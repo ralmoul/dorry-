@@ -17,19 +17,19 @@ const TermsOfService = () => {
             ← Retour
           </Button>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent mb-4">Conditions d'utilisation</h1>
-          <p className="text-lg text-gray-800">Les conditions qui régissent l'utilisation de Dorry, votre assistante IA pour l'accompagnement.</p>
+          <p className="text-lg !text-gray-800">Les conditions qui régissent l'utilisation de Dorry, votre assistante IA pour l'accompagnement.</p>
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 space-y-6">
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Acceptation des conditions</h2>
-            <p className="text-gray-800">En utilisant Dorry, vous acceptez ces conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.</p>
+            <h2 className="text-2xl font-bold !text-gray-900 mb-4">1. Acceptation des conditions</h2>
+            <p className="!text-gray-800">En utilisant Dorry, vous acceptez ces conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Description du service</h2>
-            <p className="text-gray-800 mb-4">Dorry est une assistante IA qui :</p>
-            <ul className="list-disc list-inside text-gray-800 space-y-2">
+            <h2 className="text-2xl font-bold !text-gray-900 mb-4">2. Description du service</h2>
+            <p className="!text-gray-800 mb-4">Dorry est une assistante IA qui :</p>
+            <ul className="list-disc list-inside !text-gray-800 space-y-2">
               <li>Enregistre et analyse vos réunions d'accompagnement</li>
               <li>Génère automatiquement des comptes rendus détaillés</li>
               <li>Détecte les informations importantes des porteurs de projet</li>
@@ -38,11 +38,11 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Responsabilités de l'utilisateur</h2>
-            <p className="text-gray-800 mb-4">
+            <h2 className="text-2xl font-bold !text-gray-900 mb-4">3. Responsabilités de l'utilisateur</h2>
+            <p className="!text-gray-800 mb-4">
               Vous vous engagez à :
             </p>
-            <ul className="list-disc list-inside text-gray-800 space-y-2">
+            <ul className="list-disc list-inside !text-gray-800 space-y-2">
               <li>Obtenir le consentement des participants avant l'enregistrement</li>
               <li>Utiliser le service dans le respect de la loi</li>
               <li>Maintenir la confidentialité de vos identifiants</li>
@@ -51,13 +51,13 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Limitation de responsabilité</h2>
-            <p className="text-gray-800">Dorry est fourni "en l'état". Nous nous efforçons de maintenir la qualité du service mais ne garantissons pas une disponibilité 100% ou une précision absolue des analyses.</p>
+            <h2 className="text-2xl font-bold !text-gray-900 mb-4">4. Limitation de responsabilité</h2>
+            <p className="!text-gray-800">Dorry est fourni "en l'état". Nous nous efforçons de maintenir la qualité du service mais ne garantissons pas une disponibilité 100% ou une précision absolue des analyses.</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Modification des conditions</h2>
-            <p className="text-gray-800">
+            <h2 className="text-2xl font-bold !text-gray-900 mb-4">5. Modification des conditions</h2>
+            <p className="!text-gray-800">
               Nous nous réservons le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés des changements importants.
             </p>
           </section>

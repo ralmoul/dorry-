@@ -19,7 +19,7 @@ const Support = () => {
             ← Retour
           </Button>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent mb-4">Support Dorry</h1>
-          <p className="text-lg text-gray-800">
+          <p className="text-lg !text-gray-800">
             Notre équipe est là pour vous accompagner dans l'utilisation de Dorry.
           </p>
         </div>
@@ -29,11 +29,11 @@ const Support = () => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Mail className="w-5 h-5 text-bright-turquoise" />
-                <span className="font-normal text-gray-900">Support par email</span>
+                <span className="font-normal !text-gray-900">Support par email</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-800 mb-4">
+              <p className="!text-gray-800 mb-4">
                 Pour toute question technique ou commerciale, notre équipe vous répond sous 24h.
               </p>
               <Button className="bg-gradient-to-r from-bright-turquoise to-electric-blue text-white">
@@ -47,25 +47,25 @@ const Support = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <HelpCircle className="w-5 h-5 text-bright-turquoise" />
-              <span className="text-gray-900">Questions fréquentes</span>
+              <span className="!text-gray-900">Questions fréquentes</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Comment fonctionne l'analyse IA de Dorry ?</h3>
-              <p className="text-gray-800">Dorry utilise des modèles d'intelligence artificielle avancés pour analyser vos enregistrements, détecter les informations clés, et générer automatiquement des comptes rendus structurés.</p>
+              <h3 className="font-semibold !text-gray-900 mb-2">Comment fonctionne l'analyse IA de Dorry ?</h3>
+              <p className="!text-gray-800">Dorry utilise des modèles d'intelligence artificielle avancés pour analyser vos enregistrements, détecter les informations clés, et générer automatiquement des comptes rendus structurés.</p>
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Mes données sont-elles sécurisées ?</h3>
-              <p className="text-gray-800">
+              <h3 className="font-semibold !text-gray-900 mb-2">Mes données sont-elles sécurisées ?</h3>
+              <p className="!text-gray-800">
                 Absolument. Toutes vos données sont chiffrées et stockées de manière sécurisée. Nous respectons le RGPD et ne partageons jamais vos informations avec des tiers.
               </p>
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Comment obtenir le consentement pour l'enregistrement ?</h3>
-              <p className="text-gray-800">Il est important d'informer et d'obtenir le consentement explicite de tous les participants avant de commencer un enregistrement. Dorry peut vous aider avec des modèles de formulaires de consentement.</p>
+              <h3 className="font-semibold !text-gray-900 mb-2">Comment obtenir le consentement pour l'enregistrement ?</h3>
+              <p className="!text-gray-800">Il est important d'informer et d'obtenir le consentement explicite de tous les participants avant de commencer un enregistrement. Dorry peut vous aider avec des modèles de formulaires de consentement.</p>
             </div>
           </CardContent>
         </Card>
