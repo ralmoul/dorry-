@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -6,7 +5,6 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X } from 'lucide-react';
-
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,7 +25,6 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
-  
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -35,14 +32,12 @@ const Landing = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
-  
   const handleMouseMove = (e: React.MouseEvent) => {
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
@@ -51,7 +46,6 @@ const Landing = () => {
       heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     }
   };
-
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
@@ -61,10 +55,7 @@ const Landing = () => {
           </div>
           
           {/* Mobile menu button */}
-          <button 
-            className="md:hidden p-2 text-cyan-400"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
+          <button className="md:hidden p-2 text-cyan-400" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
@@ -85,8 +76,7 @@ const Landing = () => {
         </div>
 
         {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
+        {isMobileMenuOpen && <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
                 <a href="/login" className="px-6 py-3 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors text-center">
@@ -97,8 +87,7 @@ const Landing = () => {
                 </a>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </nav>
 
       {/* Hero Section */}
@@ -116,10 +105,7 @@ const Landing = () => {
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
               <div className="flex justify-center md:justify-start">
-                <ConfettiButton 
-                  href="/support"
-                  className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all"
-                >
+                <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
                   Demander l'accès
                 </ConfettiButton>
               </div>
@@ -148,19 +134,13 @@ const Landing = () => {
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               Comment Dorry révolutionne vos réunions
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
-              Dorry capture chaque mot, chaque nuance, même quand vous décrochez.
-            </p>
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">Une expérience immersive qui transforme votre façon de travailler.</p>
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
             <div className="flex-1 relative order-2 md:order-1">
               <div className="relative w-full aspect-video">
-                <img 
-                  src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" 
-                  alt="Dorry AI Data Analysis" 
-                  className="w-full h-full object-cover rounded-2xl"
-                />
+                <img src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" alt="Dorry AI Data Analysis" className="w-full h-full object-cover rounded-2xl" />
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 rounded-2xl animate-pulse"></div>
               </div>
             </div>
@@ -301,10 +281,7 @@ const Landing = () => {
           <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0">
             L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
           </p>
-          <ConfettiButton 
-            href="/support"
-            className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
-          >
+          <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
             Demander l'accès
           </ConfettiButton>
         </div>
@@ -386,5 +363,4 @@ const Landing = () => {
       `}</style>
     </div>;
 };
-
 export default Landing;
