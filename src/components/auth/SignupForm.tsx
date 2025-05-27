@@ -23,31 +23,47 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signup } = useAuth();
-  const { toast } = useToast();
-
+  const {
+    signup
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [field]: e.target.value
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('Soumission du formulaire avec:', formData);
 
-    // Vérifications basiques
-    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.password.trim()) {
+    // Vérifier que tous les champs sont remplis
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.company.trim() || !formData.password.trim()) {
       toast({
         title: "Erreur",
-        description: "Prénom, nom, email et mot de passe sont obligatoires.",
+        description: "Tous les champs sont obligatoires.",
         variant: "destructive"
       });
       setIsLoading(false);
       return;
     }
 
+    // Vérifier le format de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer une adresse email valide.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Vérifier la longueur du mot de passe
     if (formData.password.length < 6) {
       toast({
         title: "Erreur",
@@ -57,22 +73,30 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       setIsLoading(false);
       return;
     }
-
     try {
       const success = await signup(formData);
       if (success) {
         toast({
-          title: "Compte créé",
-          description: "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter."
+          title: "Demande envoyée",
+          description: "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
         });
-        // Rediriger vers login après succès
+        // Réinitialiser le formulaire
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          company: '',
+          password: ''
+        });
+        // Rediriger vers la page de connexion après 2 secondes
         setTimeout(() => {
           onSwitchToLogin();
-        }, 1500);
+        }, 2000);
       } else {
         toast({
           title: "Erreur",
-          description: "Impossible de créer le compte. Vérifiez vos informations.",
+          description: "Cette adresse email est déjà utilisée ou une erreur est survenue.",
           variant: "destructive"
         });
       }
@@ -80,7 +104,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       console.error('Erreur lors de la création du compte:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur technique est survenue.",
+        description: "Une erreur technique est survenue. Veuillez réessayer.",
         variant: "destructive"
       });
     }
@@ -93,6 +117,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[#4649ee]/75 relative">
+      {/* Bouton retour en haut à gauche de la page */}
       <Button
         variant="ghost"
         size="sm"
@@ -126,12 +151,12 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
               <Input id="email" type="email" value={formData.email} onChange={handleInputChange('email')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="phone" className="text-sm text-white">Téléphone</Label>
-              <Input id="phone" type="tel" value={formData.phone} onChange={handleInputChange('phone')} className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
+              <Label htmlFor="phone" className="text-sm text-white">Téléphone *</Label>
+              <Input id="phone" type="tel" value={formData.phone} onChange={handleInputChange('phone')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="company" className="text-sm text-white">Entreprise</Label>
-              <Input id="company" value={formData.company} onChange={handleInputChange('company')} className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
+              <Label htmlFor="company" className="text-sm text-white">Entreprise *</Label>
+              <Input id="company" value={formData.company} onChange={handleInputChange('company')} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-9 sm:h-11 text-sm text-white placeholder:text-gray-400" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="password" className="text-sm text-white">Mot de passe * (min. 6 caractères)</Label>
@@ -143,7 +168,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
               </div>
             </div>
             <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base">
-              {isLoading ? 'Création...' : 'Créer le compte'}
+              {isLoading ? 'Envoi...' : 'Demander l\'accès'}
             </Button>
           </form>
           <div className="mt-3 sm:mt-4 text-center">
