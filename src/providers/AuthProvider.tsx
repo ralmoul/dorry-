@@ -15,49 +15,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log('🚀 [AUTH] AuthProvider initializing...');
     
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔄 [AUTH] Auth state changed:', event, session?.user?.id);
         
         if (session?.user) {
-          // Fetch user profile from our custom table
-          const { data: userProfile, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+          const user = {
+            id: session.user.id,
+            firstName: session.user.user_metadata?.first_name || '',
+            lastName: session.user.user_metadata?.last_name || '',
+            email: session.user.email || '',
+            phone: session.user.user_metadata?.phone || '',
+            company: session.user.user_metadata?.company || '',
+            isApproved: true, // Tous les utilisateurs sont approuvés automatiquement
+            createdAt: session.user.created_at,
+          };
           
-          console.log('👤 [AUTH] User profile fetch result:', { userProfile, error });
-          
-          if (userProfile && userProfile.is_approved) {
-            const user = {
-              id: userProfile.id,
-              firstName: userProfile.first_name,
-              lastName: userProfile.last_name,
-              email: userProfile.email,
-              phone: userProfile.phone,
-              company: userProfile.company,
-              isApproved: userProfile.is_approved,
-              createdAt: userProfile.created_at,
-            };
-            
-            console.log('✅ [AUTH] User approved and authenticated:', user.email);
-            setAuthState({
-              user,
-              isAuthenticated: true,
-              isLoading: false,
-            });
-          } else {
-            console.log('❌ [AUTH] User not approved or profile not found');
-            // User not approved or profile not found, sign them out
-            await supabase.auth.signOut();
-            setAuthState({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-            });
-          }
+          console.log('✅ [AUTH] User authenticated:', user.email);
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
         } else {
           console.log('🚪 [AUTH] No session, user logged out');
           setAuthState({
