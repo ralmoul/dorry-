@@ -1,4 +1,3 @@
-
 import { User } from '@/types/auth';
 
 const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';

@@ -1,5 +1,9 @@
 
 import { useState, useRef, useCallback } from 'react';
+import { detectDevice } from '@/utils/deviceDetection';
+import { getAudioConstraints } from '@/utils/audioConstraints';
+import { getSupportedAudioFormat, getRecorderOptions, getChunkInterval } from '@/utils/audioFormats';
+import { createAudioBlob } from '@/utils/audioBlobProcessor';
 
 export const useMediaRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -11,78 +15,16 @@ export const useMediaRecorder = () => {
   const startRecording = useCallback(async () => {
     console.log('🎤 Demande de permission pour le microphone...');
     
-    // Détection mobile améliorée
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent) || 
-                     ('ontouchstart' in window) || 
-                     (navigator.maxTouchPoints > 0) ||
-                     window.innerWidth <= 768;
-    
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isAndroid = /Android/.test(navigator.userAgent);
-    
+    const deviceInfo = detectDevice();
     console.log('📱 Détection appareil:', {
-      isMobile,
-      isIOS,
-      isAndroid,
+      ...deviceInfo,
       userAgent: navigator.userAgent,
       touchPoints: navigator.maxTouchPoints,
       windowWidth: window.innerWidth
     });
     
-    // Configuration audio optimisée par plateforme
-    let audioConstraints;
-    
-    if (isIOS) {
-      // Configuration spéciale pour iOS (Safari a des limitations)
-      audioConstraints = {
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 22050, // Réduction pour iOS
-          channelCount: 1,
-          volume: 1.0
-        }
-      };
-      console.log('🍎 Configuration iOS appliquée');
-    } else if (isAndroid) {
-      // Configuration pour Android
-      audioConstraints = {
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 44100,
-          channelCount: 1,
-          volume: 1.0
-        }
-      };
-      console.log('🤖 Configuration Android appliquée');
-    } else if (isMobile) {
-      // Autres mobiles
-      audioConstraints = {
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 22050,
-          channelCount: 1
-        }
-      };
-      console.log('📱 Configuration mobile générique appliquée');
-    } else {
-      // Desktop
-      audioConstraints = {
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: { ideal: 48000, min: 16000 },
-          channelCount: { ideal: 2, min: 1 }
-        }
-      };
-      console.log('💻 Configuration desktop appliquée');
-    }
+    const audioConstraints = getAudioConstraints(deviceInfo);
+    console.log(`${deviceInfo.isIOS ? '🍎' : deviceInfo.isAndroid ? '🤖' : deviceInfo.isMobile ? '📱' : '💻'} Configuration ${deviceInfo.platform} appliquée`);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
@@ -93,82 +35,9 @@ export const useMediaRecorder = () => {
         capabilities: stream.getAudioTracks()[0]?.getCapabilities()
       });
       
-      // Sélection intelligente du format selon la plateforme
-      let selectedFormat = '';
-      let selectedMimeType = '';
+      const audioFormat = getSupportedAudioFormat(deviceInfo);
+      const recorderOptions = getRecorderOptions(audioFormat, deviceInfo.isMobile, deviceInfo.isIOS);
       
-      // Formats par ordre de préférence selon la plateforme
-      const formatsByPlatform = {
-        ios: [
-          'audio/mp4',
-          'audio/aac',
-          'audio/wav',
-          'audio/webm;codecs=opus',
-          'audio/webm',
-          'audio/ogg;codecs=opus',
-          'audio/ogg'
-        ],
-        android: [
-          'audio/webm;codecs=opus',
-          'audio/webm',
-          'audio/ogg;codecs=opus',
-          'audio/ogg',
-          'audio/mp4',
-          'audio/wav'
-        ],
-        desktop: [
-          'audio/ogg;codecs=opus',
-          'audio/webm;codecs=opus',
-          'audio/webm',
-          'audio/ogg',
-          'audio/mp4',
-          'audio/wav'
-        ]
-      };
-
-      let formats;
-      if (isIOS) {
-        formats = formatsByPlatform.ios;
-        console.log('🍎 Utilisation des formats iOS');
-      } else if (isAndroid) {
-        formats = formatsByPlatform.android;
-        console.log('🤖 Utilisation des formats Android');
-      } else {
-        formats = formatsByPlatform.desktop;
-        console.log('💻 Utilisation des formats desktop');
-      }
-
-      // Test de compatibilité des formats
-      for (const format of formats) {
-        if (MediaRecorder.isTypeSupported(format)) {
-          selectedFormat = format;
-          selectedMimeType = format;
-          console.log(`✅ Format sélectionné: ${format}`);
-          break;
-        } else {
-          console.log(`❌ Format non supporté: ${format}`);
-        }
-      }
-
-      if (!selectedFormat) {
-        console.warn('⚠️ Aucun format préféré supporté, utilisation par défaut');
-        selectedFormat = '';
-        selectedMimeType = 'audio/webm'; // Fallback générique
-      }
-
-      // Configuration MediaRecorder adaptative
-      const recorderOptions: MediaRecorderOptions = {};
-      if (selectedFormat) {
-        recorderOptions.mimeType = selectedFormat;
-      }
-      
-      // Bitrate adaptatif selon la plateforme
-      if (isMobile) {
-        recorderOptions.audioBitsPerSecond = isIOS ? 32000 : 48000; // Plus bas pour iOS
-      } else {
-        recorderOptions.audioBitsPerSecond = 64000;
-      }
-
       console.log('🎛️ Options MediaRecorder:', recorderOptions);
 
       const mediaRecorder = new MediaRecorder(stream, recorderOptions);
@@ -181,7 +50,7 @@ export const useMediaRecorder = () => {
           size: event.data.size,
           type: event.data.type,
           timestamp: Date.now(),
-          platform: isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop'
+          platform: deviceInfo.platform
         });
         
         if (event.data.size > 0) {
@@ -193,60 +62,8 @@ export const useMediaRecorder = () => {
       };
 
       mediaRecorder.onstop = async () => {
-        console.log('⏹️ Enregistrement arrêté, assemblage des chunks...');
-        console.log('📦 Nombre de chunks:', chunksRef.current.length);
-        console.log('📊 Détails des chunks:', chunksRef.current.map((chunk, i) => ({
-          index: i,
-          size: chunk.size,
-          type: chunk.type
-        })));
-        
-        if (chunksRef.current.length === 0) {
-          console.error('❌ Aucun chunk audio disponible');
-          setRecordingBlob(null);
-          return;
-        }
-
-        const totalSize = chunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0);
-        console.log('📊 Taille totale des chunks:', totalSize, 'bytes');
-
-        if (totalSize === 0) {
-          console.error('❌ Taille totale nulle malgré la présence de chunks');
-          setRecordingBlob(null);
-          return;
-        }
-
-        // Créer le blob avec le bon type MIME selon la plateforme
-        let finalMimeType;
-        if (selectedMimeType) {
-          finalMimeType = selectedMimeType;
-        } else if (chunksRef.current[0]?.type) {
-          finalMimeType = chunksRef.current[0].type;
-        } else {
-          // Fallback selon la plateforme
-          finalMimeType = isIOS ? 'audio/mp4' : 'audio/webm';
-        }
-        
-        console.log('🎯 Type MIME final sélectionné:', finalMimeType);
-        
-        const audioBlob = new Blob(chunksRef.current, { type: finalMimeType });
-        
-        console.log('📦 Blob final créé:', {
-          size: audioBlob.size,
-          type: audioBlob.type,
-          chunks: chunksRef.current.length,
-          platform: isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop',
-          originalFormat: selectedFormat,
-          finalMimeType
-        });
-        
-        if (audioBlob.size === 0) {
-          console.error('❌ Blob audio final vide');
-          setRecordingBlob(null);
-        } else {
-          console.log('✅ Blob audio valide créé');
-          setRecordingBlob(audioBlob);
-        }
+        const audioBlob = createAudioBlob(chunksRef.current, audioFormat.mimeType, deviceInfo);
+        setRecordingBlob(audioBlob);
         
         // Nettoyage du stream
         if (streamRef.current) {
@@ -266,33 +83,20 @@ export const useMediaRecorder = () => {
           message: errorEvent.message,
           type: event.type,
           target: event.target,
-          platform: isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop'
+          platform: deviceInfo.platform
         });
       };
 
       mediaRecorder.onstart = () => {
         console.log('🔴 Enregistrement démarré:', {
-          format: selectedFormat || 'défaut',
-          platform: isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop',
+          format: audioFormat.mimeType || 'défaut',
+          platform: deviceInfo.platform,
           state: mediaRecorder.state
         });
       };
 
-      // Intervalle adaptatif selon la plateforme et les capacités
-      let chunkInterval;
-      if (isIOS) {
-        chunkInterval = 1000; // Plus long pour iOS (stabilité)
-      } else if (isAndroid) {
-        chunkInterval = 750; // Moyen pour Android
-      } else if (isMobile) {
-        chunkInterval = 800; // Sécuritaire pour autres mobiles
-      } else {
-        chunkInterval = 1000; // Standard pour desktop
-      }
-      
-      console.log(`⏱️ Démarrage avec intervalle de ${chunkInterval}ms pour`, {
-        platform: isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop'
-      });
+      const chunkInterval = getChunkInterval(deviceInfo);
+      console.log(`⏱️ Démarrage avec intervalle de ${chunkInterval}ms pour ${deviceInfo.platform}`);
       
       mediaRecorder.start(chunkInterval);
       setIsRecording(true);
@@ -304,7 +108,7 @@ export const useMediaRecorder = () => {
         name: err.name,
         message: err.message,
         stack: err.stack,
-        platform: isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop'
+        platform: deviceInfo.platform
       });
       
       // Nettoyage en cas d'erreur
