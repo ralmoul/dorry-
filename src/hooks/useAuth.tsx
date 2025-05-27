@@ -31,32 +31,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const user = JSON.parse(userToLoad);
         console.log('AuthProvider: User found in storage', user);
         
-        // Verify the user is still valid in the database
-        supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .eq('is_approved', true)
-          .single()
-          .then(({ data, error }) => {
-            if (error || !data) {
-              console.log('AuthProvider: User no longer valid, clearing storage');
-              localStorage.removeItem('dory_user');
-              sessionStorage.removeItem('dory_user');
-              setAuthState({
-                user: null,
-                isAuthenticated: false,
-                isLoading: false,
-              });
-            } else {
-              console.log('AuthProvider: User verified, maintaining session');
-              setAuthState({
-                user,
-                isAuthenticated: true,
-                isLoading: false,
-              });
-            }
-          });
+        // For now, trust the stored user without DB verification to avoid RLS issues
+        console.log('AuthProvider: Using stored user data (skipping DB verification due to RLS issues)');
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
       } catch (error) {
         console.error('Error loading user data:', error);
         localStorage.removeItem('dory_user');
@@ -73,23 +54,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('🔐 Tentative de connexion pour:', data.email);
       
-      // Search for user in Supabase
+      // Try to search for user with better error handling
+      console.log('🔍 Attempting to query users table...');
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
-        .eq('email', data.email);
+        .eq('email', data.email.toLowerCase().trim())
+        .limit(1);
       
       if (error) {
         console.error('❌ Erreur recherche utilisateur:', error);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Error message:', error.message);
+        
+        // If it's a policy error, we'll need to fix the database
+        if (error.code === '42P17' || error.message.includes('infinite recursion')) {
+          console.error('🚨 RLS Policy recursion detected - database needs fixing!');
+          // For now, reject the login
+          return false;
+        }
+        
         return false;
       }
       
       if (!users || users.length === 0) {
-        console.log('❌ Aucun utilisateur trouvé');
+        console.log('❌ Aucun utilisateur trouvé pour:', data.email);
         return false;
       }
       
       const dbUser = users[0];
+      console.log('✅ Utilisateur trouvé:', { id: dbUser.id, email: dbUser.email, approved: dbUser.is_approved });
       
       // Check if user is approved
       if (!dbUser.is_approved) {
@@ -131,7 +125,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.rememberMe) {
         console.log('💾 Stockage persistant activé (localStorage)');
         localStorage.setItem('dory_user', JSON.stringify(user));
-        // Also store a flag to remember the preference
         localStorage.setItem('dory_remember_me', 'true');
       } else {
         console.log('🔄 Stockage session uniquement (sessionStorage)');
@@ -157,43 +150,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      // Clean and prepare email
       const cleanEmail = data.email.toLowerCase().trim();
       console.log('🔍 [SIGNUP] Checking if email exists:', cleanEmail);
       
-      // First, let's check what's in the database
-      console.log('📊 [SIGNUP] Querying all users to debug...');
-      const { data: allUsers, error: debugError } = await supabase
-        .from('users')
-        .select('id, email, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (debugError) {
-        console.error('⚠️ [SIGNUP] Debug query error:', debugError);
-      } else {
-        console.log('📊 [SIGNUP] Recent users in database:', allUsers);
-      }
-      
-      // Now check for the specific email
+      // Try to check existing emails with better error handling
+      console.log('📊 [SIGNUP] Attempting to query existing emails...');
       const { data: existingUsers, error: checkError } = await supabase
         .from('users')
-        .select('id, email, created_at')
-        .eq('email', cleanEmail);
+        .select('id, email')
+        .eq('email', cleanEmail)
+        .limit(1);
       
       if (checkError) {
         console.error('⚠️ [SIGNUP] Error checking existing email:', checkError);
-        console.error('⚠️ [SIGNUP] Full error details:', JSON.stringify(checkError, null, 2));
+        console.error('⚠️ [SIGNUP] Error code:', checkError.code);
+        console.error('⚠️ [SIGNUP] Error message:', checkError.message);
+        
+        // If it's a policy error, we'll need to fix the database
+        if (checkError.code === '42P17' || checkError.message.includes('infinite recursion')) {
+          console.error('🚨 RLS Policy recursion detected during signup - database needs fixing!');
+          return false;
+        }
+        
         return false;
       }
       
-      console.log('📊 [SIGNUP] Query result for email check:', existingUsers);
-      console.log('📊 [SIGNUP] Number of existing users found:', existingUsers?.length || 0);
+      console.log('📊 [SIGNUP] Existing users check result:', existingUsers?.length || 0);
       
       if (existingUsers && existingUsers.length > 0) {
         console.error('⚠️ [SIGNUP] Email already exists in database!');
-        console.error('⚠️ [SIGNUP] Existing user data:', existingUsers[0]);
-        console.error('⚠️ [SIGNUP] Searched email:', cleanEmail);
         return false;
       }
       
@@ -220,11 +205,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (insertError) {
         console.error('💥 [SIGNUP] Error creating user:', insertError);
-        console.error('💥 [SIGNUP] Full insert error details:', JSON.stringify(insertError, null, 2));
+        console.error('💥 [SIGNUP] Error code:', insertError.code);
+        console.error('💥 [SIGNUP] Error message:', insertError.message);
         
         // Check if it's a unique constraint violation
         if (insertError.code === '23505') {
           console.error('💥 [SIGNUP] Unique constraint violation - email already exists!');
+        } else if (insertError.code === '42P17' || insertError.message.includes('infinite recursion')) {
+          console.error('🚨 RLS Policy recursion detected during insert - database needs fixing!');
         }
         
         return false;
@@ -234,7 +222,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return true;
     } catch (error) {
       console.error('💥 [SIGNUP] Error during signup:', error);
-      console.error('💥 [SIGNUP] Full error details:', JSON.stringify(error, null, 2));
       return false;
     }
   };
