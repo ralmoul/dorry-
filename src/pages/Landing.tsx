@@ -119,7 +119,7 @@ const Landing = () => {
               Comment Dorry révolutionne vos réunions
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Une expérience immersive qui transforme votre façon de travailler
+              Dorry capture chaque mot, chaque nuance, même quand vous décrochez.
             </p>
           </div>
           
