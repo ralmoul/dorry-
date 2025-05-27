@@ -5,6 +5,7 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp } from 'lucide-react';
+
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -80,10 +81,10 @@ const Landing = () => {
           <div className="flex items-center justify-between gap-16">
             <div className="flex-1 max-w-2xl">
               <h1 className="text-6xl font-bold mb-8 leading-tight">
-                <TypewriterText text="Dorry, l'assistante IA qui" className="block" />
-                <span className="block text-7xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent my-4">
-                  révolutionne vos réunions
-                </span>
+                <TypewriterText 
+                  text="Dorry, l'assistante IA qui révolutionne vos réunions" 
+                  className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" 
+                />
               </h1>
               <p className="text-xl text-slate-300 mb-8">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
