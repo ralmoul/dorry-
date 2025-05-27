@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -126,7 +127,7 @@ const Landing = () => {
                 </ConfettiButton>
                 
                 {/* Découvrir section - visible sur mobile en dessous du bouton */}
-                <div className="flex md:hidden flex-col items-center opacity-70 mt-4">
+                <div className="flex md:hidden flex-col items-center opacity-70 mt-2">
                   <span className="text-xs uppercase tracking-widest mb-2">Découvrir</span>
                   <ArrowDown className="w-6 h-6 text-cyan-400 animate-bounce" />
                 </div>
