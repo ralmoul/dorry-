@@ -5,7 +5,6 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp } from 'lucide-react';
-
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -79,10 +78,7 @@ const Landing = () => {
           <div className="flex items-center justify-between gap-16">
             <div className="flex-1 max-w-2xl">
               <h1 className="text-6xl font-bold mb-8 leading-tight">
-                <TypewriterText 
-                  text="Dorry, l'assistante IA qui révolutionne vos réunions" 
-                  className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" 
-                />
+                <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos réunions" className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" />
               </h1>
               <p className="text-xl text-slate-300 mb-8">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
@@ -91,9 +87,7 @@ const Landing = () => {
                 <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
                   Essayez gratuitement
                 </ConfettiButton>
-                <a href="#" className="text-white hover:text-cyan-400 transition-colors flex items-center">
-                  Voir la démo <span className="ml-2 transform transition-transform hover:translate-x-1">→</span>
-                </a>
+                
               </div>
             </div>
             
@@ -238,26 +232,7 @@ const Landing = () => {
           </div>
           
           {/* Testimonials */}
-          <div className="bg-slate-900/70 rounded-2xl p-12 mb-16">
-            <h3 className="text-3xl font-bold text-center mb-12">Ce que nos utilisateurs disent</h3>
-            <div className="relative h-64 overflow-hidden">
-              {testimonials.map((testimonial, index) => <div key={index} className={`absolute inset-0 transition-all duration-500 ${index === currentTestimonial ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-12'}`}>
-                  <div className="bg-slate-800/50 rounded-xl p-8 h-full flex flex-col justify-between">
-                    <p className="text-xl italic text-slate-300 mb-8">"{testimonial.text}"</p>
-                    <div className="flex items-center space-x-4">
-                      <img src={testimonial.avatar} alt={testimonial.author} className="w-12 h-12 rounded-full object-cover" />
-                      <div>
-                        <h4 className="text-lg font-bold">{testimonial.author}</h4>
-                        <p className="text-slate-400 text-sm">{testimonial.position}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>)}
-            </div>
-            <div className="flex justify-center space-x-3 mt-8">
-              {testimonials.map((_, index) => <button key={index} className={`w-3 h-3 rounded-full transition-all ${index === currentTestimonial ? 'bg-cyan-400 transform scale-125' : 'bg-slate-600'}`} onClick={() => setCurrentTestimonial(index)} />)}
-            </div>
-          </div>
+          
           
           {/* Stats */}
           <div className="flex justify-around flex-wrap gap-16">
