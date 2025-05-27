@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -48,7 +49,6 @@
 @layer base {
   * {
     @apply border-border;
-    color: rgb(250 250 250) !important;
   }
 
   body {
@@ -58,10 +58,20 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+  }
+
+  /* Styles spécifiques pour les pages sombres */
+  .dark-theme,
+  .dark-theme * {
     color: rgb(250 250 250) !important;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  .dark-theme h1, 
+  .dark-theme h2, 
+  .dark-theme h3, 
+  .dark-theme h4, 
+  .dark-theme h5, 
+  .dark-theme h6 {
     font-family: 'Montserrat', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -70,8 +80,23 @@
     color: rgb(250 250 250) !important;
   }
 
-  p, span, div, button, input, textarea, label {
+  .dark-theme p, 
+  .dark-theme span, 
+  .dark-theme div, 
+  .dark-theme button, 
+  .dark-theme input, 
+  .dark-theme textarea, 
+  .dark-theme label {
     color: rgb(250 250 250) !important;
+  }
+
+  /* Styles par défaut pour les titres sur toutes les pages */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.025em;
   }
 
   .font-bold,
@@ -82,7 +107,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.025em;
-    color: rgb(250 250 250) !important;
   }
 
   .bg-clip-text {
@@ -93,60 +117,69 @@
     letter-spacing: -0.025em;
   }
 
-  .text-muted-foreground {
-    color: rgb(200 200 200) !important;
-  }
-
-  .text-white {
+  /* Classes utilitaires spécifiques */
+  .text-white-force {
     color: rgb(255 255 255) !important;
   }
 
-  .text-foreground {
+  .text-foreground-force {
     color: rgb(250 250 250) !important;
   }
 
-  /* Mobile-specific text improvements */
+  /* Mobile-specific text improvements pour pages sombres uniquement */
   @media (max-width: 768px) {
-    body {
+    .dark-theme {
       color: rgb(250 250 250) !important;
     }
     
-    h1, h2, h3, h4, h5, h6 {
+    .dark-theme h1, 
+    .dark-theme h2, 
+    .dark-theme h3, 
+    .dark-theme h4, 
+    .dark-theme h5, 
+    .dark-theme h6 {
       color: rgb(250 250 250) !important;
     }
     
-    p, span, div, button, input, textarea, label {
+    .dark-theme p, 
+    .dark-theme span, 
+    .dark-theme div, 
+    .dark-theme button, 
+    .dark-theme input, 
+    .dark-theme textarea, 
+    .dark-theme label {
       color: rgb(250 250 250) !important;
     }
     
-    .text-slate-300 {
+    .dark-theme .text-slate-300 {
       color: rgb(200 200 200) !important;
     }
     
-    .text-slate-400 {
+    .dark-theme .text-slate-400 {
       color: rgb(180 180 180) !important;
     }
     
-    .text-gray-300 {
+    .dark-theme .text-gray-300 {
       color: rgb(200 200 200) !important;
     }
     
-    .text-white {
+    .dark-theme .text-white {
       color: rgb(255 255 255) !important;
     }
     
     /* Ensure buttons have proper contrast */
-    button {
+    .dark-theme button {
       color: inherit !important;
     }
     
     /* Fix input text color */
-    input, textarea {
+    .dark-theme input, 
+    .dark-theme textarea {
       color: rgb(250 250 250) !important;
     }
     
     /* Ensure links are visible */
-    a {
+    .dark-theme a {
       color: rgb(0 212 170) !important;
     }
   }
@@ -199,11 +232,6 @@
     border: 1px solid rgba(0, 212, 170, 0.2);
     position: relative;
     overflow: hidden;
-    color: rgb(250 250 250) !important;
-  }
-
-  .holographic-card * {
-    color: rgb(250 250 250) !important;
   }
 
   .holographic-card::before {
@@ -228,7 +256,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    color: rgb(250 250 250) !important;
   }
 
   .floating-particles {
@@ -262,10 +289,6 @@
     border-bottom: 1px solid rgba(0, 212, 170, 0.1);
   }
 
-  .navbar-blur * {
-    color: rgb(250 250 250) !important;
-  }
-
   .hero-3d {
     transform-style: preserve-3d;
     transition: transform 0.3s ease;
@@ -279,31 +302,9 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-
-  /* Mobile-specific component improvements */
-  @media (max-width: 768px) {
-    .holographic-card {
-      color: rgb(250 250 250) !important;
-    }
-    
-    .holographic-card * {
-      color: rgb(250 250 250) !important;
-    }
-    
-    .text-sharp {
-      color: rgb(250 250 250) !important;
-    }
-    
-    .navbar-blur {
-      background: rgba(10, 10, 15, 0.95);
-    }
-    
-    .navbar-blur * {
-      color: rgb(250 250 250) !important;
-    }
-  }
 }
 
+/* ... keep existing code (keyframes and animations) */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-10px) rotate(1deg); }
