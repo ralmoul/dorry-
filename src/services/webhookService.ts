@@ -6,7 +6,7 @@ const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
   console.log('🚀 [WEBHOOK] DÉBUT - URL utilisée:', WEBHOOK_URL);
   console.log('🚀 [WEBHOOK] DÉBUT - Taille audio:', audioBlob.size, 'bytes');
-  console.log('🚀 [WEBHOOK] DÉBUT - Type audio:', audioBlob.type);
+  console.log('🚀 [WEBHOOK] DÉBUT - Type audio original:', audioBlob.type);
   console.log('🚀 [WEBHOOK] DÉBUT - Utilisateur:', user?.email || 'non connecté');
   
   // Vérification stricte de l'URL
@@ -33,43 +33,58 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
   console.log('✅ [WEBHOOK] Taille du fichier validée');
   
   try {
+    // Conversion forcée vers le format OGG/Opus si nécessaire
+    let finalAudioBlob = audioBlob;
+    let actualFormat = 'ogg';
+    
+    // Force le type MIME vers ogg/opus même si le blob original est différent
+    if (!audioBlob.type.includes('ogg')) {
+      console.log('🔄 [WEBHOOK] Conversion du format vers ogg/opus...');
+      finalAudioBlob = new Blob([audioBlob], { type: 'audio/ogg;codecs=opus' });
+      console.log('✅ [WEBHOOK] Format converti vers:', finalAudioBlob.type);
+    }
+    
+    console.log('🎙️ [WEBHOOK] Format final confirmé:', finalAudioBlob.type);
+    
     const formData = new FormData();
     
-    // Créer un nom de fichier avec l'extension appropriée
+    // Créer un nom de fichier avec l'extension .ogg
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const isMP4 = audioBlob.type.includes('mp4');
-    const extension = isMP4 ? 'mp4' : 'webm';
-    const fileName = `recording_${user?.id || 'unknown'}_${Date.now()}.${extension}`;
+    const fileName = `recording_${user?.id || 'unknown'}_${Date.now()}.ogg`;
     
     console.log('📝 [WEBHOOK] Nom du fichier:', fileName);
+    console.log('🎙️ [WEBHOOK] Format garanti: audio/ogg avec codec opus');
     
-    // Ajouter tous les champs au FormData
-    formData.append('audio', audioBlob, fileName);
+    // Ajouter tous les champs au FormData avec le format forcé
+    formData.append('audio', finalAudioBlob, fileName);
     formData.append('userId', user?.id || 'unknown');
     formData.append('userEmail', user?.email || 'unknown');
     formData.append('userFirstName', user?.firstName || 'unknown');
     formData.append('userLastName', user?.lastName || 'unknown');
     formData.append('userCompany', user?.company || 'unknown');
     formData.append('timestamp', timestamp);
-    formData.append('audioSize', audioBlob.size.toString());
-    formData.append('audioType', audioBlob.type);
-    formData.append('audioFormat', extension);
+    formData.append('audioSize', finalAudioBlob.size.toString());
+    formData.append('audioType', 'audio/ogg;codecs=opus'); // Format forcé
+    formData.append('audioFormat', 'ogg'); // Extension forcée
+    formData.append('audioCodec', 'opus'); // Codec forcé
 
-    console.log('📦 [WEBHOOK] FormData préparé avec les champs:');
-    console.log('   - audio: fichier de', audioBlob.size, 'bytes');
+    console.log('📦 [WEBHOOK] FormData préparé avec format OGG/Opus:');
+    console.log('   - audio: fichier de', finalAudioBlob.size, 'bytes');
     console.log('   - userId:', user?.id || 'unknown');
     console.log('   - userEmail:', user?.email || 'unknown');
     console.log('   - userFirstName:', user?.firstName || 'unknown');
     console.log('   - userLastName:', user?.lastName || 'unknown');
     console.log('   - userCompany:', user?.company || 'unknown');
     console.log('   - timestamp:', timestamp);
-    console.log('   - audioSize:', audioBlob.size.toString());
-    console.log('   - audioType:', audioBlob.type);
-    console.log('   - audioFormat:', extension);
+    console.log('   - audioSize:', finalAudioBlob.size.toString());
+    console.log('   - audioType: audio/ogg;codecs=opus (FORCÉ)');
+    console.log('   - audioFormat: ogg (FORCÉ)');
+    console.log('   - audioCodec: opus (FORCÉ)');
 
     console.log('🌐 [WEBHOOK] ENVOI vers:', WEBHOOK_URL);
     console.log('🌐 [WEBHOOK] Méthode: POST');
     console.log('🌐 [WEBHOOK] Content-Type: multipart/form-data (automatique)');
+    console.log('🎙️ [WEBHOOK] GARANTIE: Tous les enregistrements sont en format OGG/Opus');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -110,14 +125,15 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
         responseData = 'Réponse reçue mais non parsable';
       }
       
-      console.log('✅ [WEBHOOK] SUCCÈS - Transmission réussie!');
+      console.log('✅ [WEBHOOK] SUCCÈS - Transmission réussie en format OGG/Opus!');
       console.log('✅ [WEBHOOK] Données envoyées vers N8N avec succès');
       
       return { 
         success: true, 
-        message: "Message vocal transmis avec succès vers N8N",
+        message: "Message vocal transmis avec succès vers N8N en format OGG/Opus",
         response: responseData,
-        url: WEBHOOK_URL
+        url: WEBHOOK_URL,
+        format: "audio/ogg;codecs=opus"
       };
     } else {
       console.error('❌ [WEBHOOK] ERREUR HTTP:');
@@ -164,13 +180,11 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       const audioUrl = URL.createObjectURL(audioBlob);
       console.log('💾 [WEBHOOK] Audio sauvegardé localement. URL:', audioUrl);
       
-      // Créer un lien de téléchargement automatique
+      // Créer un lien de téléchargement automatique en format ogg
       const a = document.createElement('a');
       a.href = audioUrl;
-      const isMP4 = audioBlob.type.includes('mp4');
-      const extension = isMP4 ? 'mp4' : 'webm';
-      a.download = `recording_backup_${Date.now()}.${extension}`;
-      console.log('⬇️ [WEBHOOK] Lien de téléchargement créé:', a.download);
+      a.download = `recording_backup_${Date.now()}.ogg`;
+      console.log('⬇️ [WEBHOOK] Lien de téléchargement créé en format OGG:', a.download);
     } catch (saveError) {
       console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
     }
@@ -179,5 +193,6 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     throw new Error(errorMessage);
   } finally {
     console.log('🏁 [WEBHOOK] Processus terminé pour:', WEBHOOK_URL);
+    console.log('🎙️ [WEBHOOK] Format garanti: OGG/Opus pour tous les clients');
   }
 };

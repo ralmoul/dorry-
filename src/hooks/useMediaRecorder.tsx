@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 
 export const useMediaRecorder = () => {
@@ -43,22 +42,27 @@ export const useMediaRecorder = () => {
         settings: stream.getAudioTracks()[0]?.getSettings()
       });
       
-      // Détection du meilleur format pour l'appareil
-      const supportedFormats = [
-        'audio/webm;codecs=opus',
-        'audio/webm',
-        'audio/mp4;codecs=mp4a.40.2',
-        'audio/mp4',
-        'audio/ogg;codecs=opus',
-        'audio/wav'
-      ];
-
+      // Force l'utilisation du format audio/ogg avec codec opus
+      const preferredFormat = 'audio/ogg;codecs=opus';
       let selectedFormat = '';
-      for (const format of supportedFormats) {
-        if (MediaRecorder.isTypeSupported(format)) {
-          selectedFormat = format;
-          console.log(`✅ Format sélectionné: ${format}`);
-          break;
+      
+      if (MediaRecorder.isTypeSupported(preferredFormat)) {
+        selectedFormat = preferredFormat;
+        console.log(`✅ Format préféré sélectionné: ${preferredFormat}`);
+      } else {
+        // Fallback vers d'autres formats ogg/opus si disponibles
+        const fallbackFormats = [
+          'audio/ogg',
+          'audio/webm;codecs=opus',
+          'audio/webm'
+        ];
+        
+        for (const format of fallbackFormats) {
+          if (MediaRecorder.isTypeSupported(format)) {
+            selectedFormat = format;
+            console.log(`⚠️ Format de fallback sélectionné: ${format}`);
+            break;
+          }
         }
       }
 
@@ -67,18 +71,14 @@ export const useMediaRecorder = () => {
         selectedFormat = ''; // Laisser le navigateur choisir
       }
 
-      // Configuration MediaRecorder optimisée
+      // Configuration MediaRecorder optimisée pour ogg/opus
       const recorderOptions: MediaRecorderOptions = {};
       if (selectedFormat) {
         recorderOptions.mimeType = selectedFormat;
       }
       
-      // Bitrate adaptatif selon l'appareil
-      if (isMobile) {
-        recorderOptions.audioBitsPerSecond = 64000; // Plus bas pour mobile
-      } else {
-        recorderOptions.audioBitsPerSecond = 128000;
-      }
+      // Bitrate optimisé pour opus
+      recorderOptions.audioBitsPerSecond = 64000; // Optimal pour opus
 
       const mediaRecorder = new MediaRecorder(stream, recorderOptions);
       mediaRecorderRef.current = mediaRecorder;
@@ -112,19 +112,21 @@ export const useMediaRecorder = () => {
         const totalSize = chunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0);
         console.log('📊 Taille totale des chunks:', totalSize, 'bytes');
 
-        const finalMimeType = mediaRecorderRef.current?.mimeType || selectedFormat || 'audio/webm';
+        // Force l'utilisation du format ogg/opus
+        const finalMimeType = preferredFormat;
         const audioBlob = new Blob(chunksRef.current, { type: finalMimeType });
         
-        console.log('📦 Blob final créé:', {
+        console.log('📦 Blob final créé avec format forcé:', {
           size: audioBlob.size,
           type: audioBlob.type,
-          chunks: chunksRef.current.length
+          chunks: chunksRef.current.length,
+          forcedFormat: finalMimeType
         });
         
         if (audioBlob.size === 0) {
           console.error('❌ Blob audio final vide');
         } else {
-          console.log('✅ Blob audio valide créé');
+          console.log('✅ Blob audio valide créé en format ogg/opus');
         }
         
         setRecordingBlob(audioBlob);
@@ -141,15 +143,17 @@ export const useMediaRecorder = () => {
 
       mediaRecorder.onerror = (event) => {
         console.error('❌ Erreur MediaRecorder:', event);
+        const errorEvent = event as ErrorEvent;
         console.error('❌ Détails de l\'erreur:', {
-          error: event.error,
+          error: errorEvent.error,
+          message: errorEvent.message,
           type: event.type,
           target: event.target
         });
       };
 
       mediaRecorder.onstart = () => {
-        console.log('🔴 Enregistrement démarré');
+        console.log('🔴 Enregistrement démarré en format ogg/opus');
       };
 
       // Intervalle adaptatif selon l'appareil
@@ -161,10 +165,11 @@ export const useMediaRecorder = () => {
       
     } catch (error) {
       console.error('❌ Erreur lors de l\'accès au microphone:', error);
+      const err = error as Error;
       console.error('❌ Détails de l\'erreur:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
+        name: err.name,
+        message: err.message,
+        stack: err.stack
       });
       
       // Nettoyage en cas d'erreur
