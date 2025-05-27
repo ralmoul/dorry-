@@ -3,7 +3,6 @@ import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 import { authService } from '@/services/authService';
-import { authStorage } from '@/utils/authStorage';
 import { supabase } from '@/integrations/supabase/client';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -19,15 +18,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 [AUTH] Auth state changed:', event);
+        console.log('🔄 [AUTH] Auth state changed:', event, session?.user?.id);
         
         if (session?.user) {
           // Fetch user profile from our custom table
-          const { data: userProfile } = await supabase
+          const { data: userProfile, error } = await supabase
             .from('users')
             .select('*')
             .eq('id', session.user.id)
             .single();
+          
+          console.log('👤 [AUTH] User profile fetch result:', { userProfile, error });
           
           if (userProfile && userProfile.is_approved) {
             const user = {
@@ -41,13 +42,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               createdAt: userProfile.created_at,
             };
             
+            console.log('✅ [AUTH] User approved and authenticated:', user.email);
             setAuthState({
               user,
               isAuthenticated: true,
               isLoading: false,
             });
           } else {
-            // User not approved or profile not found
+            console.log('❌ [AUTH] User not approved or profile not found');
+            // User not approved or profile not found, sign them out
+            await supabase.auth.signOut();
             setAuthState({
               user: null,
               isAuthenticated: false,
@@ -55,6 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             });
           }
         } else {
+          console.log('🚪 [AUTH] No session, user logged out');
           setAuthState({
             user: null,
             isAuthenticated: false,
@@ -66,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('🔍 [AUTH] Initial session check:', session?.user?.id || 'none');
       if (!session) {
         setAuthState(prev => ({ ...prev, isLoading: false }));
       }
@@ -75,12 +81,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
+    console.log('🔐 [AUTH] Starting login process for:', data.email);
     const result = await authService.login(data);
+    console.log('🎯 [AUTH] Login result:', result.success);
     return result.success;
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
-    return await authService.signup(data);
+    console.log('📝 [AUTH] Starting signup process for:', data.email);
+    const result = await authService.signup(data);
+    console.log('🎯 [AUTH] Signup result:', result);
+    return result;
   };
 
   const logout = async () => {
@@ -91,7 +102,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated: false,
       isLoading: false,
     });
-    authStorage.clearUser();
   };
 
   console.log('📊 [AUTH] Current state:', { 

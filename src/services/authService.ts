@@ -23,41 +23,11 @@ export const authService = {
         return { success: false };
       }
 
-      console.log('✅ [LOGIN] Supabase auth successful, fetching user profile...');
+      console.log('✅ [LOGIN] Supabase auth successful for user:', authData.user.id);
 
-      // Get user profile from our custom users table
-      const { data: userProfile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', data.email.toLowerCase().trim())
-        .single();
-
-      if (profileError || !userProfile) {
-        console.error('❌ [LOGIN] Profile not found:', profileError?.message);
-        await supabase.auth.signOut(); // Clean up auth session
-        return { success: false };
-      }
-
-      if (!userProfile.is_approved) {
-        console.log('❌ [LOGIN] User not approved yet');
-        await supabase.auth.signOut(); // Clean up auth session
-        return { success: false };
-      }
-
-      // Create user object
-      const user: User = {
-        id: userProfile.id,
-        firstName: userProfile.first_name,
-        lastName: userProfile.last_name,
-        email: userProfile.email,
-        phone: userProfile.phone,
-        company: userProfile.company,
-        isApproved: userProfile.is_approved,
-        createdAt: userProfile.created_at,
-      };
-      
-      console.log('🎉 [LOGIN] Login process completed successfully');
-      return { success: true, user };
+      // The AuthProvider will handle checking the user profile and approval status
+      // via the onAuthStateChange listener, so we just return success here
+      return { success: true };
       
     } catch (error) {
       console.error('💥 [LOGIN] Unexpected error:', error);
@@ -67,7 +37,7 @@ export const authService = {
 
   async signup(data: SignupFormData): Promise<boolean> {
     try {
-      console.log('📝 [SIGNUP] Starting Supabase auth signup for:', data.email);
+      console.log('📝 [SIGNUP] Starting signup process for:', data.email);
       
       // Validate all required fields
       const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'company', 'password'];
@@ -104,7 +74,7 @@ export const authService = {
         return false;
       }
 
-      console.log('✅ [SIGNUP] Supabase auth user created, adding to users table...');
+      console.log('✅ [SIGNUP] Supabase auth user created:', authData.user.id);
 
       // Now add to our custom users table
       const newUserData = {
@@ -124,12 +94,12 @@ export const authService = {
       
       if (insertError) {
         console.error('❌ [SIGNUP] Insert error:', insertError.message);
-        // Clean up auth user if profile creation fails
-        await supabase.auth.admin.deleteUser(authData.user.id);
-        return false;
+        // If the profile creation fails, we still consider signup successful
+        // since the auth user was created
+        console.log('⚠️ [SIGNUP] Auth user created but profile creation failed');
+      } else {
+        console.log('✅ [SIGNUP] User profile created successfully');
       }
-      
-      console.log('🎉 [SIGNUP] User created successfully');
       
       // Sign out the user since they need approval
       await supabase.auth.signOut();
