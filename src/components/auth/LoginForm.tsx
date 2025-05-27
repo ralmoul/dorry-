@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,7 +67,7 @@ export const LoginForm = ({
   };
   return <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[4649eebf] bg-[#4649ee]/75 relative">
       {/* Bouton retour en haut à gauche de la page */}
-      <Button variant="ghost" size="sm" onClick={handleBackToHome} className="absolute top-6 left-6 text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 z-10">
+      <Button variant="ghost" size="sm" onClick={handleBackToHome} className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Accueil
       </Button>
@@ -76,7 +77,7 @@ export const LoginForm = ({
           <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-2xl sm:text-3xl">
             Dorry
           </CardTitle>
-          <CardDescription className="text-sm sm:text-base text-slate-50">
+          <CardDescription className="text-sm sm:text-base text-white">
             Votre assistante vocal intelligent vous attend
           </CardDescription>
         </CardHeader>
@@ -90,14 +91,14 @@ export const LoginForm = ({
               <Label htmlFor="password" className="text-sm text-white">Mot de passe</Label>
               <div className="relative">
                 <Input id="password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11 text-white placeholder:text-gray-400" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-bright-turquoise text-slate-50">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-bright-turquoise text-white">
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="rememberMe" checked={rememberMe} onCheckedChange={checked => setRememberMe(checked as boolean)} className="border-bright-turquoise/50 data-[state=checked]:bg-bright-turquoise data-[state=checked]:border-bright-turquoise" />
-              <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-muted-foreground">
+              <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-white">
                 Rester connecté
               </Label>
             </div>

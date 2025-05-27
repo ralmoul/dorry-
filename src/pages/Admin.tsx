@@ -54,7 +54,7 @@ const Admin = () => {
         variant="ghost"
         size="sm"
         onClick={handleBackToHome}
-        className="absolute top-6 left-6 text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 z-10"
+        className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Accueil
@@ -68,7 +68,7 @@ const Admin = () => {
           <CardTitle className="font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent text-2xl sm:text-3xl">
             Administration
           </CardTitle>
-          <CardDescription className="text-muted-foreground text-sm sm:text-base">
+          <CardDescription className="text-white text-sm sm:text-base">
             Accès réglementé - Mot de passe requis
           </CardDescription>
         </CardHeader>
@@ -98,7 +98,7 @@ const Admin = () => {
             </Button>
           </form>
           <div className="mt-4 text-center">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white">
               Accès autorisé uniquement pour l'administrateur
             </p>
           </div>

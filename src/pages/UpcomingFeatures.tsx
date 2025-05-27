@@ -78,7 +78,7 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
             <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
               🔮 Prochaines mises à jour
             </h1>
-            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            <p className="text-white mt-1 text-sm sm:text-base">
               Découvrez les fonctionnalités futures de Dory
             </p>
           </div>
@@ -93,7 +93,7 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
               <Zap className="w-4 h-4 text-dark-navy" />
             </div>
           </div>
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm text-white max-w-2xl mx-auto">
             Ces innovations rendront Dory encore plus intelligent et efficace pour accompagner les porteurs de projet.
           </p>
         </div>
@@ -112,10 +112,10 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
                     <feature.icon className="w-5 h-5 text-bright-turquoise" />
                   </div>
                   <div className="flex-1">
-                    <CardTitle className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                    <CardTitle className="text-lg sm:text-xl font-bold text-white mb-2">
                       {feature.title}
                     </CardTitle>
-                    <CardDescription className="text-muted-foreground text-sm sm:text-base">
+                    <CardDescription className="text-white text-sm sm:text-base">
                       {feature.description}
                     </CardDescription>
                   </div>
@@ -128,7 +128,7 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
                   <h4 className="font-semibold text-bright-turquoise text-sm">Le rapport contiendra :</h4>
                   <ul className="space-y-1">
                     {feature.details.map((detail, detailIndex) => (
-                      <li key={detailIndex} className="text-sm text-muted-foreground flex items-start">
+                      <li key={detailIndex} className="text-sm text-white flex items-start">
                         <span className="text-electric-blue mr-2">•</span>
                         {detail}
                       </li>
@@ -139,7 +139,7 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
                 {/* Additional Info */}
                 {feature.additionalInfo && (
                   <div className="p-3 rounded-lg bg-gradient-to-r from-bright-turquoise/5 to-electric-blue/5 border border-bright-turquoise/10">
-                    <p className="text-xs sm:text-sm text-muted-foreground italic">
+                    <p className="text-xs sm:text-sm text-white italic">
                       {feature.additionalInfo}
                     </p>
                   </div>
@@ -152,7 +152,7 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
                     {feature.benefits.map((benefit, benefitIndex) => (
                       <div key={benefitIndex} className="flex items-start space-x-2">
                         <span className="text-pink-400 text-sm mt-0.5">✔️</span>
-                        <span className="text-xs sm:text-sm text-muted-foreground flex-1">
+                        <span className="text-xs sm:text-sm text-white flex-1">
                           {benefit}
                         </span>
                       </div>
@@ -166,10 +166,10 @@ const UpcomingFeatures = ({ onBack }: UpcomingFeaturesProps) => {
 
         {/* Footer */}
         <div className="text-center mt-8 p-6 rounded-lg bg-gradient-to-r from-bright-turquoise/5 to-electric-blue/5 border border-bright-turquoise/10">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white">
             💡 Ces fonctionnalités sont en cours de développement et seront déployées progressivement.
           </p>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-white mt-2">
             Restez connecté pour être informé des dernières nouveautés !
           </p>
         </div>
