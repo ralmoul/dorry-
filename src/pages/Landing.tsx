@@ -120,10 +120,16 @@ const Landing = () => {
               <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
-              <div className="flex justify-center md:justify-start mb-8 md:mb-0">
-                <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
+              <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0">
+                <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all mb-8 md:mb-0">
                   Demander l'accès
                 </ConfettiButton>
+                
+                {/* Découvrir section - visible sur mobile en dessous du bouton */}
+                <div className="flex md:hidden flex-col items-center opacity-70 mt-4">
+                  <span className="text-xs uppercase tracking-widest mb-2">Découvrir</span>
+                  <ArrowDown className="w-6 h-6 text-cyan-400 animate-bounce" />
+                </div>
               </div>
             </div>
             
@@ -138,7 +144,8 @@ const Landing = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-8 md:bottom-8 left-1/2 transform -translate-x-1/2 flex-col items-center opacity-70 hover:opacity-100 transition-opacity hidden md:flex">
+        {/* Découvrir section - visible sur desktop uniquement en bas de page */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity">
           <span className="text-xs sm:text-sm uppercase tracking-widest mb-2">Découvrir</span>
           <ArrowDown className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400 animate-bounce" />
         </div>
