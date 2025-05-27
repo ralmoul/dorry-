@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,7 +20,7 @@
     --secondary-foreground: 250 250 250;
 
     --muted: 0 0% 10%;
-    --muted-foreground: 200 200 200;
+    --muted-foreground: 250 250 250;
 
     --accent: 0 0% 10%;
     --accent-foreground: 250 250 250;
@@ -49,6 +48,7 @@
 @layer base {
   * {
     @apply border-border;
+    color: rgb(250 250 250) !important;
   }
 
   body {
@@ -58,6 +58,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    color: rgb(250 250 250) !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -66,11 +67,11 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     letter-spacing: -0.025em;
-    color: rgb(250 250 250);
+    color: rgb(250 250 250) !important;
   }
 
-  p, span, div {
-    color: rgb(250 250 250);
+  p, span, div, button, input, textarea, label {
+    color: rgb(250 250 250) !important;
   }
 
   .font-bold,
@@ -81,7 +82,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.025em;
-    color: rgb(250 250 250);
+    color: rgb(250 250 250) !important;
   }
 
   .bg-clip-text {
@@ -90,6 +91,18 @@
     -webkit-text-fill-color: transparent;
     font-weight: 600;
     letter-spacing: -0.025em;
+  }
+
+  .text-muted-foreground {
+    color: rgb(200 200 200) !important;
+  }
+
+  .text-white {
+    color: rgb(255 255 255) !important;
+  }
+
+  .text-foreground {
+    color: rgb(250 250 250) !important;
   }
 
   /* Mobile-specific text improvements */
@@ -102,7 +115,7 @@
       color: rgb(250 250 250) !important;
     }
     
-    p, span, div {
+    p, span, div, button, input, textarea, label {
       color: rgb(250 250 250) !important;
     }
     
@@ -124,7 +137,7 @@
     
     /* Ensure buttons have proper contrast */
     button {
-      color: inherit;
+      color: inherit !important;
     }
     
     /* Fix input text color */
@@ -186,7 +199,11 @@
     border: 1px solid rgba(0, 212, 170, 0.2);
     position: relative;
     overflow: hidden;
-    color: rgb(250 250 250);
+    color: rgb(250 250 250) !important;
+  }
+
+  .holographic-card * {
+    color: rgb(250 250 250) !important;
   }
 
   .holographic-card::before {
@@ -211,7 +228,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    color: rgb(250 250 250);
+    color: rgb(250 250 250) !important;
   }
 
   .floating-particles {
@@ -243,6 +260,10 @@
     backdrop-filter: blur(20px);
     background: rgba(10, 10, 15, 0.8);
     border-bottom: 1px solid rgba(0, 212, 170, 0.1);
+  }
+
+  .navbar-blur * {
+    color: rgb(250 250 250) !important;
   }
 
   .hero-3d {
@@ -282,8 +303,6 @@
     }
   }
 }
-
-/* ... keep existing code (all keyframes and animations) */
 
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
