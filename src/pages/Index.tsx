@@ -19,7 +19,7 @@ const Index = () => {
   if (showSettings) {
     return (
       <Settings 
-        onClose={() => setShowSettings(false)} 
+        onBack={() => setShowSettings(false)} 
       />
     );
   }
