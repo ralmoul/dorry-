@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -127,13 +126,9 @@ const Landing = () => {
                 <VoiceWaves isActive={true} className="absolute inset-0 scale-150" />
                 <div className="hero-image w-96 h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img 
-                    src="/lovable-uploads/1aa9a881-1c14-4145-aaa0-3bfb30f0f153.png" 
+                    src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
                     alt="Dorry AI Assistant" 
                     className="w-full h-full object-contain"
-                    style={{
-                      filter: 'brightness(1.1) contrast(1.1)',
-                      mixBlendMode: 'screen'
-                    }}
                   />
                 </div>
               </div>
