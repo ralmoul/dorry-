@@ -84,10 +84,12 @@ const Landing = () => {
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
               <div className="flex space-x-6 items-center">
-                <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
-                  Essayez gratuitement
+                <ConfettiButton 
+                  href="/support"
+                  className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all"
+                >
+                  Demander l'accès
                 </ConfettiButton>
-                
               </div>
             </div>
             
@@ -268,8 +270,11 @@ const Landing = () => {
           <p className="text-xl text-slate-300 mb-12 max-w-2xl mx-auto">
             L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
           </p>
-          <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-12 py-6 rounded-xl text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
-            Commencer gratuitement
+          <ConfettiButton 
+            href="/support"
+            className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-12 py-6 rounded-xl text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all"
+          >
+            Demander l'accès
           </ConfettiButton>
         </div>
       </section>

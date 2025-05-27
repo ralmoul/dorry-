@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { Button } from './button';
+import { useNavigate } from 'react-router-dom';
 
 interface ConfettiButtonProps {
   children: React.ReactNode;
@@ -8,6 +8,7 @@ interface ConfettiButtonProps {
   className?: string;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
+  href?: string;
 }
 
 export const ConfettiButton = ({ 
@@ -15,9 +16,11 @@ export const ConfettiButton = ({
   onClick, 
   className = '',
   variant = "default",
-  size = "default"
+  size = "default",
+  href
 }: ConfettiButtonProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const navigate = useNavigate();
 
   const createConfetti = () => {
     const button = document.activeElement as HTMLElement;
@@ -73,6 +76,11 @@ export const ConfettiButton = ({
   const handleClick = () => {
     setIsAnimating(true);
     createConfetti();
+    
+    if (href) {
+      navigate(href);
+    }
+    
     onClick?.();
     
     setTimeout(() => setIsAnimating(false), 1000);
