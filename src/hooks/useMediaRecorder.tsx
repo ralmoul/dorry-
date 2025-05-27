@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 
 export const useMediaRecorder = () => {
@@ -141,8 +140,10 @@ export const useMediaRecorder = () => {
 
       mediaRecorder.onerror = (event) => {
         console.error('❌ Erreur MediaRecorder:', event);
+        const errorEvent = event as ErrorEvent;
         console.error('❌ Détails de l\'erreur:', {
-          error: event.error,
+          error: errorEvent.error,
+          message: errorEvent.message,
           type: event.type,
           target: event.target
         });
@@ -153,7 +154,7 @@ export const useMediaRecorder = () => {
       };
 
       // Intervalle adaptatif selon l'appareil
-      const chunkInterval = isMobile ? 500 : 1000; // Chunks plus fréquents sur mobile
+      const chunkInterval = isMobile ? 250 : 1000; // Chunks plus fréquents sur mobile
       console.log(`⏱️ Démarrage avec intervalle de ${chunkInterval}ms`);
       
       mediaRecorder.start(chunkInterval);
@@ -162,9 +163,9 @@ export const useMediaRecorder = () => {
     } catch (error) {
       console.error('❌ Erreur lors de l\'accès au microphone:', error);
       console.error('❌ Détails de l\'erreur:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
+        name: (error as Error).name,
+        message: (error as Error).message,
+        stack: (error as Error).stack
       });
       
       // Nettoyage en cas d'erreur
