@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, Brain, MapPin, Mail, Clock, Shield, Zap, Users } from 'lucide-react';
-
 const TypewriterText = ({
   text,
   delay = 100
@@ -24,24 +23,19 @@ const TypewriterText = ({
   }, [currentIndex, text, delay]);
   return <span>{displayText}</span>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [showSubtitle, setShowSubtitle] = useState(false);
-
   useEffect(() => {
     const timer = setTimeout(() => setShowSubtitle(true), 3000);
     return () => clearTimeout(timer);
   }, []);
-
   const handleGetStarted = () => {
     navigate('/signup');
   };
-
   const handleLogin = () => {
     navigate('/login');
   };
-
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       {/* Header */}
       <header className="flex justify-between items-center p-4 md:p-6 max-w-7xl mx-auto">
@@ -55,19 +49,10 @@ const Landing = () => {
         </div>
         
         <div className="flex space-x-2 md:space-x-4 ml-auto">
-          <Button 
-            variant="outline" 
-            onClick={handleLogin} 
-            size="sm"
-            className="text-xs md:text-sm px-3 md:px-4 py-1 md:py-2 border-bright-turquoise text-bright-turquoise hover:bg-bright-turquoise hover:text-white"
-          >
+          <Button variant="outline" onClick={handleLogin} size="sm" className="text-xs md:text-sm px-3 md:px-4 py-1 md:py-2 border-bright-turquoise text-bright-turquoise hover:bg-bright-turquoise hover:text-white">
             Se connecter
           </Button>
-          <Button 
-            onClick={handleGetStarted} 
-            size="sm"
-            className="text-xs md:text-sm px-3 md:px-4 py-1 md:py-2 bg-gradient-to-r from-bright-turquoise to-electric-blue text-white hover:opacity-90"
-          >
+          <Button onClick={handleGetStarted} size="sm" className="text-xs md:text-sm px-3 md:px-4 py-1 md:py-2 bg-gradient-to-r from-bright-turquoise to-electric-blue text-white hover:opacity-90">
             S'inscrire
           </Button>
         </div>
@@ -223,7 +208,7 @@ const Landing = () => {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <h3 className="text-lg font-bold mb-4">Dorry</h3>
-              <p className="text-gray-300">L'assistante IA qui révolutionne l'accompagnement de projet</p>
+              <p className="text-gray-300">L'assistante IA qui révolutionne l'accompagnement.</p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Légal</h4>
@@ -241,7 +226,7 @@ const Landing = () => {
             </div>
             <div>
               <h4 className="font-semibold mb-4">Innovation</h4>
-              <p className="text-gray-300">C'est le début d'une nouvelle ère pour l'accompagnement de projet.</p>
+              <p className="text-gray-300">C'est le début d'une nouvelle ère pour l'accompagnement.</p>
             </div>
           </div>
           
@@ -252,5 +237,4 @@ const Landing = () => {
       </footer>
     </div>;
 };
-
 export default Landing;
