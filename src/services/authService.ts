@@ -1,33 +1,28 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { User, SignupFormData, LoginFormData } from '@/types/auth';
+import { SignupFormData, LoginFormData } from '@/types/auth';
 
 export const authService = {
-  async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; user?: User }> {
+  async login(data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> {
     try {
       console.log('🔐 [LOGIN] Starting login for:', data.email);
       
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: data.email.toLowerCase().trim(),
         password: data.password,
       });
 
-      if (authError) {
-        console.error('❌ [LOGIN] Auth error:', authError.message);
-        return { success: false };
+      if (error) {
+        console.error('❌ [LOGIN] Auth error:', error.message);
+        return false;
       }
 
-      if (!authData.user) {
-        console.error('❌ [LOGIN] No user returned');
-        return { success: false };
-      }
-
-      console.log('✅ [LOGIN] Login successful:', authData.user.id);
-      return { success: true };
+      console.log('✅ [LOGIN] Login successful');
+      return true;
       
     } catch (error) {
       console.error('💥 [LOGIN] Unexpected error:', error);
-      return { success: false };
+      return false;
     }
   },
 
@@ -35,7 +30,7 @@ export const authService = {
     try {
       console.log('📝 [SIGNUP] Starting signup for:', data.email);
       
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: data.email.toLowerCase().trim(),
         password: data.password,
         options: {
@@ -48,17 +43,12 @@ export const authService = {
         }
       });
 
-      if (authError) {
-        console.error('❌ [SIGNUP] Auth error:', authError.message);
+      if (error) {
+        console.error('❌ [SIGNUP] Auth error:', error.message);
         return false;
       }
 
-      if (!authData.user) {
-        console.error('❌ [SIGNUP] No user returned');
-        return false;
-      }
-
-      console.log('✅ [SIGNUP] Signup successful:', authData.user.id);
+      console.log('✅ [SIGNUP] Signup successful');
       return true;
       
     } catch (error) {

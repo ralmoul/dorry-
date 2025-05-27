@@ -61,26 +61,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     console.log('🔐 [AUTH] Starting login process for:', data.email);
-    const result = await authService.login(data);
-    console.log('🎯 [AUTH] Login result:', result.success);
-    return result.success;
+    return authService.login(data);
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
     console.log('📝 [AUTH] Starting signup process for:', data.email);
-    const result = await authService.signup(data);
-    console.log('🎯 [AUTH] Signup result:', result);
-    return result;
+    return authService.signup(data);
   };
 
   const logout = async () => {
     console.log('👋 [AUTH] Logging out user');
     await supabase.auth.signOut();
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
   };
 
   console.log('📊 [AUTH] Current state:', { 
