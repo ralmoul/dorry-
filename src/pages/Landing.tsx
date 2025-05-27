@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -96,7 +97,7 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-0">
+      <section className="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-0 pb-20 md:pb-0">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
         <FloatingParticles />
         
@@ -120,7 +121,7 @@ const Landing = () => {
               <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0">
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
-              <div className="flex justify-center md:justify-start">
+              <div className="flex justify-center md:justify-start mb-8 md:mb-0">
                 <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
                   Demander l'accès
                 </ConfettiButton>
@@ -138,7 +139,7 @@ const Landing = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-8 md:bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity hidden md:flex">
           <span className="text-xs sm:text-sm uppercase tracking-widest mb-2">Découvrir</span>
           <ArrowDown className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400 animate-bounce" />
         </div>

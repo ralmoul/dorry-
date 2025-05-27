@@ -1,6 +1,63 @@
-import { User } from '@/types/auth';
+import { supabase } from '@/integrations/supabase/client';
 
-const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
+interface WebhookData {
+  audioBlob: Blob;
+  duration: number;
+  deviceInfo: {
+    userAgent: string;
+    isMobile: boolean;
+    platform: string;
+  };
+  timestamp: string;
+}
+
+export const sendToWebhook = async (data: WebhookData): Promise<boolean> => {
+  try {
+    console.log('📡 Envoi vers webhook avec:', {
+      audioBlobSize: data.audioBlob.size,
+      duration: data.duration,
+      deviceInfo: data.deviceInfo,
+      timestamp: data.timestamp
+    });
+
+    // Déterminer l'extension basée sur le type MIME
+    const mimeType = data.audioBlob.type;
+    const extension = mimeType.includes('ogg') ? 'ogg' : 
+                    mimeType.includes('webm') ? 'webm' : 
+                    mimeType.includes('mp4') ? 'mp4' : 'wav';
+
+    console.log(`🎵 Format audio détecté: ${mimeType}, extension: ${extension}`);
+
+    // Créer le FormData
+    const formData = new FormData();
+    formData.append('audio', data.audioBlob, `recording.${extension}`);
+    formData.append('duration', data.duration.toString());
+    formData.append('deviceInfo', JSON.stringify(data.deviceInfo));
+    formData.append('timestamp', data.timestamp);
+
+    console.log('📦 FormData créé avec les champs:', Array.from(formData.keys()));
+
+    const response = await fetch('https://hook.eu2.make.com/w6l4q86t46q78n8nfpwaxe3w1bi78wvi', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      console.error('❌ Erreur webhook:', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('📄 Détails erreur:', errorText);
+      throw new Error(`Erreur webhook: ${response.status}`);
+    }
+
+    const result = await response.text();
+    console.log('✅ Réponse webhook:', result);
+    return true;
+
+  } catch (error) {
+    console.error('💥 Erreur lors de l\'envoi vers le webhook:', error);
+    return false;
+  }
+};
 
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
   console.log('🚀 [WEBHOOK] DÉBUT - URL utilisée:', WEBHOOK_URL);
