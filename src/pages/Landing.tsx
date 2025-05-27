@@ -4,7 +4,7 @@ import { TypewriterText } from '@/components/ui/TypewriterText';
 import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
-import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp } from 'lucide-react';
+import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown } from 'lucide-react';
 
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
@@ -107,7 +107,7 @@ const Landing = () => {
 
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity">
           <span className="text-sm uppercase tracking-widest mb-2">Découvrir</span>
-          <div className="w-8 h-8 border-r-2 border-b-2 border-cyan-400 transform rotate-[225deg] animate-bounce"></div>
+          <ArrowDown className="w-8 h-8 text-cyan-400 animate-bounce" />
         </div>
       </section>
 
