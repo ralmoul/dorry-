@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -44,11 +45,7 @@ export const useAudioRecorder = () => {
     setShowConfirmation(true);
     
     console.log('✅ [AUDIO_RECORDER] Enregistrement arrêté, confirmation demandée');
-    toast({
-      title: "Enregistrement terminé",
-      description: "Choisissez si vous voulez envoyer ou recommencer",
-    });
-  }, [stopMediaRecording, toast]);
+  }, [stopMediaRecording]);
 
   const confirmSend = useCallback(async () => {
     if (!recordingBlob) {
@@ -76,10 +73,6 @@ export const useAudioRecorder = () => {
       const result = await sendAudioToWebhook(recordingBlob, user);
       
       console.log('✅ [AUDIO_RECORDER] Transmission réussie:', result);
-      toast({
-        title: "Message transmis",
-        description: "Vos idées ont été automatiquement transmises vers N8N.",
-      });
     } catch (error) {
       console.error('❌ [AUDIO_RECORDER] Erreur de transmission:', error);
       const errorMessage = error instanceof Error ? error.message : "Impossible de transmettre le message.";
