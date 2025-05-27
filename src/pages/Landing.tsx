@@ -50,7 +50,7 @@ const Landing = () => {
       <nav className={`fixed top-0 left-0 w-full z-50 py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
         <div className="container mx-auto px-8 flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-10 h-10" />
+            <img src="/lovable-uploads/ea5e91e6-a6a5-49e0-8b7f-e2e6536e4a37.png" alt="Dorry Logo" className="w-10 h-10" />
           </div>
           <div className="hidden md:flex space-x-8">
             
@@ -96,7 +96,7 @@ const Landing = () => {
             <div className="flex-1 flex justify-center items-center relative">
               <div className="relative">
                 <div className="hero-image w-96 h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
-                  <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
+                  <img src="/lovable-uploads/ea5e91e6-a6a5-49e0-8b7f-e2e6536e4a37.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
                 </div>
               </div>
             </div>
@@ -105,7 +105,7 @@ const Landing = () => {
 
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity">
           <span className="text-sm uppercase tracking-widest mb-2">Découvrir</span>
-          <div className="w-8 h-8 border-r-2 border-b-2 border-cyan-400 transform rotate-45 animate-bounce"></div>
+          <div className="w-8 h-8 border-r-2 border-b-2 border-cyan-400 transform rotate-[135deg] animate-bounce"></div>
         </div>
       </section>
 
@@ -284,7 +284,7 @@ const Landing = () => {
         <div className="container mx-auto px-8">
           <div className="flex flex-wrap gap-16 mb-16">
             <div className="flex-1 min-w-64">
-              <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-10 h-10 mb-4" />
+              <img src="/lovable-uploads/ea5e91e6-a6a5-49e0-8b7f-e2e6536e4a37.png" alt="Dorry Logo" className="w-10 h-10 mb-4" />
               <p className="text-slate-300 max-w-sm">
                 L'assistante IA qui révolutionne l'accompagnement de projet
               </p>
