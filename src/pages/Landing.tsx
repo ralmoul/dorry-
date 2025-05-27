@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -139,7 +138,7 @@ const Landing = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-8 md:bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity hidden md:flex">
+        <div className="absolute bottom-8 md:bottom-8 left-1/2 transform -translate-x-1/2 flex-col items-center opacity-70 hover:opacity-100 transition-opacity hidden md:flex">
           <span className="text-xs sm:text-sm uppercase tracking-widest mb-2">Découvrir</span>
           <ArrowDown className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400 animate-bounce" />
         </div>
