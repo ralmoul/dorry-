@@ -126,9 +126,11 @@ const Landing = () => {
           <div className="flex items-center gap-16">
             <div className="flex-1 relative">
               <div className="relative w-full aspect-video">
-                <div className="hologram-image w-full h-full bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-2xl flex items-center justify-center text-6xl backdrop-blur-sm border border-cyan-400/20">
-                  📹
-                </div>
+                <img 
+                  src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" 
+                  alt="Dorry AI Data Analysis" 
+                  className="w-full h-full object-cover rounded-2xl"
+                />
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 rounded-2xl animate-pulse"></div>
               </div>
             </div>
