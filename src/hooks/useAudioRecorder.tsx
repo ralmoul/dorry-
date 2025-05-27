@@ -73,6 +73,11 @@ export const useAudioRecorder = () => {
       const result = await sendAudioToWebhook(recordingBlob, user);
       
       console.log('✅ [AUDIO_RECORDER] Transmission réussie:', result);
+      
+      toast({
+        title: "Message transmis",
+        description: "L'enregistrement à bien été envoyé à l'IA pour le traitement.",
+      });
     } catch (error) {
       console.error('❌ [AUDIO_RECORDER] Erreur de transmission:', error);
       const errorMessage = error instanceof Error ? error.message : "Impossible de transmettre le message.";
@@ -94,13 +99,6 @@ export const useAudioRecorder = () => {
     }
   }, [recordingBlob, user, toast, clearRecording]);
 
-  const restartRecording = useCallback(() => {
-    console.log('🔄 [AUDIO_RECORDER] Redémarrage de l\'enregistrement');
-    setShowConfirmation(false);
-    clearRecording();
-    startRecording();
-  }, [startRecording, clearRecording]);
-
   const cancelRecording = useCallback(() => {
     console.log('❌ [AUDIO_RECORDER] Annulation de l\'enregistrement');
     setShowConfirmation(false);
@@ -116,7 +114,6 @@ export const useAudioRecorder = () => {
     startRecording,
     stopRecording,
     confirmSend,
-    restartRecording,
     cancelRecording,
   };
 };
