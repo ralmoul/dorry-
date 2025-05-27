@@ -1,1667 +1,436 @@
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dorry - Assistante Vocale Intelligente</title>
-    <style>
-        /* Variables CSS */
-        :root {
-            /* Couleurs principales */
-            --primary: #00B8D4;
-            --primary-light: #64FFDA;
-            --primary-dark: #0088A3;
-            --secondary: #6A11CB;
-            --secondary-light: #8C43EA;
-            --secondary-dark: #4A0D8F;
-            --accent: #FF5722;
-            --accent-light: #FF8A65;
-            --accent-dark: #E64A19;
-            
-            /* Couleurs de fond */
-            --bg-dark: #0F172A;
-            --bg-light: #1E293B;
-            --bg-gradient: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
-            
-            /* Couleurs de texte */
-            --text-white: #FFFFFF;
-            --text-light: #E2E8F0;
-            --text-muted: #94A3B8;
-            
-            /* Typographie */
-            --font-heading: 'Montserrat', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --font-accent: 'Poppins', sans-serif;
-            
-            /* Espacements */
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 2rem;
-            --spacing-lg: 4rem;
-            --spacing-xl: 8rem;
-            
-            /* Transitions */
-            --transition-fast: 0.3s ease;
-            --transition-medium: 0.5s ease;
-            --transition-slow: 0.8s ease;
-            
-            /* Ombres */
-            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.15);
-            
-            /* Arrondis */
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --radius-lg: 16px;
-            --radius-full: 9999px;
-        }
-
-        /* Reset et base */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 16px;
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: var(--font-body);
-            color: var(--text-white);
-            background-color: var(--bg-dark);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing-md);
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: var(--font-heading);
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-            transition: color var(--transition-fast);
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: var(--spacing-sm) 0;
-            transition: background-color var(--transition-medium);
-            backdrop-filter: blur(10px);
-        }
-
-        .navbar.scrolled {
-            background-color: rgba(15, 23, 42, 0.9);
-            box-shadow: var(--shadow-md);
-        }
-
-        .navbar .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-img {
-            height: 40px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: var(--spacing-md);
-        }
-
-        .nav-link {
-            position: relative;
-            font-weight: 500;
-            padding: var(--spacing-xs) 0;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--primary);
-            transition: width var(--transition-fast);
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: var(--spacing-sm);
-        }
-
-        /* Boutons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            transition: all var(--transition-fast);
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: var(--text-white);
-            box-shadow: 0 4px 15px rgba(0, 184, 212, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 184, 212, 0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background-color: rgba(0, 184, 212, 0.1);
-        }
-
-        .btn-text {
-            background: transparent;
-            color: var(--text-white);
-            padding: 0.75rem 0;
-        }
-
-        .btn-text .arrow {
-            margin-left: 0.5rem;
-            transition: transform var(--transition-fast);
-        }
-
-        .btn-text:hover .arrow {
-            transform: translateX(4px);
-        }
-
-        .btn-cta {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: var(--text-white);
-            font-size: 1.1rem;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-md);
-            box-shadow: 0 8px 25px rgba(0, 184, 212, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-cta::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s ease;
-        }
-
-        .btn-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 184, 212, 0.6);
-        }
-
-        .btn-cta:hover::before {
-            left: 100%;
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 184, 212, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(0, 184, 212, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 184, 212, 0);
-            }
-        }
-
-        /* Hero Section */
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: var(--spacing-xl) 0;
-            overflow: hidden;
-        }
-
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .gradient-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary-dark) 100%);
-            opacity: 0.8;
-        }
-
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .hero .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--spacing-lg);
-        }
-
-        .hero-content {
-            flex: 1;
-            max-width: 600px;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            margin-bottom: var(--spacing-md);
-            line-height: 1.1;
-        }
-
-        .hero-title .highlight {
-            display: block;
-            color: var(--primary);
-            font-size: 4rem;
-            margin: 0.2em 0;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-light);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: var(--spacing-md);
-            align-items: center;
-        }
-
-        .hero-visual {
-            flex: 1;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .hero-image {
-            max-width: 100%;
-            z-index: 2;
-            transform-style: preserve-3d;
-            transition: transform var(--transition-medium);
-        }
-
-        .voice-visualization {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1;
-        }
-
-        .wave {
-            position: absolute;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            opacity: 0;
-            transform: scale(0);
-        }
-
-        .wave-1 {
-            width: 100px;
-            height: 100px;
-            animation: wave 3s infinite ease-out;
-        }
-
-        .wave-2 {
-            width: 200px;
-            height: 200px;
-            animation: wave 3s infinite ease-out 0.5s;
-        }
-
-        .wave-3 {
-            width: 300px;
-            height: 300px;
-            animation: wave 3s infinite ease-out 1s;
-        }
-
-        .wave-4 {
-            width: 400px;
-            height: 400px;
-            animation: wave 3s infinite ease-out 1.5s;
-        }
-
-        @keyframes wave {
-            0% {
-                transform: scale(0);
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 0;
-            }
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: var(--spacing-md);
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--spacing-xs);
-            opacity: 0.7;
-            transition: opacity var(--transition-fast);
-        }
-
-        .scroll-indicator:hover {
-            opacity: 1;
-        }
-
-        .scroll-indicator span {
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .scroll-arrow {
-            width: 30px;
-            height: 30px;
-            border-right: 2px solid var(--primary);
-            border-bottom: 2px solid var(--primary);
-            transform: rotate(45deg);
-            animation: scrollArrow 2s infinite;
-        }
-
-        @keyframes scrollArrow {
-            0% {
-                transform: rotate(45deg) translate(0, 0);
-                opacity: 0.4;
-            }
-            50% {
-                transform: rotate(45deg) translate(10px, 10px);
-                opacity: 0.8;
-            }
-            100% {
-                transform: rotate(45deg) translate(0, 0);
-                opacity: 0.4;
-            }
-        }
-
-        /* Section Headers */
-        .section-header {
-            text-align: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: var(--spacing-sm);
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .section-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-light);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        /* Revolution Section */
-        .revolution {
-            padding: var(--spacing-xl) 0;
-            background-color: var(--bg-light);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .revolution-visual {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-lg);
-            margin-top: var(--spacing-lg);
-        }
-
-        .hologram {
-            flex: 1;
-            position: relative;
-        }
-
-        .hologram-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 75%;
-        }
-
-        .hologram-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 0 15px rgba(0, 184, 212, 0.5));
-        }
-
-        .hologram-reflection {
-            position: absolute;
-            bottom: -20%;
-            left: 0;
-            width: 100%;
-            height: 20%;
-            background: linear-gradient(to bottom, rgba(0, 184, 212, 0.2), transparent);
-            transform: scaleY(-1);
-            filter: blur(5px);
-        }
-
-        .hologram-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(0, 184, 212, 0.1) 0%, transparent 70%);
-            animation: glow 4s infinite alternate;
-        }
-
-        @keyframes glow {
-            0% {
-                opacity: 0.5;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        .revolution-steps {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-        }
-
-        .step {
-            padding: var(--spacing-md);
-            background-color: rgba(30, 41, 59, 0.5);
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary);
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-        }
-
-        .step:hover {
-            transform: translateX(5px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .step-number {
-            font-family: var(--font-accent);
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .step-title {
-            font-size: 1.5rem;
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .step-description {
-            color: var(--text-light);
-        }
-
-        /* Features Section */
-        .features {
-            padding: var(--spacing-xl) 0;
-            background-color: var(--bg-dark);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .feature-card {
-            background-color: rgba(30, 41, 59, 0.3);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .feature-icon {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .icon {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            position: relative;
-            z-index: 2;
-        }
-
-        .icon-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            border-radius: 50%;
-            filter: blur(15px);
-            z-index: 1;
-        }
-
-        .feature-title {
-            font-size: 1.5rem;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .feature-description {
-            color: var(--text-light);
-            flex-grow: 1;
-        }
-
-        /* Why Dorry Section */
-        .why-dorry {
-            padding: var(--spacing-xl) 0;
-            background-color: var(--bg-light);
-        }
-
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .benefit-card {
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            background-color: rgba(15, 23, 42, 0.5);
-            transition: transform var(--transition-fast);
-        }
-
-        .benefit-card:hover {
-            transform: scale(1.03);
-        }
-
-        .benefit-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .benefit-title {
-            font-size: 1.3rem;
-            margin-bottom: var(--spacing-sm);
-            color: var(--primary);
-        }
-
-        .benefit-description {
-            color: var(--text-light);
-        }
-
-        /* Testimonials */
-        .testimonials {
-            margin-top: var(--spacing-xl);
-            padding: var(--spacing-lg);
-            background-color: rgba(15, 23, 42, 0.7);
-            border-radius: var(--radius-lg);
-        }
-
-        .testimonials-title {
-            text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .testimonial-carousel {
-            position: relative;
-            height: 250px;
-            overflow: hidden;
-        }
-
-        .testimonial-slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transform: translateX(50px);
-            transition: opacity var(--transition-medium), transform var(--transition-medium);
-        }
-
-        .testimonial-slide.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .testimonial-content {
-            background-color: rgba(30, 41, 59, 0.5);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .testimonial-text {
-            font-size: 1.1rem;
-            font-style: italic;
-            color: var(--text-light);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .author-name {
-            font-size: 1.1rem;
-            margin-bottom: 0.2rem;
-        }
-
-        .author-position {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .carousel-controls {
-            display: flex;
-            justify-content: center;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-md);
-        }
-
-        .carousel-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--text-muted);
-            border: none;
-            cursor: pointer;
-            transition: background-color var(--transition-fast), transform var(--transition-fast);
-        }
-
-        .carousel-dot.active {
-            background-color: var(--primary);
-            transform: scale(1.2);
-        }
-
-        /* Stats */
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: var(--spacing-xl);
-            gap: var(--spacing-lg);
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .stat-label {
-            font-size: 1.1rem;
-            color: var(--text-light);
-        }
-
-        /* CTA Section */
-        .cta-section {
-            position: relative;
-            padding: var(--spacing-xl) 0;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        .cta-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .gradient-animated {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            opacity: 0.8;
-            animation: gradientShift 10s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .particles-animated {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .cta-title {
-            font-size: 2.5rem;
-            margin-bottom: var(--spacing-md);
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-light);
-            margin-bottom: var(--spacing-lg);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .confetti-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* Footer */
-        .footer {
-            background-color: var(--bg-dark);
-            padding: var(--spacing-lg) 0 var(--spacing-md);
-        }
-
-        .footer-content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .footer-brand {
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .footer-logo {
-            height: 40px;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .footer-description {
-            color: var(--text-light);
-            max-width: 300px;
-        }
-
-        .footer-links {
-            flex: 2;
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-lg);
-        }
-
-        .footer-column {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .footer-title {
-            font-size: 1.2rem;
-            margin-bottom: var(--spacing-md);
-            color: var(--primary);
-        }
-
-        .footer-link {
-            display: block;
-            margin-bottom: var(--spacing-xs);
-            color: var(--text-light);
-            transition: color var(--transition-fast);
-        }
-
-        .footer-link:hover {
-            color: var(--primary);
-        }
-
-        .footer-text {
-            color: var(--text-light);
-        }
-
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: var(--spacing-md);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .copyright {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: var(--spacing-sm);
-        }
-
-        .social-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: background-color var(--transition-fast), transform var(--transition-fast);
-        }
-
-        .social-link:hover {
-            background-color: var(--primary);
-            transform: translateY(-3px);
-        }
-
-        .social-link img {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .hero-title {
-                font-size: 3rem;
-            }
-            
-            .hero-title .highlight {
-                font-size: 3.5rem;
-            }
-            
-            .hero .container {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .hero-content {
-                max-width: 100%;
-            }
-            
-            .hero-cta {
-                justify-content: center;
-            }
-            
-            .revolution-visual {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .navbar .container {
-                flex-wrap: wrap;
-            }
-            
-            .nav-links {
-                order: 3;
-                width: 100%;
-                margin-top: var(--spacing-sm);
-                justify-content: center;
-            }
-            
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-title .highlight {
-                font-size: 3rem;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            .stats {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-            }
-            
-            .footer-bottom {
-                flex-direction: column;
-                gap: var(--spacing-md);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .hero-title .highlight {
-                font-size: 2.5rem;
-            }
-            
-            .hero-cta {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
-            }
-        }
-
-        /* Animation Classes */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity var(--transition-medium), transform var(--transition-medium);
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .slide-in-left {
-            opacity: 0;
-            transform: translateX(-50px);
-            transition: opacity var(--transition-medium), transform var(--transition-medium);
-        }
-
-        .slide-in-left.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .slide-in-right {
-            opacity: 0;
-            transform: translateX(50px);
-            transition: opacity var(--transition-medium), transform var(--transition-medium);
-        }
-
-        .slide-in-right.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .scale-in {
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity var(--transition-medium), transform var(--transition-medium);
-        }
-
-        .scale-in.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* Typing Animation */
-        .typing-text {
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 3px solid var(--primary);
-            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: var(--primary) }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="#" class="logo">
-                <img src="https://votre-url-de-logo.com/logo_sans_texte.png" alt="Dorry Logo" class="logo-img">
+import React, { useEffect, useState } from 'react';
+import { VoiceWaves } from '@/components/ui/VoiceWaves';
+import { TypewriterText } from '@/components/ui/TypewriterText';
+import { FloatingParticles } from '@/components/ui/FloatingParticles';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
+import { ConfettiButton } from '@/components/ui/ConfettiButton';
+import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp } from 'lucide-react';
+
+const Landing = () => {
+  const [isNavScrolled, setIsNavScrolled] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const testimonials = [
+    {
+      text: "Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus.",
+      author: "Sophie M.",
+      position: "Directrice de projet",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      text: "La précision de l'analyse est bluffante. Dorry capte des détails que j'aurais manqués, même en prenant des notes.",
+      author: "Thomas L.",
+      position: "Consultant",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
+    },
+    {
+      text: "L'intégration de Dorry dans notre workflow a augmenté notre productivité de 30%. Un investissement qui vaut vraiment le coup.",
+      author: "Julie D.",
+      position: "CEO Startup",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
+    }
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsNavScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const heroImage = document.querySelector('.hero-image') as HTMLElement;
+    if (heroImage) {
+      const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+      const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+      heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 w-full z-50 py-4 transition-all duration-500 backdrop-blur-md ${
+        isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''
+      }`}>
+        <div className="container mx-auto px-8 flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center font-bold text-slate-900">
+              D
+            </div>
+          </div>
+          <div className="hidden md:flex space-x-8">
+            <a href="#" className="nav-link">Accueil</a>
+            <a href="#" className="nav-link">Fonctionnalités</a>
+            <a href="#" className="nav-link">Tarifs</a>
+            <a href="#" className="nav-link">Contact</a>
+          </div>
+          <div className="flex space-x-4">
+            <a href="/login" className="px-6 py-2 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors">
+              Se connecter
             </a>
-            <div class="nav-links">
-                <a href="#" class="nav-link">Accueil</a>
-                <a href="#" class="nav-link">Fonctionnalités</a>
-                <a href="#" class="nav-link">Tarifs</a>
-                <a href="#" class="nav-link">Contact</a>
-            </div>
-            <div class="nav-buttons">
-                <a href="#" class="btn btn-outline">Se connecter</a>
-                <a href="#" class="btn btn-primary">S'inscrire</a>
-            </div>
+            <a href="/signup" className="px-6 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 rounded-lg hover:shadow-lg transition-all">
+              S'inscrire
+            </a>
+          </div>
         </div>
-    </nav>
+      </nav>
 
-    <!-- Hero Section avec animation d'entrée -->
-    <section class="hero">
-        <div class="hero-bg">
-            <div class="gradient-bg"></div>
-            <div class="particles"></div>
-        </div>
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    <span class="typing-text">Dorry, l'assistante IA qui</span>
-                    <span class="highlight">révolutionne</span>
-                    <span class="typing-text">vos réunions</span>
-                </h1>
-                <p class="hero-subtitle">Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.</p>
-                <div class="hero-cta">
-                    <a href="#" class="btn btn-primary pulse">Essayez gratuitement</a>
-                    <a href="#" class="btn btn-text">Voir la démo <span class="arrow">→</span></a>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="voice-visualization">
-                    <!-- Animation d'ondes vocales -->
-                    <div class="wave wave-1"></div>
-                    <div class="wave wave-2"></div>
-                    <div class="wave wave-3"></div>
-                    <div class="wave wave-4"></div>
-                </div>
-                <img src="https://votre-url-d-image.com/dorry_assistant_3d.png" alt="Dorry Assistant IA" class="hero-image">
-            </div>
-        </div>
-        <div class="scroll-indicator">
-            <span>Découvrir</span>
-            <div class="scroll-arrow"></div>
-        </div>
-    </section>
-
-    <!-- Section "Comment Dorry révolutionne vos réunions" -->
-    <section class="revolution">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Comment Dorry révolutionne vos réunions</h2>
-                <p class="section-subtitle">Une expérience immersive qui transforme votre façon de travailler</p>
-            </div>
-            <div class="revolution-visual">
-                <div class="hologram">
-                    <!-- Effet holographique 3D -->
-                    <div class="hologram-container">
-                        <img src="https://votre-url-d-image.com/reunion_hologram.png" alt="Réunion avec Dorry" class="hologram-image">
-                        <div class="hologram-reflection"></div>
-                        <div class="hologram-glow"></div>
-                    </div>
-                </div>
-                <div class="revolution-steps">
-                    <div class="step" data-step="1">
-                        <div class="step-number">01</div>
-                        <h3 class="step-title">Enregistrement intelligent</h3>
-                        <p class="step-description">Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.</p>
-                    </div>
-                    <div class="step" data-step="2">
-                        <div class="step-number">02</div>
-                        <h3 class="step-title">Analyse en temps réel</h3>
-                        <p class="step-description">L'IA identifie les points clés, les décisions et les actions à entreprendre.</p>
-                    </div>
-                    <div class="step" data-step="3">
-                        <div class="step-number">03</div>
-                        <h3 class="step-title">Synthèse instantanée</h3>
-                        <p class="step-description">Un compte-rendu structuré et précis disponible en quelques minutes.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section "Fonctionnalités clés" avec animations -->
-    <section class="features">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Fonctionnalités qui font la différence</h2>
-                <p class="section-subtitle">Découvrez comment Dorry simplifie votre quotidien professionnel</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <img src="https://votre-url-d-icone.com/icon_voice.png" alt="Parlez, Dorry écoute" class="icon">
-                        <div class="icon-bg"></div>
-                    </div>
-                    <h3 class="feature-title">Parlez, Dorry écoute</h3>
-                    <p class="feature-description">Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <img src="https://votre-url-d-icone.com/icon_analysis.png" alt="Analyse instantanée" class="icon">
-                        <div class="icon-bg"></div>
-                    </div>
-                    <h3 class="feature-title">Analyse instantanée par IA</h3>
-                    <p class="feature-description">Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris...</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <img src="https://votre-url-d-icone.com/icon_detection.png" alt="Détection avancée" class="icon">
-                        <div class="icon-bg"></div>
-                    </div>
-                    <h3 class="feature-title">Détection avancée</h3>
-                    <p class="feature-description">Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <img src="https://votre-url-d-icone.com/icon_report.png" alt="Compte rendu détaillé" class="icon">
-                        <div class="icon-bg"></div>
-                    </div>
-                    <h3 class="feature-title">Compte rendu détaillé</h3>
-                    <p class="feature-description">Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section "Pourquoi choisir Dorry" avec témoignages -->
-    <section class="why-dorry">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Pourquoi choisir Dorry ?</h2>
-                <p class="section-subtitle">Des avantages concrets pour votre productivité</p>
-            </div>
-            <div class="benefits-grid">
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <img src="https://votre-url-d-icone.com/icon_time.png" alt="Gagnez du temps" class="icon">
-                    </div>
-                    <h3 class="benefit-title">Gagnez un temps précieux</h3>
-                    <p class="benefit-description">Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste.</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <img src="https://votre-url-d-icone.com/icon_reliability.png" alt="Fiabilité sans faille" class="icon">
-                    </div>
-                    <h3 class="benefit-title">Fiabilité sans faille</h3>
-                    <p class="benefit-description">Finis les oublis de compte rendu, même après une journée chargée.</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <img src="https://votre-url-d-icone.com/icon_ai.png" alt="Analyse IA intelligente" class="icon">
-                    </div>
-                    <h3 class="benefit-title">Analyse IA intelligente</h3>
-                    <p class="benefit-description">Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.</p>
-                </div>
-                <div class="benefit-card">
-                    <div class="benefit-icon">
-                        <img src="https://votre-url-d-icone.com/icon_innovation.png" alt="Évolutif & innovant" class="icon">
-                    </div>
-                    <h3 class="benefit-title">Évolutif & innovant</h3>
-                    <p class="benefit-description">Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés.</p>
-                </div>
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
+        <FloatingParticles />
+        
+        <div className="container mx-auto px-8 relative z-10">
+          <div className="flex items-center justify-between gap-16">
+            <div className="flex-1 max-w-2xl">
+              <h1 className="text-6xl font-bold mb-8 leading-tight">
+                <TypewriterText 
+                  text="Dorry, l'assistante IA qui " 
+                  className="block"
+                />
+                <span className="block text-7xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent my-4">
+                  révolutionne
+                </span>
+                <TypewriterText 
+                  text="vos réunions" 
+                  className="block"
+                  delay={150}
+                />
+              </h1>
+              <p className="text-xl text-slate-300 mb-8">
+                Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
+              </p>
+              <div className="flex space-x-6 items-center">
+                <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
+                  Essayez gratuitement
+                </ConfettiButton>
+                <a href="#" className="text-white hover:text-cyan-400 transition-colors flex items-center">
+                  Voir la démo <span className="ml-2 transform transition-transform hover:translate-x-1">→</span>
+                </a>
+              </div>
             </div>
             
-            <!-- Témoignages avec carrousel -->
-            <div class="testimonials">
-                <h3 class="testimonials-title">Ce que nos utilisateurs disent</h3>
-                <div class="testimonial-carousel">
-                    <div class="testimonial-slide active">
-                        <div class="testimonial-content">
-                            <p class="testimonial-text">"Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus."</p>
-                            <div class="testimonial-author">
-                                <img src="https://votre-url-d-avatar.com/avatar_1.jpg" alt="Sophie M." class="author-avatar">
-                                <div class="author-info">
-                                    <h4 class="author-name">Sophie M.</h4>
-                                    <p class="author-position">Directrice de projet</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-slide">
-                        <div class="testimonial-content">
-                            <p class="testimonial-text">"La précision de l'analyse est bluffante. Dorry capte des détails que j'aurais manqués, même en prenant des notes."</p>
-                            <div class="testimonial-author">
-                                <img src="https://votre-url-d-avatar.com/avatar_2.jpg" alt="Thomas L." class="author-avatar">
-                                <div class="author-info">
-                                    <h4 class="author-name">Thomas L.</h4>
-                                    <p class="author-position">Consultant</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-slide">
-                        <div class="testimonial-content">
-                            <p class="testimonial-text">"L'intégration de Dorry dans notre workflow a augmenté notre productivité de 30%. Un investissement qui vaut vraiment le coup."</p>
-                            <div class="testimonial-author">
-                                <img src="https://votre-url-d-avatar.com/avatar_3.jpg" alt="Julie D." class="author-avatar">
-                                <div class="author-info">
-                                    <h4 class="author-name">Julie D.</h4>
-                                    <p class="author-position">CEO Startup</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div className="flex-1 flex justify-center items-center relative">
+              <div className="relative">
+                <VoiceWaves isActive={true} className="absolute inset-0 scale-150" />
+                <div className="hero-image w-96 h-96 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full flex items-center justify-center text-8xl transform-gpu transition-transform duration-300">
+                  🤖
                 </div>
-                <div class="carousel-controls">
-                    <button class="carousel-dot active" data-slide="0"></button>
-                    <button class="carousel-dot" data-slide="1"></button>
-                    <button class="carousel-dot" data-slide="2"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-70 hover:opacity-100 transition-opacity">
+          <span className="text-sm uppercase tracking-widest mb-2">Découvrir</span>
+          <div className="w-8 h-8 border-r-2 border-b-2 border-cyan-400 transform rotate-45 animate-bounce"></div>
+        </div>
+      </section>
+
+      {/* Revolution Section */}
+      <section className="py-32 bg-slate-800 relative overflow-hidden">
+        <div className="container mx-auto px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Comment Dorry révolutionne vos réunions
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Une expérience immersive qui transforme votre façon de travailler
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-16">
+            <div className="flex-1 relative">
+              <div className="relative w-full aspect-video">
+                <div className="hologram-image w-full h-full bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-2xl flex items-center justify-center text-6xl backdrop-blur-sm border border-cyan-400/20">
+                  📹
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 rounded-2xl animate-pulse"></div>
+              </div>
             </div>
             
-            <!-- Statistiques animées -->
-            <div class="stats">
-                <div class="stat-item">
-                    <h3 class="stat-number" data-count="87">0</h3>
-                    <p class="stat-label">% de temps gagné sur la rédaction</p>
-                </div>
-                <div class="stat-item">
-                    <h3 class="stat-number" data-count="98">0</h3>
-                    <p class="stat-label">% de précision dans les analyses</p>
-                </div>
-                <div class="stat-item">
-                    <h3 class="stat-number" data-count="5">0</h3>
-                    <p class="stat-label">minutes pour un compte rendu complet</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section finale avec appel à l'action -->
-    <section class="cta-section">
-        <div class="cta-bg">
-            <div class="gradient-animated"></div>
-            <div class="particles-animated"></div>
-        </div>
-        <div class="container">
-            <h2 class="cta-title">Rejoignez la nouvelle génération d'accompagnateurs augmentés par l'IA !</h2>
-            <p class="cta-subtitle">L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.</p>
-            <a href="#" class="btn btn-cta" id="cta-button">Commencer gratuitement</a>
-            <div class="confetti-container" id="confetti"></div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="https://votre-url-de-logo.com/logo_sans_texte.png" alt="Dorry" class="footer-logo">
-                    <p class="footer-description">L'assistante IA qui révolutionne l'accompagnement de projet</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-title">Légal</h4>
-                        <a href="#" class="footer-link">Politique de confidentialité</a>
-                        <a href="#" class="footer-link">Conditions d'utilisation</a>
-                        <a href="#" class="footer-link">Mentions légales</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-title">Support</h4>
-                        <a href="#" class="footer-link">Aide & Contact</a>
-                        <a href="#" class="footer-link">FAQ</a>
-                        <a href="#" class="footer-link">Tutoriels</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-title">Innovation</h4>
-                        <p class="footer-text">C'est le début d'une nouvelle ère pour l'accompagnement de projet.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p class="copyright">© 2025 Dorry. Tous droits réservés.</p>
-                <div class="social-links">
-                    <a href="#" class="social-link"><img src="https://votre-url-d-icone.com/icon_linkedin.png" alt="LinkedIn"></a>
-                    <a href="#" class="social-link"><img src="https://votre-url-d-icone.com/icon_twitter.png" alt="Twitter"></a>
-                    <a href="#" class="social-link"><img src="https://votre-url-d-icone.com/icon_instagram.png" alt="Instagram"></a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script>
-        // Attendre que le DOM soit chargé
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animation du header au scroll
-            window.addEventListener('scroll', function() {
-                const navbar = document.querySelector('.navbar');
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
+            <div className="flex-1 space-y-8">
+              {[
+                {
+                  number: "01",
+                  title: "Enregistrement intelligent",
+                  description: "Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel."
+                },
+                {
+                  number: "02", 
+                  title: "Analyse en temps réel",
+                  description: "L'IA identifie les points clés, les décisions et les actions à entreprendre."
+                },
+                {
+                  number: "03",
+                  title: "Synthèse instantanée", 
+                  description: "Un compte-rendu structuré et précis disponible en quelques minutes."
                 }
-            });
-            
-            // Animation du titre principal avec effet de frappe
-            const heroTitle = document.querySelectorAll('.typing-text');
-            heroTitle.forEach((element, index) => {
-                let delay = index * 1.5;
-                element.style.width = '0';
-                setTimeout(() => {
-                    element.style.animation = `typing 3.5s steps(40, end) forwards, blink-caret 0.75s step-end infinite`;
-                }, delay * 1000);
-            });
-            
-            // Animation de l'image principale avec effet 3D
-            const heroImage = document.querySelector('.hero-image');
-            if (heroImage) {
-                document.addEventListener('mousemove', function(e) {
-                    const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-                    const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-                    heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-                });
-                
-                // Réinitialiser la rotation quand la souris quitte la zone
-                document.addEventListener('mouseleave', function() {
-                    heroImage.style.transform = 'rotateY(0deg) rotateX(0deg)';
-                });
-            }
-            
-            // Animations au scroll
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, observerOptions);
-            
-            // Observer les éléments avec animation
-            document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right, .scale-in').forEach(el => {
-                observer.observe(el);
-            });
-            
-            // Animation du carrousel de témoignages
-            const testimonialSlides = document.querySelectorAll('.testimonial-slide');
-            const dots = document.querySelectorAll('.carousel-dot');
-            let currentSlide = 0;
-            
-            function showSlide(index) {
-                testimonialSlides.forEach(slide => {
-                    slide.classList.remove('active');
-                });
-                dots.forEach(dot => {
-                    dot.classList.remove('active');
-                });
-                
-                testimonialSlides[index].classList.add('active');
-                dots[index].classList.add('active');
-                currentSlide = index;
-            }
-            
-            // Changer de slide automatiquement toutes les 5 secondes
-            setInterval(() => {
-                let nextSlide = (currentSlide + 1) % testimonialSlides.length;
-                showSlide(nextSlide);
-            }, 5000);
-            
-            // Changer de slide en cliquant sur les points
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => {
-                    showSlide(index);
-                });
-            });
-            
-            // Animation des compteurs de statistiques
-            const statNumbers = document.querySelectorAll('.stat-number');
-            
-            function animateCounter(el) {
-                const target = parseInt(el.getAttribute('data-count'));
-                const duration = 2000; // 2 secondes
-                const step = target / duration * 10;
-                let current = 0;
-                
-                const timer = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        clearInterval(timer);
-                        el.textContent = target;
-                    } else {
-                        el.textContent = Math.floor(current);
-                    }
-                }, 10);
-            }
-            
-            // Observer pour les compteurs
-            const statsObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounter(entry.target);
-                        statsObserver.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-            
-            statNumbers.forEach(stat => {
-                statsObserver.observe(stat);
-            });
-            
-            // Animation du bouton CTA avec effet de confettis
-            const ctaButton = document.getElementById('cta-button');
-            const confettiContainer = document.getElementById('confetti');
-            
-            if (ctaButton && confettiContainer) {
-                ctaButton.addEventListener('click', function(e) {
-                    // Empêcher la navigation pour la démo
-                    e.preventDefault();
-                    
-                    // Créer des confettis
-                    for (let i = 0; i < 100; i++) {
-                        createConfetti();
-                    }
-                });
-            }
-            
-            function createConfetti() {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'absolute';
-                confetti.style.width = `${Math.random() * 10 + 5}px`;
-                confetti.style.height = `${Math.random() * 10 + 5}px`;
-                confetti.style.backgroundColor = getRandomColor();
-                confetti.style.borderRadius = '50%';
-                confetti.style.left = `${Math.random() * 100}%`;
-                confetti.style.top = `${Math.random() * 20 + 40}%`;
-                
-                confettiContainer.appendChild(confetti);
-                
-                // Animation de chute
-                const duration = Math.random() * 2 + 1;
-                const keyframes = [
-                    { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
-                    { transform: `translate(${Math.random() * 200 - 100}px, 500px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
-                ];
-                
-                const animation = confetti.animate(keyframes, {
-                    duration: duration * 1000,
-                    easing: 'ease-out',
-                    fill: 'forwards'
-                });
-                
-                animation.onfinish = () => {
-                    confetti.remove();
-                };
-            }
-            
-            function getRandomColor() {
-                const colors = ['#00B8D4', '#6A11CB', '#FF5722', '#64FFDA', '#8C43EA'];
-                return colors[Math.floor(Math.random() * colors.length)];
-            }
-            
-            // Créer des particules pour l'arrière-plan
-            function createParticles(container, count) {
-                for (let i = 0; i < count; i++) {
-                    const particle = document.createElement('div');
-                    
-                    // Styles de base pour les particules
-                    particle.style.position = 'absolute';
-                    particle.style.borderRadius = '50%';
-                    particle.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                    
-                    // Propriétés aléatoires
-                    const size = Math.random() * 5 + 2;
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.top = `${Math.random() * 100}%`;
-                    
-                    container.appendChild(particle);
-                    
-                    // Animation des particules
-                    const keyframes = [
-                        { transform: 'translate(0, 0)', opacity: Math.random() * 0.5 + 0.3 },
-                        { transform: `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px)`, opacity: Math.random() * 0.5 + 0.3 }
-                    ];
-                    
-                    particle.animate(keyframes, {
-                        duration: Math.random() * 10000 + 10000,
-                        direction: 'alternate',
-                        iterations: Infinity,
-                        easing: 'ease-in-out'
-                    });
-                }
-            }
-            
-            // Créer des particules dans les sections avec arrière-plan
-            const particlesContainer = document.querySelector('.particles');
-            const particlesAnimated = document.querySelector('.particles-animated');
-            
-            if (particlesContainer) {
-                createParticles(particlesContainer, 50);
-            }
-            
-            if (particlesAnimated) {
-                createParticles(particlesAnimated, 50);
-            }
-            
-            // Effet parallaxe au scroll
-            const parallaxElements = document.querySelectorAll('.hero-visual, .hologram');
-            window.addEventListener('scroll', function() {
-                const scrollPosition = window.pageYOffset;
-                
-                parallaxElements.forEach(element => {
-                    const speed = 0.1;
-                    const yPos = -scrollPosition * speed;
-                    element.style.transform = `translateY(${yPos}px)`;
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+              ].map((step, index) => (
+                <div key={index} className="p-6 bg-slate-900/50 rounded-xl border-l-4 border-cyan-400 hover:transform hover:translate-x-2 transition-all">
+                  <div className="text-cyan-400 text-lg font-bold mb-2">{step.number}</div>
+                  <h3 className="text-2xl font-bold mb-2">{step.title}</h3>
+                  <p className="text-slate-300">{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-32 bg-slate-900">
+        <div className="container mx-auto px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Fonctionnalités qui font la différence
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Découvrez comment Dorry simplifie votre quotidien professionnel
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                icon: <Mic className="w-12 h-12" />,
+                title: "Parlez, Dorry écoute",
+                description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle."
+              },
+              {
+                icon: <Brain className="w-12 h-12" />,
+                title: "Analyse instantanée par IA",
+                description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris..."
+              },
+              {
+                icon: <Search className="w-12 h-12" />,
+                title: "Détection avancée",
+                description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV."
+              },
+              {
+                icon: <FileText className="w-12 h-12" />,
+                title: "Compte rendu détaillé",
+                description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée."
+              }
+            ].map((feature, index) => (
+              <div key={index} className="p-8 bg-slate-800/30 rounded-xl text-center hover:transform hover:scale-105 transition-all group">
+                <div className="relative mb-6 flex justify-center">
+                  <div className="text-cyan-400 group-hover:scale-110 transition-transform">
+                    {feature.icon}
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full blur-lg scale-75"></div>
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                <p className="text-slate-300">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Dorry Section */}
+      <section className="py-32 bg-slate-800">
+        <div className="container mx-auto px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Pourquoi choisir Dorry ?
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Des avantages concrets pour votre productivité
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            {[
+              {
+                icon: <Clock className="w-12 h-12" />,
+                title: "Gagnez un temps précieux",
+                description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste."
+              },
+              {
+                icon: <Shield className="w-12 h-12" />,
+                title: "Fiabilité sans faille",
+                description: "Finis les oublis de compte rendu, même après une journée chargée."
+              },
+              {
+                icon: <Sparkles className="w-12 h-12" />,
+                title: "Analyse IA intelligente",
+                description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé."
+              },
+              {
+                icon: <TrendingUp className="w-12 h-12" />,
+                title: "Évolutif & innovant",
+                description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés."
+              }
+            ].map((benefit, index) => (
+              <div key={index} className="p-6 bg-slate-900/50 rounded-xl hover:transform hover:scale-105 transition-all">
+                <div className="text-cyan-400 mb-4">{benefit.icon}</div>
+                <h3 className="text-xl font-bold mb-3 text-cyan-400">{benefit.title}</h3>
+                <p className="text-slate-300">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+          
+          {/* Testimonials */}
+          <div className="bg-slate-900/70 rounded-2xl p-12 mb-16">
+            <h3 className="text-3xl font-bold text-center mb-12">Ce que nos utilisateurs disent</h3>
+            <div className="relative h-64 overflow-hidden">
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-all duration-500 ${
+                    index === currentTestimonial ? 'opacity-100 transform translate-x-0' : 'opacity-0 transform translate-x-12'
+                  }`}
+                >
+                  <div className="bg-slate-800/50 rounded-xl p-8 h-full flex flex-col justify-between">
+                    <p className="text-xl italic text-slate-300 mb-8">"{testimonial.text}"</p>
+                    <div className="flex items-center space-x-4">
+                      <img src={testimonial.avatar} alt={testimonial.author} className="w-12 h-12 rounded-full object-cover" />
+                      <div>
+                        <h4 className="text-lg font-bold">{testimonial.author}</h4>
+                        <p className="text-slate-400 text-sm">{testimonial.position}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center space-x-3 mt-8">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === currentTestimonial ? 'bg-cyan-400 transform scale-125' : 'bg-slate-600'
+                  }`}
+                  onClick={() => setCurrentTestimonial(index)}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Stats */}
+          <div className="flex justify-around flex-wrap gap-16">
+            {[
+              { end: 87, suffix: "%", label: "de temps gagné sur la rédaction" },
+              { end: 98, suffix: "%", label: "de précision dans les analyses" },
+              { end: 5, suffix: " min", label: "pour un compte rendu complet" }
+            ].map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-6xl font-bold text-cyan-400 mb-2">
+                  <AnimatedCounter end={stat.end} suffix={stat.suffix} />
+                </div>
+                <p className="text-xl text-slate-300">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 relative overflow-hidden">
+        <FloatingParticles />
+        <div className="container mx-auto px-8 text-center relative z-10">
+          <h2 className="text-5xl font-bold mb-8 max-w-4xl mx-auto">
+            Rejoignez la nouvelle génération d'accompagnateurs augmentés par l'IA !
+          </h2>
+          <p className="text-xl text-slate-300 mb-12 max-w-2xl mx-auto">
+            L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
+          </p>
+          <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-12 py-6 rounded-xl text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
+            Commencer gratuitement
+          </ConfettiButton>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 py-16">
+        <div className="container mx-auto px-8">
+          <div className="flex flex-wrap gap-16 mb-16">
+            <div className="flex-1 min-w-64">
+              <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center font-bold text-slate-900 mb-4">
+                D
+              </div>
+              <p className="text-slate-300 max-w-sm">
+                L'assistante IA qui révolutionne l'accompagnement de projet
+              </p>
+            </div>
+            <div className="flex-2 flex flex-wrap gap-16">
+              <div className="flex-1 min-w-40">
+                <h4 className="text-xl font-bold mb-6 text-cyan-400">Légal</h4>
+                <div className="space-y-3">
+                  <a href="/privacy-policy" className="block text-slate-300 hover:text-cyan-400 transition-colors">Politique de confidentialité</a>
+                  <a href="/terms-of-service" className="block text-slate-300 hover:text-cyan-400 transition-colors">Conditions d'utilisation</a>
+                  <a href="/legal-notice" className="block text-slate-300 hover:text-cyan-400 transition-colors">Mentions légales</a>
+                </div>
+              </div>
+              <div className="flex-1 min-w-40">
+                <h4 className="text-xl font-bold mb-6 text-cyan-400">Support</h4>
+                <div className="space-y-3">
+                  <a href="/support" className="block text-slate-300 hover:text-cyan-400 transition-colors">Aide & Contact</a>
+                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">FAQ</a>
+                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">Tutoriels</a>
+                </div>
+              </div>
+              <div className="flex-1 min-w-40">
+                <h4 className="text-xl font-bold mb-6 text-cyan-400">Innovation</h4>
+                <p className="text-slate-300">
+                  C'est le début d'une nouvelle ère pour l'accompagnement de projet.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-between items-center pt-8 border-t border-slate-700">
+            <p className="text-slate-400 text-sm">© 2025 Dorry. Tous droits réservés.</p>
+            <div className="flex space-x-4">
+              <a href="#" className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:bg-cyan-400 hover:text-slate-900 transition-all">L</a>
+              <a href="#" className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:bg-cyan-400 hover:text-slate-900 transition-all">T</a>
+              <a href="#" className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:bg-cyan-400 hover:text-slate-900 transition-all">I</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      <style jsx>{`
+        .nav-link {
+          position: relative;
+          font-weight: 500;
+          padding: 0.5rem 0;
+          transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background-color: #00B8D4;
+          transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+          width: 100%;
+        }
+        
+        .nav-link:hover {
+          color: #00B8D4;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Landing;
