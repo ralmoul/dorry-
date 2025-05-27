@@ -124,7 +124,7 @@ const Landing = () => {
             <div className="flex-1 flex justify-center items-center relative">
               <div className="relative">
                 <VoiceWaves isActive={true} className="absolute inset-0 scale-150" />
-                <div className="hero-image w-96 h-96 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
+                <div className="hero-image w-96 h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img 
                     src="/lovable-uploads/1aa9a881-1c14-4145-aaa0-3bfb30f0f153.png" 
                     alt="Dorry AI Assistant" 
