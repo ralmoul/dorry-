@@ -51,7 +51,7 @@ export const VoiceRecorder = ({
         </div>
         <div className="flex gap-2 sm:gap-3">
           <Button variant="ghost" size="sm" onClick={onOpenUpcomingFeatures} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
-            🔮
+            ✨
           </Button>
           <Button variant="ghost" size="sm" onClick={onOpenSettings} className="text-bright-turquoise hover:text-bright-turquoise/80 hover:bg-bright-turquoise/10 p-2">
             ⚙️
