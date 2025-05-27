@@ -51,9 +51,7 @@ const Landing = () => {
       <nav className={`fixed top-0 left-0 w-full z-50 py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
         <div className="container mx-auto px-8 flex items-center justify-between">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center font-bold text-slate-900">
-              D
-            </div>
+            <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-10 h-10" />
           </div>
           <div className="hidden md:flex space-x-8">
             
@@ -306,13 +304,12 @@ const Landing = () => {
         <div className="container mx-auto px-8">
           <div className="flex flex-wrap gap-16 mb-16">
             <div className="flex-1 min-w-64">
-              <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center font-bold text-slate-900 mb-4">
-                D
-              </div>
+              <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-10 h-10 mb-4" />
               <p className="text-slate-300 max-w-sm">
                 L'assistante IA qui révolutionne l'accompagnement de projet
               </p>
             </div>
+            
             <div className="flex-2 flex flex-wrap gap-16">
               <div className="flex-1 min-w-40">
                 <h4 className="text-xl font-bold mb-6 text-cyan-400">Légal</h4>
