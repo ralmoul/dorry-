@@ -241,28 +241,28 @@
 }
 
 @keyframes pulse-ai {
-  '0%, 100%': { 
-    transform: 'scale(1)',
-    opacity: '1'
-  },
-  '50%': { 
-    transform: 'scale(1.1)',
-    opacity: '0.8'
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.8;
   }
 }
 
 @keyframes wave {
-  '0%': { transform: 'scaleY(1)' },
-  '50%': { transform: 'scaleY(1.5)' },
-  '100%': { transform: 'scaleY(1)' }
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(1.5); }
+  100% { transform: scaleY(1); }
 }
 
 @keyframes glow {
-  '0%, 100%': { 
-    boxShadow: '0 0 20px rgba(0, 212, 170, 0.5)'
-  },
-  '50%': { 
-    boxShadow: '0 0 40px rgba(0, 212, 170, 0.8)'
+  0%, 100% { 
+    boxShadow: 0 0 20px rgba(0, 212, 170, 0.5);
+  }
+  50% { 
+    boxShadow: 0 0 40px rgba(0, 212, 170, 0.8);
   }
 }
 
