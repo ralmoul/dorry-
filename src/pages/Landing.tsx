@@ -123,7 +123,6 @@ const Landing = () => {
             
             <div className="flex-1 flex justify-center items-center relative">
               <div className="relative">
-                <VoiceWaves isActive={true} className="absolute inset-0 scale-150" />
                 <div className="hero-image w-96 h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img 
                     src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
