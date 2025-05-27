@@ -1,14 +1,10 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MessageCircle, HelpCircle } from 'lucide-react';
-
 const Support = () => {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
       <style>
         {`
           .support-page h3 {
@@ -30,11 +26,7 @@ const Support = () => {
       </style>
       <div className="max-w-4xl mx-auto support-page">
         <div className="mb-8">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(-1)}
-            className="mb-4"
-          >
+          <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
             ← Retour
           </Button>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent mb-4">Support Dorry</h1>
@@ -94,14 +86,12 @@ const Support = () => {
             <MessageCircle className="w-12 h-12 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-4">Besoin d'une démonstration personnalisée ?</h3>
             <p className="mb-6 opacity-90">Découvrez comment Dorry peut révolutionner votre accompagnement, quel que soit votre public.</p>
-            <Button className="bg-white text-bright-turquoise hover:bg-gray-100">
+            <Button className="text-bright-turquoise bg-gray-900 hover:bg-gray-800">
               Demander une démo
             </Button>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Support;
