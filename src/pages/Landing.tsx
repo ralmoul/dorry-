@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -129,6 +130,10 @@ const Landing = () => {
                     src="/lovable-uploads/1aa9a881-1c14-4145-aaa0-3bfb30f0f153.png" 
                     alt="Dorry AI Assistant" 
                     className="w-full h-full object-contain"
+                    style={{
+                      filter: 'brightness(1.1) contrast(1.1)',
+                      mixBlendMode: 'screen'
+                    }}
                   />
                 </div>
               </div>
