@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
@@ -69,33 +68,42 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         ))}
       </div>
       
-      {/* Header */}
-      <div className="w-full flex justify-between items-center mb-8 z-10">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
-            Dorry
-          </h1>
-          <span className="ml-4 text-gray-300">Bonjour, thomas</span>
-        </div>
-        <div className="flex items-center space-x-4">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onOpenUpcomingFeatures}
-            className="text-gray-300 hover:text-white"
+      {/* Header - masqué pendant la confirmation */}
+      <AnimatePresence>
+        {!showConfirmation && (
+          <motion.div 
+            initial={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full flex justify-between items-center mb-8 z-10"
           >
-            <span className="text-xl">✨</span>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onOpenSettings}
-            className="text-gray-300 hover:text-white"
-          >
-            <span className="text-xl">⚙️</span>
-          </motion.button>
-        </div>
-      </div>
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+                Dorry
+              </h1>
+              <span className="ml-4 text-gray-300">Bonjour, thomas</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onOpenUpcomingFeatures}
+                className="text-gray-300 hover:text-white"
+              >
+                <span className="text-xl">✨</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onOpenSettings}
+                className="text-gray-300 hover:text-white"
+              >
+                <span className="text-xl">⚙️</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Affichage conditionnel du contenu */}
       <AnimatePresence mode="wait">
