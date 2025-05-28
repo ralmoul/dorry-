@@ -129,7 +129,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       </AnimatePresence>
 
       {/* Contenu principal ajusté */}
-      <div className="flex-1 flex items-start justify-center pt-6 sm:pt-8 md:pt-12">
+      <div className="flex-1 flex items-start justify-center pt-8 sm:pt-10 md:pt-14">
         <AnimatePresence mode="wait">
           {showConfirmation ? (
             <motion.div
@@ -155,9 +155,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               transition={{ duration: 0.3 }}
               className="flex flex-col items-center w-full max-w-4xl"
             >
-              {/* Titre principal avec plus d'espacement */}
+              {/* Titre principal avec espacement ajusté */}
               <motion.h2 
-                className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
+                className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-6 sm:mb-8 md:mb-12 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -172,7 +172,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-white text-sm sm:text-lg mb-6 sm:mb-8 md:mb-10 text-center"
+                    className="text-white text-sm sm:text-lg mb-8 sm:mb-10 md:mb-12 text-center"
                   >
                     Enregistrement en cours... {formatTime(recordingTime)}
                   </motion.div>
@@ -182,15 +182,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-gray-300 text-sm sm:text-lg mb-6 sm:mb-8 md:mb-10 text-center px-4"
+                    className="text-gray-300 text-sm sm:text-lg mb-8 sm:mb-10 md:mb-12 text-center px-4"
                   >
                     Appuyer sur le micro pour commencer
                   </motion.div>
                 )}
               </AnimatePresence>
               
-              {/* Visualisation des ondes vocales avec plus d'espacement */}
-              <div className="relative mb-6 sm:mb-8 md:mb-10">
+              {/* Visualisation des ondes vocales avec espacement ajusté */}
+              <div className="relative mb-8 sm:mb-10 md:mb-12">
                 {/* Cercles concentriques animés */}
                 <AnimatePresence>
                   {isRecording && (
@@ -282,14 +282,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 </motion.button>
               </div>
               
-              {/* Carte d'information avec espacement augmenté */}
+              {/* Carte d'information avec espacement plus grand */}
               <motion.div 
                 className="w-full max-w-xs sm:max-w-md bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 shadow-lg border border-slate-700"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
-                <div className="flex items-center mb-4 sm:mb-5">
+                <div className="flex items-center mb-6 sm:mb-7">
                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
                     <span className="text-white text-sm sm:text-base">⚡</span>
                   </div>
@@ -298,9 +298,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   </h3>
                 </div>
                 
-                <p className="text-gray-300 mb-4 sm:mb-5 text-sm sm:text-base">Dorry reçoit vos audios et :</p>
+                <p className="text-gray-300 mb-6 sm:mb-7 text-sm sm:text-base">Dorry reçoit vos audios et :</p>
                 
-                <ul className="space-y-3 sm:space-y-4">
+                <ul className="space-y-4 sm:space-y-5">
                   {[
                     "Analyse ce qui a été dit",
                     "Détecte les informations du porteur de projet",
