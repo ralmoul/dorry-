@@ -1,3 +1,4 @@
+
 import { ArrowLeft, Zap, Building2, MessageCircle, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,21 +16,21 @@ const UpcomingFeatures = ({
   const features = [{
     icon: Target,
     title: "📊 Scoring automatique des porteurs de projet",
-    description: "Dory attribuera un score automatique sur 15 points, basé sur :",
+    description: "Dorry attribuera un score automatique sur 15 points, basé sur :",
     details: ["La motivation du porteur", "La clarté du projet", "Le niveau d'urgence perçue"],
     additionalInfo: "Un indicateur QPV (quartier prioritaire) sera aussi généré automatiquement.",
     benefits: ["Permet de prioriser les dossiers avec précision", "Identifie les projets à fort potentiel dès le vocal", "Optimise la gestion du portefeuille local", "Favorise l'égalité des chances avec le repérage QPV"]
   }, {
     icon: Building2,
     title: "🏢 Recommandation intelligente de structures partenaires",
-    description: "Dory analysera les besoins exprimés dans le vocal pour recommander une structure adaptée (CMA, BGE, ADIE, incubateur, etc.).",
+    description: "Dorry analysera les besoins exprimés dans le vocal pour recommander une structure adaptée (CMA, BGE, ADIE, incubateur, etc.).",
     details: ["Le nom de la structure", "Le motif de l'orientation", "Les coordonnées complètes"],
     additionalInfo: "Et un bouton \"Contacter la structure\" sera présent dans les mails.",
     benefits: ["Gagne du temps pour l'accompagnant", "Propose une orientation fluide et personnalisée", "Active un réseau local autour du porteur", "Encourage à l'action via le bouton de contact"]
   }, {
     icon: MessageCircle,
     title: "📱 Envoi automatisé de messages WhatsApp personnalisés",
-    description: "Dory enverra un message WhatsApp automatique et personnalisé si un RDV ou une orientation est détectée dans le vocal.",
+    description: "Dorry enverra un message WhatsApp automatique et personnalisé si un RDV ou une orientation est détectée dans le vocal.",
     details: ["Messages contextuels automatiques", "Confirmation des RDV planifiés", "Rappels d'orientations importantes"],
     additionalInfo: "Exemple : \"Bonjour Julie, notre RDV est bien noté pour jeudi à 10h à la MJC. Je vous recommande aussi de contacter la BGE du Val-de-Marne.\"",
     benefits: ["Renforce le lien humain, même en automatique", "Confirme rapidement les informations clés", "Améliore la réactivité du porteur", "Crée une expérience proactive et bienveillante"]
@@ -44,7 +45,7 @@ const UpcomingFeatures = ({
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">✨ Prochaines mises à jour</h1>
             <p className="text-white mt-1 text-sm sm:text-base">
-              Découvrez les fonctionnalités futures de Dory
+              Découvrez les fonctionnalités futures de Dorry
             </p>
           </div>
         </div>
