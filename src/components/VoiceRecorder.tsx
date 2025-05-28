@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
@@ -204,7 +205,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                           duration: 2,
                           ease: "easeOut"
                         }}
-                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-bright-turquoise"
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-full border-2 border-bright-turquoise"
                       />
                       <motion.div
                         initial={{ scale: 0, opacity: 0.5 }}
@@ -216,14 +217,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                           ease: "easeOut",
                           delay: 0.3
                         }}
-                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-electric-blue"
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-full border-2 border-electric-blue"
                       />
                     </>
                   )}
                 </AnimatePresence>
                 
                 {/* Visualisation des ondes autour du bouton */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 flex items-center justify-center">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 flex items-center justify-center">
                   <div className="flex items-center justify-center w-full h-full">
                     {waveform.map((height, index) => (
                       <motion.div
@@ -246,7 +247,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 {/* Bouton du micro */}
                 <motion.button
                   onClick={handleMicClick}
-                  className={`relative z-10 w-14 h-14 sm:w-18 sm:h-18 md:w-22 md:h-22 rounded-full flex items-center justify-center focus:outline-none ${
+                  className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full flex items-center justify-center focus:outline-none ${
                     isRecording 
                       ? 'bg-gradient-to-r from-red-500 to-red-600' 
                       : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
@@ -266,7 +267,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   }}
                 >
                   <motion.span 
-                    className="text-white text-lg sm:text-xl md:text-2xl"
+                    className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl"
                     animate={{ 
                       scale: isRecording ? [1, 1.2, 1] : 1
                     }}
