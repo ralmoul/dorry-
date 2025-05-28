@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
@@ -62,7 +61,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
   
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-2 sm:px-6 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen px-4 sm:px-6 relative overflow-hidden">
       {/* Particules d'arrière-plan */}
       <div className="absolute inset-0 z-0">
         {Array.from({ length: 20 }).map((_, i) => (
@@ -92,14 +91,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         ))}
       </div>
       
-      {/* Header - masqué pendant la confirmation */}
+      {/* Header - tout en haut sans espace */}
       <AnimatePresence>
         {!showConfirmation && (
           <motion.div 
             initial={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full flex justify-between items-center mb-2 z-10"
+            className="w-full flex justify-between items-center pt-4 pb-2 z-10"
           >
             <div className="flex items-center">
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
@@ -129,200 +128,202 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Contenu principal */}
-      <AnimatePresence mode="wait">
-        {showConfirmation ? (
-          <motion.div
-            key="confirmation"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-sm sm:max-w-md"
-          >
-            <RecordingConfirmation
-              onSend={confirmSend}
-              onCancel={cancelRecording}
-              isProcessing={isProcessing}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="recorder"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center w-full max-w-4xl"
-          >
-            {/* Titre principal avec animation */}
-            <motion.h2 
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2 sm:mb-3 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+      {/* Contenu principal centré */}
+      <div className="flex-1 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {showConfirmation ? (
+            <motion.div
+              key="confirmation"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-sm sm:max-w-md"
             >
-              Votre assistante vocal intelligente vous écoute
-            </motion.h2>
-            
-            <AnimatePresence mode="wait">
-              {isRecording ? (
-                <motion.div 
-                  key="recording"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="text-white text-base sm:text-lg mb-4 sm:mb-6 text-center"
-                >
-                  Enregistrement en cours... {formatTime(recordingTime)}
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="instruction"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="text-gray-300 text-base sm:text-lg mb-4 sm:mb-6 text-center px-4"
-                >
-                  Appuyer sur le micro pour commencer
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {/* Visualisation des ondes vocales */}
-            <div className="relative mb-4 sm:mb-6">
-              {/* Cercles concentriques animés */}
-              <AnimatePresence>
-                {isRecording && (
-                  <>
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0.7 }}
-                      animate={{ scale: 1.5, opacity: 0 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ 
-                        repeat: Infinity, 
-                        duration: 2,
-                        ease: "easeOut"
-                      }}
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-bright-turquoise"
-                    />
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0.5 }}
-                      animate={{ scale: 1.2, opacity: 0 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ 
-                        repeat: Infinity, 
-                        duration: 1.5,
-                        ease: "easeOut",
-                        delay: 0.3
-                      }}
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-electric-blue"
-                    />
-                  </>
+              <RecordingConfirmation
+                onSend={confirmSend}
+                onCancel={cancelRecording}
+                isProcessing={isProcessing}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="recorder"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center w-full max-w-4xl"
+            >
+              {/* Titre principal avec animation */}
+              <motion.h2 
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2 sm:mb-3 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                Votre assistante vocal intelligente vous écoute
+              </motion.h2>
+              
+              <AnimatePresence mode="wait">
+                {isRecording ? (
+                  <motion.div 
+                    key="recording"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="text-white text-base sm:text-lg mb-4 sm:mb-6 text-center"
+                  >
+                    Enregistrement en cours... {formatTime(recordingTime)}
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="instruction"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="text-gray-300 text-base sm:text-lg mb-4 sm:mb-6 text-center px-4"
+                  >
+                    Appuyer sur le micro pour commencer
+                  </motion.div>
                 )}
               </AnimatePresence>
               
-              {/* Visualisation des ondes autour du bouton */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 flex items-center justify-center">
-                <div className="flex items-center justify-center w-full h-full">
-                  {waveform.map((height, index) => (
-                    <motion.div
-                      key={index}
-                      className="w-1 mx-0.5 rounded-full bg-gradient-to-t from-bright-turquoise to-electric-blue"
-                      style={{ 
-                        height: `${height}px`,
-                        opacity: isRecording ? 0.8 : 0.3
-                      }}
-                      animate={{ 
-                        height: `${height}px`,
-                        opacity: isRecording ? 0.8 : 0.3
-                      }}
-                      transition={{ duration: 0.1 }}
-                    />
-                  ))}
+              {/* Visualisation des ondes vocales */}
+              <div className="relative mb-4 sm:mb-6">
+                {/* Cercles concentriques animés */}
+                <AnimatePresence>
+                  {isRecording && (
+                    <>
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0.7 }}
+                        animate={{ scale: 1.5, opacity: 0 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ 
+                          repeat: Infinity, 
+                          duration: 2,
+                          ease: "easeOut"
+                        }}
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-bright-turquoise"
+                      />
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0.5 }}
+                        animate={{ scale: 1.2, opacity: 0 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ 
+                          repeat: Infinity, 
+                          duration: 1.5,
+                          ease: "easeOut",
+                          delay: 0.3
+                        }}
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-electric-blue"
+                      />
+                    </>
+                  )}
+                </AnimatePresence>
+                
+                {/* Visualisation des ondes autour du bouton */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 flex items-center justify-center">
+                  <div className="flex items-center justify-center w-full h-full">
+                    {waveform.map((height, index) => (
+                      <motion.div
+                        key={index}
+                        className="w-1 mx-0.5 rounded-full bg-gradient-to-t from-bright-turquoise to-electric-blue"
+                        style={{ 
+                          height: `${height}px`,
+                          opacity: isRecording ? 0.8 : 0.3
+                        }}
+                        animate={{ 
+                          height: `${height}px`,
+                          opacity: isRecording ? 0.8 : 0.3
+                        }}
+                        transition={{ duration: 0.1 }}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Bouton du micro */}
-              <motion.button
-                onClick={handleMicClick}
-                className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center focus:outline-none ${
-                  isRecording 
-                    ? 'bg-gradient-to-r from-red-500 to-red-600' 
-                    : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                animate={{ 
-                  boxShadow: isRecording 
-                    ? ['0 0 0 0 rgba(239, 68, 68, 0)', '0 0 0 15px rgba(239, 68, 68, 0.3)', '0 0 0 0 rgba(239, 68, 68, 0)'] 
-                    : ['0 0 0 0 rgba(0, 184, 212, 0)', '0 0 0 10px rgba(0, 184, 212, 0.3)', '0 0 0 0 rgba(0, 184, 212, 0)']
-                }}
-                transition={{ 
-                  boxShadow: { 
-                    repeat: Infinity, 
-                    duration: 1.5 
-                  }
-                }}
-              >
-                <motion.span 
-                  className="text-white text-lg sm:text-xl md:text-2xl"
+                
+                {/* Bouton du micro */}
+                <motion.button
+                  onClick={handleMicClick}
+                  className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center focus:outline-none ${
+                    isRecording 
+                      ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                      : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   animate={{ 
-                    scale: isRecording ? [1, 1.2, 1] : 1
+                    boxShadow: isRecording 
+                      ? ['0 0 0 0 rgba(239, 68, 68, 0)', '0 0 0 15px rgba(239, 68, 68, 0.3)', '0 0 0 0 rgba(239, 68, 68, 0)'] 
+                      : ['0 0 0 0 rgba(0, 184, 212, 0)', '0 0 0 10px rgba(0, 184, 212, 0.3)', '0 0 0 0 rgba(0, 184, 212, 0)']
                   }}
                   transition={{ 
-                    scale: { 
-                      repeat: isRecording ? Infinity : 0, 
-                      duration: 1 
+                    boxShadow: { 
+                      repeat: Infinity, 
+                      duration: 1.5 
                     }
                   }}
                 >
-                  🎤
-                </motion.span>
-              </motion.button>
-            </div>
-            
-            {/* Carte d'information */}
-            <motion.div 
-              className="w-full max-w-xs sm:max-w-md bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 shadow-lg border border-slate-700"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              <div className="flex items-center mb-2 sm:mb-3 md:mb-4">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                  <span className="text-white text-sm sm:text-base md:text-lg">⚡</span>
-                </div>
-                <h3 className="ml-2 sm:ml-3 text-base sm:text-lg md:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
-                  IA & automatisation
-                </h3>
+                  <motion.span 
+                    className="text-white text-lg sm:text-xl md:text-2xl"
+                    animate={{ 
+                      scale: isRecording ? [1, 1.2, 1] : 1
+                    }}
+                    transition={{ 
+                      scale: { 
+                        repeat: isRecording ? Infinity : 0, 
+                        duration: 1 
+                      }
+                    }}
+                  >
+                    🎤
+                  </motion.span>
+                </motion.button>
               </div>
               
-              <p className="text-gray-300 mb-2 sm:mb-3 md:mb-4 text-xs sm:text-sm md:text-base">Dorry reçoit vos audios et :</p>
-              
-              <ul className="space-y-1 sm:space-y-2 md:space-y-3">
-                {[
-                  "Analyse ce qui a été dit",
-                  "Détecte les informations du porteur de projet",
-                  "Identifie si la personne est en QPV",
-                  "Vous envoie directement le compte rendu dans votre boîte mail"
-                ].map((item, index) => (
-                  <motion.li 
-                    key={index}
-                    className="flex items-start"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
-                  >
-                    <span className="text-bright-turquoise mr-2 mt-0.5 text-xs sm:text-sm md:text-base">•</span>
-                    <span className="text-gray-200 text-xs sm:text-sm md:text-base">{item}</span>
-                  </motion.li>
-                ))}
-              </ul>
+              {/* Carte d'information */}
+              <motion.div 
+                className="w-full max-w-xs sm:max-w-md bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 shadow-lg border border-slate-700"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                <div className="flex items-center mb-2 sm:mb-3 md:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
+                    <span className="text-white text-sm sm:text-base md:text-lg">⚡</span>
+                  </div>
+                  <h3 className="ml-2 sm:ml-3 text-base sm:text-lg md:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+                    IA & automatisation
+                  </h3>
+                </div>
+                
+                <p className="text-gray-300 mb-2 sm:mb-3 md:mb-4 text-xs sm:text-sm md:text-base">Dorry reçoit vos audios et :</p>
+                
+                <ul className="space-y-1 sm:space-y-2 md:space-y-3">
+                  {[
+                    "Analyse ce qui a été dit",
+                    "Détecte les informations du porteur de projet",
+                    "Identifie si la personne est en QPV",
+                    "Vous envoie directement le compte rendu dans votre boîte mail"
+                  ].map((item, index) => (
+                    <motion.li 
+                      key={index}
+                      className="flex items-start"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
+                    >
+                      <span className="text-bright-turquoise mr-2 mt-0.5 text-xs sm:text-sm md:text-base">•</span>
+                      <span className="text-gray-200 text-xs sm:text-sm md:text-base">{item}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
