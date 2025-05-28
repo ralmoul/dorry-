@@ -223,7 +223,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 </AnimatePresence>
                 
                 {/* Visualisation des ondes autour du bouton */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 flex items-center justify-center">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 flex items-center justify-center">
                   <div className="flex items-center justify-center w-full h-full">
                     {waveform.map((height, index) => (
                       <motion.div
