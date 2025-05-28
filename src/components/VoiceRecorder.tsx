@@ -62,7 +62,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
   
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-6 sm:p-6 relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-2 pb-6 sm:px-6 sm:pt-4 relative overflow-hidden">
       {/* Particules d'arrière-plan */}
       <div className="absolute inset-0 z-0">
         {Array.from({ length: 20 }).map((_, i) => (
@@ -99,7 +99,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             initial={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full flex justify-between items-center mb-6 sm:mb-8 z-10"
+            className="w-full flex justify-between items-center mb-4 sm:mb-6 z-10"
           >
             <div className="flex items-center">
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
@@ -157,7 +157,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           >
             {/* Titre principal avec animation */}
             <motion.h2 
-              className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2 sm:mb-3 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -172,7 +172,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="text-white text-lg sm:text-xl mb-6 sm:mb-8 text-center"
+                  className="text-white text-base sm:text-lg mb-4 sm:mb-6 text-center"
                 >
                   Enregistrement en cours... {formatTime(recordingTime)}
                 </motion.div>
@@ -182,7 +182,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="text-gray-300 text-lg sm:text-xl mb-6 sm:mb-8 text-center px-4"
+                  className="text-gray-300 text-base sm:text-lg mb-4 sm:mb-6 text-center px-4"
                 >
                   Appuyer sur le micro pour commencer
                 </motion.div>
@@ -190,7 +190,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             </AnimatePresence>
             
             {/* Visualisation des ondes vocales */}
-            <div className="relative mb-6 sm:mb-8">
+            <div className="relative mb-4 sm:mb-6">
               {/* Cercles concentriques animés */}
               <AnimatePresence>
                 {isRecording && (
@@ -204,7 +204,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                         duration: 2,
                         ease: "easeOut"
                       }}
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-bright-turquoise"
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-bright-turquoise"
                     />
                     <motion.div
                       initial={{ scale: 0, opacity: 0.5 }}
@@ -216,14 +216,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                         ease: "easeOut",
                         delay: 0.3
                       }}
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-electric-blue"
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-electric-blue"
                     />
                   </>
                 )}
               </AnimatePresence>
               
               {/* Visualisation des ondes autour du bouton */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 sm:w-48 sm:h-48 flex items-center justify-center">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 flex items-center justify-center">
                 <div className="flex items-center justify-center w-full h-full">
                   {waveform.map((height, index) => (
                     <motion.div
@@ -246,7 +246,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               {/* Bouton du micro */}
               <motion.button
                 onClick={handleMicClick}
-                className={`relative z-10 w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center focus:outline-none ${
+                className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center focus:outline-none ${
                   isRecording 
                     ? 'bg-gradient-to-r from-red-500 to-red-600' 
                     : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
@@ -266,7 +266,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 }}
               >
                 <motion.span 
-                  className="text-white text-xl sm:text-2xl"
+                  className="text-white text-lg sm:text-xl md:text-2xl"
                   animate={{ 
                     scale: isRecording ? [1, 1.2, 1] : 1
                   }}
@@ -284,23 +284,23 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             
             {/* Carte d'information */}
             <motion.div 
-              className="w-full max-w-xs sm:max-w-md bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 shadow-lg border border-slate-700"
+              className="w-full max-w-xs sm:max-w-md bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 shadow-lg border border-slate-700"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
             >
-              <div className="flex items-center mb-3 sm:mb-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                  <span className="text-white text-base sm:text-lg">⚡</span>
+              <div className="flex items-center mb-2 sm:mb-3 md:mb-4">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
+                  <span className="text-white text-sm sm:text-base md:text-lg">⚡</span>
                 </div>
-                <h3 className="ml-2 sm:ml-3 text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+                <h3 className="ml-2 sm:ml-3 text-base sm:text-lg md:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
                   IA & automatisation
                 </h3>
               </div>
               
-              <p className="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">Dorry reçoit vos audios et :</p>
+              <p className="text-gray-300 mb-2 sm:mb-3 md:mb-4 text-xs sm:text-sm md:text-base">Dorry reçoit vos audios et :</p>
               
-              <ul className="space-y-2 sm:space-y-3">
+              <ul className="space-y-1 sm:space-y-2 md:space-y-3">
                 {[
                   "Analyse ce qui a été dit",
                   "Détecte les informations du porteur de projet",
@@ -314,8 +314,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
                   >
-                    <span className="text-bright-turquoise mr-2 mt-0.5 text-sm sm:text-base">•</span>
-                    <span className="text-gray-200 text-sm sm:text-base">{item}</span>
+                    <span className="text-bright-turquoise mr-2 mt-0.5 text-xs sm:text-sm md:text-base">•</span>
+                    <span className="text-gray-200 text-xs sm:text-sm md:text-base">{item}</span>
                   </motion.li>
                 ))}
               </ul>
