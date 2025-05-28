@@ -62,7 +62,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
   
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-2 pb-6 sm:px-6 sm:pt-4 relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-2 sm:px-6 relative overflow-hidden">
       {/* Particules d'arrière-plan */}
       <div className="absolute inset-0 z-0">
         {Array.from({ length: 20 }).map((_, i) => (
@@ -99,7 +99,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             initial={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full flex justify-between items-center mb-4 sm:mb-6 z-10"
+            className="w-full flex justify-between items-center mb-2 z-10"
           >
             <div className="flex items-center">
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
