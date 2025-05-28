@@ -24,7 +24,7 @@ export const RecordingConfirmation = ({
   isProcessing 
 }: RecordingConfirmationProps) => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 relative z-30 px-4 min-h-[70vh] w-full">
+    <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 relative z-30 px-4 min-h-[75vh] sm:min-h-[70vh] w-full">
       <div className="text-center">
         <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
           Enregistrement terminé
