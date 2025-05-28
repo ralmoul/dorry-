@@ -246,7 +246,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 {/* Bouton du micro */}
                 <motion.button
                   onClick={handleMicClick}
-                  className={`relative z-10 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center focus:outline-none ${
+                  className={`relative z-10 w-14 h-14 sm:w-18 sm:h-18 md:w-22 md:h-22 rounded-full flex items-center justify-center focus:outline-none ${
                     isRecording 
                       ? 'bg-gradient-to-r from-red-500 to-red-600' 
                       : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
@@ -266,7 +266,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   }}
                 >
                   <motion.span 
-                    className="text-white text-base sm:text-lg md:text-xl"
+                    className="text-white text-lg sm:text-xl md:text-2xl"
                     animate={{ 
                       scale: isRecording ? [1, 1.2, 1] : 1
                     }}
