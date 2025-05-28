@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
@@ -91,14 +92,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         ))}
       </div>
       
-      {/* Header - tout en haut sans espace */}
+      {/* Header */}
       <AnimatePresence>
         {!showConfirmation && (
           <motion.div 
             initial={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full flex justify-between items-center pt-4 pb-2 z-10"
+            className="w-full flex justify-between items-center pt-4 pb-1 sm:pb-2 z-10"
           >
             <div className="flex items-center">
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
@@ -129,7 +130,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       </AnimatePresence>
 
       {/* Contenu principal centré */}
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center mt-2 sm:mt-0">
         <AnimatePresence mode="wait">
           {showConfirmation ? (
             <motion.div
@@ -157,7 +158,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             >
               {/* Titre principal avec animation */}
               <motion.h2 
-                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2 sm:mb-3 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-1 sm:mb-3 bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent px-2"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -172,7 +173,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-white text-base sm:text-lg mb-4 sm:mb-6 text-center"
+                    className="text-white text-base sm:text-lg mb-2 sm:mb-6 text-center"
                   >
                     Enregistrement en cours... {formatTime(recordingTime)}
                   </motion.div>
@@ -182,7 +183,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-gray-300 text-base sm:text-lg mb-4 sm:mb-6 text-center px-4"
+                    className="text-gray-300 text-base sm:text-lg mb-2 sm:mb-6 text-center px-4"
                   >
                     Appuyer sur le micro pour commencer
                   </motion.div>
@@ -190,7 +191,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               </AnimatePresence>
               
               {/* Visualisation des ondes vocales */}
-              <div className="relative mb-4 sm:mb-6">
+              <div className="relative mb-2 sm:mb-6">
                 {/* Cercles concentriques animés */}
                 <AnimatePresence>
                   {isRecording && (
