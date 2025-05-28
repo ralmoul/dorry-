@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,6 +42,13 @@
     --sidebar-accent-foreground: 250 250 250;
     --sidebar-border: 0 0% 15%;
     --sidebar-ring: 180 100% 41%;
+
+    /* Variables CSS pour le composant VoiceRecorder */
+    --bright-turquoise: #00B8D4;
+    --electric-blue: #6A11CB;
+    --slate-900: #0F172A;
+    --slate-800: #1E293B;
+    --slate-700: #334155;
   }
 }
 
@@ -313,9 +319,66 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Styles CSS pour le composant VoiceRecorder */
+  /* Animation de pulsation pour le bouton micro */
+  .animate-pulse-ai {
+    animation: pulse 2s infinite;
+  }
+
+  /* Animation pour les ondes vocales */
+  .wave-bar {
+    animation: wave 1.2s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.1s);
+  }
+
+  /* Effet de flou pour les éléments en arrière-plan */
+  .backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Gradient de texte */
+  .bg-gradient-text {
+    background: linear-gradient(to right, var(--bright-turquoise), var(--electric-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Effet de transition pour les boutons */
+  .btn-transition {
+    transition: all 0.3s ease;
+  }
+
+  .btn-transition:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Animation des particules */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(to right, var(--bright-turquoise), var(--electric-blue));
+    opacity: 0.2;
+    pointer-events: none;
+  }
 }
 
-/* ... keep existing code (keyframes and animations) */
+/* Animation de pulsation pour le bouton micro */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 184, 212, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(0, 184, 212, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 184, 212, 0);
+  }
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-10px) rotate(1deg); }
@@ -370,9 +433,6 @@
 @keyframes glow {
   0%, 100% { 
     boxShadow: 0 0 20px rgba(0, 212, 170, 0.5);
-  }
-  50% { 
-    boxShadow: 0 0 40px rgba(0, 212, 170, 0.8);
   }
 }
 
