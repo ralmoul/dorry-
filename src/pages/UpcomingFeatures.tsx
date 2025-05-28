@@ -60,9 +60,7 @@ const UpcomingFeatures = ({
               <Zap className="w-4 h-4 text-dark-navy" />
             </div>
           </div>
-          <p className="text-sm text-white max-w-2xl mx-auto">
-            Ces innovations rendront Dory encore plus intelligent et efficace pour accompagner les porteurs de projet.
-          </p>
+          <p className="text-sm text-white max-w-2xl mx-auto">Ces innovations rendront Dorry encore plus intelligente et efficace pour accompagner les porteurs de projet.</p>
         </div>
 
         {/* Features Grid */}
