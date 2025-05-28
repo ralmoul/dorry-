@@ -65,11 +65,23 @@ export default {
 				},
 				// Palette futuriste Dory améliorée
 				'dark-navy': '#0a0a0f',
-				'bright-turquoise': '#00d4aa',
+				'bright-turquoise': '#00B8D4',
 				'carbon-black': '#1a1a1a',
-				'electric-blue': '#0066ff',
+				'electric-blue': '#6A11CB',
 				'purple-gradient': '#6a11cb',
 				'turquoise-gradient': '#00b8d4',
+				'slate': {
+					'50': '#f8fafc',
+					'100': '#f1f5f9',
+					'200': '#e2e8f0',
+					'300': '#cbd5e1',
+					'400': '#94a3b8',
+					'500': '#64748b',
+					'600': '#475569',
+					'700': '#334155',
+					'800': '#1E293B',
+					'900': '#0F172A'
+				},
 				'holographic': {
 					'50': '#f0f9ff',
 					'100': '#e0f2fe',
@@ -92,6 +104,9 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			backdropBlur: {
+				xs: '2px',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: {
@@ -109,6 +124,10 @@ export default {
 						height: '0'
 					}
 				},
+				'pulse': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.5' }
+				},
 				'pulse-ai': {
 					'0%, 100%': { 
 						transform: 'scale(1)',
@@ -120,9 +139,8 @@ export default {
 					}
 				},
 				'wave': {
-					'0%': { transform: 'scaleY(1)' },
-					'50%': { transform: 'scaleY(1.5)' },
-					'100%': { transform: 'scaleY(1)' }
+					'0%, 100%': { transform: 'scaleY(0.5)' },
+					'50%': { transform: 'scaleY(1.5)' }
 				},
 				'glow': {
 					'0%, 100%': { 
@@ -182,8 +200,9 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'pulse-ai': 'pulse-ai 2s ease-in-out infinite',
-				'wave': 'wave 1s ease-in-out infinite',
+				'wave': 'wave 1.2s ease-in-out infinite',
 				'glow': 'glow 2s ease-in-out infinite',
 				'typewriter': 'typewriter 3s steps(40) 1s forwards, blink 0.5s step-end infinite alternate',
 				'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
