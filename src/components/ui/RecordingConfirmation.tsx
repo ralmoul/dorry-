@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import {
@@ -24,12 +25,12 @@ export const RecordingConfirmation = ({
   isProcessing 
 }: RecordingConfirmationProps) => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 relative z-30 px-4 min-h-[75vh] sm:min-h-[70vh] w-full">
+    <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-6 relative z-30 px-4 min-h-[75vh] sm:min-h-[70vh] w-full text-rendering-crisp antialiased">
       <div className="text-center">
-        <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 subpixel-antialiased">
           Enregistrement terminé
         </h3>
-        <p className="text-muted-foreground text-sm sm:text-base">
+        <p className="text-muted-foreground text-sm sm:text-base subpixel-antialiased">
           Que souhaitez-vous faire ?
         </p>
       </div>
@@ -38,14 +39,14 @@ export const RecordingConfirmation = ({
         {!isProcessing ? (
           <ConfettiButton
             onClick={onSend}
-            className="bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-white font-medium h-10 sm:h-11 text-sm sm:text-base"
+            className="bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-white font-medium h-10 sm:h-11 text-sm sm:text-base subpixel-antialiased"
           >
             📤 Envoyer
           </ConfettiButton>
         ) : (
           <Button
             disabled={true}
-            className="bg-gradient-to-r from-bright-turquoise to-electric-blue opacity-50 text-white font-medium h-10 sm:h-11 text-sm sm:text-base"
+            className="bg-gradient-to-r from-bright-turquoise to-electric-blue opacity-50 text-white font-medium h-10 sm:h-11 text-sm sm:text-base subpixel-antialiased"
           >
             Envoi en cours...
           </Button>
@@ -56,27 +57,27 @@ export const RecordingConfirmation = ({
             <Button
               disabled={isProcessing}
               variant="outline"
-              className="border-red-500 text-red-500 hover:bg-red-500/10 h-10 sm:h-11 text-sm sm:text-base"
+              className="border-red-500 text-red-500 hover:bg-red-500/10 h-10 sm:h-11 text-sm sm:text-base subpixel-antialiased"
             >
               🗑️ Supprimer
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="bg-background border border-border">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-white">
+              <AlertDialogTitle className="text-white subpixel-antialiased">
                 Êtes-vous sûr de vouloir annuler ?
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-muted-foreground">
+              <AlertDialogDescription className="text-muted-foreground subpixel-antialiased">
                 Cette action supprimera définitivement votre enregistrement.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="text-white">
+              <AlertDialogCancel className="text-white subpixel-antialiased">
                 ❌ Non
               </AlertDialogCancel>
               <AlertDialogAction 
                 onClick={onCancel}
-                className="bg-red-500 hover:bg-red-600 text-white"
+                className="bg-red-500 hover:bg-red-600 text-white subpixel-antialiased"
               >
                 ✅ Oui
               </AlertDialogAction>
