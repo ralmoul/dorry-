@@ -33,7 +33,7 @@ export const TypewriterText = ({
   }, [currentIndex, text, delay, isComplete, onComplete]);
 
   return (
-    <span className={`${className} ${!isComplete ? 'border-r-2 border-bright-turquoise animate-pulse' : ''}`}>
+    <span className={className}>
       {displayText}
     </span>
   );
