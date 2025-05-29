@@ -18,6 +18,12 @@ const Index = () => {
     }
   };
 
+  // Function to capitalize first letter
+  const capitalizeFirstLetter = (str: string) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden">
       {/* Fond violet avec dégradé et particules animées */}
@@ -80,7 +86,7 @@ const Index = () => {
         {user && (
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              Bienvenue, {user.email}
+              Bienvenue, {capitalizeFirstLetter(user.firstName)}
             </h2>
             <p className="text-slate-300">
               Prêt à enregistrer votre prochaine réunion ?
