@@ -5,7 +5,6 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
-
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,7 +29,6 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
-
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -42,6 +40,14 @@ const Landing = () => {
             setVisibleWorkflowSteps(prev => [...prev, index]);
           }
         });
+      }
+
+      // Animation de la section fonctionnalités
+      if (featuresRef.current && isElementInViewport(featuresRef.current)) {
+        const interval = setInterval(() => {
+          setActiveFeature(prev => (prev + 1) % 4);
+        }, 3000);
+        return () => clearInterval(interval);
       }
     };
     window.addEventListener('scroll', handleScroll);
@@ -56,7 +62,6 @@ const Landing = () => {
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
-    
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -392,7 +397,7 @@ const Landing = () => {
             animationDelay: '0.3s'
           }}>
               <div className="relative aspect-square max-w-md mx-auto">
-                {/* Feature Icons without automatic animation */}
+                {/* Feature Icons with Animation */}
                 {[{
                 icon: <Mic className="w-full h-full" />,
                 position: 'top-0 left-0',
@@ -421,9 +426,7 @@ const Landing = () => {
                 
                 {/* Central connecting element */}
                 <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
-                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                    Dorry
-                  </div>
+                  
                 </div>
                 
                 {/* Connecting lines */}
@@ -473,7 +476,7 @@ const Landing = () => {
                       {feature.description}
                     </p>
                     
-                    {/* Feature navigation - manual control only */}
+                    {/* Feature navigation */}
                     <div className="mt-8 flex justify-center space-x-2">
                       {Array.from({
                     length: 4
