@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,6 +10,7 @@ import { sendAudioToWebhook } from '@/services/webhookService';
 export const useAudioRecorder = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [onRecordingConfirmed, setOnRecordingConfirmed] = useState<((blob: Blob, duration: number) => void) | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -31,6 +33,10 @@ export const useAudioRecorder = () => {
   } = useMediaRecorder();
   
   const { recordingTime, formatTime } = useRecordingTimer(isRecording, isPaused);
+
+  const setRecordingConfirmedCallback = useCallback((callback: (blob: Blob, duration: number) => void) => {
+    setOnRecordingConfirmed(() => callback);
+  }, []);
 
   const startRecording = useCallback(async () => {
     console.log('🎤 [AUDIO_RECORDER] Tentative de démarrage de l\'enregistrement...');
@@ -114,6 +120,11 @@ export const useAudioRecorder = () => {
     
     setShowConfirmation(false);
     setIsProcessing(true);
+
+    // Add to history before sending
+    if (onRecordingConfirmed) {
+      onRecordingConfirmed(recordingBlob, recordingTime);
+    }
     
     try {
       console.log('🚀 [AUDIO_RECORDER] Appel de sendAudioToWebhook...');
@@ -144,7 +155,7 @@ export const useAudioRecorder = () => {
       setIsProcessing(false);
       clearRecording();
     }
-  }, [recordingBlob, user, toast, clearRecording]);
+  }, [recordingBlob, user, toast, clearRecording, onRecordingConfirmed, recordingTime]);
 
   const cancelRecording = useCallback(() => {
     console.log('❌ [AUDIO_RECORDER] Annulation de l\'enregistrement');
@@ -165,6 +176,7 @@ export const useAudioRecorder = () => {
     stopRecording,
     confirmSend,
     cancelRecording,
+    setRecordingConfirmedCallback,
     // Consent management
     showConsentModal,
     handleConsentGiven,
