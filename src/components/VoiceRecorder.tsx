@@ -119,10 +119,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  // Convert base64 back to blob - VERSION CORRIGÉE
+  // Convert base64 back to blob
   const base64ToBlob = (base64: string, type: string): Blob => {
     try {
-      // Vérifications préalables
       if (!base64 || typeof base64 !== 'string') {
         throw new Error('Base64 data is invalid or empty');
       }
@@ -147,7 +146,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type });
       
-      // Vérifications post-création
       if (!(blob instanceof Blob)) {
         throw new Error('Failed to create valid Blob object');
       }
@@ -185,7 +183,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             userId: rec.userId
           };
 
-          // Reconstitution du blob UNIQUEMENT si les données sont valides
           if (rec.blobData && rec.blobType && typeof rec.blobData === 'string' && rec.blobData.length > 0) {
             try {
               console.log('🔄 [VOICE_RECORDER] Tentative de reconstitution pour:', rec.id);
@@ -193,7 +190,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               console.log('✅ [VOICE_RECORDER] Blob reconstitué avec succès pour:', rec.id);
             } catch (error) {
               console.error('❌ [VOICE_RECORDER] Échec reconstitution blob pour', rec.id, ':', error);
-              // Pas de blob pour cet enregistrement - c'est OK
             }
           } else {
             console.log('⚠️ [VOICE_RECORDER] Pas de données blob valides pour:', rec.id);
@@ -202,7 +198,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           return recording;
         }));
         
-        // Filter recordings from the last 7 days and sort by date
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const filtered = recordingsWithDates.filter((rec: Recording) => new Date(rec.date) > sevenDaysAgo);
         const sorted = filtered.sort((a: Recording, b: Recording) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -219,7 +214,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     if (user?.id) {
       console.log('💾 [VOICE_RECORDER] Sauvegarde de', recs.length, 'enregistrements');
       
-      // Convert blobs to base64 for storage
       const recordingsForStorage = await Promise.all(recs.map(async (rec) => {
         const recordingForStorage: any = {
           id: rec.id,
@@ -229,7 +223,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           userId: rec.userId
         };
 
-        // Convert blob to base64 if it exists and is valid
         if (rec.blob && rec.blob instanceof Blob && rec.blob.size > 0) {
           try {
             recordingForStorage.blobData = await blobToBase64(rec.blob);
@@ -253,7 +246,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Vérification que le blob est valide avant de sauvegarder
     if (!blob || !(blob instanceof Blob) || blob.size === 0) {
       console.error('❌ [VOICE_RECORDER] Blob invalide, enregistrement non sauvegardé');
       return;
@@ -271,10 +263,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id, 'avec blob de taille:', blob.size);
 
     setRecordings(prev => {
-      // Add new recording at the beginning (most recent first)
       const updated = [newRecording, ...prev];
-      
-      // Filter recordings from the last 7 days only
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const filtered = updated.filter(rec => new Date(rec.date) > sevenDaysAgo);
       
@@ -357,7 +346,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Check for duplicates
     const isDuplicate = recordings.some(rec => 
       rec.id !== editingId && 
       (rec.name || getDefaultName(rec.date)).toLowerCase() === trimmedName.toLowerCase()
@@ -372,7 +360,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Check for special characters
     const hasSpecialChars = /[<>:"/\\|?*]/.test(trimmedName);
     if (hasSpecialChars) {
       toast({
@@ -412,7 +399,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const handlePlay = (recording: Recording) => {
     if (playingId === recording.id) {
-      // Stop current playback
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -430,7 +416,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Stop any current playback
     if (audioRef.current) {
       audioRef.current.pause();
     }
@@ -471,11 +456,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  // VERSION CORRIGÉE de handleResend
   const handleResend = async (recording: Recording) => {
     console.log('🔄 [VOICE_RECORDER] Tentative de renvoi pour:', recording.id);
     
-    // Vérification stricte du blob
     if (!recording.blob) {
       console.error('❌ [VOICE_RECORDER] Pas de blob disponible');
       toast({
@@ -486,7 +469,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Vérifications multiples du blob
     const isValidBlob = recording.blob instanceof Blob 
       && recording.blob.constructor.name === 'Blob'
       && recording.blob.size > 0;
@@ -766,22 +748,22 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   </div>
                 </div>
 
-                {/* Historique des enregistrements */}
-                <div className="w-full max-w-3xl mt-8">
-                  <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-                    <h3 className="text-xl font-semibold text-white mb-4 text-center">
+                {/* Historique des enregistrements - Version mobile optimisée */}
+                <div className="w-full max-w-4xl mt-6 sm:mt-8">
+                  <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-slate-700/50 shadow-2xl">
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 text-center">
                       Vos enregistrements des 7 derniers jours
                     </h3>
                     
                     {recordings.length === 0 ? (
-                      <div className="text-center py-8">
-                        <div className="text-4xl mb-4">🐟</div>
-                        <p className="text-slate-300 text-sm">
+                      <div className="text-center py-6 sm:py-8">
+                        <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🐟</div>
+                        <p className="text-slate-300 text-sm sm:text-base px-2">
                           Ici, la mémoire, c'est 7 jours : assez pour ne rien rater, pas assez pour s'inquiéter !
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-2 sm:space-y-3">
                         <AnimatePresence>
                           {recordings.map((recording) => (
                             <motion.div
@@ -789,73 +771,78 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -20 }}
-                              className="bg-slate-700/50 rounded-lg p-4 border border-slate-600/50"
+                              className="bg-slate-700/60 rounded-xl p-3 sm:p-4 border border-slate-600/50 backdrop-blur-sm"
                             >
-                              <div className="flex items-center justify-between gap-3">
-                                {/* Play button */}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handlePlay(recording)}
-                                  className={`flex-shrink-0 w-8 h-8 ${
-                                    playingId === recording.id 
-                                      ? 'text-orange-400 hover:bg-orange-400/10' 
-                                      : 'text-cyan-400 hover:bg-cyan-400/10'
-                                  }`}
-                                >
-                                  <Play className="w-4 h-4" />
-                                </Button>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                {/* Section principale avec play button et contenu */}
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  {/* Play button */}
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handlePlay(recording)}
+                                    className={`flex-shrink-0 w-10 h-10 sm:w-8 sm:h-8 ${
+                                      playingId === recording.id 
+                                        ? 'text-orange-400 hover:bg-orange-400/10' 
+                                        : 'text-cyan-400 hover:bg-cyan-400/10'
+                                    }`}
+                                  >
+                                    <Play className="w-5 h-5 sm:w-4 sm:h-4" />
+                                  </Button>
 
-                                {/* Name and date */}
-                                <div className="flex-1 min-w-0">
-                                  {editingId === recording.id ? (
-                                    <div className="flex items-center gap-2">
-                                      <Input
-                                        value={editingName}
-                                        onChange={(e) => setEditingName(e.target.value)}
-                                        onKeyDown={handleKeyPress}
-                                        maxLength={50}
-                                        className="bg-slate-600 border-slate-500 text-white text-sm"
-                                        placeholder="Nom de l'enregistrement..."
-                                        autoFocus
-                                      />
-                                      <div className="flex gap-1 flex-shrink-0">
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={handleSaveEdit}
-                                          className="text-green-400 hover:bg-green-400/10 w-8 h-8"
-                                        >
-                                          <Check className="w-3 h-3" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={handleCancelEdit}
-                                          className="text-red-400 hover:bg-red-400/10 w-8 h-8"
-                                        >
-                                          <X className="w-3 h-3" />
-                                        </Button>
+                                  {/* Contenu principal */}
+                                  <div className="flex-1 min-w-0">
+                                    {editingId === recording.id ? (
+                                      <div className="flex flex-col gap-2">
+                                        <Input
+                                          value={editingName}
+                                          onChange={(e) => setEditingName(e.target.value)}
+                                          onKeyDown={handleKeyPress}
+                                          maxLength={50}
+                                          className="bg-slate-600 border-slate-500 text-white text-sm h-10"
+                                          placeholder="Nom de l'enregistrement..."
+                                          autoFocus
+                                        />
+                                        <div className="flex gap-2 justify-end">
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={handleSaveEdit}
+                                            className="text-green-400 hover:bg-green-400/10 w-8 h-8"
+                                          >
+                                            <Check className="w-4 h-4" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={handleCancelEdit}
+                                            className="text-red-400 hover:bg-red-400/10 w-8 h-8"
+                                          >
+                                            <X className="w-4 h-4" />
+                                          </Button>
+                                        </div>
                                       </div>
-                                    </div>
-                                  ) : (
-                                    <div>
-                                      <div className="font-medium text-white text-sm truncate">
-                                        {recording.name || getDefaultName(recording.date)}
+                                    ) : (
+                                      <div className="space-y-1">
+                                        <div className="font-medium text-white text-sm sm:text-base leading-tight">
+                                          {recording.name || getDefaultName(recording.date)}
+                                        </div>
+                                        <div className="text-xs text-slate-400 space-y-1">
+                                          <div className="flex justify-between items-center">
+                                            <span>{formatDateDisplay(recording.date)}, {formatTimeDisplay(recording.date)}</span>
+                                          </div>
+                                          <div className="text-orange-400 font-medium">
+                                            Expire dans {getDaysUntilExpiry(recording.date)} jour(s)
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="text-xs text-slate-400 flex items-center justify-between">
-                                        <span>{formatDateDisplay(recording.date)}, {formatTimeDisplay(recording.date)}</span>
-                                        <span className="text-orange-400">
-                                          Expire dans {getDaysUntilExpiry(recording.date)} jour(s)
-                                        </span>
-                                      </div>
-                                    </div>
-                                  )}
+                                    )}
+                                  </div>
                                 </div>
 
                                 {/* Action buttons */}
                                 {editingId !== recording.id && (
-                                  <div className="flex gap-1 flex-shrink-0">
+                                  <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
                                     {/* Bouton de renvoi - seulement visible si le blob existe */}
                                     {recording.blob && (
                                       <Button
@@ -863,13 +850,13 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                         size="icon"
                                         onClick={() => handleResend(recording)}
                                         disabled={resendingId === recording.id}
-                                        className="text-cyan-400 hover:bg-cyan-400/10 w-8 h-8 disabled:opacity-50"
+                                        className="text-cyan-400 hover:bg-cyan-400/10 w-9 h-9 sm:w-8 sm:h-8 disabled:opacity-50"
                                         title="Renvoyer vers l'IA"
                                       >
                                         {resendingId === recording.id ? (
-                                          <RefreshCw className="w-3 h-3 animate-spin" />
+                                          <RefreshCw className="w-4 h-4 animate-spin" />
                                         ) : (
-                                          <Send className="w-3 h-3" />
+                                          <Send className="w-4 h-4" />
                                         )}
                                       </Button>
                                     )}
@@ -877,26 +864,26 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => handleStartEdit(recording)}
-                                      className="text-slate-400 hover:bg-slate-600 hover:text-white w-8 h-8"
+                                      className="text-slate-400 hover:bg-slate-600 hover:text-white w-9 h-9 sm:w-8 sm:h-8"
                                       title="Renommer"
                                     >
-                                      <Edit3 className="w-3 h-3" />
+                                      <Edit3 className="w-4 h-4" />
                                     </Button>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => handleDelete(recording.id)}
-                                      className="text-red-400 hover:bg-red-400/10 w-8 h-8"
+                                      className="text-red-400 hover:bg-red-400/10 w-9 h-9 sm:w-8 sm:h-8"
                                       title="Supprimer"
                                     >
-                                      <Trash2 className="w-3 h-3" />
+                                      <Trash2 className="w-4 h-4" />
                                     </Button>
                                   </div>
                                 )}
                               </div>
                               
                               {editingId === recording.id && (
-                                <div className="mt-2 text-xs text-slate-400">
+                                <div className="mt-2 text-xs text-slate-400 text-right">
                                   {editingName.length}/50 caractères
                                 </div>
                               )}
@@ -904,9 +891,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                           ))}
                         </AnimatePresence>
                         
-                        <div className="text-center mt-6">
-                          <div className="text-3xl mb-2">🐟</div>
-                          <p className="text-slate-400 text-xs">
+                        <div className="text-center mt-4 sm:mt-6 pt-4 border-t border-slate-600/30">
+                          <div className="text-2xl sm:text-3xl mb-2">🐟</div>
+                          <p className="text-slate-400 text-xs sm:text-sm px-2 leading-relaxed">
                             Vos enregistrements sont strictement confidentiels et automatiquement supprimés après 7 jours.<br/>
                             Dorry ne partage rien sans votre accord.
                           </p>
