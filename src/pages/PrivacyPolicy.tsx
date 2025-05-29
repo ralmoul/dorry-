@@ -40,9 +40,9 @@ const PrivacyPolicy = () => {
             color: transparent !important;
           }
           
-          /* Style pour le bouton */
+          /* Style pour le bouton retour avec texte blanc */
           .privacy-page .privacy-button {
-            color: #374151 !important;
+            color: white !important;
             border-color: #d1d5db !important;
           }
         `}
