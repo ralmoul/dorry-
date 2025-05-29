@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -10,8 +11,8 @@ const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState([]);
-  const workflowStepsRef = useRef([]);
+  const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState<number[]>([]);
+  const workflowStepsRef = useRef<(HTMLDivElement | null)[]>([]);
   
   const testimonials = [{
     text: "Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus.",
@@ -55,8 +56,8 @@ const Landing = () => {
     return () => clearInterval(interval);
   }, [testimonials.length]);
   
-  const handleMouseMove = (e) => {
-    const heroImage = document.querySelector('.hero-image');
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
       const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
@@ -65,7 +66,7 @@ const Landing = () => {
   };
   
   // Fonction pour vérifier si un élément est visible dans la fenêtre
-  const isElementInViewport = (el) => {
+  const isElementInViewport = (el: HTMLElement) => {
     if (!el) return false;
     const rect = el.getBoundingClientRect();
     return (
@@ -76,7 +77,8 @@ const Landing = () => {
     );
   };
 
-  return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
+  return (
+    <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
@@ -106,7 +108,8 @@ const Landing = () => {
         </div>
 
         {/* Mobile menu */}
-        {isMobileMenuOpen && <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
                 <a href="/login" className="px-6 py-3 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors text-center">
@@ -117,7 +120,8 @@ const Landing = () => {
                 </a>
               </div>
             </div>
-          </div>}
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -196,22 +200,24 @@ const Landing = () => {
             
             <div className="flex-1 space-y-6 md:space-y-8 order-1 md:order-2">
               {[{
-              number: "01",
-              title: "Enregistrement intelligent",
-              description: "Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel."
-            }, {
-              number: "02",
-              title: "Analyse en temps réel",
-              description: "L'IA identifie les points clés, les décisions et les actions à entreprendre."
-            }, {
-              number: "03",
-              title: "Synthèse instantanée",
-              description: "Un compte-rendu structuré et précis disponible en quelques minutes."
-            }].map((step, index) => <div key={index} className="p-4 md:p-6 bg-slate-900/50 rounded-xl border-l-4 border-cyan-400 hover:transform hover:translate-x-2 transition-all">
+                number: "01",
+                title: "Enregistrement intelligent",
+                description: "Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel."
+              }, {
+                number: "02",
+                title: "Analyse en temps réel",
+                description: "L'IA identifie les points clés, les décisions et les actions à entreprendre."
+              }, {
+                number: "03",
+                title: "Synthèse instantanée",
+                description: "Un compte-rendu structuré et précis disponible en quelques minutes."
+              }].map((step, index) => (
+                <div key={index} className="p-4 md:p-6 bg-slate-900/50 rounded-xl border-l-4 border-cyan-400 hover:transform hover:translate-x-2 transition-all">
                   <div className="text-cyan-400 text-base md:text-lg font-bold mb-2">{step.number}</div>
                   <h3 className="text-lg md:text-2xl font-bold mb-2">{step.title}</h3>
                   <p className="text-sm md:text-base text-slate-300">{step.description}</p>
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -231,22 +237,23 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {[{
-            icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Parlez, Dorry écoute",
-            description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle."
-          }, {
-            icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Analyse instantanée par IA",
-            description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris..."
-          }, {
-            icon: <Search className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Détection avancée",
-            description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV."
-          }, {
-            icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Compte rendu détaillé",
-            description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée."
-          }].map((feature, index) => <div key={index} className="p-6 md:p-8 bg-slate-800/30 rounded-xl text-center hover:transform hover:scale-105 transition-all group">
+              icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Parlez, Dorry écoute",
+              description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle."
+            }, {
+              icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Analyse instantanée par IA",
+              description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris..."
+            }, {
+              icon: <Search className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Détection avancée",
+              description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV."
+            }, {
+              icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Compte rendu détaillé",
+              description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée."
+            }].map((feature, index) => (
+              <div key={index} className="p-6 md:p-8 bg-slate-800/30 rounded-xl text-center hover:transform hover:scale-105 transition-all group">
                 <div className="relative mb-4 md:mb-6 flex justify-center">
                   <div className="text-cyan-400 group-hover:scale-110 transition-transform">
                     {feature.icon}
@@ -255,7 +262,8 @@ const Landing = () => {
                 </div>
                 <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-4">{feature.title}</h3>
                 <p className="text-sm md:text-base text-slate-300">{feature.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -274,48 +282,52 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12 md:mb-16">
             {[{
-            icon: <Clock className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Gagnez un temps précieux",
-            description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste."
-          }, {
-            icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Fiabilité sans faille",
-            description: "Finis les oublis de compte rendu, même après une journée chargée."
-          }, {
-            icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Analyse IA intelligente",
-            description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé."
-          }, {
-            icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
-            title: "Évolutif & innovant",
-            description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés."
-          }].map((benefit, index) => <div key={index} className="p-4 md:p-6 bg-slate-900/50 rounded-xl hover:transform hover:scale-105 transition-all">
+              icon: <Clock className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Gagnez un temps précieux",
+              description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste."
+            }, {
+              icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Fiabilité sans faille",
+              description: "Finis les oublis de compte rendu, même après une journée chargée."
+            }, {
+              icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Analyse IA intelligente",
+              description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé."
+            }, {
+              icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Évolutif & innovant",
+              description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés."
+            }].map((benefit, index) => (
+              <div key={index} className="p-4 md:p-6 bg-slate-900/50 rounded-xl hover:transform hover:scale-105 transition-all">
                 <div className="text-cyan-400 mb-3 md:mb-4">{benefit.icon}</div>
                 <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-cyan-400">{benefit.title}</h3>
                 <p className="text-sm md:text-base text-slate-300">{benefit.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
           
           {/* Stats */}
           <div className="flex flex-col sm:flex-row justify-around items-center gap-8 md:gap-16">
             {[{
-            end: 87,
-            suffix: "%",
-            label: "de temps gagné sur la rédaction"
-          }, {
-            end: 98,
-            suffix: "%",
-            label: "de précision dans les analyses"
-          }, {
-            end: 5,
-            suffix: " min",
-            label: "pour un compte rendu complet"
-          }].map((stat, index) => <div key={index} className="text-center">
+              end: 87,
+              suffix: "%",
+              label: "de temps gagné sur la rédaction"
+            }, {
+              end: 98,
+              suffix: "%",
+              label: "de précision dans les analyses"
+            }, {
+              end: 5,
+              suffix: " min",
+              label: "pour un compte rendu complet"
+            }].map((stat, index) => (
+              <div key={index} className="text-center">
                 <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-cyan-400 mb-2">
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                 </div>
                 <p className="text-base sm:text-lg md:text-xl text-slate-300">{stat.label}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -385,7 +397,7 @@ const Landing = () => {
                 description: "Tu envoies à Dorry l'enregistrement vocal d'un entretien ou d'un échange avec un porteur de projet."
               },
               {
-                icon: <FileText2 className="w-6 h-6" />,
+                icon: <FileText className="w-6 h-6" />,
                 title: "Transcription et journalisation",
                 description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données. Elle journalise aussi automatiquement chaque demande pour garantir la traçabilité."
               },
@@ -595,7 +607,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      <style jsx>{`
+      <style>{`
         .nav-link {
           position: relative;
           font-weight: 500;
@@ -657,6 +669,8 @@ const Landing = () => {
           }
         }
       `}</style>
-    </div>;
+    </div>
+  );
 };
+
 export default Landing;
