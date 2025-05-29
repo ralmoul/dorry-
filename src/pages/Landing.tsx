@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
