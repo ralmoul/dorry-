@@ -64,44 +64,24 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    color: rgb(250 250 250) !important;
+  }
+
+  /* Force la couleur blanche sur tous les éléments */
+  *, *::before, *::after {
+    color: inherit !important;
   }
 
   /* Amélioration du rendu des polices pour les pages sombres */
   .dark-theme,
-  .dark-theme * {
+  .dark-theme *,
+  html,
+  html * {
     color: rgb(250 250 250) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: "liga" 1, "kern" 1;
-  }
-
-  .dark-theme h1, 
-  .dark-theme h2, 
-  .dark-theme h3, 
-  .dark-theme h4, 
-  .dark-theme h5, 
-  .dark-theme h6 {
-    font-family: 'Montserrat', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    letter-spacing: -0.025em;
-    color: rgb(250 250 250) !important;
-    font-weight: 600;
-  }
-
-  .dark-theme p, 
-  .dark-theme span, 
-  .dark-theme div, 
-  .dark-theme button, 
-  .dark-theme input, 
-  .dark-theme textarea, 
-  .dark-theme label {
-    color: rgb(250 250 250) !important;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
   }
 
   /* Styles par défaut pour les titres sur toutes les pages */
@@ -111,6 +91,15 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     letter-spacing: -0.025em;
+    color: rgb(250 250 250) !important;
+    font-weight: 600;
+  }
+
+  p, span, div, button, input, textarea, label, a {
+    color: rgb(250 250 250) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   .font-bold,
@@ -121,6 +110,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.025em;
+    color: rgb(250 250 250) !important;
   }
 
   .bg-clip-text {
@@ -143,61 +133,66 @@
     color: rgb(250 250 250) !important;
   }
 
-  /* Mobile-specific text improvements pour pages sombres uniquement */
+  /* Mobile-specific text improvements pour TOUS les appareils */
   @media (max-width: 768px) {
-    .dark-theme {
+    *, *::before, *::after {
       color: rgb(250 250 250) !important;
     }
     
-    .dark-theme h1, 
-    .dark-theme h2, 
-    .dark-theme h3, 
-    .dark-theme h4, 
-    .dark-theme h5, 
-    .dark-theme h6 {
+    h1, h2, h3, h4, h5, h6 {
       color: rgb(250 250 250) !important;
     }
     
-    .dark-theme p, 
-    .dark-theme span, 
-    .dark-theme div, 
-    .dark-theme button, 
-    .dark-theme input, 
-    .dark-theme textarea, 
-    .dark-theme label {
+    p, span, div, button, input, textarea, label, a {
       color: rgb(250 250 250) !important;
     }
     
-    .dark-theme .text-slate-300 {
+    /* Force les couleurs spécifiques */
+    .text-slate-300 {
       color: rgb(200 200 200) !important;
     }
     
-    .dark-theme .text-slate-400 {
+    .text-slate-400 {
       color: rgb(180 180 180) !important;
     }
     
-    .dark-theme .text-gray-300 {
+    .text-gray-300 {
       color: rgb(200 200 200) !important;
     }
     
-    .dark-theme .text-white {
+    .text-white {
       color: rgb(255 255 255) !important;
     }
     
+    /* Annule les couleurs jaunes et noires indésirables */
+    .text-yellow-400,
+    .text-yellow-500,
+    .text-black,
+    .text-slate-900 {
+      color: rgb(250 250 250) !important;
+    }
+    
     /* Ensure buttons have proper contrast */
-    .dark-theme button {
+    button {
       color: inherit !important;
     }
     
     /* Fix input text color */
-    .dark-theme input, 
-    .dark-theme textarea {
+    input, textarea {
       color: rgb(250 250 250) !important;
+      background-color: rgba(15, 23, 42, 0.8) !important;
     }
     
     /* Ensure links are visible */
-    .dark-theme a {
+    a {
       color: rgb(0 212 170) !important;
+    }
+  }
+
+  /* Force également sur desktop pour éviter tout problème */
+  @media (min-width: 769px) {
+    *, *::before, *::after {
+      color: rgb(250 250 250) !important;
     }
   }
 }

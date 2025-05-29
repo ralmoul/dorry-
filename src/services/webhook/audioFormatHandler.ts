@@ -1,82 +1,56 @@
 
 import { MIME_TYPES } from './constants';
-import { PlatformInfo } from './platformDetection';
+import { detectPlatform } from './platformDetection';
 
-export interface AudioProcessingResult {
-  finalAudioBlob: Blob;
-  fileExtension: string;
-  finalMimeType: string;
-}
+export const determineAudioFormat = (audioBlob: Blob): {
+  mimeType: string;
+  extension: string;
+} => {
+  const platform = detectPlatform();
+  let mimeType: string;
+  let extension: string;
 
-export const processAudioBlob = (audioBlob: Blob, platformInfo: PlatformInfo): AudioProcessingResult => {
-  const { isIOS, isAndroid, platform } = platformInfo;
-  
-  let finalAudioBlob = audioBlob;
-  let fileExtension = 'ogg';
-  let finalMimeType = MIME_TYPES.OGG;
-  
-  if (isIOS) {
+  if (platform.isIOS) {
+    // iOS préfère généralement MP4/AAC
     if (audioBlob.type.includes('mp4') || audioBlob.type.includes('aac')) {
-      fileExtension = 'mp4';
-      finalMimeType = audioBlob.type || MIME_TYPES.MP4;
-      console.log('🍎 [WEBHOOK] Conservation du format iOS natif:', finalMimeType);
+      mimeType = audioBlob.type;
+      extension = audioBlob.type.includes('mp4') ? 'mp4' : 'aac';
     } else {
-      finalAudioBlob = new Blob([audioBlob], { type: MIME_TYPES.OGG });
-      console.log('🍎 [WEBHOOK] Conversion iOS vers OGG/Opus');
+      mimeType = MIME_TYPES.MP4;
+      extension = 'mp4';
     }
-  } else if (isAndroid) {
+  } else if (platform.isAndroid) {
+    // Android supporte bien WebM
     if (audioBlob.type.includes('webm')) {
-      fileExtension = 'webm';
-      finalMimeType = audioBlob.type || MIME_TYPES.WEBM;
-      console.log('🤖 [WEBHOOK] Conservation du format Android natif:', finalMimeType);
+      mimeType = audioBlob.type;
+      extension = 'webm';
     } else if (audioBlob.type.includes('ogg')) {
-      fileExtension = 'ogg';
-      finalMimeType = audioBlob.type || MIME_TYPES.OGG;
-      console.log('🤖 [WEBHOOK] Conservation du format Android OGG:', finalMimeType);
+      mimeType = audioBlob.type;
+      extension = 'ogg';
     } else {
-      finalAudioBlob = new Blob([audioBlob], { type: MIME_TYPES.WEBM });
-      fileExtension = 'webm';
-      finalMimeType = MIME_TYPES.WEBM;
-      console.log('🤖 [WEBHOOK] Conversion Android vers WebM/Opus');
+      mimeType = MIME_TYPES.WEBM;
+      extension = 'webm';
     }
   } else {
-    if (!audioBlob.type.includes('ogg')) {
-      finalAudioBlob = new Blob([audioBlob], { type: MIME_TYPES.OGG });
-      console.log('💻 [WEBHOOK] Conversion Desktop vers OGG/Opus');
+    // Desktop - préférence pour OGG ou WebM
+    if (audioBlob.type.includes('ogg')) {
+      mimeType = audioBlob.type;
+      extension = 'ogg';
+    } else if (audioBlob.type.includes('webm')) {
+      mimeType = audioBlob.type;
+      extension = 'webm';
     } else {
-      finalMimeType = audioBlob.type;
-      console.log('💻 [WEBHOOK] Conservation du format Desktop OGG');
+      mimeType = MIME_TYPES.OGG;
+      extension = 'ogg';
     }
   }
-  
-  console.log('🎙️ [WEBHOOK] Format final:', {
-    mimeType: finalMimeType,
-    extension: fileExtension,
-    size: finalAudioBlob.size,
-    platform
+
+  console.log('🎵 [WEBHOOK] Format audio déterminé:', {
+    platform: platform.platform,
+    originalType: audioBlob.type,
+    finalMimeType: mimeType,
+    extension
   });
-  
-  return { finalAudioBlob, fileExtension, finalMimeType };
-};
 
-export const createFileName = (platform: string, propertyId: string, extension: string): string => {
-  return `recording_${platform.toLowerCase()}_${propertyId}_${Date.now()}.${extension}`;
-};
-
-export const createBackupDownload = (audioBlob: Blob, platform: string, propertyId: string): void => {
-  try {
-    const localFileExtension = audioBlob.type.includes('ogg') ? 'ogg' : 
-                               audioBlob.type.includes('webm') ? 'webm' : 
-                               audioBlob.type.includes('mp4') ? 'mp4' : 'wav';
-    
-    const audioUrl = URL.createObjectURL(audioBlob);
-    console.log('💾 [WEBHOOK] Audio sauvegardé localement pour', platform, '- URL:', audioUrl);
-    
-    const a = document.createElement('a');
-    a.href = audioUrl;
-    a.download = `recording_backup_${platform.toLowerCase()}_${propertyId}_${Date.now()}.${localFileExtension}`;
-    console.log('⬇️ [WEBHOOK] Lien de téléchargement créé:', a.download);
-  } catch (saveError) {
-    console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
-  }
+  return { mimeType, extension };
 };
