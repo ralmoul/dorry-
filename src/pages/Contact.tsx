@@ -29,10 +29,10 @@ const Contact = () => {
             color: #06b6d4 !important;
           }
           .contact-page .title-gradient {
-            background: linear-gradient(to right, #06b6d4, #2563eb) !important;
-            -webkit-background-clip: text !important;
-            background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
+            color: #000000 !important;
+          }
+          .contact-page .title-black {
+            color: #000000 !important;
           }
         `}
       </style>
@@ -63,7 +63,7 @@ const Contact = () => {
               
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold mb-6 title-gradient">Une question ? Besoin d'un renseignement ?</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-6 title-black">Une question ? Besoin d'un renseignement ?</h2>
                   <p className="text-xl md:text-2xl font-semibold mb-4" style={{ color: '#000000' }}>
                     L'équipe Dorry est là pour vous aider !
                   </p>
