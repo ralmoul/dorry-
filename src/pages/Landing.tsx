@@ -4,14 +4,16 @@ import { TypewriterText } from '@/components/ui/TypewriterText';
 import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
-import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
+import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3, FileText2 } from 'lucide-react';
 
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState<number[]>([]);
-  const workflowStepsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState([]);
+  const [activeFeature, setActiveFeature] = useState(0);
+  const workflowStepsRef = useRef([]);
+  const featuresRef = useRef(null);
   
   const testimonials = [{
     text: "Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus.",
@@ -42,6 +44,14 @@ const Landing = () => {
           }
         });
       }
+      
+      // Animation de la section fonctionnalités
+      if (featuresRef.current && isElementInViewport(featuresRef.current)) {
+        const interval = setInterval(() => {
+          setActiveFeature(prev => (prev + 1) % 4);
+        }, 3000);
+        return () => clearInterval(interval);
+      }
     };
     
     window.addEventListener('scroll', handleScroll);
@@ -55,8 +65,8 @@ const Landing = () => {
     return () => clearInterval(interval);
   }, [testimonials.length]);
   
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const heroImage = document.querySelector('.hero-image') as HTMLElement;
+  const handleMouseMove = (e) => {
+    const heroImage = document.querySelector('.hero-image');
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
       const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
@@ -65,7 +75,7 @@ const Landing = () => {
   };
   
   // Fonction pour vérifier si un élément est visible dans la fenêtre
-  const isElementInViewport = (el: HTMLElement) => {
+  const isElementInViewport = (el) => {
     if (!el) return false;
     const rect = el.getBoundingClientRect();
     return (
@@ -76,8 +86,7 @@ const Landing = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
+  return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
@@ -107,8 +116,7 @@ const Landing = () => {
         </div>
 
         {/* Mobile menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
+        {isMobileMenuOpen && <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
             <div className="container mx-auto px-4 py-4">
               <div className="flex flex-col space-y-4">
                 <a href="/login" className="px-6 py-3 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors text-center">
@@ -119,36 +127,69 @@ const Landing = () => {
                 </a>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section avec animation améliorée */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-0 pb-4 md:pb-0">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
-        <FloatingParticles />
+        
+        {/* Particules animées améliorées */}
+        <div className="absolute inset-0 z-0">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
+              style={{
+                width: `${Math.random() * 10 + 5}px`,
+                height: `${Math.random() * 10 + 5}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+                filter: 'blur(1px)'
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Ondes sonores animées */}
+        <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 flex justify-center items-center z-0 opacity-20">
+          <div className="flex space-x-1">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-1 bg-gradient-to-t from-cyan-400 to-blue-500 rounded-full"
+                style={{
+                  height: `${Math.sin(i / 3) * 30 + 40}px`,
+                  animation: `soundWave 1.5s ease-in-out infinite ${i * 0.05}s`
+                }}
+              />
+            ))}
+          </div>
+        </div>
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
             {/* Text content - order changes on mobile vs desktop */}
             <div className="flex-1 max-w-2xl text-center md:text-left order-1 md:order-1">
-              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 md:mb-8 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 md:mb-8 leading-tight animate-fadeIn">
                 <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos réunions" className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" />
               </h1>
               
               {/* Image positioned after title on mobile only */}
-              <div className="flex md:hidden justify-center items-center relative mb-6">
+              <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
                 <div className="relative">
                   <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                     <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
                 </div>
               </div>
               
-              <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0">
+              <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.7s' }}>
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
-              <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0">
+              <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0 animate-fadeInUp" style={{ animationDelay: '0.9s' }}>
                 <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all mb-8 md:mb-0">
                   Demander l'accès
                 </ConfettiButton>
@@ -162,11 +203,23 @@ const Landing = () => {
             </div>
             
             {/* Image for desktop only - hidden on mobile */}
-            <div className="hidden md:flex flex-1 justify-center items-center relative order-2">
+            <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{ animationDelay: '0.5s' }}>
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
+                
+                {/* Cercles concentriques animés */}
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div 
+                    key={i}
+                    className="absolute inset-0 rounded-full border border-cyan-400/30"
+                    style={{
+                      animation: `ripple 3s ease-out infinite ${i * 0.5}s`
+                    }}
+                  ></div>
+                ))}
               </div>
             </div>
           </div>
@@ -179,177 +232,27 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Revolution Section */}
+      {/* Section Concrètement à quoi sert Dorry - Workflow complet */}
       <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Comment Dorry révolutionne vos réunions
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">Une expérience immersive qui transforme votre façon de travailler.</p>
-          </div>
-          
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-            <div className="flex-1 relative order-2 md:order-1">
-              <div className="relative w-full aspect-video">
-                <img src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" alt="Dorry AI Data Analysis" className="w-full h-full object-cover rounded-2xl" />
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 rounded-2xl animate-pulse"></div>
-              </div>
-            </div>
-            
-            <div className="flex-1 space-y-6 md:space-y-8 order-1 md:order-2">
-              {[{
-                number: "01",
-                title: "Enregistrement intelligent",
-                description: "Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel."
-              }, {
-                number: "02",
-                title: "Analyse en temps réel",
-                description: "L'IA identifie les points clés, les décisions et les actions à entreprendre."
-              }, {
-                number: "03",
-                title: "Synthèse instantanée",
-                description: "Un compte-rendu structuré et précis disponible en quelques minutes."
-              }].map((step, index) => (
-                <div key={index} className="p-4 md:p-6 bg-slate-900/50 rounded-xl border-l-4 border-cyan-400 hover:transform hover:translate-x-2 transition-all">
-                  <div className="text-cyan-400 text-base md:text-lg font-bold mb-2">{step.number}</div>
-                  <h3 className="text-lg md:text-2xl font-bold mb-2">{step.title}</h3>
-                  <p className="text-sm md:text-base text-slate-300">{step.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-16 md:py-32 bg-slate-900">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Fonctionnalités qui font la différence
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
-              Découvrez comment Dorry simplifie votre quotidien professionnel
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {[{
-              icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Parlez, Dorry écoute",
-              description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle."
-            }, {
-              icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Analyse instantanée par IA",
-              description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris..."
-            }, {
-              icon: <Search className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Détection avancée",
-              description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV."
-            }, {
-              icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Compte rendu détaillé",
-              description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée."
-            }].map((feature, index) => (
-              <div key={index} className="p-6 md:p-8 bg-slate-800/30 rounded-xl text-center hover:transform hover:scale-105 transition-all group">
-                <div className="relative mb-4 md:mb-6 flex justify-center">
-                  <div className="text-cyan-400 group-hover:scale-110 transition-transform">
-                    {feature.icon}
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full blur-lg scale-75"></div>
-                </div>
-                <h3 className="text-lg md:text-2xl font-bold mb-3 md:mb-4">{feature.title}</h3>
-                <p className="text-sm md:text-base text-slate-300">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Dorry Section */}
-      <section className="py-16 md:py-32 bg-slate-800">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Pourquoi choisir Dorry ?
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
-              Des avantages concrets pour votre productivité
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12 md:mb-16">
-            {[{
-              icon: <Clock className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Gagnez un temps précieux",
-              description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste."
-            }, {
-              icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Fiabilité sans faille",
-              description: "Finis les oublis de compte rendu, même après une journée chargée."
-            }, {
-              icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Analyse IA intelligente",
-              description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé."
-            }, {
-              icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Évolutif & innovant",
-              description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés."
-            }].map((benefit, index) => (
-              <div key={index} className="p-4 md:p-6 bg-slate-900/50 rounded-xl hover:transform hover:scale-105 transition-all">
-                <div className="text-cyan-400 mb-3 md:mb-4">{benefit.icon}</div>
-                <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-cyan-400">{benefit.title}</h3>
-                <p className="text-sm md:text-base text-slate-300">{benefit.description}</p>
-              </div>
-            ))}
-          </div>
-          
-          {/* Stats */}
-          <div className="flex flex-col sm:flex-row justify-around items-center gap-8 md:gap-16">
-            {[{
-              end: 87,
-              suffix: "%",
-              label: "de temps gagné sur la rédaction"
-            }, {
-              end: 98,
-              suffix: "%",
-              label: "de précision dans les analyses"
-            }, {
-              end: 5,
-              suffix: " min",
-              label: "pour un compte rendu complet"
-            }].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-cyan-400 mb-2">
-                  <AnimatedCounter end={stat.end} suffix={stat.suffix} />
-                </div>
-                <p className="text-base sm:text-lg md:text-xl text-slate-300">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Concrètement à quoi sert Dorry Section */}
-      <section className="py-16 md:py-32 bg-slate-900 relative overflow-hidden">
-        {/* Particules d'arrière-plan animées */}
         <div className="absolute inset-0 z-0">
           {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
               style={{
+                width: `${Math.random() * 15 + 5}px`,
+                height: `${Math.random() * 15 + 5}px`,
                 top: `${Math.random() * 100}%`,
                 left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`
+                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+                filter: 'blur(2px)'
               }}
             />
           ))}
         </div>
         
         {/* Lignes de connexion animées */}
-        <div className="absolute inset-0 z-0 opacity-30"
+        <div className="absolute inset-0 z-0 opacity-20"
           style={{
             backgroundImage: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
             backgroundSize: '50px 50px',
@@ -359,27 +262,52 @@ const Landing = () => {
         ></div>
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
-          {/* Titre principal avec animation de révélation */}
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent transform transition-all duration-700 opacity-100">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent animate-fadeIn">
               Concrètement à quoi sert Dorry ?
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto transform transition-all duration-700 delay-100 opacity-100">
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
               L'assistant IA qui transforme tes échanges en synthèse claire et actionnable
             </p>
           </div>
           
-          {/* Description principale */}
-          <div className="mb-16 max-w-4xl mx-auto">
-            <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-700 delay-200 opacity-100 shadow-lg">
-              <p className="text-gray-300 leading-relaxed">
-                Dorry est une intelligence artificielle spécialisée dans le suivi des porteurs de projet, conçue pour les accompagnateurs. Elle automatise la prise de notes, l'analyse de rendez-vous et la génération de comptes-rendus personnalisés, le tout… sans effort humain !
-              </p>
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mb-16">
+            <div className="flex-1 relative order-2 md:order-1 animate-fadeInLeft" style={{ animationDelay: '0.4s' }}>
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl">
+                <img src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" alt="Dorry AI Data Analysis" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 animate-pulse"></div>
+                
+                {/* Overlay avec effet de données */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-full h-full flex flex-col justify-center items-center text-white opacity-0 hover:opacity-100 transition-opacity duration-300 bg-slate-900/70 backdrop-blur-sm p-6">
+                    <div className="text-cyan-400 mb-4">
+                      <FileText className="w-12 h-12 mx-auto" />
+                    </div>
+                    <p className="text-center text-lg font-semibold mb-2">Dorry automatise tout le processus</p>
+                    <p className="text-center text-sm">De l'enregistrement à la synthèse, sans effort humain</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex-1 space-y-6 md:space-y-8 order-1 md:order-2 animate-fadeInRight" style={{ animationDelay: '0.4s' }}>
+              <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg">
+                <p className="text-gray-300 leading-relaxed">
+                  Dorry est une intelligence artificielle spécialisée dans le suivi des porteurs de projet, conçue pour les accompagnateurs. Elle automatise la prise de notes, l'analyse de rendez-vous et la génération de comptes-rendus personnalisés, le tout… sans effort humain !
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-6 border border-cyan-500/30 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg">
+                <p className="text-xl text-white leading-relaxed">
+                  <span className="font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Dorry écoute, comprend et synthétise pour toi.</span><br/>
+                  Il te suffit d'enregistrer ton rendez-vous, Dorry s'occupe du reste.
+                </p>
+              </div>
             </div>
           </div>
           
           {/* Titre de la section workflow */}
-          <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 transform transition-all duration-700 delay-300 opacity-100">
+          <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
             Comment ça marche ?
           </h3>
           
@@ -396,19 +324,19 @@ const Landing = () => {
                 description: "Tu envoies à Dorry l'enregistrement vocal d'un entretien ou d'un échange avec un porteur de projet."
               },
               {
-                icon: <FileText className="w-6 h-6" />,
+                icon: <FileText2 className="w-6 h-6" />,
                 title: "Transcription et journalisation",
-                description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données. Elle journalise aussi automatiquement chaque demande pour garantir la traçabilité."
+                description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données."
               },
               {
                 icon: <User className="w-6 h-6" />,
-                title: "Identification automatique de l'accompagnateur",
+                title: "Identification automatique",
                 description: "Dorry reconnaît instantanément l'accompagnateur associé à l'échange grâce à l'ID envoyé, sans erreur ni confusion."
               },
               {
                 icon: <FileCheck className="w-6 h-6" />,
                 title: "Extraction intelligente d'informations clés",
-                description: "Grâce à son moteur d'analyse, Dorry extrait automatiquement le nom et les coordonnées du porteur, l'adresse, la date de naissance, le téléphone, et tout autre élément pertinent évoqué pendant la discussion."
+                description: "Grâce à son moteur d'analyse, Dorry extrait automatiquement le nom et les coordonnées du porteur, l'adresse, et tout autre élément pertinent évoqué pendant la discussion."
               },
               {
                 icon: <BarChart3 className="w-6 h-6" />,
@@ -418,11 +346,11 @@ const Landing = () => {
               {
                 icon: <FileSpreadsheet className="w-6 h-6" />,
                 title: "Synthèse structurée et personnalisée",
-                description: "Dorry rédige pour toi un compte-rendu lisible, structuré et directement actionnable, sans jargon technique. Chaque synthèse est ultra-personnalisée, intègre des emojis pour chaque section et respecte tes consignes de présentation."
+                description: "Dorry rédige pour toi un compte-rendu lisible, structuré et directement actionnable, sans jargon technique. Chaque synthèse est ultra-personnalisée."
               },
               {
                 icon: <Mail className="w-6 h-6" />,
-                title: "Envoi automatique du compte-rendu par email",
+                title: "Envoi automatique du compte-rendu",
                 description: "Le rapport final est envoyé directement à l'accompagnateur par email (aucune intervention humaine nécessaire !)."
               }
             ].map((step, index) => (
@@ -437,7 +365,7 @@ const Landing = () => {
                     {step.icon}
                   </div>
                 </div>
-                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg">
+                <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
                   <h4 className="text-xl font-semibold text-white mb-2">{step.title}</h4>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
@@ -445,117 +373,355 @@ const Landing = () => {
             ))}
           </div>
           
-          {/* Avantages */}
-          <div className="mt-20">
-            <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 transform transition-all duration-700 delay-700 opacity-100">
-              Ce que Dorry change pour toi
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  emoji: "✏️",
-                  title: "Fini les prises de notes manuelles",
-                  description: "Gagne du temps, reste concentré sur la relation humaine."
-                },
-                {
-                  emoji: "🔍",
-                  title: "Zéro oubli",
-                  description: "Tout est capté, synthétisé et archivé automatiquement."
-                },
-                {
-                  emoji: "📊",
-                  title: "Des suivis toujours à jour",
-                  description: "Chaque entretien est traité de façon homogène, avec un scoring objectif."
-                },
-                {
-                  emoji: "📝",
-                  title: "Synthèses professionnelles",
-                  description: "Tu reçois des rapports prêts à exploiter ou à partager, avec des sections claires."
-                }
-              ].map((advantage, index) => (
-                <div 
-                  key={index}
-                  className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform hover:scale-105 transition-all duration-300 shadow-lg opacity-0"
-                  style={{ 
-                    animation: 'fadeInUp 0.7s ease-out forwards',
-                    animationDelay: `${0.8 + index * 0.1}s`
-                  }}
-                >
-                  <div className="text-cyan-400 mb-4 text-3xl">{advantage.emoji}</div>
-                  <h4 className="text-xl font-semibold text-white mb-2">{advantage.title}</h4>
-                  <p className="text-gray-300">{advantage.description}</p>
+          {/* Stats animés */}
+          <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 animate-fadeIn" style={{ animationDelay: '0.8s' }}>
+            {[{
+              end: 87,
+              suffix: "%",
+              label: "de temps gagné sur la rédaction",
+              icon: <Clock className="w-8 h-8" />
+            }, {
+              end: 98,
+              suffix: "%",
+              label: "de précision dans les analyses",
+              icon: <Brain className="w-8 h-8" />
+            }, {
+              end: 5,
+              suffix: " min",
+              label: "pour un compte rendu complet",
+              icon: <FileText className="w-8 h-8" />
+            }].map((stat, index) => (
+              <div key={index} className="text-center bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
+                <div className="text-cyan-400 mb-4 flex justify-center">
+                  {stat.icon}
                 </div>
-              ))}
-            </div>
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">
+                  <AnimatedCounter end={stat.end} suffix={stat.suffix} />
+                </div>
+                <p className="text-base sm:text-lg text-slate-300">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Fonctionnalités Section - Redesigned with more animations */}
+      <section className="py-16 md:py-32 bg-slate-900 relative overflow-hidden" ref={featuresRef}>
+        <div className="absolute inset-0 z-0">
+          {Array.from({ length: 15 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+              style={{
+                width: `${Math.random() * 20 + 10}px`,
+                height: `${Math.random() * 20 + 10}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 20 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+                filter: 'blur(3px)'
+              }}
+            />
+          ))}
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <div className="text-center mb-12 md:mb-16 animate-fadeIn">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Fonctionnalités qui font la différence
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
+              Découvrez comment Dorry simplifie votre quotidien professionnel
+            </p>
           </div>
           
-          {/* Pour qui */}
-          <div className="mt-20">
-            <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 transform transition-all duration-700 delay-900 opacity-100">
-              Dorry, c'est pour qui ?
-            </h3>
-            
-            <div className="max-w-3xl mx-auto">
-              <div 
-                className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg opacity-0"
-                style={{ 
-                  animation: 'fadeInUp 0.7s ease-out forwards',
-                  animationDelay: '1.2s'
-                }}
-              >
-                <ul className="space-y-4">
-                  <li className="flex items-start">
-                    <span className="text-cyan-400 mr-3 text-xl">•</span>
-                    <span className="text-gray-300">Les accompagnateurs de porteurs de projet, incubateurs, coachs entrepreneuriaux…</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-cyan-400 mr-3 text-xl">•</span>
-                    <span className="text-gray-300">Ceux qui veulent automatiser le suivi, professionnaliser la relation et passer moins de temps sur l'administratif.</span>
-                  </li>
-                </ul>
+          <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
+            {/* Feature Showcase - Left Side */}
+            <div className="flex-1 order-2 md:order-1 animate-fadeInLeft" style={{ animationDelay: '0.3s' }}>
+              <div className="relative aspect-square max-w-md mx-auto">
+                {/* Feature Icons with Animation */}
+                {[
+                  { icon: <Mic className="w-full h-full" />, position: 'top-0 left-0', color: 'from-cyan-400 to-blue-500' },
+                  { icon: <Brain className="w-full h-full" />, position: 'top-0 right-0', color: 'from-blue-500 to-purple-500' },
+                  { icon: <Search className="w-full h-full" />, position: 'bottom-0 left-0', color: 'from-purple-500 to-cyan-400' },
+                  { icon: <FileText className="w-full h-full" />, position: 'bottom-0 right-0', color: 'from-cyan-400 to-blue-500' }
+                ].map((item, index) => (
+                  <div 
+                    key={index}
+                    className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-500 transform`}
+                    style={{
+                      opacity: activeFeature === index ? 1 : 0.3,
+                      transform: activeFeature === index ? 'scale(1.1)' : 'scale(0.9)',
+                      filter: activeFeature === index ? 'none' : 'blur(1px)'
+                    }}
+                  >
+                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg`}>
+                      {item.icon}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Central connecting element */}
+                <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
+                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                    Dorry
+                  </div>
+                </div>
+                
+                {/* Connecting lines */}
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div 
+                    key={i}
+                    className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left"
+                    style={{
+                      transform: `rotate(${i * 90}deg)`,
+                      opacity: activeFeature === i ? 1 : 0.3,
+                      transition: 'opacity 0.5s ease'
+                    }}
+                  ></div>
+                ))}
               </div>
             </div>
-          </div>
-          
-          {/* En résumé */}
-          <div className="mt-20 text-center">
-            <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-6 transform transition-all duration-700 delay-1000 opacity-100">
-              En résumé
-            </h3>
             
-            <div className="max-w-2xl mx-auto">
-              <div 
-                className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-8 border border-cyan-500/30 shadow-lg opacity-0"
-                style={{ 
-                  animation: 'fadeInUp 0.7s ease-out forwards',
-                  animationDelay: '1.3s'
-                }}
-              >
-                <p className="text-xl text-white leading-relaxed">
-                  Dorry écoute, comprend et synthétise pour toi.<br/>
-                  Il te suffit d'enregistrer ton rendez-vous, Dorry s'occupe du reste.<br/>
-                  <span className="font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Rapide, fiable, sans friction.</span>
-                </p>
+            {/* Feature Details - Right Side */}
+            <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{ animationDelay: '0.3s' }}>
+              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg">
+                {[{
+                  title: "Parlez, Dorry écoute",
+                  description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
+                  icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />
+                }, {
+                  title: "Analyse instantanée par IA",
+                  description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris. L'IA identifie les décisions et les actions à entreprendre avec une précision remarquable.",
+                  icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />
+                }, {
+                  title: "Détection avancée",
+                  description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV. Dorry reste connectée et attentive, même quand l'humain décroche.",
+                  icon: <Search className="w-10 h-10 md:w-12 md:h-12" />
+                }, {
+                  title: "Compte rendu détaillé",
+                  description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
+                  icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
+                }].map((feature, index) => (
+                  <div 
+                    key={index} 
+                    className={`transition-all duration-500 transform ${activeFeature === index ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`}
+                    style={{ display: activeFeature === index ? 'block' : 'none' }}
+                  >
+                    <div className="flex items-center mb-4">
+                      <div className="text-cyan-400 mr-4">
+                        {feature.icon}
+                      </div>
+                      <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                        {feature.title}
+                      </h3>
+                    </div>
+                    <p className="text-lg text-slate-300 leading-relaxed">
+                      {feature.description}
+                    </p>
+                    
+                    {/* Feature navigation */}
+                    <div className="mt-8 flex justify-center space-x-2">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <button
+                          key={i}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`}
+                          onClick={() => setActiveFeature(i)}
+                        ></button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Pourquoi choisir Dorry - Section simplifiée et améliorée */}
+      <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-transparent to-slate-900/50"></div>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+              style={{
+                width: `${Math.random() * 30 + 20}px`,
+                height: `${Math.random() * 30 + 20}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 25 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
+                filter: 'blur(5px)'
+              }}
+            />
+          ))}
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <div className="text-center mb-12 md:mb-16 animate-fadeIn">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Pourquoi choisir Dorry ?
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
+              Des avantages concrets pour votre productivité
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12 md:mb-16">
+            {[{
+              icon: <Clock className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Gagnez un temps précieux",
+              description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste.",
+              delay: 0.1,
+              color: "from-cyan-400 to-blue-500"
+            }, {
+              icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Fiabilité sans faille",
+              description: "Finis les oublis de compte rendu, même après une journée chargée.",
+              delay: 0.2,
+              color: "from-blue-500 to-purple-500"
+            }, {
+              icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Analyse IA intelligente",
+              description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.",
+              delay: 0.3,
+              color: "from-purple-500 to-blue-500"
+            }, {
+              icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
+              title: "Évolutif & innovant",
+              description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés.",
+              delay: 0.4,
+              color: "from-blue-500 to-cyan-400"
+            }].map((benefit, index) => (
+              <div 
+                key={index} 
+                className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp" 
+                style={{ animationDelay: `${benefit.delay}s` }}
+              >
+                <div className={`text-transparent bg-clip-text bg-gradient-to-r ${benefit.color} mb-4 md:mb-6`}>
+                  {benefit.icon}
+                </div>
+                <h3 className={`text-xl md:text-2xl font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r ${benefit.color}`}>
+                  {benefit.title}
+                </h3>
+                <p className="text-slate-300">{benefit.description}</p>
+                
+                {/* Effet de brillance au survol */}
+                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-400/0 via-cyan-400/10 to-blue-500/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Témoignages */}
+          <div className="max-w-4xl mx-auto bg-slate-900/50 backdrop-blur-sm rounded-xl p-8 border border-slate-700/50 shadow-lg overflow-hidden relative animate-fadeIn" style={{ animationDelay: '0.5s' }}>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
+            
+            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+              Ce qu'en disent nos utilisateurs
+            </h3>
+            
+            <div className="relative h-64">
+              {testimonials.map((testimonial, index) => (
+                <div 
+                  key={index}
+                  className={`absolute inset-0 transition-all duration-500 flex flex-col items-center text-center ${currentTestimonial === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}
+                >
+                  <div className="mb-6">
+                    <img 
+                      src={testimonial.avatar} 
+                      alt={testimonial.author} 
+                      className="w-16 h-16 rounded-full border-2 border-cyan-400 mx-auto"
+                    />
+                  </div>
+                  <p className="text-lg text-slate-300 italic mb-4">"{testimonial.text}"</p>
+                  <div>
+                    <p className="font-semibold text-white">{testimonial.author}</p>
+                    <p className="text-sm text-slate-400">{testimonial.position}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-center space-x-2 mt-6">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${currentTestimonial === index ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`}
+                  onClick={() => setCurrentTestimonial(index)}
+                ></button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Enhanced with more animations */}
       <section className="py-16 md:py-32 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 relative overflow-hidden">
-        <FloatingParticles />
+        {/* Particules animées améliorées */}
+        <div className="absolute inset-0 z-0">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
+              style={{
+                width: `${Math.random() * 8 + 2}px`,
+                height: `${Math.random() * 8 + 2}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 15 + 5}s ease-in-out infinite ${Math.random() * 5}s`,
+                filter: 'blur(1px)'
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Vagues animées */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 opacity-30">
+          <svg viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
+            <path 
+              fill="url(#gradient)" 
+              fillOpacity="1" 
+              d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+              style={{ animation: 'wave 15s ease-in-out infinite' }}
+            ></path>
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="100%" stopColor="#3b82f6" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        
         <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-8 max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-8 max-w-4xl mx-auto animate-fadeIn">
             Rejoignez la nouvelle génération d'accompagnateurs augmentés par l'IA !
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0">
+          <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
             L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
           </p>
-          <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
-            Demander l'accès
-          </ConfettiButton>
+          <div className="animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+            <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
+              Demander l'accès
+            </ConfettiButton>
+          </div>
+          
+          {/* Badges */}
+          <div className="mt-12 flex flex-wrap justify-center gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+            {[
+              { text: "IA avancée", color: "from-cyan-400 to-blue-500" },
+              { text: "Sécurisé", color: "from-blue-500 to-purple-500" },
+              { text: "Confidentiel", color: "from-purple-500 to-blue-500" },
+              { text: "Rapide", color: "from-blue-500 to-cyan-400" }
+            ].map((badge, index) => (
+              <div 
+                key={index}
+                className={`px-4 py-2 rounded-full bg-gradient-to-r ${badge.color} text-slate-900 font-semibold text-sm shadow-lg`}
+              >
+                {badge.text}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -606,7 +772,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      <style>{`
+      <style jsx>{`
         .nav-link {
           position: relative;
           font-weight: 500;
@@ -657,6 +823,15 @@ const Landing = () => {
           }
         }
         
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -667,9 +842,74 @@ const Landing = () => {
             transform: translateY(0);
           }
         }
+        
+        @keyframes fadeInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        @keyframes fadeInRight {
+          from {
+            opacity: 0;
+            transform: translateX(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        @keyframes ripple {
+          0% {
+            transform: scale(0.8);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes soundWave {
+          0%, 100% {
+            height: 10px;
+          }
+          50% {
+            height: 40px;
+          }
+        }
+        
+        @keyframes wave {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-out forwards;
+        }
+        
+        .animate-fadeInUp {
+          animation: fadeInUp 1s ease-out forwards;
+        }
+        
+        .animate-fadeInLeft {
+          animation: fadeInLeft 1s ease-out forwards;
+        }
+        
+        .animate-fadeInRight {
+          animation: fadeInRight 1s ease-out forwards;
+        }
       `}</style>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
