@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, FileText, User, FileCheck, BarChart3, FileSpreadsheet, Mail } from 'lucide-react';
 
@@ -54,8 +55,8 @@ export const WorkflowSteps = () => {
         });
       },
       {
-        threshold: 0.2, // L'animation se déclenche quand 20% de la section est visible
-        rootMargin: '-50px 0px -50px 0px' // Marge pour s'assurer que la section est bien visible
+        threshold: 0.2,
+        rootMargin: '-50px 0px -50px 0px'
       }
     );
 
@@ -77,7 +78,7 @@ export const WorkflowSteps = () => {
       if (visibleWorkflowSteps < steps.length) {
         setVisibleWorkflowSteps(prev => prev + 1);
       }
-    }, 300);
+    }, 7000);
 
     return () => clearTimeout(timer);
   }, [visibleWorkflowSteps, steps.length, hasStartedAnimation]);
