@@ -5,6 +5,7 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
+
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,6 +30,7 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
+
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -62,6 +64,7 @@ const Landing = () => {
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
+    
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -425,7 +428,11 @@ const Landing = () => {
                   </div>)}
                 
                 {/* Central connecting element */}
-                
+                <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
+                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                    Dorry
+                  </div>
+                </div>
                 
                 {/* Connecting lines */}
                 {Array.from({
@@ -654,8 +661,8 @@ const Landing = () => {
                 <h4 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-cyan-400">Support</h4>
                 <div className="space-y-3">
                   <a href="/support" className="block text-slate-300 hover:text-cyan-400 transition-colors">Contact</a>
-                  
-                  
+                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">FAQ</a>
+                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">Tutoriels</a>
                 </div>
               </div>
               <div className="text-center md:text-left">
