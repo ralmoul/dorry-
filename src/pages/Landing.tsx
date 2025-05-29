@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { VoiceWaves } from '@/components/ui/VoiceWaves';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
-import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X } from 'lucide-react';
+import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3, FileText2 } from 'lucide-react';
 
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState([]);
+  const workflowStepsRef = useRef([]);
+  
   const testimonials = [{
     text: "Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus.",
     author: "Sophie M.",
@@ -30,10 +33,20 @@ const Landing = () => {
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
+      
+      // Animation des étapes du workflow au scroll
+      if (workflowStepsRef.current.length > 0) {
+        workflowStepsRef.current.forEach((step, index) => {
+          if (step && isElementInViewport(step) && !visibleWorkflowSteps.includes(index)) {
+            setVisibleWorkflowSteps(prev => [...prev, index]);
+          }
+        });
+      }
     };
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [visibleWorkflowSteps]);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,13 +55,25 @@ const Landing = () => {
     return () => clearInterval(interval);
   }, [testimonials.length]);
   
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const heroImage = document.querySelector('.hero-image') as HTMLElement;
+  const handleMouseMove = (e) => {
+    const heroImage = document.querySelector('.hero-image');
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
       const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
       heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     }
+  };
+  
+  // Fonction pour vérifier si un élément est visible dans la fenêtre
+  const isElementInViewport = (el) => {
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
   };
 
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
@@ -295,6 +320,218 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Concrètement à quoi sert Dorry Section */}
+      <section className="py-16 md:py-32 bg-slate-900 relative overflow-hidden">
+        {/* Particules d'arrière-plan animées */}
+        <div className="absolute inset-0 z-0">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Lignes de connexion animées */}
+        <div className="absolute inset-0 z-0 opacity-30"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
+            backgroundSize: '50px 50px',
+            backgroundPosition: '0 0, 25px 25px',
+            animation: 'connectionMove 60s linear infinite'
+          }}
+        ></div>
+        
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          {/* Titre principal avec animation de révélation */}
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent transform transition-all duration-700 opacity-100">
+              Concrètement à quoi sert Dorry ?
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto transform transition-all duration-700 delay-100 opacity-100">
+              L'assistant IA qui transforme tes échanges en synthèse claire et actionnable
+            </p>
+          </div>
+          
+          {/* Description principale */}
+          <div className="mb-16 max-w-4xl mx-auto">
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-700 delay-200 opacity-100 shadow-lg">
+              <p className="text-gray-300 leading-relaxed">
+                Dorry est une intelligence artificielle spécialisée dans le suivi des porteurs de projet, conçue pour les accompagnateurs. Elle automatise la prise de notes, l'analyse de rendez-vous et la génération de comptes-rendus personnalisés, le tout… sans effort humain !
+              </p>
+            </div>
+          </div>
+          
+          {/* Titre de la section workflow */}
+          <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 transform transition-all duration-700 delay-300 opacity-100">
+            Comment ça marche ?
+          </h3>
+          
+          {/* Workflow steps */}
+          <div className="max-w-4xl mx-auto relative">
+            {/* Ligne verticale de connexion */}
+            <div className="absolute top-0 bottom-0 left-8 md:left-10 w-0.5 bg-gradient-to-b from-cyan-400 to-blue-500 z-0"></div>
+            
+            {/* Étapes du workflow */}
+            {[
+              {
+                icon: <Mic className="w-6 h-6" />,
+                title: "Réception d'un enregistrement audio",
+                description: "Tu envoies à Dorry l'enregistrement vocal d'un entretien ou d'un échange avec un porteur de projet."
+              },
+              {
+                icon: <FileText2 className="w-6 h-6" />,
+                title: "Transcription et journalisation",
+                description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données. Elle journalise aussi automatiquement chaque demande pour garantir la traçabilité."
+              },
+              {
+                icon: <User className="w-6 h-6" />,
+                title: "Identification automatique de l'accompagnateur",
+                description: "Dorry reconnaît instantanément l'accompagnateur associé à l'échange grâce à l'ID envoyé, sans erreur ni confusion."
+              },
+              {
+                icon: <FileCheck className="w-6 h-6" />,
+                title: "Extraction intelligente d'informations clés",
+                description: "Grâce à son moteur d'analyse, Dorry extrait automatiquement le nom et les coordonnées du porteur, l'adresse, la date de naissance, le téléphone, et tout autre élément pertinent évoqué pendant la discussion."
+              },
+              {
+                icon: <BarChart3 className="w-6 h-6" />,
+                title: "Analyse sentimentale avancée",
+                description: "Dorry analyse la motivation, la clarté du projet, le niveau d'urgence et les émotions dominantes du porteur. Elle attribue des scores et détecte les besoins d'accompagnement spécifiques."
+              },
+              {
+                icon: <FileSpreadsheet className="w-6 h-6" />,
+                title: "Synthèse structurée et personnalisée",
+                description: "Dorry rédige pour toi un compte-rendu lisible, structuré et directement actionnable, sans jargon technique. Chaque synthèse est ultra-personnalisée, intègre des emojis pour chaque section et respecte tes consignes de présentation."
+              },
+              {
+                icon: <Mail className="w-6 h-6" />,
+                title: "Envoi automatique du compte-rendu par email",
+                description: "Le rapport final est envoyé directement à l'accompagnateur par email (aucune intervention humaine nécessaire !)."
+              }
+            ].map((step, index) => (
+              <div 
+                key={index}
+                ref={el => workflowStepsRef.current[index] = el}
+                className={`relative pl-16 md:pl-20 mb-10 transform transition-all duration-700 ${visibleWorkflowSteps.includes(index) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute left-0 top-0 w-16 md:w-20 h-16 md:h-20 flex items-center justify-center z-10">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-slate-900 shadow-lg">
+                    {step.icon}
+                  </div>
+                </div>
+                <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg">
+                  <h4 className="text-xl font-semibold text-white mb-2">{step.title}</h4>
+                  <p className="text-gray-300">{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Avantages */}
+          <div className="mt-20">
+            <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 transform transition-all duration-700 delay-700 opacity-100">
+              Ce que Dorry change pour toi
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  emoji: "✏️",
+                  title: "Fini les prises de notes manuelles",
+                  description: "Gagne du temps, reste concentré sur la relation humaine."
+                },
+                {
+                  emoji: "🔍",
+                  title: "Zéro oubli",
+                  description: "Tout est capté, synthétisé et archivé automatiquement."
+                },
+                {
+                  emoji: "📊",
+                  title: "Des suivis toujours à jour",
+                  description: "Chaque entretien est traité de façon homogène, avec un scoring objectif."
+                },
+                {
+                  emoji: "📝",
+                  title: "Synthèses professionnelles",
+                  description: "Tu reçois des rapports prêts à exploiter ou à partager, avec des sections claires."
+                }
+              ].map((advantage, index) => (
+                <div 
+                  key={index}
+                  className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform hover:scale-105 transition-all duration-300 shadow-lg opacity-0"
+                  style={{ 
+                    animation: 'fadeInUp 0.7s ease-out forwards',
+                    animationDelay: `${0.8 + index * 0.1}s`
+                  }}
+                >
+                  <div className="text-cyan-400 mb-4 text-3xl">{advantage.emoji}</div>
+                  <h4 className="text-xl font-semibold text-white mb-2">{advantage.title}</h4>
+                  <p className="text-gray-300">{advantage.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Pour qui */}
+          <div className="mt-20">
+            <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 transform transition-all duration-700 delay-900 opacity-100">
+              Dorry, c'est pour qui ?
+            </h3>
+            
+            <div className="max-w-3xl mx-auto">
+              <div 
+                className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg opacity-0"
+                style={{ 
+                  animation: 'fadeInUp 0.7s ease-out forwards',
+                  animationDelay: '1.2s'
+                }}
+              >
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <span className="text-cyan-400 mr-3 text-xl">•</span>
+                    <span className="text-gray-300">Les accompagnateurs de porteurs de projet, incubateurs, coachs entrepreneuriaux…</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-cyan-400 mr-3 text-xl">•</span>
+                    <span className="text-gray-300">Ceux qui veulent automatiser le suivi, professionnaliser la relation et passer moins de temps sur l'administratif.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          {/* En résumé */}
+          <div className="mt-20 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-6 transform transition-all duration-700 delay-1000 opacity-100">
+              En résumé
+            </h3>
+            
+            <div className="max-w-2xl mx-auto">
+              <div 
+                className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-8 border border-cyan-500/30 shadow-lg opacity-0"
+                style={{ 
+                  animation: 'fadeInUp 0.7s ease-out forwards',
+                  animationDelay: '1.3s'
+                }}
+              >
+                <p className="text-xl text-white leading-relaxed">
+                  Dorry écoute, comprend et synthétise pour toi.<br/>
+                  Il te suffit d'enregistrer ton rendez-vous, Dorry s'occupe du reste.<br/>
+                  <span className="font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Rapide, fiable, sans friction.</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 md:py-32 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 relative overflow-hidden">
         <FloatingParticles />
@@ -358,7 +595,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      <style>{`
+      <style jsx>{`
         .nav-link {
           position: relative;
           font-weight: 500;
@@ -384,7 +621,43 @@ const Landing = () => {
         .nav-link:hover {
           color: #00B8D4;
         }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translate(0, 0);
+          }
+          25% {
+            transform: translate(50px, -30px);
+          }
+          50% {
+            transform: translate(20px, 50px);
+          }
+          75% {
+            transform: translate(-30px, 20px);
+          }
+        }
+        
+        @keyframes connectionMove {
+          0% {
+            background-position: 0 0, 25px 25px;
+          }
+          100% {
+            background-position: 1000px 1000px, 1025px 1025px;
+          }
+        }
+        
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
       `}</style>
     </div>;
 };
 export default Landing;
+
