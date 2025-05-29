@@ -1,8 +1,12 @@
-import { supabase } from '@/integrations/supabase/client';
+
 import { User } from '@/types/auth';
+import { WEBHOOK_URL, AUDIO_LIMITS } from './webhook/constants';
+import { detectPlatform, getApplicationId } from './webhook/platformDetection';
+import { processAudioBlob, createFileName, createBackupDownload } from './webhook/audioFormatHandler';
+import { validateUser, validateWebhookUrl, validateAudioFile } from './webhook/validation';
+import { buildFormData } from './webhook/formDataBuilder';
 
-const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
-
+// Interface pour les données webhook (legacy - à supprimer dans une future version)
 interface WebhookData {
   audioBlob: Blob;
   duration: number;
@@ -14,6 +18,7 @@ interface WebhookData {
   timestamp: string;
 }
 
+// Fonction legacy pour compatibilité (à supprimer dans une future version)
 export const sendToWebhook = async (data: WebhookData): Promise<boolean> => {
   try {
     console.log('📡 Envoi vers webhook avec:', {
@@ -23,7 +28,6 @@ export const sendToWebhook = async (data: WebhookData): Promise<boolean> => {
       timestamp: data.timestamp
     });
 
-    // Déterminer l'extension basée sur le type MIME
     const mimeType = data.audioBlob.type;
     const extension = mimeType.includes('ogg') ? 'ogg' : 
                     mimeType.includes('webm') ? 'webm' : 
@@ -31,7 +35,6 @@ export const sendToWebhook = async (data: WebhookData): Promise<boolean> => {
 
     console.log(`🎵 Format audio détecté: ${mimeType}, extension: ${extension}`);
 
-    // Créer le FormData
     const formData = new FormData();
     formData.append('audio', data.audioBlob, `recording.${extension}`);
     formData.append('duration', data.duration.toString());
@@ -62,175 +65,59 @@ export const sendToWebhook = async (data: WebhookData): Promise<boolean> => {
   }
 };
 
-// Fonction pour extraire l'ID de l'application depuis l'URL
-const getApplicationId = (): string => {
-  try {
-    // L'URL Lovable a le format: https://{app-id}.lovableproject.com
-    const hostname = window.location.hostname;
-    if (hostname.includes('lovableproject.com')) {
-      const appId = hostname.split('.')[0];
-      console.log('🆔 [WEBHOOK] ID Application détecté:', appId);
-      return appId;
-    }
-    
-    // Fallback pour les URLs localhost ou autres
-    console.log('🆔 [WEBHOOK] URL locale détectée, utilisation de l\'ID par défaut');
-    return 'localhost-dev';
-  } catch (error) {
-    console.error('❌ [WEBHOOK] Erreur lors de l\'extraction de l\'ID app:', error);
-    return 'unknown-app';
-  }
-};
-
 export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => {
   console.log('🚀 [WEBHOOK] DÉBUT - URL utilisée:', WEBHOOK_URL);
   console.log('🚀 [WEBHOOK] DÉBUT - Taille audio:', audioBlob.size, 'bytes');
   console.log('🚀 [WEBHOOK] DÉBUT - Type audio original:', audioBlob.type);
   console.log('🚀 [WEBHOOK] DÉBUT - Utilisateur:', user?.email || 'non connecté');
   
-  // Vérifier que l'utilisateur est connecté
-  if (!user) {
-    console.error('❌ [WEBHOOK] ERREUR: Utilisateur non connecté!');
-    throw new Error('Vous devez être connecté pour envoyer un enregistrement');
-  }
+  // Validations
+  validateUser(user);
+  validateWebhookUrl();
+  validateAudioFile(audioBlob);
   
-  // Obtenir l'ID de l'application
+  // Détection de la plateforme
+  const platformInfo = detectPlatform();
+  console.log('📱 [WEBHOOK] Plateforme détectée:', platformInfo.platform);
+  
+  // Obtenir les identifiants
   const applicationId = getApplicationId();
+  const propertyId = user!.id;
   console.log('🆔 [WEBHOOK] ID de l\'application:', applicationId);
-  
-  // Utiliser l'ID de l'utilisateur connecté comme property_id
-  const propertyId = user.id;
   console.log('🆔 [WEBHOOK] Property ID:', propertyId);
-  console.log('👤 [WEBHOOK] Utilisateur connecté:', user.email);
-  
-  // Détection de la plateforme pour logging
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent) || 
-                   ('ontouchstart' in window) || 
-                   (navigator.maxTouchPoints > 0);
-  
-  const platform = isIOS ? 'iOS' : isAndroid ? 'Android' : isMobile ? 'Mobile' : 'Desktop';
-  console.log('📱 [WEBHOOK] Plateforme détectée:', platform);
-  
-  // Vérification stricte de l'URL
-  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2') {
-    console.error('❌ [WEBHOOK] ERREUR CRITIQUE: URL incorrecte!');
-    throw new Error('URL webhook incorrecte');
-  }
-  
-  // Vérification de la taille du fichier
-  if (audioBlob.size === 0) {
-    console.error('❌ [WEBHOOK] ERREUR: Fichier audio vide!');
-    throw new Error('Fichier audio vide - problème d\'enregistrement');
-  }
-  
-  if (audioBlob.size > 25 * 1024 * 1024) { // 25MB limit
-    console.error('❌ [WEBHOOK] ERREUR: Fichier trop volumineux:', audioBlob.size, 'bytes');
-    throw new Error('Fichier audio trop volumineux (max 25MB)');
-  }
-  
-  console.log('✅ [WEBHOOK] Taille du fichier validée');
+  console.log('👤 [WEBHOOK] Utilisateur connecté:', user!.email);
   
   try {
-    // Gestion intelligente du format selon la plateforme
-    let finalAudioBlob = audioBlob;
-    let fileExtension = 'ogg';
-    let finalMimeType = 'audio/ogg;codecs=opus';
+    // Traitement du format audio
+    const { finalAudioBlob, fileExtension, finalMimeType } = processAudioBlob(audioBlob, platformInfo);
     
-    // Adaptation du format selon la plateforme d'origine
-    if (isIOS) {
-      // iOS produit souvent du MP4/AAC
-      if (audioBlob.type.includes('mp4') || audioBlob.type.includes('aac')) {
-        fileExtension = 'mp4';
-        finalMimeType = audioBlob.type || 'audio/mp4';
-        console.log('🍎 [WEBHOOK] Conservation du format iOS natif:', finalMimeType);
-      } else {
-        // Force vers OGG pour compatibilité avec le backend
-        finalAudioBlob = new Blob([audioBlob], { type: 'audio/ogg;codecs=opus' });
-        console.log('🍎 [WEBHOOK] Conversion iOS vers OGG/Opus');
-      }
-    } else if (isAndroid) {
-      // Android produit généralement du WebM/Opus ou OGG
-      if (audioBlob.type.includes('webm')) {
-        fileExtension = 'webm';
-        finalMimeType = audioBlob.type || 'audio/webm;codecs=opus';
-        console.log('🤖 [WEBHOOK] Conservation du format Android natif:', finalMimeType);
-      } else if (audioBlob.type.includes('ogg')) {
-        fileExtension = 'ogg';
-        finalMimeType = audioBlob.type || 'audio/ogg;codecs=opus';
-        console.log('🤖 [WEBHOOK] Conservation du format Android OGG:', finalMimeType);
-      } else {
-        // Force vers WebM pour Android
-        finalAudioBlob = new Blob([audioBlob], { type: 'audio/webm;codecs=opus' });
-        fileExtension = 'webm';
-        finalMimeType = 'audio/webm;codecs=opus';
-        console.log('🤖 [WEBHOOK] Conversion Android vers WebM/Opus');
-      }
-    } else {
-      // Desktop - force OGG/Opus comme demandé
-      if (!audioBlob.type.includes('ogg')) {
-        finalAudioBlob = new Blob([audioBlob], { type: 'audio/ogg;codecs=opus' });
-        console.log('💻 [WEBHOOK] Conversion Desktop vers OGG/Opus');
-      } else {
-        finalMimeType = audioBlob.type;
-        console.log('💻 [WEBHOOK] Conservation du format Desktop OGG');
-      }
-    }
-    
-    console.log('🎙️ [WEBHOOK] Format final:', {
-      mimeType: finalMimeType,
-      extension: fileExtension,
-      size: finalAudioBlob.size,
-      platform
-    });
-    
-    const formData = new FormData();
-    
-    // Créer un nom de fichier avec la bonne extension
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `recording_${platform.toLowerCase()}_${propertyId}_${Date.now()}.${fileExtension}`;
-    
+    // Création du nom de fichier
+    const fileName = createFileName(platformInfo.platform, propertyId, fileExtension);
     console.log('📝 [WEBHOOK] Nom du fichier:', fileName);
     
-    // Ajouter tous les champs au FormData avec property_id
-    formData.append('audio', finalAudioBlob, fileName);
-    formData.append('applicationId', applicationId);
-    formData.append('property_id', propertyId);
-    formData.append('userEmail', user.email);
-    formData.append('userFirstName', user.firstName);
-    formData.append('userLastName', user.lastName);
-    formData.append('userCompany', user.company);
-    formData.append('userType', 'authenticated');
-    formData.append('timestamp', timestamp);
-    formData.append('audioSize', finalAudioBlob.size.toString());
-    formData.append('audioType', finalMimeType);
-    formData.append('audioFormat', fileExtension);
-    formData.append('platform', platform);
-    formData.append('originalType', audioBlob.type || 'unknown');
-    formData.append('userAgent', navigator.userAgent);
-
-    console.log('📦 [WEBHOOK] FormData préparé avec property_id:', {
-      applicationId,
-      property_id: propertyId,
-      userType: 'authenticated',
+    // Construction du FormData
+    const formData = buildFormData(
+      finalAudioBlob,
       fileName,
-      audioSize: finalAudioBlob.size,
-      audioType: finalMimeType,
-      audioFormat: fileExtension,
-      platform,
-      originalType: audioBlob.type,
-      userEmail: user.email
-    });
+      applicationId,
+      propertyId,
+      user!,
+      platformInfo.platform,
+      finalMimeType,
+      fileExtension,
+      audioBlob.type || 'unknown'
+    );
 
     console.log('🌐 [WEBHOOK] ENVOI vers:', WEBHOOK_URL);
     
+    // Configuration du timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       console.log('⏰ [WEBHOOK] TIMEOUT après 30 secondes');
       controller.abort();
-    }, 30000);
+    }, AUDIO_LIMITS.TIMEOUT);
 
+    // Envoi de la requête
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       body: formData,
@@ -264,7 +151,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       }
       
       console.log('✅ [WEBHOOK] SUCCÈS - Transmission réussie!', {
-        platform,
+        platform: platformInfo.platform,
         format: finalMimeType,
         size: finalAudioBlob.size,
         applicationId,
@@ -273,11 +160,11 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       
       return { 
         success: true, 
-        message: `Message vocal ${platform} transmis avec succès vers N8N`,
+        message: `Message vocal ${platformInfo.platform} transmis avec succès vers N8N`,
         response: responseData,
         url: WEBHOOK_URL,
         format: finalMimeType,
-        platform,
+        platform: platformInfo.platform,
         applicationId,
         property_id: propertyId
       };
@@ -285,7 +172,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       console.error('❌ [WEBHOOK] ERREUR HTTP:', {
         status: response.status,
         statusText: response.statusText,
-        platform,
+        platform: platformInfo.platform,
         applicationId,
         property_id: propertyId
       });
@@ -302,7 +189,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     }
   } catch (error) {
     console.error('💥 [WEBHOOK] ERREUR CRITIQUE:', {
-      platform,
+      platform: platformInfo.platform,
       originalType: audioBlob.type,
       size: audioBlob.size,
       applicationId,
@@ -310,39 +197,25 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       error: error instanceof Error ? error.message : String(error)
     });
     
-    let errorMessage = `Transmission impossible vers N8N depuis ${platform}.`;
+    let errorMessage = `Transmission impossible vers N8N depuis ${platformInfo.platform}.`;
     
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        errorMessage = `Timeout: La transmission ${platform} vers N8N a pris trop de temps.`;
+        errorMessage = `Timeout: La transmission ${platformInfo.platform} vers N8N a pris trop de temps.`;
       } else if (error.message.includes('Failed to fetch')) {
-        errorMessage = `Erreur de connexion ${platform} vers N8N. Vérifiez votre connexion internet.`;
+        errorMessage = `Erreur de connexion ${platformInfo.platform} vers N8N. Vérifiez votre connexion internet.`;
       } else if (error.message.includes('NetworkError')) {
-        errorMessage = `Erreur réseau ${platform}. Le serveur N8N n'est peut-être pas accessible.`;
+        errorMessage = `Erreur réseau ${platformInfo.platform}. Le serveur N8N n'est peut-être pas accessible.`;
       } else {
-        errorMessage = `Erreur N8N ${platform}: ${error.message}`;
+        errorMessage = `Erreur N8N ${platformInfo.platform}: ${error.message}`;
       }
     }
 
     // Sauvegarder localement en cas d'échec
-    try {
-      const localFileExtension = audioBlob.type.includes('ogg') ? 'ogg' : 
-                                 audioBlob.type.includes('webm') ? 'webm' : 
-                                 audioBlob.type.includes('mp4') ? 'mp4' : 'wav';
-      
-      const audioUrl = URL.createObjectURL(audioBlob);
-      console.log('💾 [WEBHOOK] Audio sauvegardé localement pour', platform, '- URL:', audioUrl);
-      
-      const a = document.createElement('a');
-      a.href = audioUrl;
-      a.download = `recording_backup_${platform.toLowerCase()}_${propertyId}_${Date.now()}.${localFileExtension}`;
-      console.log('⬇️ [WEBHOOK] Lien de téléchargement créé:', a.download);
-    } catch (saveError) {
-      console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
-    }
+    createBackupDownload(audioBlob, platformInfo.platform, propertyId);
 
     throw new Error(errorMessage);
   } finally {
-    console.log('🏁 [WEBHOOK] Processus terminé pour:', platform, 'vers', WEBHOOK_URL, 'avec property_id:', propertyId);
+    console.log('🏁 [WEBHOOK] Processus terminé pour:', platformInfo.platform, 'vers', WEBHOOK_URL, 'avec property_id:', propertyId);
   }
 };
