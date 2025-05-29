@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,6 +32,10 @@ const Index = () => {
     navigate('/upcoming-features');
   };
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   // Function to capitalize first letter
   const capitalizeFirstLetter = (str: string) => {
     if (!str) return '';
@@ -57,7 +62,12 @@ const Index = () => {
       {/* Header */}
       <header className="relative z-10 flex justify-between items-center p-4 md:p-6">
         <div className="flex items-center space-x-3">
-          <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-8 h-8 md:w-10 md:h-10" />
+          <img 
+            src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" 
+            alt="Dorry Logo" 
+            className="w-8 h-8 md:w-10 md:h-10 cursor-pointer hover:opacity-80 transition-opacity" 
+            onClick={handleLogoClick}
+          />
           
         </div>
         
