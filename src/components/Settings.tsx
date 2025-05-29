@@ -11,6 +11,8 @@ interface SettingsProps {
 export const Settings = ({ onBack }: SettingsProps) => {
   const { user, logout } = useAuth();
 
+  console.log('⚙️ [SETTINGS] User data:', user);
+
   return (
     <div className="min-h-screen gradient-bg p-6">
       {/* Header */}
@@ -35,32 +37,40 @@ export const Settings = ({ onBack }: SettingsProps) => {
             <CardDescription>Vos informations personnelles</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Prénom</p>
-                <p className="font-medium">{user?.firstName}</p>
+            {user ? (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Prénom</p>
+                    <p className="font-medium text-white">{user.firstName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nom</p>
+                    <p className="font-medium text-white">{user.lastName}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium text-white">{user.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Téléphone</p>
+                  <p className="font-medium text-white">{user.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Entreprise</p>
+                  <p className="font-medium text-white">{user.company}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Property ID</p>
+                  <p className="font-mono text-xs bg-background/50 p-2 rounded text-white">{user.id}</p>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-muted-foreground">Aucune information utilisateur disponible</p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Nom</p>
-                <p className="font-medium">{user?.lastName}</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{user?.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Téléphone</p>
-              <p className="font-medium">{user?.phone}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Entreprise</p>
-              <p className="font-medium">{user?.company}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">ID utilisateur</p>
-              <p className="font-mono text-xs bg-background/50 p-2 rounded">{user?.id}</p>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -73,7 +83,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground">URL de transmission</p>
-              <p className="font-mono text-xs bg-background/50 p-2 rounded break-all">
+              <p className="font-mono text-xs bg-background/50 p-2 rounded break-all text-white">
                 https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -85,12 +95,12 @@ export const Settings = ({ onBack }: SettingsProps) => {
             
             <div>
               <p className="text-sm text-muted-foreground">Qualité audio</p>
-              <p className="font-medium">Haute qualité (44.1 kHz)</p>
+              <p className="font-medium text-white">Haute qualité (44.1 kHz)</p>
             </div>
             
             <div>
               <p className="text-sm text-muted-foreground">Format d'enregistrement</p>
-              <p className="font-medium">WebM avec codec Opus</p>
+              <p className="font-medium text-white">WebM avec codec Opus</p>
             </div>
           </CardContent>
         </Card>

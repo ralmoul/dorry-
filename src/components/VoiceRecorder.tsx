@@ -30,6 +30,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
+
+  console.log('🎤 [VOICE_RECORDER] Current user:', user);
   
   // Simule l'animation des ondes vocales
   useEffect(() => {
