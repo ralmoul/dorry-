@@ -1,40 +1,32 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Shield, Mic } from 'lucide-react';
-
 interface ConsentModalProps {
   isOpen: boolean;
   onConsentGiven: () => void;
   onConsentRefused: () => void;
 }
-
 export const ConsentModal: React.FC<ConsentModalProps> = ({
   isOpen,
   onConsentGiven,
   onConsentRefused
 }) => {
   const [isChecked, setIsChecked] = useState(false);
-
   const handleConsent = () => {
     if (isChecked) {
       onConsentGiven();
     }
   };
-
   const handleRefuse = () => {
     setIsChecked(false);
     onConsentRefused();
   };
-
   const handleCheckboxChange = (checked: boolean | "indeterminate") => {
     setIsChecked(checked === true);
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+  return <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white">
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
@@ -49,10 +41,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
 
         <div className="space-y-6 py-4">
           <div className="text-center space-y-3">
-            <p className="text-slate-300 leading-relaxed">
-              Pour vous offrir le meilleur service, Dorry doit enregistrer et analyser votre message vocal. 
-              Ces enregistrements servent uniquement à traiter votre demande et améliorer l'expérience utilisateur.
-            </p>
+            <p className="text-slate-300 leading-relaxed">Avertir le porteur de projet que, pour offrir le meilleur service, Dorry doit enregistrer et analyser votre message vocal. Ces enregistrements servent uniquement à traiter votre demande et améliorer l'expérience utilisateur.</p>
             <p className="text-slate-300 text-sm">
               Conformément au RGPD, vous êtes libre d'accepter ou de refuser.
             </p>
@@ -60,22 +49,10 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
 
           <div className="bg-slate-800/50 rounded-lg p-4 border border-cyan-400/20">
             <div className="flex items-start space-x-3">
-              <Checkbox
-                id="consent-checkbox"
-                checked={isChecked}
-                onCheckedChange={handleCheckboxChange}
-                className="mt-1 border-cyan-400 data-[state=checked]:bg-cyan-400 data-[state=checked]:text-slate-900"
-              />
-              <label 
-                htmlFor="consent-checkbox" 
-                className="text-sm text-slate-300 leading-relaxed cursor-pointer flex-1"
-              >
+              <Checkbox id="consent-checkbox" checked={isChecked} onCheckedChange={handleCheckboxChange} className="mt-1 border-cyan-400 data-[state=checked]:bg-cyan-400 data-[state=checked]:text-slate-900" />
+              <label htmlFor="consent-checkbox" className="text-sm text-slate-300 leading-relaxed cursor-pointer flex-1">
                 J'accepte que mon message soit enregistré et traité selon la{' '}
-                <a 
-                  href="/privacy-policy" 
-                  target="_blank"
-                  className="text-cyan-400 hover:text-cyan-300 underline"
-                >
+                <a href="/privacy-policy" target="_blank" className="text-cyan-400 hover:text-cyan-300 underline">
                   politique de confidentialité
                 </a>.
               </label>
@@ -83,24 +60,12 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
           </div>
 
           <div className="flex flex-col space-y-3">
-            <Button
-              onClick={handleConsent}
-              disabled={!isChecked}
-              className={`w-full py-3 rounded-lg font-medium transition-all duration-300 ${
-                isChecked 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white' 
-                  : 'bg-slate-700 text-slate-400 cursor-not-allowed'
-              }`}
-            >
+            <Button onClick={handleConsent} disabled={!isChecked} className={`w-full py-3 rounded-lg font-medium transition-all duration-300 ${isChecked ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white' : 'bg-slate-700 text-slate-400 cursor-not-allowed'}`}>
               <Mic className="w-4 h-4 mr-2" />
               Je donne mon consentement
             </Button>
             
-            <Button
-              variant="outline"
-              onClick={handleRefuse}
-              className="w-full py-2 border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
+            <Button variant="outline" onClick={handleRefuse} className="w-full py-2 border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white">
               Refuser
             </Button>
           </div>
@@ -110,6 +75,5 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
           </p>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
