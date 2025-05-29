@@ -89,15 +89,18 @@ const Index = () => {
         
         <div className="max-w-4xl mx-auto">
           {showSettings ? (
-            <Settings onClose={() => setShowSettings(false)} />
+            <Settings onBack={() => setShowSettings(false)} />
           ) : (
-            <VoiceRecorder />
+            <VoiceRecorder 
+              onOpenSettings={() => setShowSettings(true)}
+              onOpenUpcomingFeatures={() => window.location.href = '/upcoming-features'}
+            />
           )}
         </div>
       </main>
 
       {/* Styles pour l'animation float */}
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% {
             transform: translate(0, 0);
