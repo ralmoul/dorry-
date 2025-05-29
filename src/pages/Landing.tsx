@@ -655,7 +655,7 @@ const Landing = () => {
                 <div className="space-y-3">
                   <a href="/support" className="block text-slate-300 hover:text-cyan-400 transition-colors">Contact</a>
                   <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">FAQ</a>
-                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">Tutoriels</a>
+                  
                 </div>
               </div>
               <div className="text-center md:text-left">
