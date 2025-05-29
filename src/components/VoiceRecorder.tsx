@@ -21,6 +21,8 @@ interface Recording {
   date: Date;
   duration: number;
   blob?: Blob;
+  blobData?: string; // base64 encoded blob data
+  blobType?: string; // mime type of the blob
   userId: string;
 }
 
@@ -104,14 +106,52 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     setRecordingConfirmedCallback(handleNewRecording);
   }, [setRecordingConfirmedCallback, user?.id]);
 
-  const loadUserRecordings = () => {
+  // Convert blob to base64 for storage
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1]); // Remove data:mime;base64, prefix
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  // Convert base64 back to blob
+  const base64ToBlob = (base64: string, type: string): Blob => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type });
+  };
+
+  const loadUserRecordings = async () => {
     const savedRecordings = localStorage.getItem(`dorry_recordings_${user?.id}`);
     if (savedRecordings) {
       try {
         const parsed = JSON.parse(savedRecordings);
-        const recordingsWithDates = parsed.map((rec: any) => ({
-          ...rec,
-          date: new Date(rec.date)
+        const recordingsWithDates = await Promise.all(parsed.map(async (rec: any) => {
+          const recording: Recording = {
+            ...rec,
+            date: new Date(rec.date)
+          };
+
+          // Reconstitute blob from base64 if available
+          if (rec.blobData && rec.blobType) {
+            try {
+              recording.blob = base64ToBlob(rec.blobData, rec.blobType);
+              console.log('🔄 [VOICE_RECORDER] Blob reconstitué pour:', rec.id, 'taille:', recording.blob.size);
+            } catch (error) {
+              console.error('❌ [VOICE_RECORDER] Erreur lors de la reconstitution du blob:', error);
+            }
+          }
+
+          return recording;
         }));
         
         // Filter recordings from the last 7 days and sort by date
@@ -127,14 +167,39 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const saveUserRecordings = (recs: Recording[]) => {
+  const saveUserRecordings = async (recs: Recording[]) => {
     if (user?.id) {
       console.log('💾 [VOICE_RECORDER] Sauvegarde de', recs.length, 'enregistrements');
-      localStorage.setItem(`dorry_recordings_${user.id}`, JSON.stringify(recs));
+      
+      // Convert blobs to base64 for storage
+      const recordingsForStorage = await Promise.all(recs.map(async (rec) => {
+        const recordingForStorage: any = {
+          id: rec.id,
+          name: rec.name,
+          date: rec.date,
+          duration: rec.duration,
+          userId: rec.userId
+        };
+
+        // Convert blob to base64 if it exists
+        if (rec.blob && rec.blob instanceof Blob && rec.blob.size > 0) {
+          try {
+            recordingForStorage.blobData = await blobToBase64(rec.blob);
+            recordingForStorage.blobType = rec.blob.type;
+            console.log('💾 [VOICE_RECORDER] Blob sauvegardé pour:', rec.id, 'type:', rec.blob.type, 'taille:', rec.blob.size);
+          } catch (error) {
+            console.error('❌ [VOICE_RECORDER] Erreur lors de la conversion du blob:', error);
+          }
+        }
+
+        return recordingForStorage;
+      }));
+
+      localStorage.setItem(`dorry_recordings_${user.id}`, JSON.stringify(recordingsForStorage));
     }
   };
 
-  const addNewRecording = (blob: Blob, duration: number) => {
+  const addNewRecording = async (blob: Blob, duration: number) => {
     if (!user?.id) {
       console.error('❌ [VOICE_RECORDER] Pas d\'utilisateur connecté');
       return;
@@ -151,7 +216,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       name: '',
       date: new Date(),
       duration,
-      blob, // Seulement les nouveaux enregistrements auront un blob
+      blob,
       userId: user.id
     };
 
@@ -368,11 +433,32 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    console.log('🔄 [VOICE_RECORDER] Tentative de renvoi:', {
+    // Vérification complète du blob
+    if (!(recording.blob instanceof Blob)) {
+      console.error('❌ [VOICE_RECORDER] Objet blob invalide:', typeof recording.blob);
+      toast({
+        title: "Erreur",
+        description: "L'enregistrement n'est pas un blob valide.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (recording.blob.size === 0) {
+      console.error('❌ [VOICE_RECORDER] Blob vide');
+      toast({
+        title: "Erreur",
+        description: "L'enregistrement est vide.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('🔄 [VOICE_RECORDER] Renvoi validé:', {
       id: recording.id,
-      hasBlob: !!recording.blob,
-      blobType: recording.blob?.constructor?.name,
-      blobSize: recording.blob?.size
+      blobType: recording.blob.constructor.name,
+      blobSize: recording.blob.size,
+      mimeType: recording.blob.type
     });
 
     setResendingId(recording.id);
