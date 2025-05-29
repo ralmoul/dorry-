@@ -140,16 +140,22 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
+    // Vérification que le blob est valide avant de sauvegarder
+    if (!blob || !(blob instanceof Blob) || blob.size === 0) {
+      console.error('❌ [VOICE_RECORDER] Blob invalide, enregistrement non sauvegardé');
+      return;
+    }
+
     const newRecording: Recording = {
       id: Date.now().toString(),
       name: '',
       date: new Date(),
       duration,
-      blob,
+      blob, // Seulement les nouveaux enregistrements auront un blob
       userId: user.id
     };
 
-    console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id);
+    console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id, 'avec blob de taille:', blob.size);
 
     setRecordings(prev => {
       // Add new recording at the beginning (most recent first)
@@ -356,7 +362,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     if (!recording.blob) {
       toast({
         title: "Erreur",
-        description: "Enregistrement non disponible pour le renvoi",
+        description: "Enregistrement non disponible pour le renvoi. Les anciens enregistrements ne peuvent pas être renvoyés.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Vérification supplémentaire pour s'assurer que le blob est valide
+    if (!(recording.blob instanceof Blob) || recording.blob.size === 0) {
+      toast({
+        title: "Erreur",
+        description: "L'enregistrement est corrompu et ne peut pas être renvoyé.",
         variant: "destructive"
       });
       return;
@@ -706,20 +722,23 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                 {/* Action buttons */}
                                 {editingId !== recording.id && (
                                   <div className="flex gap-1 flex-shrink-0">
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => handleResend(recording)}
-                                      disabled={resendingId === recording.id}
-                                      className="text-cyan-400 hover:bg-cyan-400/10 w-8 h-8 disabled:opacity-50"
-                                      title="Renvoyer vers l'IA"
-                                    >
-                                      {resendingId === recording.id ? (
-                                        <RefreshCw className="w-3 h-3 animate-spin" />
-                                      ) : (
-                                        <Send className="w-3 h-3" />
-                                      )}
-                                    </Button>
+                                    {/* Bouton de renvoi - seulement visible si le blob existe */}
+                                    {recording.blob && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleResend(recording)}
+                                        disabled={resendingId === recording.id}
+                                        className="text-cyan-400 hover:bg-cyan-400/10 w-8 h-8 disabled:opacity-50"
+                                        title="Renvoyer vers l'IA"
+                                      >
+                                        {resendingId === recording.id ? (
+                                          <RefreshCw className="w-3 h-3 animate-spin" />
+                                        ) : (
+                                          <Send className="w-3 h-3" />
+                                        )}
+                                      </Button>
+                                    )}
                                     <Button
                                       variant="ghost"
                                       size="icon"
