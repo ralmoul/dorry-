@@ -42,7 +42,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white">
+      <DialogContent className="w-[90vw] max-w-md mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white rounded-2xl">
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center">
