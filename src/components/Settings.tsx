@@ -9,9 +9,9 @@ interface SettingsProps {
 }
 
 export const Settings = ({ onBack }: SettingsProps) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
 
-  console.log('⚙️ [SETTINGS] User data:', user);
+  console.log('⚙️ [SETTINGS] Auth state:', { isAuthenticated, user });
 
   return (
     <div className="min-h-screen gradient-bg p-6">
@@ -37,7 +37,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
             <CardDescription>Vos informations personnelles</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {user ? (
+            {isAuthenticated && user ? (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -69,6 +69,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
             ) : (
               <div className="text-center py-4">
                 <p className="text-muted-foreground">Aucune information utilisateur disponible</p>
+                <p className="text-sm text-muted-foreground mt-2">Veuillez vous connecter pour voir vos informations</p>
               </div>
             )}
           </CardContent>
@@ -112,13 +113,25 @@ export const Settings = ({ onBack }: SettingsProps) => {
             <CardDescription>Gérer votre session</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button
-              onClick={logout}
-              variant="destructive"
-              className="w-full"
-            >
-              Se déconnecter
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                onClick={logout}
+                variant="destructive"
+                className="w-full"
+              >
+                Se déconnecter
+              </Button>
+            ) : (
+              <div className="text-center">
+                <p className="text-muted-foreground mb-4">Vous n'êtes pas connecté</p>
+                <Button
+                  onClick={() => window.location.href = '/login'}
+                  className="w-full"
+                >
+                  Se connecter
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

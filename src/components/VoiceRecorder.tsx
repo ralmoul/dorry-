@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
@@ -14,7 +13,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onOpenSettings,
   onOpenUpcomingFeatures,
 }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const {
     isRecording,
     isProcessing,
@@ -31,7 +30,10 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
 
-  console.log('🎤 [VOICE_RECORDER] Current user:', user);
+  console.log('🎤 [VOICE_RECORDER] Auth state:', { 
+    isAuthenticated, 
+    user: user ? { id: user.id, firstName: user.firstName } : null 
+  });
   
   // Simule l'animation des ondes vocales
   useEffect(() => {
@@ -63,6 +65,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     } else {
       startRecording();
     }
+  };
+  
+  // Determine what to display for the user greeting
+  const getUserGreeting = () => {
+    if (isAuthenticated && user?.firstName) {
+      return `Bonjour, ${user.firstName}`;
+    }
+    return 'Bonjour, Utilisateur';
   };
   
   return (
@@ -110,7 +120,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 Dorry
               </h1>
               <span className="ml-3 sm:ml-4 text-sm sm:text-base text-white">
-                Bonjour, {user?.firstName || 'Utilisateur'}
+                {getUserGreeting()}
               </span>
             </div>
             <div className="flex items-center space-x-3 sm:space-x-4">
