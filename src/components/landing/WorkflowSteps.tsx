@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, FileText, User, FileCheck, BarChart3, FileSpreadsheet, Mail } from 'lucide-react';
 
@@ -77,7 +78,7 @@ export const WorkflowSteps = () => {
       if (visibleWorkflowSteps < steps.length) {
         setVisibleWorkflowSteps(prev => prev + 1);
       }
-    }, 300);
+    }, 800); // Délai augmenté de 300ms à 800ms
 
     return () => clearTimeout(timer);
   }, [visibleWorkflowSteps, steps.length, hasStartedAnimation]);
