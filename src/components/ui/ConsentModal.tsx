@@ -29,6 +29,10 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
     onConsentRefused();
   };
 
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    setIsChecked(checked === true);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white">
@@ -59,7 +63,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
               <Checkbox
                 id="consent-checkbox"
                 checked={isChecked}
-                onCheckedChange={setIsChecked}
+                onCheckedChange={handleCheckboxChange}
                 className="mt-1 border-cyan-400 data-[state=checked]:bg-cyan-400 data-[state=checked]:text-slate-900"
               />
               <label 
