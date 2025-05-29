@@ -121,13 +121,27 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   // Convert base64 back to blob
   const base64ToBlob = (base64: string, type: string): Blob => {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    try {
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type });
+      
+      console.log('🔄 [VOICE_RECORDER] Blob reconstitué:', {
+        size: blob.size,
+        type: blob.type,
+        isBlob: blob instanceof Blob,
+        constructor: blob.constructor.name
+      });
+      
+      return blob;
+    } catch (error) {
+      console.error('❌ [VOICE_RECORDER] Erreur lors de la reconstitution du blob:', error);
+      throw error;
     }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type });
   };
 
   const loadUserRecordings = async () => {
@@ -144,10 +158,21 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           // Reconstitute blob from base64 if available
           if (rec.blobData && rec.blobType) {
             try {
-              recording.blob = base64ToBlob(rec.blobData, rec.blobType);
-              console.log('🔄 [VOICE_RECORDER] Blob reconstitué pour:', rec.id, 'taille:', recording.blob.size);
+              // Vérification des données avant reconstitution
+              if (typeof rec.blobData === 'string' && rec.blobData.length > 0) {
+                recording.blob = base64ToBlob(rec.blobData, rec.blobType);
+                console.log('✅ [VOICE_RECORDER] Blob reconstitué pour:', rec.id, {
+                  originalSize: rec.blobData.length,
+                  finalSize: recording.blob.size,
+                  type: recording.blob.type,
+                  isValidBlob: recording.blob instanceof Blob
+                });
+              } else {
+                console.warn('⚠️ [VOICE_RECORDER] Données blob invalides pour:', rec.id);
+              }
             } catch (error) {
-              console.error('❌ [VOICE_RECORDER] Erreur lors de la reconstitution du blob:', error);
+              console.error('❌ [VOICE_RECORDER] Erreur lors de la reconstitution du blob pour', rec.id, ':', error);
+              // On continue sans le blob
             }
           }
 
@@ -425,12 +450,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const handleResend = async (recording: Recording) => {
     console.log('🔄 [VOICE_RECORDER] Tentative de renvoi pour:', recording.id);
-    console.log('📊 [VOICE_RECORDER] Recording object:', {
+    console.log('📊 [VOICE_RECORDER] Recording object détaillé:', {
       id: recording.id,
       hasBlob: !!recording.blob,
       blobType: recording.blob?.constructor?.name,
       blobSize: recording.blob?.size,
-      mimeType: recording.blob?.type
+      mimeType: recording.blob?.type,
+      isBlob: recording.blob instanceof Blob,
+      blobToString: recording.blob?.toString()
     });
 
     if (!recording.blob) {
@@ -443,9 +470,13 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Vérification que c'est bien un Blob
-    if (!(recording.blob instanceof Blob)) {
-      console.error('❌ [VOICE_RECORDER] L\'objet n\'est pas un Blob valide:', typeof recording.blob);
+    // Vérification stricte que c'est bien un Blob natif
+    if (!(recording.blob instanceof Blob) || recording.blob.constructor.name !== 'Blob') {
+      console.error('❌ [VOICE_RECORDER] L\'objet n\'est pas un Blob valide:', {
+        type: typeof recording.blob,
+        constructor: recording.blob?.constructor?.name,
+        isBlob: recording.blob instanceof Blob
+      });
       toast({
         title: "Erreur",
         description: "L'enregistrement n'est pas un blob valide.",
@@ -474,7 +505,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     console.log('✅ [VOICE_RECORDER] Blob validé pour le renvoi:', {
       size: recording.blob.size,
       type: recording.blob.type,
-      isBlob: recording.blob instanceof Blob
+      isBlob: recording.blob instanceof Blob,
+      constructor: recording.blob.constructor.name
     });
 
     setResendingId(recording.id);
