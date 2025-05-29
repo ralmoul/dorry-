@@ -9,18 +9,41 @@ const LegalNotice = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-12 px-6">
       <style>
         {`
-          .legal-notice-page * {
-            color: #111827 !important;
+          /* Force tous les textes de cette page en noir avec une spécificité maximale */
+          .legal-notice-page *, 
+          .legal-notice-page *::before, 
+          .legal-notice-page *::after,
+          .legal-notice-page p,
+          .legal-notice-page span,
+          .legal-notice-page div,
+          .legal-notice-page li,
+          .legal-notice-page h1,
+          .legal-notice-page h2,
+          .legal-notice-page h3,
+          .legal-notice-page h4,
+          .legal-notice-page h5,
+          .legal-notice-page h6,
+          .legal-notice-page button,
+          .legal-notice-page input,
+          .legal-notice-page textarea,
+          .legal-notice-page label,
+          .legal-notice-page a {
+            color: #1f2937 !important;
           }
-          .legal-notice-page .gradient-text {
-            background: linear-gradient(to right, #00d4aa, #0066ff);
+          
+          /* Garde le gradient pour le titre principal */
+          .legal-notice-page .gradient-title {
+            background: linear-gradient(to right, #00B8D4, #6A11CB) !important;
             -webkit-background-clip: text !important;
             background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             color: transparent !important;
           }
-          .legal-notice-page .white-button {
+          
+          /* Style pour le bouton retour avec texte blanc */
+          .legal-notice-page .legal-button {
             color: white !important;
+            border-color: #d1d5db !important;
           }
         `}
       </style>
@@ -29,11 +52,11 @@ const LegalNotice = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate(-1)}
-            className="mb-4 white-button"
+            className="mb-4 legal-button"
           >
             ← Retour
           </Button>
-          <h1 className="text-4xl font-bold gradient-text mb-4">Mentions légales</h1>
+          <h1 className="text-4xl font-bold gradient-title mb-4">Mentions légales</h1>
           <p className="text-lg">
             Informations légales concernant Dorry.
           </p>
