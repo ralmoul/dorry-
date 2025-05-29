@@ -5,7 +5,6 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
-
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -31,7 +30,6 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
-
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -48,7 +46,6 @@ const Landing = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [visibleWorkflowSteps]);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
@@ -60,21 +57,18 @@ const Landing = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
-      
+
       // Start transition
       setTimeout(() => {
         setActiveFeature(prev => (prev + 1) % 4);
         setIsTransitioning(false);
       }, 200); // Half transition duration
-      
     }, 10000);
     return () => clearInterval(interval);
   }, []);
-
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
-    
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -89,7 +83,6 @@ const Landing = () => {
     const rect = el.getBoundingClientRect();
     return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
   };
-
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
@@ -429,9 +422,9 @@ const Landing = () => {
                 position: 'bottom-0 right-0',
                 color: 'from-cyan-400 to-blue-500'
               }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-400 ease-in-out transform`} style={{
-                opacity: isTransitioning ? 0.2 : (activeFeature === index ? 1 : 0.3),
-                transform: `scale(${isTransitioning ? 0.8 : (activeFeature === index ? 1.1 : 0.9)}) translateX(${isTransitioning ? '0px' : (activeFeature === index ? '0px' : (index % 2 === 0 ? '-10px' : '10px'))})`,
-                filter: isTransitioning ? 'blur(2px)' : (activeFeature === index ? 'none' : 'blur(1px)')
+                opacity: isTransitioning ? 0.2 : activeFeature === index ? 1 : 0.3,
+                transform: `scale(${isTransitioning ? 0.8 : activeFeature === index ? 1.1 : 0.9}) translateX(${isTransitioning ? '0px' : activeFeature === index ? '0px' : index % 2 === 0 ? '-10px' : '10px'})`,
+                filter: isTransitioning ? 'blur(2px)' : activeFeature === index ? 'none' : 'blur(1px)'
               }}>
                     <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg transition-all duration-400 ease-in-out ${activeFeature === index && !isTransitioning ? 'shadow-2xl border-opacity-100' : 'shadow-md border-opacity-30'}`}>
                       {item.icon}
@@ -439,19 +432,15 @@ const Landing = () => {
                   </div>)}
                 
                 {/* Central connecting element */}
-                <div className={`absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg transition-all duration-400 ease-in-out ${isTransitioning ? 'scale-90 opacity-50' : 'scale-100 opacity-100'}`}>
-                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                    Dorry
-                  </div>
-                </div>
+                
                 
                 {/* Connecting lines with synchronized animation */}
                 {Array.from({
                 length: 4
               }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left transition-all duration-400 ease-in-out" style={{
                 transform: `rotate(${i * 90}deg)`,
-                opacity: isTransitioning ? 0.3 : (activeFeature === i ? 1 : 0.3),
-                width: isTransitioning ? '25%' : (activeFeature === i ? '40%' : '30%')
+                opacity: isTransitioning ? 0.3 : activeFeature === i ? 1 : 0.3,
+                width: isTransitioning ? '25%' : activeFeature === i ? '40%' : '30%'
               }}></div>)}
               </div>
             </div>
@@ -503,9 +492,7 @@ const Landing = () => {
                       setIsTransitioning(false);
                     }, 200);
                   }}>
-                        {activeFeature === i && (
-                          <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>
-                        )}
+                        {activeFeature === i && <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>}
                       </button>)}
                     </div>
                   </div>)}
@@ -847,5 +834,4 @@ const Landing = () => {
       </style>
     </div>;
 };
-
 export default Landing;
