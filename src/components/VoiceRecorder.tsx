@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X } from 'lucide-react';
+import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X, RefreshCw } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { ConsentModal } from '@/components/ui/ConsentModal';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { sendAudioToWebhook } from '@/services/webhookService';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
@@ -56,6 +57,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -348,6 +350,42 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       title: "Enregistrement supprimé",
       description: "L'enregistrement a été supprimé avec succès"
     });
+  };
+
+  const handleResend = async (recording: Recording) => {
+    if (!recording.blob) {
+      toast({
+        title: "Erreur",
+        description: "Enregistrement non disponible pour le renvoi",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setResendingId(recording.id);
+    
+    try {
+      console.log('🔄 [VOICE_RECORDER] Renvoi de l\'enregistrement:', recording.id);
+      const result = await sendAudioToWebhook(recording.blob, user);
+      
+      console.log('✅ [VOICE_RECORDER] Renvoi réussi:', result);
+      
+      toast({
+        title: "Enregistrement renvoyé",
+        description: "L'enregistrement a été renvoyé avec succès vers l'IA",
+      });
+    } catch (error) {
+      console.error('❌ [VOICE_RECORDER] Erreur lors du renvoi:', error);
+      const errorMessage = error instanceof Error ? error.message : "Impossible de renvoyer l'enregistrement.";
+      
+      toast({
+        title: "Erreur de renvoi",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setResendingId(null);
+    }
   };
 
   const getDaysUntilExpiry = (date: Date) => {
@@ -668,6 +706,20 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                 {/* Action buttons */}
                                 {editingId !== recording.id && (
                                   <div className="flex gap-1 flex-shrink-0">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleResend(recording)}
+                                      disabled={resendingId === recording.id}
+                                      className="text-cyan-400 hover:bg-cyan-400/10 w-8 h-8 disabled:opacity-50"
+                                      title="Renvoyer vers l'IA"
+                                    >
+                                      {resendingId === recording.id ? (
+                                        <RefreshCw className="w-3 h-3 animate-spin" />
+                                      ) : (
+                                        <Send className="w-3 h-3" />
+                                      )}
+                                    </Button>
                                     <Button
                                       variant="ghost"
                                       size="icon"
