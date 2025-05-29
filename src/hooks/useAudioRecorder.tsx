@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,7 +22,8 @@ export const useAudioRecorder = () => {
     clearRecording
   } = useMediaRecorder();
   
-  const { recordingTime, formatTime } = useRecordingTimer(isRecording && !isPaused);
+  // Passer isPaused au timer pour qu'il sache quand ne pas compter
+  const { recordingTime, formatTime } = useRecordingTimer(isRecording, isPaused);
 
   const startRecording = useCallback(async () => {
     try {
