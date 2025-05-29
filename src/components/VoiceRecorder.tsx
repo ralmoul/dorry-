@@ -424,7 +424,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
 
   const handleResend = async (recording: Recording) => {
+    console.log('🔄 [VOICE_RECORDER] Tentative de renvoi pour:', recording.id);
+    console.log('📊 [VOICE_RECORDER] Recording object:', {
+      id: recording.id,
+      hasBlob: !!recording.blob,
+      blobType: recording.blob?.constructor?.name,
+      blobSize: recording.blob?.size,
+      mimeType: recording.blob?.type
+    });
+
     if (!recording.blob) {
+      console.error('❌ [VOICE_RECORDER] Pas de blob disponible');
       toast({
         title: "Erreur",
         description: "Enregistrement non disponible pour le renvoi. Seuls les nouveaux enregistrements peuvent être renvoyés.",
@@ -433,9 +443,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    // Vérification complète du blob
+    // Vérification que c'est bien un Blob
     if (!(recording.blob instanceof Blob)) {
-      console.error('❌ [VOICE_RECORDER] Objet blob invalide:', typeof recording.blob);
+      console.error('❌ [VOICE_RECORDER] L\'objet n\'est pas un Blob valide:', typeof recording.blob);
       toast({
         title: "Erreur",
         description: "L'enregistrement n'est pas un blob valide.",
@@ -444,6 +454,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
+    // Vérification que le blob n'est pas vide
     if (recording.blob.size === 0) {
       console.error('❌ [VOICE_RECORDER] Blob vide');
       toast({
@@ -454,17 +465,22 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    console.log('🔄 [VOICE_RECORDER] Renvoi validé:', {
-      id: recording.id,
-      blobType: recording.blob.constructor.name,
-      blobSize: recording.blob.size,
-      mimeType: recording.blob.type
+    // Vérification du type MIME
+    if (!recording.blob.type || !recording.blob.type.startsWith('audio/')) {
+      console.warn('⚠️ [VOICE_RECORDER] Type MIME manquant ou invalide:', recording.blob.type);
+      // On continue quand même car certains navigateurs peuvent avoir des types MIME vides
+    }
+
+    console.log('✅ [VOICE_RECORDER] Blob validé pour le renvoi:', {
+      size: recording.blob.size,
+      type: recording.blob.type,
+      isBlob: recording.blob instanceof Blob
     });
 
     setResendingId(recording.id);
     
     try {
-      console.log('🔄 [VOICE_RECORDER] Renvoi de l\'enregistrement:', recording.id);
+      console.log('🚀 [VOICE_RECORDER] Envoi du blob vers sendAudioToWebhook...');
       const result = await sendAudioToWebhook(recording.blob, user);
       
       console.log('✅ [VOICE_RECORDER] Renvoi réussi:', result);
