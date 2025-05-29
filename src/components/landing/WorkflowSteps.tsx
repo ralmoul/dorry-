@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mic, FileText, User, FileCheck, BarChart3, FileSpreadsheet, Mail } from 'lucide-react';
 
 export const WorkflowSteps = () => {
+  const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState(0);
+
   const steps = [
     {
       icon: <Mic className="w-4 h-4 md:w-6 md:h-6" />,
@@ -41,6 +43,16 @@ export const WorkflowSteps = () => {
     }
   ];
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (visibleWorkflowSteps < steps.length) {
+        setVisibleWorkflowSteps(prev => prev + 1);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [visibleWorkflowSteps, steps.length]);
+
   return (
     <div className="max-w-4xl mx-auto relative">
       {/* Ligne verticale de connexion - masquée sur très petit écran */}
@@ -48,7 +60,12 @@ export const WorkflowSteps = () => {
       
       {/* Étapes du workflow */}
       {steps.map((step, index) => (
-        <div key={index} className="relative pl-12 md:pl-16 lg:pl-20 mb-6 md:mb-8 lg:mb-10 opacity-100">
+        <div 
+          key={index} 
+          className={`relative pl-12 md:pl-16 lg:pl-20 mb-6 md:mb-8 lg:mb-10 transition-all duration-500 ${
+            index < visibleWorkflowSteps ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
+        >
           <div className="absolute left-0 top-0 w-12 md:w-16 lg:w-20 h-12 md:h-16 lg:h-20 flex items-center justify-center z-10">
             <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-slate-900 shadow-lg">
               {step.icon}
