@@ -5,13 +5,13 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
+
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState([]);
   const [activeFeature, setActiveFeature] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const workflowStepsRef = useRef([]);
   const featuresRef = useRef(null);
   const testimonials = [{
@@ -30,6 +30,7 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
+
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -42,6 +43,14 @@ const Landing = () => {
           }
         });
       }
+
+      // Animation de la section fonctionnalités
+      if (featuresRef.current && isElementInViewport(featuresRef.current)) {
+        const interval = setInterval(() => {
+          setActiveFeature(prev => (prev + 1) % 4);
+        }, 3000);
+        return () => clearInterval(interval);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -52,23 +61,10 @@ const Landing = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
-
-  // Auto-advance features with synchronized transitions
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsTransitioning(true);
-
-      // Start transition
-      setTimeout(() => {
-        setActiveFeature(prev => (prev + 1) % 4);
-        setIsTransitioning(false);
-      }, 200); // Half transition duration
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
+    
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -421,35 +417,39 @@ const Landing = () => {
                 icon: <FileText className="w-full h-full" />,
                 position: 'bottom-0 right-0',
                 color: 'from-cyan-400 to-blue-500'
-              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-400 ease-in-out transform`} style={{
-                opacity: isTransitioning ? 0.2 : activeFeature === index ? 1 : 0.3,
-                transform: `scale(${isTransitioning ? 0.8 : activeFeature === index ? 1.1 : 0.9}) translateX(${isTransitioning ? '0px' : activeFeature === index ? '0px' : index % 2 === 0 ? '-10px' : '10px'})`,
-                filter: isTransitioning ? 'blur(2px)' : activeFeature === index ? 'none' : 'blur(1px)'
+              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-500 transform`} style={{
+                opacity: activeFeature === index ? 1 : 0.3,
+                transform: activeFeature === index ? 'scale(1.1)' : 'scale(0.9)',
+                filter: activeFeature === index ? 'none' : 'blur(1px)'
               }}>
-                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg transition-all duration-400 ease-in-out ${activeFeature === index && !isTransitioning ? 'shadow-2xl border-opacity-100' : 'shadow-md border-opacity-30'}`}>
+                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg`}>
                       {item.icon}
                     </div>
                   </div>)}
                 
                 {/* Central connecting element */}
+                <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
+                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                    Dorry
+                  </div>
+                </div>
                 
-                
-                {/* Connecting lines with synchronized animation */}
+                {/* Connecting lines */}
                 {Array.from({
                 length: 4
-              }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left transition-all duration-400 ease-in-out" style={{
+              }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left" style={{
                 transform: `rotate(${i * 90}deg)`,
-                opacity: isTransitioning ? 0.3 : activeFeature === i ? 1 : 0.3,
-                width: isTransitioning ? '25%' : activeFeature === i ? '40%' : '30%'
+                opacity: activeFeature === i ? 1 : 0.3,
+                transition: 'opacity 0.5s ease'
               }}></div>)}
               </div>
             </div>
             
-            {/* Feature Details - Right Side with synchronized transitions */}
+            {/* Feature Details - Right Side */}
             <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{
             animationDelay: '0.3s'
           }}>
-              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg relative overflow-hidden">
+              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg">
                 {[{
                 title: "Parlez, Dorry écoute",
                 description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
@@ -466,7 +466,7 @@ const Landing = () => {
                 title: "Compte rendu détaillé",
                 description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
                 icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
-              }].map((feature, index) => <div key={index} className={`transition-all duration-400 ease-in-out ${activeFeature === index && !isTransitioning ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 absolute inset-0 p-8'}`} style={{
+              }].map((feature, index) => <div key={index} className={`transition-all duration-500 transform ${activeFeature === index ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`} style={{
                 display: activeFeature === index ? 'block' : 'none'
               }}>
                     <div className="flex items-center mb-4">
@@ -481,19 +481,11 @@ const Landing = () => {
                       {feature.description}
                     </p>
                     
-                    {/* Feature navigation with progress indicator */}
+                    {/* Feature navigation */}
                     <div className="mt-8 flex justify-center space-x-2">
                       {Array.from({
                     length: 4
-                  }).map((_, i) => <button key={i} className={`relative w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-8' : 'bg-slate-600'}`} onClick={() => {
-                    setIsTransitioning(true);
-                    setTimeout(() => {
-                      setActiveFeature(i);
-                      setIsTransitioning(false);
-                    }, 200);
-                  }}>
-                        {activeFeature === i && <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>}
-                      </button>)}
+                  }).map((_, i) => <button key={i} className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`} onClick={() => setActiveFeature(i)}></button>)}
                     </div>
                   </div>)}
               </div>
