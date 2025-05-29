@@ -5,7 +5,6 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
-
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -14,7 +13,6 @@ const Landing = () => {
   const [activeFeature, setActiveFeature] = useState(0);
   const workflowStepsRef = useRef([]);
   const featuresRef = useRef(null);
-  
   const testimonials = [{
     text: "Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus.",
     author: "Sophie M.",
@@ -31,11 +29,10 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
-  
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
-      
+
       // Animation des étapes du workflow au scroll
       if (workflowStepsRef.current.length > 0) {
         workflowStepsRef.current.forEach((step, index) => {
@@ -44,7 +41,7 @@ const Landing = () => {
           }
         });
       }
-      
+
       // Animation de la section fonctionnalités
       if (featuresRef.current && isElementInViewport(featuresRef.current)) {
         const interval = setInterval(() => {
@@ -53,19 +50,16 @@ const Landing = () => {
         return () => clearInterval(interval);
       }
     };
-    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [visibleWorkflowSteps]);
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
-  
-  const handleMouseMove = (e) => {
+  const handleMouseMove = e => {
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -73,19 +67,13 @@ const Landing = () => {
       heroImage.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     }
   };
-  
+
   // Fonction pour vérifier si un élément est visible dans la fenêtre
-  const isElementInViewport = (el) => {
+  const isElementInViewport = el => {
     if (!el) return false;
     const rect = el.getBoundingClientRect();
-    return (
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
+    return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
   };
-
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
@@ -136,35 +124,27 @@ const Landing = () => {
         
         {/* Particules animées améliorées */}
         <div className="absolute inset-0 z-0">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
-              style={{
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 10 + 5}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
-                filter: 'blur(1px)'
-              }}
-            />
-          ))}
+          {Array.from({
+          length: 30
+        }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" style={{
+          width: `${Math.random() * 10 + 5}px`,
+          height: `${Math.random() * 10 + 5}px`,
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+          filter: 'blur(1px)'
+        }} />)}
         </div>
         
         {/* Ondes sonores animées */}
         <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 flex justify-center items-center z-0 opacity-20">
           <div className="flex space-x-1">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="w-1 bg-gradient-to-t from-cyan-400 to-blue-500 rounded-full"
-                style={{
-                  height: `${Math.sin(i / 3) * 30 + 40}px`,
-                  animation: `soundWave 1.5s ease-in-out infinite ${i * 0.05}s`
-                }}
-              />
-            ))}
+            {Array.from({
+            length: 20
+          }).map((_, i) => <div key={i} className="w-1 bg-gradient-to-t from-cyan-400 to-blue-500 rounded-full" style={{
+            height: `${Math.sin(i / 3) * 30 + 40}px`,
+            animation: `soundWave 1.5s ease-in-out infinite ${i * 0.05}s`
+          }} />)}
           </div>
         </div>
         
@@ -177,7 +157,9 @@ const Landing = () => {
               </h1>
               
               {/* Image positioned after title on mobile only */}
-              <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
+              <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{
+              animationDelay: '0.5s'
+            }}>
                 <div className="relative">
                   <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                     <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
@@ -186,10 +168,14 @@ const Landing = () => {
                 </div>
               </div>
               
-              <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.7s' }}>
+              <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0 animate-fadeInUp" style={{
+              animationDelay: '0.7s'
+            }}>
                 Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
               </p>
-              <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0 animate-fadeInUp" style={{ animationDelay: '0.9s' }}>
+              <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0 animate-fadeInUp" style={{
+              animationDelay: '0.9s'
+            }}>
                 <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all mb-8 md:mb-0">
                   Demander l'accès
                 </ConfettiButton>
@@ -203,7 +189,9 @@ const Landing = () => {
             </div>
             
             {/* Image for desktop only - hidden on mobile */}
-            <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{ animationDelay: '0.5s' }}>
+            <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{
+            animationDelay: '0.5s'
+          }}>
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
@@ -211,15 +199,11 @@ const Landing = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
                 
                 {/* Cercles concentriques animés */}
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div 
-                    key={i}
-                    className="absolute inset-0 rounded-full border border-cyan-400/30"
-                    style={{
-                      animation: `ripple 3s ease-out infinite ${i * 0.5}s`
-                    }}
-                  ></div>
-                ))}
+                {Array.from({
+                length: 3
+              }).map((_, i) => <div key={i} className="absolute inset-0 rounded-full border border-cyan-400/30" style={{
+                animation: `ripple 3s ease-out infinite ${i * 0.5}s`
+              }}></div>)}
               </div>
             </div>
           </div>
@@ -235,44 +219,42 @@ const Landing = () => {
       {/* Section Concrètement à quoi sert Dorry - Workflow complet */}
       <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
-              style={{
-                width: `${Math.random() * 15 + 5}px`,
-                height: `${Math.random() * 15 + 5}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
-                filter: 'blur(2px)'
-              }}
-            />
-          ))}
+          {Array.from({
+          length: 20
+        }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10" style={{
+          width: `${Math.random() * 15 + 5}px`,
+          height: `${Math.random() * 15 + 5}px`,
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+          filter: 'blur(2px)'
+        }} />)}
         </div>
         
         {/* Lignes de connexion animées */}
-        <div className="absolute inset-0 z-0 opacity-20"
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
-            backgroundSize: '50px 50px',
-            backgroundPosition: '0 0, 25px 25px',
-            animation: 'connectionMove 60s linear infinite'
-          }}
-        ></div>
+        <div className="absolute inset-0 z-0 opacity-20" style={{
+        backgroundImage: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
+        backgroundSize: '50px 50px',
+        backgroundPosition: '0 0, 25px 25px',
+        animation: 'connectionMove 60s linear infinite'
+      }}></div>
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent animate-fadeIn">
               Concrètement à quoi sert Dorry ?
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{
+            animationDelay: '0.2s'
+          }}>
               L'assistant IA qui transforme tes échanges en synthèse claire et actionnable
             </p>
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mb-16">
-            <div className="flex-1 relative order-2 md:order-1 animate-fadeInLeft" style={{ animationDelay: '0.4s' }}>
+            <div className="flex-1 relative order-2 md:order-1 animate-fadeInLeft" style={{
+            animationDelay: '0.4s'
+          }}>
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl">
                 <img src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" alt="Dorry AI Data Analysis" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 animate-pulse"></div>
@@ -290,7 +272,9 @@ const Landing = () => {
               </div>
             </div>
             
-            <div className="flex-1 space-y-6 md:space-y-8 order-1 md:order-2 animate-fadeInRight" style={{ animationDelay: '0.4s' }}>
+            <div className="flex-1 space-y-6 md:space-y-8 order-1 md:order-2 animate-fadeInRight" style={{
+            animationDelay: '0.4s'
+          }}>
               <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg">
                 <p className="text-gray-300 leading-relaxed">
                   Dorry est une intelligence artificielle spécialisée dans le suivi des porteurs de projet, conçue pour les accompagnateurs. Elle automatise la prise de notes, l'analyse de rendez-vous et la génération de comptes-rendus personnalisés, le tout… sans effort humain !
@@ -299,7 +283,7 @@ const Landing = () => {
               
               <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-xl p-6 border border-cyan-500/30 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg">
                 <p className="text-xl text-white leading-relaxed">
-                  <span className="font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Dorry écoute, comprend et synthétise pour toi.</span><br/>
+                  <span className="font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Dorry écoute, comprend et synthétise pour toi.</span><br />
                   Il te suffit d'enregistrer ton rendez-vous, Dorry s'occupe du reste.
                 </p>
               </div>
@@ -307,7 +291,9 @@ const Landing = () => {
           </div>
           
           {/* Titre de la section workflow */}
-          <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+          <h3 className="text-2xl md:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-10 animate-fadeIn" style={{
+          animationDelay: '0.6s'
+        }}>
             Comment ça marche ?
           </h3>
           
@@ -317,49 +303,37 @@ const Landing = () => {
             <div className="absolute top-0 bottom-0 left-8 md:left-10 w-0.5 bg-gradient-to-b from-cyan-400 to-blue-500 z-0"></div>
             
             {/* Étapes du workflow */}
-            {[
-              {
-                icon: <Mic className="w-6 h-6" />,
-                title: "Réception d'un enregistrement audio",
-                description: "Tu envoies à Dorry l'enregistrement vocal d'un entretien ou d'un échange avec un porteur de projet."
-              },
-              {
-                icon: <FileText className="w-6 h-6" />,
-                title: "Transcription et journalisation",
-                description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données."
-              },
-              {
-                icon: <User className="w-6 h-6" />,
-                title: "Identification automatique",
-                description: "Dorry reconnaît instantanément l'accompagnateur associé à l'échange grâce à l'ID envoyé, sans erreur ni confusion."
-              },
-              {
-                icon: <FileCheck className="w-6 h-6" />,
-                title: "Extraction intelligente d'informations clés",
-                description: "Grâce à son moteur d'analyse, Dorry extrait automatiquement le nom et les coordonnées du porteur, l'adresse, et tout autre élément pertinent évoqué pendant la discussion."
-              },
-              {
-                icon: <BarChart3 className="w-6 h-6" />,
-                title: "Analyse sentimentale avancée",
-                description: "Dorry analyse la motivation, la clarté du projet, le niveau d'urgence et les émotions dominantes du porteur. Elle attribue des scores et détecte les besoins d'accompagnement spécifiques."
-              },
-              {
-                icon: <FileSpreadsheet className="w-6 h-6" />,
-                title: "Synthèse structurée et personnalisée",
-                description: "Dorry rédige pour toi un compte-rendu lisible, structuré et directement actionnable, sans jargon technique. Chaque synthèse est ultra-personnalisée."
-              },
-              {
-                icon: <Mail className="w-6 h-6" />,
-                title: "Envoi automatique du compte-rendu",
-                description: "Le rapport final est envoyé directement à l'accompagnateur par email (aucune intervention humaine nécessaire !)."
-              }
-            ].map((step, index) => (
-              <div 
-                key={index}
-                ref={el => workflowStepsRef.current[index] = el}
-                className={`relative pl-16 md:pl-20 mb-10 transform transition-all duration-700 ${visibleWorkflowSteps.includes(index) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
+            {[{
+            icon: <Mic className="w-6 h-6" />,
+            title: "Réception d'un enregistrement audio",
+            description: "Tu envoies à Dorry l'enregistrement vocal d'un entretien ou d'un échange avec un porteur de projet."
+          }, {
+            icon: <FileText className="w-6 h-6" />,
+            title: "Transcription et journalisation",
+            description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données."
+          }, {
+            icon: <User className="w-6 h-6" />,
+            title: "Identification automatique",
+            description: "Dorry reconnaît instantanément l'accompagnateur associé à l'échange grâce à l'ID envoyé, sans erreur ni confusion."
+          }, {
+            icon: <FileCheck className="w-6 h-6" />,
+            title: "Extraction intelligente d'informations clés",
+            description: "Grâce à son moteur d'analyse, Dorry extrait automatiquement le nom et les coordonnées du porteur, l'adresse, et tout autre élément pertinent évoqué pendant la discussion."
+          }, {
+            icon: <BarChart3 className="w-6 h-6" />,
+            title: "Analyse sentimentale avancée",
+            description: "Dorry analyse la motivation, la clarté du projet, le niveau d'urgence et les émotions dominantes du porteur. Elle attribue des scores et détecte les besoins d'accompagnement spécifiques."
+          }, {
+            icon: <FileSpreadsheet className="w-6 h-6" />,
+            title: "Synthèse structurée et personnalisée",
+            description: "Dorry rédige pour toi un compte-rendu lisible, structuré et directement actionnable, sans jargon technique. Chaque synthèse est ultra-personnalisée."
+          }, {
+            icon: <Mail className="w-6 h-6" />,
+            title: "Envoi automatique du compte-rendu",
+            description: "Le rapport final est envoyé directement à l'accompagnateur par email (aucune intervention humaine nécessaire !)."
+          }].map((step, index) => <div key={index} ref={el => workflowStepsRef.current[index] = el} className={`relative pl-16 md:pl-20 mb-10 transform transition-all duration-700 ${visibleWorkflowSteps.includes(index) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`} style={{
+            transitionDelay: `${index * 100}ms`
+          }}>
                 <div className="absolute left-0 top-0 w-16 md:w-20 h-16 md:h-20 flex items-center justify-center z-10">
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-slate-900 shadow-lg">
                     {step.icon}
@@ -369,29 +343,29 @@ const Landing = () => {
                   <h4 className="text-xl font-semibold text-white mb-2">{step.title}</h4>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
           
           {/* Stats animés */}
-          <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 animate-fadeIn" style={{ animationDelay: '0.8s' }}>
+          <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 animate-fadeIn" style={{
+          animationDelay: '0.8s'
+        }}>
             {[{
-              end: 87,
-              suffix: "%",
-              label: "de temps gagné sur la rédaction",
-              icon: <Clock className="w-8 h-8" />
-            }, {
-              end: 98,
-              suffix: "%",
-              label: "de précision dans les analyses",
-              icon: <Brain className="w-8 h-8" />
-            }, {
-              end: 5,
-              suffix: " min",
-              label: "pour un compte rendu complet",
-              icon: <FileText className="w-8 h-8" />
-            }].map((stat, index) => (
-              <div key={index} className="text-center bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
+            end: 87,
+            suffix: "%",
+            label: "de temps gagné sur la rédaction",
+            icon: <Clock className="w-8 h-8" />
+          }, {
+            end: 98,
+            suffix: "%",
+            label: "de précision dans les analyses",
+            icon: <Brain className="w-8 h-8" />
+          }, {
+            end: 5,
+            suffix: " min",
+            label: "pour un compte rendu complet",
+            icon: <FileText className="w-8 h-8" />
+          }].map((stat, index) => <div key={index} className="text-center bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
                 <div className="text-cyan-400 mb-4 flex justify-center">
                   {stat.icon}
                 </div>
@@ -399,8 +373,7 @@ const Landing = () => {
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                 </div>
                 <p className="text-base sm:text-lg text-slate-300">{stat.label}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -408,20 +381,16 @@ const Landing = () => {
       {/* Fonctionnalités Section - Redesigned with more animations */}
       <section className="py-16 md:py-32 bg-slate-900 relative overflow-hidden" ref={featuresRef}>
         <div className="absolute inset-0 z-0">
-          {Array.from({ length: 15 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
-              style={{
-                width: `${Math.random() * 20 + 10}px`,
-                height: `${Math.random() * 20 + 10}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 20 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
-                filter: 'blur(3px)'
-              }}
-            />
-          ))}
+          {Array.from({
+          length: 15
+        }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10" style={{
+          width: `${Math.random() * 20 + 10}px`,
+          height: `${Math.random() * 20 + 10}px`,
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 20 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+          filter: 'blur(3px)'
+        }} />)}
         </div>
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
@@ -436,29 +405,36 @@ const Landing = () => {
           
           <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
             {/* Feature Showcase - Left Side */}
-            <div className="flex-1 order-2 md:order-1 animate-fadeInLeft" style={{ animationDelay: '0.3s' }}>
+            <div className="flex-1 order-2 md:order-1 animate-fadeInLeft" style={{
+            animationDelay: '0.3s'
+          }}>
               <div className="relative aspect-square max-w-md mx-auto">
                 {/* Feature Icons with Animation */}
-                {[
-                  { icon: <Mic className="w-full h-full" />, position: 'top-0 left-0', color: 'from-cyan-400 to-blue-500' },
-                  { icon: <Brain className="w-full h-full" />, position: 'top-0 right-0', color: 'from-blue-500 to-purple-500' },
-                  { icon: <Search className="w-full h-full" />, position: 'bottom-0 left-0', color: 'from-purple-500 to-cyan-400' },
-                  { icon: <FileText className="w-full h-full" />, position: 'bottom-0 right-0', color: 'from-cyan-400 to-blue-500' }
-                ].map((item, index) => (
-                  <div 
-                    key={index}
-                    className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-500 transform`}
-                    style={{
-                      opacity: activeFeature === index ? 1 : 0.3,
-                      transform: activeFeature === index ? 'scale(1.1)' : 'scale(0.9)',
-                      filter: activeFeature === index ? 'none' : 'blur(1px)'
-                    }}
-                  >
+                {[{
+                icon: <Mic className="w-full h-full" />,
+                position: 'top-0 left-0',
+                color: 'from-cyan-400 to-blue-500'
+              }, {
+                icon: <Brain className="w-full h-full" />,
+                position: 'top-0 right-0',
+                color: 'from-blue-500 to-purple-500'
+              }, {
+                icon: <Search className="w-full h-full" />,
+                position: 'bottom-0 left-0',
+                color: 'from-purple-500 to-cyan-400'
+              }, {
+                icon: <FileText className="w-full h-full" />,
+                position: 'bottom-0 right-0',
+                color: 'from-cyan-400 to-blue-500'
+              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-500 transform`} style={{
+                opacity: activeFeature === index ? 1 : 0.3,
+                transform: activeFeature === index ? 'scale(1.1)' : 'scale(0.9)',
+                filter: activeFeature === index ? 'none' : 'blur(1px)'
+              }}>
                     <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg`}>
                       {item.icon}
                     </div>
-                  </div>
-                ))}
+                  </div>)}
                 
                 {/* Central connecting element */}
                 <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
@@ -468,45 +444,40 @@ const Landing = () => {
                 </div>
                 
                 {/* Connecting lines */}
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div 
-                    key={i}
-                    className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left"
-                    style={{
-                      transform: `rotate(${i * 90}deg)`,
-                      opacity: activeFeature === i ? 1 : 0.3,
-                      transition: 'opacity 0.5s ease'
-                    }}
-                  ></div>
-                ))}
+                {Array.from({
+                length: 4
+              }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left" style={{
+                transform: `rotate(${i * 90}deg)`,
+                opacity: activeFeature === i ? 1 : 0.3,
+                transition: 'opacity 0.5s ease'
+              }}></div>)}
               </div>
             </div>
             
             {/* Feature Details - Right Side */}
-            <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{ animationDelay: '0.3s' }}>
+            <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{
+            animationDelay: '0.3s'
+          }}>
               <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg">
                 {[{
-                  title: "Parlez, Dorry écoute",
-                  description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
-                  icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />
-                }, {
-                  title: "Analyse instantanée par IA",
-                  description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris. L'IA identifie les décisions et les actions à entreprendre avec une précision remarquable.",
-                  icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />
-                }, {
-                  title: "Détection avancée",
-                  description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV. Dorry reste connectée et attentive, même quand l'humain décroche.",
-                  icon: <Search className="w-10 h-10 md:w-12 md:h-12" />
-                }, {
-                  title: "Compte rendu détaillé",
-                  description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
-                  icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
-                }].map((feature, index) => (
-                  <div 
-                    key={index} 
-                    className={`transition-all duration-500 transform ${activeFeature === index ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`}
-                    style={{ display: activeFeature === index ? 'block' : 'none' }}
-                  >
+                title: "Parlez, Dorry écoute",
+                description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
+                icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />
+              }, {
+                title: "Analyse instantanée par IA",
+                description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris. L'IA identifie les décisions et les actions à entreprendre avec une précision remarquable.",
+                icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />
+              }, {
+                title: "Détection avancée",
+                description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV. Dorry reste connectée et attentive, même quand l'humain décroche.",
+                icon: <Search className="w-10 h-10 md:w-12 md:h-12" />
+              }, {
+                title: "Compte rendu détaillé",
+                description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
+                icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
+              }].map((feature, index) => <div key={index} className={`transition-all duration-500 transform ${activeFeature === index ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`} style={{
+                display: activeFeature === index ? 'block' : 'none'
+              }}>
                     <div className="flex items-center mb-4">
                       <div className="text-cyan-400 mr-4">
                         {feature.icon}
@@ -521,16 +492,11 @@ const Landing = () => {
                     
                     {/* Feature navigation */}
                     <div className="mt-8 flex justify-center space-x-2">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <button
-                          key={i}
-                          className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`}
-                          onClick={() => setActiveFeature(i)}
-                        ></button>
-                      ))}
+                      {Array.from({
+                    length: 4
+                  }).map((_, i) => <button key={i} className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`} onClick={() => setActiveFeature(i)}></button>)}
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
           </div>
@@ -541,20 +507,16 @@ const Landing = () => {
       <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-transparent to-slate-900/50"></div>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
-              style={{
-                width: `${Math.random() * 30 + 20}px`,
-                height: `${Math.random() * 30 + 20}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 25 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
-                filter: 'blur(5px)'
-              }}
-            />
-          ))}
+          {Array.from({
+          length: 10
+        }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10" style={{
+          width: `${Math.random() * 30 + 20}px`,
+          height: `${Math.random() * 30 + 20}px`,
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 25 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
+          filter: 'blur(5px)'
+        }} />)}
         </div>
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
@@ -569,35 +531,32 @@ const Landing = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12 md:mb-16">
             {[{
-              icon: <Clock className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Gagnez un temps précieux",
-              description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste.",
-              delay: 0.1,
-              color: "from-cyan-400 to-blue-500"
-            }, {
-              icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Fiabilité sans faille",
-              description: "Finis les oublis de compte rendu, même après une journée chargée.",
-              delay: 0.2,
-              color: "from-blue-500 to-purple-500"
-            }, {
-              icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Analyse IA intelligente",
-              description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.",
-              delay: 0.3,
-              color: "from-purple-500 to-blue-500"
-            }, {
-              icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
-              title: "Évolutif & innovant",
-              description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés.",
-              delay: 0.4,
-              color: "from-blue-500 to-cyan-400"
-            }].map((benefit, index) => (
-              <div 
-                key={index} 
-                className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp" 
-                style={{ animationDelay: `${benefit.delay}s` }}
-              >
+            icon: <Clock className="w-10 h-10 md:w-12 md:h-12" />,
+            title: "Gagnez un temps précieux",
+            description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste.",
+            delay: 0.1,
+            color: "from-cyan-400 to-blue-500"
+          }, {
+            icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
+            title: "Fiabilité sans faille",
+            description: "Finis les oublis de compte rendu, même après une journée chargée.",
+            delay: 0.2,
+            color: "from-blue-500 to-purple-500"
+          }, {
+            icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
+            title: "Analyse IA intelligente",
+            description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.",
+            delay: 0.3,
+            color: "from-purple-500 to-blue-500"
+          }, {
+            icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
+            title: "Évolutif & innovant",
+            description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés.",
+            delay: 0.4,
+            color: "from-blue-500 to-cyan-400"
+          }].map((benefit, index) => <div key={index} className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp" style={{
+            animationDelay: `${benefit.delay}s`
+          }}>
                 <div className={`text-transparent bg-clip-text bg-gradient-to-r ${benefit.color} mb-4 md:mb-6`}>
                   {benefit.icon}
                 </div>
@@ -608,50 +567,11 @@ const Landing = () => {
                 
                 {/* Effet de brillance au survol */}
                 <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-400/0 via-cyan-400/10 to-blue-500/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></div>
-              </div>
-            ))}
+              </div>)}
           </div>
           
           {/* Témoignages */}
-          <div className="max-w-4xl mx-auto bg-slate-900/50 backdrop-blur-sm rounded-xl p-8 border border-slate-700/50 shadow-lg overflow-hidden relative animate-fadeIn" style={{ animationDelay: '0.5s' }}>
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
-            
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-              Ce qu'en disent nos utilisateurs
-            </h3>
-            
-            <div className="relative h-64">
-              {testimonials.map((testimonial, index) => (
-                <div 
-                  key={index}
-                  className={`absolute inset-0 transition-all duration-500 flex flex-col items-center text-center ${currentTestimonial === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}
-                >
-                  <div className="mb-6">
-                    <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.author} 
-                      className="w-16 h-16 rounded-full border-2 border-cyan-400 mx-auto"
-                    />
-                  </div>
-                  <p className="text-lg text-slate-300 italic mb-4">"{testimonial.text}"</p>
-                  <div>
-                    <p className="font-semibold text-white">{testimonial.author}</p>
-                    <p className="text-sm text-slate-400">{testimonial.position}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex justify-center space-x-2 mt-6">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${currentTestimonial === index ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`}
-                  onClick={() => setCurrentTestimonial(index)}
-                ></button>
-              ))}
-            </div>
-          </div>
+          
         </div>
       </section>
 
@@ -659,31 +579,24 @@ const Landing = () => {
       <section className="py-16 md:py-32 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 relative overflow-hidden">
         {/* Particules animées améliorées */}
         <div className="absolute inset-0 z-0">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
-              style={{
-                width: `${Math.random() * 8 + 2}px`,
-                height: `${Math.random() * 8 + 2}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${Math.random() * 15 + 5}s ease-in-out infinite ${Math.random() * 5}s`,
-                filter: 'blur(1px)'
-              }}
-            />
-          ))}
+          {Array.from({
+          length: 40
+        }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" style={{
+          width: `${Math.random() * 8 + 2}px`,
+          height: `${Math.random() * 8 + 2}px`,
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animation: `float ${Math.random() * 15 + 5}s ease-in-out infinite ${Math.random() * 5}s`,
+          filter: 'blur(1px)'
+        }} />)}
         </div>
         
         {/* Vagues animées */}
         <div className="absolute bottom-0 left-0 right-0 h-20 opacity-30">
           <svg viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
-            <path 
-              fill="url(#gradient)" 
-              fillOpacity="1" 
-              d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-              style={{ animation: 'wave 15s ease-in-out infinite' }}
-            ></path>
+            <path fill="url(#gradient)" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" style={{
+            animation: 'wave 15s ease-in-out infinite'
+          }}></path>
             <defs>
               <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#22d3ee" />
@@ -697,30 +610,38 @@ const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-8 max-w-4xl mx-auto animate-fadeIn">
             Rejoignez la nouvelle génération d'accompagnateurs augmentés par l'IA !
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+          <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{
+          animationDelay: '0.2s'
+        }}>
             L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
           </p>
-          <div className="animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+          <div className="animate-fadeInUp" style={{
+          animationDelay: '0.4s'
+        }}>
             <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
               Demander l'accès
             </ConfettiButton>
           </div>
           
           {/* Badges */}
-          <div className="mt-12 flex flex-wrap justify-center gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
-            {[
-              { text: "IA avancée", color: "from-cyan-400 to-blue-500" },
-              { text: "Sécurisé", color: "from-blue-500 to-purple-500" },
-              { text: "Confidentiel", color: "from-purple-500 to-blue-500" },
-              { text: "Rapide", color: "from-blue-500 to-cyan-400" }
-            ].map((badge, index) => (
-              <div 
-                key={index}
-                className={`px-4 py-2 rounded-full bg-gradient-to-r ${badge.color} text-slate-900 font-semibold text-sm shadow-lg`}
-              >
+          <div className="mt-12 flex flex-wrap justify-center gap-4 animate-fadeInUp" style={{
+          animationDelay: '0.6s'
+        }}>
+            {[{
+            text: "IA avancée",
+            color: "from-cyan-400 to-blue-500"
+          }, {
+            text: "Sécurisé",
+            color: "from-blue-500 to-purple-500"
+          }, {
+            text: "Confidentiel",
+            color: "from-purple-500 to-blue-500"
+          }, {
+            text: "Rapide",
+            color: "from-blue-500 to-cyan-400"
+          }].map((badge, index) => <div key={index} className={`px-4 py-2 rounded-full bg-gradient-to-r ${badge.color} text-slate-900 font-semibold text-sm shadow-lg`}>
                 {badge.text}
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -914,5 +835,4 @@ const Landing = () => {
       </style>
     </div>;
 };
-
 export default Landing;
