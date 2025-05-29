@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
+import { Settings } from '@/components/Settings';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Settings as SettingsIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const [showSettings, setShowSettings] = useState(false);
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -16,14 +16,6 @@ const Index = () => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-  };
-
-  const handleSettingsClick = () => {
-    navigate('/settings');
-  };
-
-  const handleUpcomingFeaturesClick = () => {
-    navigate('/upcoming-features');
   };
 
   // Function to capitalize first letter
@@ -69,18 +61,11 @@ const Index = () => {
         </div>
         
         <div className="flex items-center space-x-2">
+          <span className="text-lg sm:text-xl">✨</span>
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleUpcomingFeaturesClick}
-            className="text-cyan-400 hover:bg-cyan-400/10"
-          >
-            <span className="text-lg">✨</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSettingsClick}
+            onClick={() => setShowSettings(!showSettings)}
             className="text-cyan-400 hover:bg-cyan-400/10"
           >
             <SettingsIcon className="w-5 h-5" />
@@ -110,10 +95,14 @@ const Index = () => {
         )}
         
         <div className="max-w-4xl mx-auto">
-          <VoiceRecorder 
-            onOpenSettings={handleSettingsClick}
-            onOpenUpcomingFeatures={handleUpcomingFeaturesClick}
-          />
+          {showSettings ? (
+            <Settings onBack={() => setShowSettings(false)} />
+          ) : (
+            <VoiceRecorder 
+              onOpenSettings={() => setShowSettings(true)}
+              onOpenUpcomingFeatures={() => window.location.href = '/upcoming-features'}
+            />
+          )}
         </div>
       </main>
 
