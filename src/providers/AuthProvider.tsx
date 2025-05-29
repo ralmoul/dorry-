@@ -3,7 +3,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData, User } from '@/types/auth';
 import { authService } from '@/services/authService';
-import { getStoredAuth, setStoredAuth, clearStoredAuth } from '@/utils/authStorage';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -13,47 +13,65 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH] AuthProvider initialisation...');
+    console.log('🚀 [AUTH] AuthProvider initialisation Supabase...');
     
-    // Vérifier si l'utilisateur est déjà connecté (stockage local)
-    const storedAuth = getStoredAuth();
-    if (storedAuth) {
-      console.log('✅ [AUTH] Utilisateur trouvé dans le stockage:', storedAuth.id);
-      setAuthState({
-        user: storedAuth,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } else {
-      console.log('❌ [AUTH] Aucun utilisateur dans le stockage');
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    }
+    // Écouter les changements d'état d'authentification Supabase
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('🔄 [AUTH] Changement d\'état Supabase:', event, session?.user?.id);
+        
+        if (session?.user) {
+          // Récupérer le profil utilisateur
+          const { data: profileData, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileData && !error) {
+            const user: User = {
+              id: profileData.id,
+              firstName: profileData.first_name,
+              lastName: profileData.last_name,
+              email: profileData.email,
+              phone: profileData.phone,
+              company: profileData.company,
+              isApproved: true,
+              createdAt: profileData.created_at,
+            };
+
+            setAuthState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+            
+            console.log('✅ [AUTH] Utilisateur Supabase connecté:', user.id);
+          } else {
+            console.error('❌ [AUTH] Erreur récupération profil:', error?.message);
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+          }
+        } else {
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          console.log('❌ [AUTH] Aucune session Supabase');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     const result = await authService.login(data);
-    
-    if (result.success && result.user) {
-      setAuthState({
-        user: result.user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      
-      // Stocker l'utilisateur localement si "se souvenir de moi" est coché
-      if (data.rememberMe) {
-        setStoredAuth(result.user);
-      }
-      
-      console.log('✅ [AUTH] Utilisateur connecté avec ID:', result.user.id);
-      return true;
-    }
-    
-    return false;
+    return result.success;
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
@@ -61,16 +79,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    console.log('👋 [AUTH] Déconnexion');
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    clearStoredAuth();
+    console.log('👋 [AUTH] Déconnexion Supabase');
+    await supabase.auth.signOut();
   };
 
-  console.log('📊 [AUTH] État actuel:', { 
+  console.log('📊 [AUTH] État actuel Supabase:', { 
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
     userId: authState.user?.id || 'none'
