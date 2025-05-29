@@ -39,7 +39,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     isProcessing,
     showConfirmation,
     recordingTime,
-    formatTime,
+    formatTime: formatRecordingTime, // Rename to avoid conflict
     startRecording,
     pauseRecording,
     resumeRecording,
@@ -48,7 +48,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     cancelRecording,
     showConsentModal,
     handleConsentGiven,
-    handleConsentRefused
+    handleConsentRefused,
+    setRecordingConfirmedCallback
   } = useAudioRecorder();
   
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
@@ -85,6 +86,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     const interval = setInterval(cleanupExpiredRecordings, 60 * 60 * 1000); // Check every hour
     return () => clearInterval(interval);
   }, [user?.id]);
+
+  // Set up the callback for when recording is confirmed
+  useEffect(() => {
+    setRecordingConfirmedCallback(addNewRecording);
+  }, [setRecordingConfirmedCallback]);
 
   const loadUserRecordings = () => {
     const savedRecordings = localStorage.getItem(`dorry_recordings_${user?.id}`);
@@ -161,7 +167,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDateDisplay = (date: Date) => {
     return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -169,7 +175,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  const formatTime = (date: Date) => {
+  const formatTimeDisplay = (date: Date) => {
     return date.toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit'
@@ -177,7 +183,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   };
 
   const getDefaultName = (date: Date) => {
-    return `Enregistrement du ${formatDate(date)}, ${formatTime(date)}`;
+    return `Enregistrement du ${formatDateDisplay(date)}, ${formatTimeDisplay(date)}`;
   };
 
   const handleStartEdit = (recording: Recording) => {
@@ -411,7 +417,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                       exit={{ opacity: 0, scale: 0.8 }} 
                       className="text-white text-sm sm:text-lg mb-8 sm:mb-10 md:mb-12 text-center"
                     >
-                      {isPaused ? 'Enregistrement en pause' : 'Enregistrement en cours...'} {formatTime(recordingTime)}
+                      {isPaused ? 'Enregistrement en pause' : 'Enregistrement en cours...'} {formatRecordingTime(recordingTime)}
                     </motion.div>
                   ) : (
                     <motion.div 
@@ -618,7 +624,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                         {recording.name || getDefaultName(recording.date)}
                                       </div>
                                       <div className="text-xs text-slate-400 flex items-center justify-between">
-                                        <span>{formatDate(recording.date)}, {formatTime(recording.date)}</span>
+                                        <span>{formatDateDisplay(recording.date)}, {formatTimeDisplay(recording.date)}</span>
                                         <span className="text-orange-400">
                                           Expire dans {getDaysUntilExpiry(recording.date)} jour(s)
                                         </span>
