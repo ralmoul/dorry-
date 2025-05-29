@@ -654,8 +654,8 @@ const Landing = () => {
                 <h4 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-cyan-400">Support</h4>
                 <div className="space-y-3">
                   <a href="/support" className="block text-slate-300 hover:text-cyan-400 transition-colors">Contact</a>
-                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">FAQ</a>
-                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">Tutoriels</a>
+                  
+                  
                 </div>
               </div>
               <div className="text-center md:text-left">
