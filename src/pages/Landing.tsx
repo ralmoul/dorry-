@@ -5,6 +5,7 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
+
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -431,9 +432,6 @@ const Landing = () => {
                     </div>
                   </div>)}
                 
-                {/* Central connecting element */}
-                
-                
                 {/* Connecting lines with synchronized animation */}
                 {Array.from({
                 length: 4
@@ -445,57 +443,80 @@ const Landing = () => {
               </div>
             </div>
             
-            {/* Feature Details - Right Side with synchronized transitions */}
+            {/* Feature Details - Right Side with mobile-optimized transitions */}
             <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{
             animationDelay: '0.3s'
           }}>
-              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg relative overflow-hidden">
-                {[{
-                title: "Parlez, Dorry écoute",
-                description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
-                icon: <Mic className="w-10 h-10 md:w-12 md:h-12" />
-              }, {
-                title: "Analyse instantanée par IA",
-                description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris. L'IA identifie les décisions et les actions à entreprendre avec une précision remarquable.",
-                icon: <Brain className="w-10 h-10 md:w-12 md:h-12" />
-              }, {
-                title: "Détection avancée",
-                description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV. Dorry reste connectée et attentive, même quand l'humain décroche.",
-                icon: <Search className="w-10 h-10 md:w-12 md:h-12" />
-              }, {
-                title: "Compte rendu détaillé",
-                description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
-                icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
-              }].map((feature, index) => <div key={index} className={`transition-all duration-400 ease-in-out ${activeFeature === index && !isTransitioning ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 absolute inset-0 p-8'}`} style={{
-                display: activeFeature === index ? 'block' : 'none'
-              }}>
-                    <div className="flex items-center mb-4">
-                      <div className="text-cyan-400 mr-4">
-                        {feature.icon}
+              <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 shadow-lg relative overflow-hidden">
+                {/* Container fixe pour maintenir la taille sur mobile */}
+                <div className="p-6 md:p-8 min-h-[300px] md:min-h-[250px] relative">
+                  {[{
+                    title: "Parlez, Dorry écoute",
+                    description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
+                    icon: <Mic className="w-8 h-8 md:w-10 md:h-10" />
+                  }, {
+                    title: "Analyse instantanée par IA",
+                    description: "Dorry comprend chaque échange, détecte les points clés, les adresses, les RDV pris. L'IA identifie les décisions et les actions à entreprendre avec une précision remarquable.",
+                    icon: <Brain className="w-8 h-8 md:w-10 md:h-10" />
+                  }, {
+                    title: "Détection avancée",
+                    description: "Repère automatiquement les adresses et vérifie si votre porteur de projet est en QPV. Dorry reste connectée et attentive, même quand l'humain décroche.",
+                    icon: <Search className="w-8 h-8 md:w-10 md:h-10" />
+                  }, {
+                    title: "Compte rendu détaillé",
+                    description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
+                    icon: <FileText className="w-8 h-8 md:w-10 md:h-10" />
+                  }].map((feature, index) => (
+                    <div 
+                      key={index} 
+                      className={`absolute inset-0 p-6 md:p-8 transition-all duration-500 ease-in-out ${
+                        activeFeature === index && !isTransitioning 
+                          ? 'opacity-100 translate-x-0' 
+                          : 'opacity-0 translate-x-4 md:translate-x-8'
+                      }`}
+                      style={{
+                        display: activeFeature === index ? 'block' : 'none'
+                      }}
+                    >
+                      <div className="flex items-start md:items-center mb-4">
+                        <div className="text-cyan-400 mr-3 md:mr-4 flex-shrink-0 mt-1 md:mt-0">
+                          {feature.icon}
+                        </div>
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                          {feature.title}
+                        </h3>
                       </div>
-                      <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                        {feature.title}
-                      </h3>
+                      <p className="text-base md:text-lg text-slate-300 leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
-                    <p className="text-lg text-slate-300 leading-relaxed">
-                      {feature.description}
-                    </p>
-                    
-                    {/* Feature navigation with progress indicator */}
-                    <div className="mt-8 flex justify-center space-x-2">
-                      {Array.from({
-                    length: 4
-                  }).map((_, i) => <button key={i} className={`relative w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-8' : 'bg-slate-600'}`} onClick={() => {
-                    setIsTransitioning(true);
-                    setTimeout(() => {
-                      setActiveFeature(i);
-                      setIsTransitioning(false);
-                    }, 200);
-                  }}>
-                        {activeFeature === i && <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>}
-                      </button>)}
-                    </div>
-                  </div>)}
+                  ))}
+                </div>
+                
+                {/* Feature navigation with progress indicator - positioned at bottom */}
+                <div className="p-6 md:p-8 pt-0 flex justify-center">
+                  <div className="flex space-x-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <button 
+                        key={i} 
+                        className={`relative h-2 md:h-3 rounded-full transition-all duration-300 ${
+                          activeFeature === i ? 'bg-cyan-400 w-6 md:w-8' : 'bg-slate-600 w-2 md:w-3'
+                        }`} 
+                        onClick={() => {
+                          setIsTransitioning(true);
+                          setTimeout(() => {
+                            setActiveFeature(i);
+                            setIsTransitioning(false);
+                          }, 200);
+                        }}
+                      >
+                        {activeFeature === i && (
+                          <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -834,4 +855,5 @@ const Landing = () => {
       </style>
     </div>;
 };
+
 export default Landing;
