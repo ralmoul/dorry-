@@ -66,7 +66,7 @@ const Landing = () => {
   }, [testimonials.length]);
   
   const handleMouseMove = (e) => {
-    const heroImage = document.querySelector('.hero-image');
+    const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
       const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
@@ -324,7 +324,7 @@ const Landing = () => {
                 description: "Tu envoies à Dorry l'enregistrement vocal d'un entretien ou d'un échange avec un porteur de projet."
               },
               {
-                icon: <FileText2 className="w-6 h-6" />,
+                icon: <FileText className="w-6 h-6" />,
                 title: "Transcription et journalisation",
                 description: "Dorry transcrit l'audio de façon fidèle (grâce à l'IA Whisper d'OpenAI), tout en conservant la confidentialité et la sécurité des données."
               },
@@ -772,7 +772,8 @@ const Landing = () => {
         </div>
       </footer>
 
-      <style jsx>{`
+      <style>
+        {`
         .nav-link {
           position: relative;
           font-weight: 500;
@@ -909,7 +910,9 @@ const Landing = () => {
         .animate-fadeInRight {
           animation: fadeInRight 1s ease-out forwards;
         }
-      `}</style>
+        `}
+      </style>
     </div>;
 };
+
 export default Landing;
