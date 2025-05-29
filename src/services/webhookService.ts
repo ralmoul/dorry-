@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/auth';
 
-const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
+const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2';
 
 interface WebhookData {
   audioBlob: Blob;
@@ -103,7 +103,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
   console.log('📱 [WEBHOOK] Plateforme détectée:', platform);
   
   // Vérification stricte de l'URL
-  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2') {
+  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook-test/d4e8f563-b641-484a-8e40-8ef6564362f2') {
     console.error('❌ [WEBHOOK] ERREUR CRITIQUE: URL incorrecte!');
     throw new Error('URL webhook incorrecte');
   }
