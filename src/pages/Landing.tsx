@@ -5,6 +5,7 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
+
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,6 +30,7 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
+  
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -53,12 +55,14 @@ const Landing = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [visibleWorkflowSteps]);
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
+  
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
@@ -76,6 +80,7 @@ const Landing = () => {
     const rect = el.getBoundingClientRect();
     return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
   };
+
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
@@ -327,7 +332,7 @@ const Landing = () => {
                     {step.icon}
                   </div>
                 </div>
-                <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
+                <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-lg transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg">
                   <h4 className="text-xl font-semibold text-white mb-2">{step.title}</h4>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
@@ -392,8 +397,8 @@ const Landing = () => {
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
-            {/* Feature Showcase - Left Side */}
-            <div className="flex-1 order-2 md:order-1 animate-fadeInLeft" style={{
+            {/* Feature Showcase - Left Side - Hidden on mobile */}
+            <div className="hidden md:flex flex-1 order-2 md:order-1 animate-fadeInLeft" style={{
             animationDelay: '0.3s'
           }}>
               <div className="relative aspect-square max-w-md mx-auto">
@@ -423,9 +428,6 @@ const Landing = () => {
                       {item.icon}
                     </div>
                   </div>)}
-                
-                {/* Central connecting element */}
-                
                 
                 {/* Connecting lines */}
                 {Array.from({
@@ -819,4 +821,5 @@ const Landing = () => {
       </style>
     </div>;
 };
+
 export default Landing;
