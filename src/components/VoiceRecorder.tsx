@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X } from 'lucide-react';
@@ -39,7 +38,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     isProcessing,
     showConfirmation,
     recordingTime,
-    formatTime: formatRecordingTime, // Rename to avoid conflict
+    formatTime: formatRecordingTime,
     startRecording,
     pauseRecording,
     resumeRecording,
@@ -69,28 +68,39 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   }, [user?.id]);
 
-  // Clean up expired recordings (older than 7 days)
+  // Clean up expired recordings (older than 7 days) and filter by last 7 days
   useEffect(() => {
-    const cleanupExpiredRecordings = () => {
+    const cleanupAndFilterRecordings = () => {
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       setRecordings(prev => {
+        // Filter recordings from the last 7 days (not just 7 recordings)
         const filtered = prev.filter(rec => new Date(rec.date) > sevenDaysAgo);
-        if (filtered.length !== prev.length) {
-          saveUserRecordings(filtered);
+        // Sort by date (most recent first)
+        const sorted = filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        if (sorted.length !== prev.length) {
+          saveUserRecordings(sorted);
         }
-        return filtered;
+        return sorted;
       });
     };
 
-    cleanupExpiredRecordings();
-    const interval = setInterval(cleanupExpiredRecordings, 60 * 60 * 1000); // Check every hour
-    return () => clearInterval(interval);
+    if (user?.id) {
+      cleanupAndFilterRecordings();
+      const interval = setInterval(cleanupAndFilterRecordings, 60 * 60 * 1000); // Check every hour
+      return () => clearInterval(interval);
+    }
   }, [user?.id]);
 
   // Set up the callback for when recording is confirmed
   useEffect(() => {
-    setRecordingConfirmedCallback(addNewRecording);
-  }, [setRecordingConfirmedCallback]);
+    const handleNewRecording = (blob: Blob, duration: number) => {
+      console.log('🎵 [VOICE_RECORDER] Nouveau enregistrement reçu:', { duration, size: blob.size });
+      addNewRecording(blob, duration);
+    };
+    
+    setRecordingConfirmedCallback(handleNewRecording);
+  }, [setRecordingConfirmedCallback, user?.id]);
 
   const loadUserRecordings = () => {
     const savedRecordings = localStorage.getItem(`dorry_recordings_${user?.id}`);
@@ -101,21 +111,32 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           ...rec,
           date: new Date(rec.date)
         }));
-        setRecordings(recordingsWithDates);
+        
+        // Filter recordings from the last 7 days and sort by date
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const filtered = recordingsWithDates.filter((rec: Recording) => new Date(rec.date) > sevenDaysAgo);
+        const sorted = filtered.sort((a: Recording, b: Recording) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        console.log('📂 [VOICE_RECORDER] Enregistrements chargés:', sorted.length);
+        setRecordings(sorted);
       } catch (error) {
-        console.error('Error loading recordings:', error);
+        console.error('❌ [VOICE_RECORDER] Erreur lors du chargement:', error);
       }
     }
   };
 
   const saveUserRecordings = (recs: Recording[]) => {
     if (user?.id) {
+      console.log('💾 [VOICE_RECORDER] Sauvegarde de', recs.length, 'enregistrements');
       localStorage.setItem(`dorry_recordings_${user.id}`, JSON.stringify(recs));
     }
   };
 
   const addNewRecording = (blob: Blob, duration: number) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.error('❌ [VOICE_RECORDER] Pas d\'utilisateur connecté');
+      return;
+    }
 
     const newRecording: Recording = {
       id: Date.now().toString(),
@@ -126,9 +147,20 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       userId: user.id
     };
 
-    const updatedRecordings = [newRecording, ...recordings].slice(0, 7); // Keep only last 7
-    setRecordings(updatedRecordings);
-    saveUserRecordings(updatedRecordings);
+    console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id);
+
+    setRecordings(prev => {
+      // Add new recording at the beginning (most recent first)
+      const updated = [newRecording, ...prev];
+      
+      // Filter recordings from the last 7 days only
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const filtered = updated.filter(rec => new Date(rec.date) > sevenDaysAgo);
+      
+      console.log('📝 [VOICE_RECORDER] Historique mis à jour:', filtered.length, 'enregistrements');
+      saveUserRecordings(filtered);
+      return filtered;
+    });
   };
 
   // Simule l'animation des ondes vocales
@@ -550,7 +582,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 <div className="w-full max-w-3xl mt-8">
                   <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
                     <h3 className="text-xl font-semibold text-white mb-4 text-center">
-                      Vos 7 derniers enregistrements
+                      Vos enregistrements des 7 derniers jours
                     </h3>
                     
                     {recordings.length === 0 ? (
