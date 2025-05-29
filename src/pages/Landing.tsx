@@ -56,7 +56,7 @@ const Landing = () => {
     return () => clearInterval(interval);
   }, [testimonials.length]);
 
-  // Auto-advance features with synchronized transitions - reduced to 8 seconds
+  // Auto-advance features with synchronized transitions
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
@@ -67,7 +67,7 @@ const Landing = () => {
         setIsTransitioning(false);
       }, 200); // Half transition duration
       
-    }, 8000); // Changed from 10000 to 8000 (8 seconds)
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -380,7 +380,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Fonctionnalités Section - Redesigned with targeted animations */}
+      {/* Fonctionnalités Section - Redesigned with more animations */}
       <section className="py-16 md:py-32 bg-slate-900 relative overflow-hidden" ref={featuresRef}>
         <div className="absolute inset-0 z-0">
           {Array.from({
@@ -406,12 +406,12 @@ const Landing = () => {
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
-            {/* Feature Showcase - Left Side - Only icon transitions */}
+            {/* Feature Showcase - Left Side */}
             <div className="flex-1 order-2 md:order-1 animate-fadeInLeft" style={{
             animationDelay: '0.3s'
           }}>
               <div className="relative aspect-square max-w-md mx-auto">
-                {/* Feature Icons with targeted Animation */}
+                {/* Feature Icons with Animation */}
                 {[{
                 icon: <Mic className="w-full h-full" />,
                 position: 'top-0 left-0',
@@ -428,35 +428,39 @@ const Landing = () => {
                 icon: <FileText className="w-full h-full" />,
                 position: 'bottom-0 right-0',
                 color: 'from-cyan-400 to-blue-500'
-              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position}`}>
-                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center border border-slate-700/50 shadow-lg transition-all duration-300 ease-in-out ${activeFeature === index && !isTransitioning ? 'shadow-2xl border-opacity-100 scale-110' : 'shadow-md border-opacity-30 scale-90 opacity-60'}`}>
-                      <div className={`text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 transition-all duration-300 ease-in-out ${isTransitioning ? 'blur-sm' : ''}`}>
-                        {item.icon}
-                      </div>
+              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-400 ease-in-out transform`} style={{
+                opacity: isTransitioning ? 0.2 : (activeFeature === index ? 1 : 0.3),
+                transform: `scale(${isTransitioning ? 0.8 : (activeFeature === index ? 1.1 : 0.9)}) translateX(${isTransitioning ? '0px' : (activeFeature === index ? '0px' : (index % 2 === 0 ? '-10px' : '10px'))})`,
+                filter: isTransitioning ? 'blur(2px)' : (activeFeature === index ? 'none' : 'blur(1px)')
+              }}>
+                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg transition-all duration-400 ease-in-out ${activeFeature === index && !isTransitioning ? 'shadow-2xl border-opacity-100' : 'shadow-md border-opacity-30'}`}>
+                      {item.icon}
                     </div>
                   </div>)}
                 
-                {/* Central connecting element - no transition */}
-                <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
+                {/* Central connecting element */}
+                <div className={`absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg transition-all duration-400 ease-in-out ${isTransitioning ? 'scale-90 opacity-50' : 'scale-100 opacity-100'}`}>
                   <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
                     Dorry
                   </div>
                 </div>
                 
-                {/* Connecting lines with targeted animation */}
+                {/* Connecting lines with synchronized animation */}
                 {Array.from({
                 length: 4
-              }).map((_, i) => <div key={i} className={`absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left transition-all duration-300 ease-in-out ${activeFeature === i ? 'opacity-100 w-2/5' : 'opacity-30 w-1/4'}`} style={{
-                transform: `rotate(${i * 90}deg)`
+              }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left transition-all duration-400 ease-in-out" style={{
+                transform: `rotate(${i * 90}deg)`,
+                opacity: isTransitioning ? 0.3 : (activeFeature === i ? 1 : 0.3),
+                width: isTransitioning ? '25%' : (activeFeature === i ? '40%' : '30%')
               }}></div>)}
               </div>
             </div>
             
-            {/* Feature Details - Right Side with targeted content transitions */}
+            {/* Feature Details - Right Side with synchronized transitions */}
             <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{
             animationDelay: '0.3s'
           }}>
-              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg relative overflow-hidden min-h-80">
+              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg relative overflow-hidden">
                 {[{
                 title: "Parlez, Dorry écoute",
                 description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
@@ -473,38 +477,38 @@ const Landing = () => {
                 title: "Compte rendu détaillé",
                 description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
                 icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
-              }].map((feature, index) => <div key={index} className={`absolute inset-0 p-8 transition-all duration-300 ease-in-out ${activeFeature === index ? 'opacity-100 translate-x-0' : isTransitioning ? 'opacity-0 translate-x-4' : 'opacity-0 translate-x-8'}`} style={{
-                pointerEvents: activeFeature === index ? 'auto' : 'none'
+              }].map((feature, index) => <div key={index} className={`transition-all duration-400 ease-in-out ${activeFeature === index && !isTransitioning ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 absolute inset-0 p-8'}`} style={{
+                display: activeFeature === index ? 'block' : 'none'
               }}>
                     <div className="flex items-center mb-4">
-                      <div className={`text-cyan-400 mr-4 transition-all duration-300 ease-in-out ${isTransitioning ? 'scale-90 blur-sm' : 'scale-100'}`}>
+                      <div className="text-cyan-400 mr-4">
                         {feature.icon}
                       </div>
-                      <h3 className={`text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-300 ease-in-out ${isTransitioning ? 'blur-sm' : ''}`}>
+                      <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
                         {feature.title}
                       </h3>
                     </div>
-                    <p className={`text-lg text-slate-300 leading-relaxed transition-all duration-300 ease-in-out ${isTransitioning ? 'blur-sm' : ''}`}>
+                    <p className="text-lg text-slate-300 leading-relaxed">
                       {feature.description}
                     </p>
-                  </div>)}
                     
-                {/* Feature navigation with progress indicator - no transition effect */}
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex justify-center space-x-2">
-                  {Array.from({
-                length: 4
-              }).map((_, i) => <button key={i} className={`relative w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-8' : 'bg-slate-600'}`} onClick={() => {
-                  setIsTransitioning(true);
-                  setTimeout(() => {
-                    setActiveFeature(i);
-                    setIsTransitioning(false);
-                  }, 200);
-                }}>
-                    {activeFeature === i && (
-                      <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>
-                    )}
-                  </button>)}
-                </div>
+                    {/* Feature navigation with progress indicator */}
+                    <div className="mt-8 flex justify-center space-x-2">
+                      {Array.from({
+                    length: 4
+                  }).map((_, i) => <button key={i} className={`relative w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-8' : 'bg-slate-600'}`} onClick={() => {
+                    setIsTransitioning(true);
+                    setTimeout(() => {
+                      setActiveFeature(i);
+                      setIsTransitioning(false);
+                    }, 200);
+                  }}>
+                        {activeFeature === i && (
+                          <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>
+                        )}
+                      </button>)}
+                    </div>
+                  </div>)}
               </div>
             </div>
           </div>
