@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecordingTimer } from '@/hooks/useRecordingTimer';
 import { useMediaRecorder } from '@/hooks/useMediaRecorder';
+import { useConsentManager } from '@/hooks/useConsentManager';
 import { sendAudioToWebhook } from '@/services/webhookService';
 
 export const useAudioRecorder = () => {
@@ -10,6 +11,13 @@ export const useAudioRecorder = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  const {
+    showConsentModal,
+    requestConsent,
+    giveConsent,
+    refuseConsent
+  } = useConsentManager();
   
   const {
     isRecording,
@@ -22,16 +30,31 @@ export const useAudioRecorder = () => {
     clearRecording
   } = useMediaRecorder();
   
-  // Passer isPaused au timer pour qu'il sache quand ne pas compter
   const { recordingTime, formatTime } = useRecordingTimer(isRecording, isPaused);
 
   const startRecording = useCallback(async () => {
+    console.log('🎤 [AUDIO_RECORDER] Tentative de démarrage de l\'enregistrement...');
+    
+    // Toujours demander le consentement avant d'enregistrer
+    console.log('🔒 [AUDIO_RECORDER] Demande du consentement...');
+    requestConsent();
+  }, [requestConsent]);
+
+  const handleConsentGiven = useCallback(async () => {
+    console.log('🎉 [AUDIO_RECORDER] Consentement reçu, démarrage automatique...');
+    giveConsent();
+    
     try {
-      console.log('🎤 [AUDIO_RECORDER] Démarrage de l\'enregistrement...');
+      console.log('✅ [AUDIO_RECORDER] Démarrage de l\'enregistrement...');
       await startMediaRecording();
       setShowConfirmation(false);
       
       console.log('✅ [AUDIO_RECORDER] Enregistrement démarré avec succès');
+      
+      toast({
+        title: "Enregistrement démarré",
+        description: "Votre message vocal est en cours d'enregistrement.",
+      });
     } catch (error) {
       console.error('❌ [AUDIO_RECORDER] Erreur lors du démarrage:', error);
       toast({
@@ -40,7 +63,18 @@ export const useAudioRecorder = () => {
         variant: "destructive",
       });
     }
-  }, [startMediaRecording, toast]);
+  }, [giveConsent, startMediaRecording, toast]);
+
+  const handleConsentRefused = useCallback(() => {
+    console.log('❌ [AUDIO_RECORDER] Consentement refusé');
+    refuseConsent();
+    
+    toast({
+      title: "Consentement refusé",
+      description: "L'enregistrement vocal ne sera pas disponible.",
+      variant: "destructive",
+    });
+  }, [refuseConsent, toast]);
 
   const pauseRecording = useCallback(() => {
     console.log('⏸️ [AUDIO_RECORDER] Pause de l\'enregistrement...');
@@ -131,5 +165,9 @@ export const useAudioRecorder = () => {
     stopRecording,
     confirmSend,
     cancelRecording,
+    // Consent management
+    showConsentModal,
+    handleConsentGiven,
+    handleConsentRefused
   };
 };
