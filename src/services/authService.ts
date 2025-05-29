@@ -1,7 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData } from '@/types/auth';
-import bcrypt from 'bcryptjs';
 
 export const authService = {
   async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; user?: User }> {
@@ -20,10 +19,10 @@ export const authService = {
         return { success: false };
       }
 
-      // Vérifier le mot de passe
-      const isPasswordValid = await bcrypt.compare(data.password, userData.password_hash);
+      // Vérifier le mot de passe (comparaison directe pour l'instant)
+      const isPasswordValid = data.password === userData.password_hash;
       if (!isPasswordValid) {
-        console.error('❌ [LOGIN] Mot de passe incorrect');
+        console.error('❌ [LOGIN] Mot de passe incorrect. Attendu:', userData.password_hash, 'Reçu:', data.password);
         return { success: false };
       }
 
@@ -70,10 +69,7 @@ export const authService = {
         return false;
       }
 
-      // Hasher le mot de passe
-      const passwordHash = await bcrypt.hash(data.password, 10);
-
-      // Créer l'utilisateur
+      // Créer l'utilisateur avec mot de passe en clair pour l'instant
       const { error } = await supabase
         .from('users')
         .insert({
@@ -82,7 +78,7 @@ export const authService = {
           email: data.email,
           phone: data.phone,
           company: data.company,
-          password_hash: passwordHash,
+          password_hash: data.password, // Stockage en clair pour l'instant
           is_approved: true, // Auto-approuvé pour simplifier
         });
 
