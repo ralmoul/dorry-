@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { Settings } from '@/components/Settings';
@@ -42,7 +43,6 @@ const Index = () => {
 
       {/* Header */}
       <header className="relative z-10 flex justify-between items-center p-4 md:p-6">
-        <span className="absolute top-2 left-1/2 transform -translate-x-1/2 text-lg sm:text-xl">✨</span>
         <div className="flex items-center space-x-3">
           <img 
             src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" 
@@ -55,6 +55,7 @@ const Index = () => {
         </div>
         
         <div className="flex items-center space-x-2">
+          <span className="text-lg sm:text-xl">✨</span>
           <Button
             variant="ghost"
             size="icon"
