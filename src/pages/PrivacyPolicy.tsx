@@ -68,7 +68,24 @@ const PrivacyPolicy = () => {
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">2. Utilisation des données</h2>
+                  <h2 className="text-2xl font-bold mb-4">2. Consentement à l'enregistrement vocal</h2>
+                  <p className="mb-4">
+                    Conformément au RGPD, Dorry exige votre consentement explicite avant tout enregistrement vocal :
+                  </p>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Un modal de consentement s'affiche avant chaque nouvel enregistrement</li>
+                    <li>Le porteur de projet et vous devez accepter que le message soit enregistré et traité selon cette politique de confidentialité</li>
+                    <li>Vous pouvez refuser l'enregistrement à tout moment</li>
+                    <li>Aucun enregistrement ne peut démarrer sans votre consentement explicite</li>
+                    <li>Vous gardez le contrôle total sur vos données vocales</li>
+                  </ul>
+                  <p className="mt-4 text-sm bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                    <strong>Important :</strong> En fermant le modal de consentement ou en cliquant sur "Refuser", aucun enregistrement ne sera effectué et vous pourrez continuer à utiliser les autres fonctionnalités de l'application.
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">3. Utilisation des données</h2>
                   <p className="mb-4">
                     Vos données sont utilisées exclusivement pour :
                   </p>
@@ -81,14 +98,14 @@ const PrivacyPolicy = () => {
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">3. Protection des données</h2>
+                  <h2 className="text-2xl font-bold mb-4">4. Protection des données</h2>
                   <p>
                     Toutes vos données sont chiffrées et stockées de manière sécurisée. Nous respectons le RGPD et ne partageons jamais vos données avec des tiers sans votre consentement explicite.
                   </p>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">4. Vos droits</h2>
+                  <h2 className="text-2xl font-bold mb-4">5. Vos droits</h2>
                   <p>Vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à contact@dorry.app.</p>
                 </section>
               </div>
