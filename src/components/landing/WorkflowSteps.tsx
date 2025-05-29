@@ -1,9 +1,10 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mic, FileText, User, FileCheck, BarChart3, FileSpreadsheet, Mail } from 'lucide-react';
 
 export const WorkflowSteps = () => {
   const [visibleWorkflowSteps, setVisibleWorkflowSteps] = useState(0);
+  const [hasStartedAnimation, setHasStartedAnimation] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const steps = [
     {
@@ -44,6 +45,34 @@ export const WorkflowSteps = () => {
   ];
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasStartedAnimation) {
+            setHasStartedAnimation(true);
+          }
+        });
+      },
+      {
+        threshold: 0.2, // L'animation se déclenche quand 20% de la section est visible
+        rootMargin: '-50px 0px -50px 0px' // Marge pour s'assurer que la section est bien visible
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, [hasStartedAnimation]);
+
+  useEffect(() => {
+    if (!hasStartedAnimation) return;
+
     const timer = setTimeout(() => {
       if (visibleWorkflowSteps < steps.length) {
         setVisibleWorkflowSteps(prev => prev + 1);
@@ -51,10 +80,10 @@ export const WorkflowSteps = () => {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [visibleWorkflowSteps, steps.length]);
+  }, [visibleWorkflowSteps, steps.length, hasStartedAnimation]);
 
   return (
-    <div className="max-w-4xl mx-auto relative">
+    <div ref={sectionRef} className="max-w-4xl mx-auto relative">
       {/* Ligne verticale de connexion - masquée sur très petit écran */}
       <div className="absolute top-0 bottom-0 left-6 md:left-8 lg:left-10 w-0.5 bg-gradient-to-b from-cyan-400 to-blue-500 z-0 hidden sm:block"></div>
       
