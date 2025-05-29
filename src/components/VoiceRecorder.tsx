@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, Pause, Play } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,11 +20,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   } = useAuth();
   const {
     isRecording,
+    isPaused,
     isProcessing,
     showConfirmation,
     recordingTime,
     formatTime,
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
     confirmSend,
     cancelRecording
@@ -43,7 +46,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   // Simule l'animation des ondes vocales
   useEffect(() => {
-    if (isRecording) {
+    if (isRecording && !isPaused) {
       waveformRef.current = setInterval(() => {
         setWaveform(prev => prev.map(() => Math.floor(Math.random() * 30) + 5));
       }, 150);
@@ -59,13 +62,21 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       if (waveformRef.current) clearInterval(waveformRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isRecording]);
+  }, [isRecording, isPaused]);
 
   const handleMicClick = () => {
     if (isRecording) {
       stopRecording();
     } else {
       startRecording();
+    }
+  };
+
+  const handlePauseResumeClick = () => {
+    if (isPaused) {
+      resumeRecording();
+    } else {
+      pauseRecording();
     }
   };
 
@@ -150,7 +161,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     exit={{ opacity: 0, scale: 0.8 }}
                     className="text-white text-sm sm:text-lg mb-8 sm:mb-10 md:mb-12 text-center"
                   >
-                    Enregistrement en cours... {formatTime(recordingTime)}
+                    {isPaused ? 'Enregistrement en pause' : 'Enregistrement en cours...'} {formatTime(recordingTime)}
                   </motion.div>
                 ) : (
                   <motion.div
@@ -169,7 +180,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               <div className="relative mb-8 sm:mb-10 md:mb-12">
                 {/* Cercles concentriques animés */}
                 <AnimatePresence>
-                  {isRecording && <>
+                  {isRecording && !isPaused && <>
                       <motion.div initial={{
                   scale: 0,
                   opacity: 0.7
@@ -211,11 +222,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                         className="w-1 mx-0.5 rounded-full bg-gradient-to-t from-bright-turquoise to-electric-blue"
                         style={{
                           height: `${height}px`,
-                          opacity: isRecording ? 0.8 : 0.3
+                          opacity: isRecording && !isPaused ? 0.8 : 0.3
                         }}
                         animate={{
                           height: `${height}px`,
-                          opacity: isRecording ? 0.8 : 0.3
+                          opacity: isRecording && !isPaused ? 0.8 : 0.3
                         }}
                         transition={{ duration: 0.1 }}
                       />
@@ -223,54 +234,76 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   </div>
                 </div>
                 
-                {/* Bouton du micro */}
-                <motion.button
-                  onClick={handleMicClick}
-                  className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full flex items-center justify-center focus:outline-none ${
-                    isRecording
-                      ? 'bg-gradient-to-r from-red-500 to-red-600'
-                      : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  animate={{
-                    boxShadow: isRecording
-                      ? [
-                          '0 0 0 0 rgba(239, 68, 68, 0)',
-                          '0 0 0 15px rgba(239, 68, 68, 0.3)',
-                          '0 0 0 0 rgba(239, 68, 68, 0)'
-                        ]
-                      : [
-                          '0 0 0 0 rgba(0, 184, 212, 0)',
-                          '0 0 0 10px rgba(0, 184, 212, 0.3)',
-                          '0 0 0 0 rgba(0, 184, 212, 0)'
-                        ]
-                  }}
-                  transition={{
-                    boxShadow: {
-                      repeat: Infinity,
-                      duration: 1.5
-                    }
-                  }}
-                >
-                  <motion.div
+                {/* Contrôles d'enregistrement */}
+                <div className="flex items-center justify-center space-x-4">
+                  {/* Bouton pause/reprise (seulement visible pendant l'enregistrement) */}
+                  {isRecording && (
+                    <motion.button
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      onClick={handlePauseResumeClick}
+                      className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center focus:outline-none bg-gradient-to-r from-yellow-500 to-orange-500"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {isPaused ? (
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                      ) : (
+                        <Pause className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                      )}
+                    </motion.button>
+                  )}
+
+                  {/* Bouton du micro principal */}
+                  <motion.button
+                    onClick={handleMicClick}
+                    className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full flex items-center justify-center focus:outline-none ${
+                      isRecording
+                        ? 'bg-gradient-to-r from-red-500 to-red-600'
+                        : 'bg-gradient-to-r from-bright-turquoise to-electric-blue'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     animate={{
-                      scale: isRecording ? [1, 1.2, 1] : 1
+                      boxShadow: isRecording && !isPaused
+                        ? [
+                            '0 0 0 0 rgba(239, 68, 68, 0)',
+                            '0 0 0 15px rgba(239, 68, 68, 0.3)',
+                            '0 0 0 0 rgba(239, 68, 68, 0)'
+                          ]
+                        : [
+                            '0 0 0 0 rgba(0, 184, 212, 0)',
+                            '0 0 0 10px rgba(0, 184, 212, 0.3)',
+                            '0 0 0 0 rgba(0, 184, 212, 0)'
+                          ]
                     }}
                     transition={{
-                      scale: {
-                        repeat: isRecording ? Infinity : 0,
-                        duration: 1
+                      boxShadow: {
+                        repeat: Infinity,
+                        duration: 1.5
                       }
                     }}
                   >
-                    {isRecording ? (
-                      <MicOff className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-white" />
-                    ) : (
-                      <Mic className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-white" />
-                    )}
-                  </motion.div>
-                </motion.button>
+                    <motion.div
+                      animate={{
+                        scale: isRecording && !isPaused ? [1, 1.2, 1] : 1
+                      }}
+                      transition={{
+                        scale: {
+                          repeat: isRecording && !isPaused ? Infinity : 0,
+                          duration: 1
+                        }
+                      }}
+                    >
+                      {isRecording ? (
+                        <MicOff className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-white" />
+                      ) : (
+                        <Mic className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-white" />
+                      )}
+                    </motion.div>
+                  </motion.button>
+                </div>
               </div>
               
               {/* Carte d'information avec espacement plus grand */}
@@ -286,7 +319,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           }}>
                 <div className="flex items-center mb-6 sm:mb-7">
                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue flex items-center justify-center">
-                    <span className="text-white text-sm sm:text-base">⚡</span>
+                    <Mic className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
                   <h3 className="ml-3 text-base sm:text-lg font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
                     IA & automatisation

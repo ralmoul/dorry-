@@ -14,13 +14,16 @@ export const useAudioRecorder = () => {
   
   const {
     isRecording,
+    isPaused,
     recordingBlob,
     startRecording: startMediaRecording,
+    pauseRecording: pauseMediaRecording,
+    resumeRecording: resumeMediaRecording,
     stopRecording: stopMediaRecording,
     clearRecording
   } = useMediaRecorder();
   
-  const { recordingTime, formatTime } = useRecordingTimer(isRecording);
+  const { recordingTime, formatTime } = useRecordingTimer(isRecording && !isPaused);
 
   const startRecording = useCallback(async () => {
     try {
@@ -38,6 +41,16 @@ export const useAudioRecorder = () => {
       });
     }
   }, [startMediaRecording, toast]);
+
+  const pauseRecording = useCallback(() => {
+    console.log('⏸️ [AUDIO_RECORDER] Pause de l\'enregistrement...');
+    pauseMediaRecording();
+  }, [pauseMediaRecording]);
+
+  const resumeRecording = useCallback(() => {
+    console.log('▶️ [AUDIO_RECORDER] Reprise de l\'enregistrement...');
+    resumeMediaRecording();
+  }, [resumeMediaRecording]);
 
   const stopRecording = useCallback(() => {
     console.log('⏹️ [AUDIO_RECORDER] Arrêt de l\'enregistrement...');
@@ -107,11 +120,14 @@ export const useAudioRecorder = () => {
 
   return {
     isRecording,
+    isPaused,
     isProcessing,
     showConfirmation,
     recordingTime,
     formatTime,
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
     confirmSend,
     cancelRecording,

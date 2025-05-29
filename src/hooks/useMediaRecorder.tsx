@@ -7,6 +7,7 @@ import { createAudioBlob } from '@/utils/audioBlobProcessor';
 
 export const useMediaRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [recordingBlob, setRecordingBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -44,6 +45,7 @@ export const useMediaRecorder = () => {
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
       setRecordingBlob(null);
+      setIsPaused(false);
 
       mediaRecorder.ondataavailable = (event) => {
         console.log('📊 Chunk reçu:', {
@@ -95,6 +97,16 @@ export const useMediaRecorder = () => {
         });
       };
 
+      mediaRecorder.onpause = () => {
+        console.log('⏸️ Enregistrement en pause');
+        setIsPaused(true);
+      };
+
+      mediaRecorder.onresume = () => {
+        console.log('▶️ Enregistrement repris');
+        setIsPaused(false);
+      };
+
       const chunkInterval = getChunkInterval(deviceInfo);
       console.log(`⏱️ Démarrage avec intervalle de ${chunkInterval}ms pour ${deviceInfo.platform}`);
       
@@ -121,15 +133,44 @@ export const useMediaRecorder = () => {
     }
   }, []);
 
+  const pauseRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording && !isPaused) {
+      console.log('⏸️ Mise en pause de l\'enregistrement...');
+      try {
+        if (mediaRecorderRef.current.state === 'recording') {
+          mediaRecorderRef.current.pause();
+          console.log('✅ Enregistrement mis en pause');
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors de la pause:', error);
+      }
+    }
+  }, [isRecording, isPaused]);
+
+  const resumeRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording && isPaused) {
+      console.log('▶️ Reprise de l\'enregistrement...');
+      try {
+        if (mediaRecorderRef.current.state === 'paused') {
+          mediaRecorderRef.current.resume();
+          console.log('✅ Enregistrement repris');
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors de la reprise:', error);
+      }
+    }
+  }, [isRecording, isPaused]);
+
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       console.log('⏹️ Demande d\'arrêt de l\'enregistrement...');
       console.log('📊 État MediaRecorder:', mediaRecorderRef.current.state);
       
       try {
-        if (mediaRecorderRef.current.state === 'recording') {
+        if (mediaRecorderRef.current.state === 'recording' || mediaRecorderRef.current.state === 'paused') {
           mediaRecorderRef.current.stop();
           setIsRecording(false);
+          setIsPaused(false);
           console.log('✅ Arrêt demandé');
         } else {
           console.warn('⚠️ MediaRecorder pas en cours d\'enregistrement:', mediaRecorderRef.current.state);
@@ -137,6 +178,7 @@ export const useMediaRecorder = () => {
       } catch (error) {
         console.error('❌ Erreur lors de l\'arrêt:', error);
         setIsRecording(false);
+        setIsPaused(false);
       }
     } else {
       console.warn('⚠️ Pas d\'enregistrement en cours à arrêter');
@@ -146,6 +188,7 @@ export const useMediaRecorder = () => {
   const clearRecording = useCallback(() => {
     setRecordingBlob(null);
     chunksRef.current = [];
+    setIsPaused(false);
     
     // Nettoyage complet
     if (streamRef.current) {
@@ -162,8 +205,11 @@ export const useMediaRecorder = () => {
 
   return {
     isRecording,
+    isPaused,
     recordingBlob,
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
     clearRecording
   };
