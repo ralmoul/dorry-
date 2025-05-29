@@ -9,23 +9,6 @@ import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, Arro
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  const testimonials = [{
-    text: "Dorry a complètement transformé nos réunions d'équipe. Nous gagnons au moins 2 heures par semaine sur la rédaction des comptes rendus.",
-    author: "Sophie M.",
-    position: "Directrice de projet",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face"
-  }, {
-    text: "La précision de l'analyse est bluffante. Dorry capte des détails que j'aurais manqués, même en prenant des notes.",
-    author: "Thomas L.",
-    position: "Consultant",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
-  }, {
-    text: "L'intégration de Dorry dans notre workflow a augmenté notre productivité de 30%. Un investissement qui vaut vraiment le coup.",
-    author: "Julie D.",
-    position: "CEO Startup",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
-  }];
   
   useEffect(() => {
     const handleScroll = () => {
