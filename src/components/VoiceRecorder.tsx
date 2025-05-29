@@ -119,22 +119,49 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  // Convert base64 back to blob
+  // Convert base64 back to blob - VERSION CORRIGÉE
   const base64ToBlob = (base64: string, type: string): Blob => {
     try {
+      // Vérifications préalables
+      if (!base64 || typeof base64 !== 'string') {
+        throw new Error('Base64 data is invalid or empty');
+      }
+      
+      if (!type || typeof type !== 'string') {
+        throw new Error('MIME type is invalid or empty');
+      }
+
+      console.log('🔄 [VOICE_RECORDER] Début reconstitution blob:', {
+        base64Length: base64.length,
+        type: type,
+        base64Preview: base64.substring(0, 50) + '...'
+      });
+      
       const byteCharacters = atob(base64);
       const byteNumbers = new Array(byteCharacters.length);
+      
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
+      
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type });
       
-      console.log('🔄 [VOICE_RECORDER] Blob reconstitué:', {
+      // Vérifications post-création
+      if (!(blob instanceof Blob)) {
+        throw new Error('Failed to create valid Blob object');
+      }
+      
+      if (blob.size === 0) {
+        throw new Error('Created blob is empty');
+      }
+      
+      console.log('✅ [VOICE_RECORDER] Blob reconstitué avec succès:', {
         size: blob.size,
         type: blob.type,
         isBlob: blob instanceof Blob,
-        constructor: blob.constructor.name
+        constructor: blob.constructor.name,
+        isValidBlob: blob instanceof Blob && blob.size > 0
       });
       
       return blob;
@@ -151,29 +178,25 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         const parsed = JSON.parse(savedRecordings);
         const recordingsWithDates = await Promise.all(parsed.map(async (rec: any) => {
           const recording: Recording = {
-            ...rec,
-            date: new Date(rec.date)
+            id: rec.id,
+            name: rec.name,
+            date: new Date(rec.date),
+            duration: rec.duration,
+            userId: rec.userId
           };
 
-          // Reconstitute blob from base64 if available
-          if (rec.blobData && rec.blobType) {
+          // Reconstitution du blob UNIQUEMENT si les données sont valides
+          if (rec.blobData && rec.blobType && typeof rec.blobData === 'string' && rec.blobData.length > 0) {
             try {
-              // Vérification des données avant reconstitution
-              if (typeof rec.blobData === 'string' && rec.blobData.length > 0) {
-                recording.blob = base64ToBlob(rec.blobData, rec.blobType);
-                console.log('✅ [VOICE_RECORDER] Blob reconstitué pour:', rec.id, {
-                  originalSize: rec.blobData.length,
-                  finalSize: recording.blob.size,
-                  type: recording.blob.type,
-                  isValidBlob: recording.blob instanceof Blob
-                });
-              } else {
-                console.warn('⚠️ [VOICE_RECORDER] Données blob invalides pour:', rec.id);
-              }
+              console.log('🔄 [VOICE_RECORDER] Tentative de reconstitution pour:', rec.id);
+              recording.blob = base64ToBlob(rec.blobData, rec.blobType);
+              console.log('✅ [VOICE_RECORDER] Blob reconstitué avec succès pour:', rec.id);
             } catch (error) {
-              console.error('❌ [VOICE_RECORDER] Erreur lors de la reconstitution du blob pour', rec.id, ':', error);
-              // On continue sans le blob
+              console.error('❌ [VOICE_RECORDER] Échec reconstitution blob pour', rec.id, ':', error);
+              // Pas de blob pour cet enregistrement - c'est OK
             }
+          } else {
+            console.log('⚠️ [VOICE_RECORDER] Pas de données blob valides pour:', rec.id);
           }
 
           return recording;
@@ -206,7 +229,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           userId: rec.userId
         };
 
-        // Convert blob to base64 if it exists
+        // Convert blob to base64 if it exists and is valid
         if (rec.blob && rec.blob instanceof Blob && rec.blob.size > 0) {
           try {
             recordingForStorage.blobData = await blobToBase64(rec.blob);
@@ -448,71 +471,51 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
+  // VERSION CORRIGÉE de handleResend
   const handleResend = async (recording: Recording) => {
     console.log('🔄 [VOICE_RECORDER] Tentative de renvoi pour:', recording.id);
-    console.log('📊 [VOICE_RECORDER] Recording object détaillé:', {
-      id: recording.id,
-      hasBlob: !!recording.blob,
-      blobType: recording.blob?.constructor?.name,
-      blobSize: recording.blob?.size,
-      mimeType: recording.blob?.type,
-      isBlob: recording.blob instanceof Blob,
-      blobToString: recording.blob?.toString()
-    });
-
+    
+    // Vérification stricte du blob
     if (!recording.blob) {
       console.error('❌ [VOICE_RECORDER] Pas de blob disponible');
       toast({
         title: "Erreur",
-        description: "Enregistrement non disponible pour le renvoi. Seuls les nouveaux enregistrements peuvent être renvoyés.",
+        description: "Enregistrement non disponible pour le renvoi.",
         variant: "destructive"
       });
       return;
     }
 
-    // Vérification stricte que c'est bien un Blob natif
-    if (!(recording.blob instanceof Blob) || recording.blob.constructor.name !== 'Blob') {
-      console.error('❌ [VOICE_RECORDER] L\'objet n\'est pas un Blob valide:', {
-        type: typeof recording.blob,
-        constructor: recording.blob?.constructor?.name,
-        isBlob: recording.blob instanceof Blob
-      });
-      toast({
-        title: "Erreur",
-        description: "L'enregistrement n'est pas un blob valide.",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Vérifications multiples du blob
+    const isValidBlob = recording.blob instanceof Blob 
+      && recording.blob.constructor.name === 'Blob'
+      && recording.blob.size > 0;
 
-    // Vérification que le blob n'est pas vide
-    if (recording.blob.size === 0) {
-      console.error('❌ [VOICE_RECORDER] Blob vide');
-      toast({
-        title: "Erreur",
-        description: "L'enregistrement est vide.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Vérification du type MIME
-    if (!recording.blob.type || !recording.blob.type.startsWith('audio/')) {
-      console.warn('⚠️ [VOICE_RECORDER] Type MIME manquant ou invalide:', recording.blob.type);
-      // On continue quand même car certains navigateurs peuvent avoir des types MIME vides
-    }
-
-    console.log('✅ [VOICE_RECORDER] Blob validé pour le renvoi:', {
+    console.log('🔍 [VOICE_RECORDER] Vérification blob complète:', {
+      id: recording.id,
+      isBlob: recording.blob instanceof Blob,
+      constructor: recording.blob.constructor.name,
       size: recording.blob.size,
       type: recording.blob.type,
-      isBlob: recording.blob instanceof Blob,
-      constructor: recording.blob.constructor.name
+      isValidBlob: isValidBlob,
+      toString: recording.blob.toString()
     });
 
+    if (!isValidBlob) {
+      console.error('❌ [VOICE_RECORDER] Blob invalide détecté');
+      toast({
+        title: "Erreur",
+        description: "L'enregistrement n'est pas valide pour le renvoi. Veuillez créer un nouvel enregistrement.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('✅ [VOICE_RECORDER] Blob validé, procédure de renvoi...');
     setResendingId(recording.id);
     
     try {
-      console.log('🚀 [VOICE_RECORDER] Envoi du blob vers sendAudioToWebhook...');
+      console.log('🚀 [VOICE_RECORDER] Envoi vers sendAudioToWebhook...');
       const result = await sendAudioToWebhook(recording.blob, user);
       
       console.log('✅ [VOICE_RECORDER] Renvoi réussi:', result);
