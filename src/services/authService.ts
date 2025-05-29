@@ -5,82 +5,58 @@ import { User, SignupFormData, LoginFormData } from '@/types/auth';
 export const authService = {
   async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; user?: User }> {
     try {
-      console.log('🔐 [LOGIN] Starting login process for:', data.email);
+      console.log('🔐 [LOGIN] Starting Supabase login for:', data.email);
       
-      // Validate input
-      if (!data.email || !data.password) {
-        console.error('❌ [LOGIN] Missing email or password');
+      // Utiliser l'authentification Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (authError) {
+        console.error('❌ [LOGIN] Supabase auth error:', authError.message);
         return { success: false };
       }
 
-      const cleanEmail = data.email.toLowerCase().trim();
-      console.log('🔍 [LOGIN] Searching for user with email:', cleanEmail);
-      
-      // Query users table directly (no RLS now)
-      const { data: users, error } = await supabase
-        .from('users')
+      if (!authData.user) {
+        console.error('❌ [LOGIN] No user returned from Supabase');
+        return { success: false };
+      }
+
+      console.log('✅ [LOGIN] Supabase authentication successful');
+
+      // Récupérer le profil utilisateur depuis la table profiles
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
         .select('*')
-        .eq('email', cleanEmail)
-        .limit(1);
-      
-      console.log('📊 [LOGIN] Query result:', { 
-        users: users?.length || 0, 
-        error: error?.message || 'none',
-        errorCode: error?.code || 'none'
-      });
-      
-      if (error) {
-        console.error('❌ [LOGIN] Database error:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('❌ [LOGIN] Error fetching profile:', profileError.message);
         return { success: false };
       }
-      
-      if (!users || users.length === 0) {
-        console.log('❌ [LOGIN] No user found with email:', cleanEmail);
+
+      if (!profile) {
+        console.error('❌ [LOGIN] No profile found for user');
         return { success: false };
       }
-      
-      const dbUser = users[0];
-      console.log('✅ [LOGIN] User found:', { 
-        id: dbUser.id, 
-        email: dbUser.email, 
-        approved: dbUser.is_approved,
-        firstName: dbUser.first_name
-      });
-      
-      // Check if user is approved
-      if (!dbUser.is_approved) {
-        console.log('❌ [LOGIN] User not approved yet');
-        return { success: false };
-      }
-      
-      // Check password
-      if (data.password !== dbUser.password_hash) {
-        console.log('❌ [LOGIN] Invalid password');
-        return { success: false };
-      }
-      
-      console.log('🎉 [LOGIN] Authentication successful!');
-      
-      // Create user object
+
+      // Créer l'objet user avec les données du profil
       const user: User = {
-        id: dbUser.id,
-        firstName: dbUser.first_name,
-        lastName: dbUser.last_name,
-        email: dbUser.email,
-        phone: dbUser.phone,
-        company: dbUser.company,
-        isApproved: dbUser.is_approved,
-        createdAt: dbUser.created_at,
+        id: profile.id,
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        email: profile.email,
+        phone: profile.phone,
+        company: profile.company,
+        isApproved: true, // Si l'utilisateur peut se connecter, il est approuvé
+        createdAt: profile.created_at,
       };
-      
-      console.log('✅ [LOGIN] Login process completed successfully');
+
+      console.log('🎉 [LOGIN] Login successful with profile data');
       return { success: true, user };
-      
+
     } catch (error) {
       console.error('💥 [LOGIN] Unexpected error:', error);
       return { success: false };
@@ -89,82 +65,37 @@ export const authService = {
 
   async signup(data: SignupFormData): Promise<boolean> {
     try {
-      console.log('📝 [SIGNUP] Starting signup process for:', data.email);
+      console.log('📝 [SIGNUP] Starting Supabase signup for:', data.email);
       
-      // Validate all required fields
-      const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'company', 'password'];
-      const missingFields = requiredFields.filter(field => !data[field as keyof SignupFormData]?.trim());
-      
-      if (missingFields.length > 0) {
-        console.error('❌ [SIGNUP] Missing required fields:', missingFields);
-        return false;
-      }
-      
-      const cleanEmail = data.email.toLowerCase().trim();
-      console.log('🔍 [SIGNUP] Checking if email exists:', cleanEmail);
-      
-      // Check if email already exists
-      const { data: existingUsers, error: checkError } = await supabase
-        .from('users')
-        .select('id, email')
-        .eq('email', cleanEmail)
-        .limit(1);
-      
-      console.log('📊 [SIGNUP] Email check result:', { 
-        existing: existingUsers?.length || 0, 
-        error: checkError?.message || 'none' 
+      // Créer l'utilisateur avec Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+            phone: data.phone,
+            company: data.company,
+          }
+        }
       });
-      
-      if (checkError) {
-        console.error('❌ [SIGNUP] Error checking existing email:', checkError);
+
+      if (authError) {
+        console.error('❌ [SIGNUP] Supabase signup error:', authError.message);
         return false;
       }
-      
-      if (existingUsers && existingUsers.length > 0) {
-        console.error('❌ [SIGNUP] Email already exists');
+
+      if (!authData.user) {
+        console.error('❌ [SIGNUP] No user created');
         return false;
       }
+
+      console.log('🎉 [SIGNUP] User created successfully with ID:', authData.user.id);
       
-      console.log('✅ [SIGNUP] Email available, creating user...');
-      
-      // Create new user
-      const newUserData = {
-        first_name: data.firstName.trim(),
-        last_name: data.lastName.trim(),
-        email: cleanEmail,
-        phone: data.phone.trim(),
-        company: data.company.trim(),
-        password_hash: data.password, // Plain text for now
-        is_approved: false
-      };
-      
-      console.log('📝 [SIGNUP] Inserting user data:', { 
-        ...newUserData, 
-        password_hash: '[HIDDEN]' 
-      });
-      
-      const { data: newUser, error: insertError } = await supabase
-        .from('users')
-        .insert([newUserData])
-        .select()
-        .single();
-      
-      if (insertError) {
-        console.error('❌ [SIGNUP] Insert error:', {
-          message: insertError.message,
-          code: insertError.code,
-          details: insertError.details
-        });
-        return false;
-      }
-      
-      console.log('🎉 [SIGNUP] User created successfully:', { 
-        id: newUser.id, 
-        email: newUser.email 
-      });
-      
+      // Le profil sera créé automatiquement par le trigger
       return true;
-      
+
     } catch (error) {
       console.error('💥 [SIGNUP] Unexpected error:', error);
       return false;
