@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-50 py-3 md:py-4 bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200">
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
@@ -15,6 +15,7 @@ const Contact = () => {
           <a 
             href="/" 
             className="flex items-center space-x-2 px-4 py-2 border border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors"
+            style={{ color: '#06b6d4' }}
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Retour</span>
@@ -35,13 +36,13 @@ const Contact = () => {
                 <h2 className="text-2xl md:text-3xl font-bold mb-6 text-cyan-500">
                   Une question ? Besoin d'un renseignement ?
                 </h2>
-                <p className="text-xl md:text-2xl font-semibold mb-4 text-black">
+                <p className="text-xl md:text-2xl font-semibold mb-4" style={{ color: '#000000' }}>
                   L'équipe Dorry est là pour vous aider !
                 </p>
               </div>
 
               <div className="prose prose-gray max-w-none">
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                <p className="text-lg leading-relaxed mb-6" style={{ color: '#374151' }}>
                   Chez Dorry, nous savons que chaque projet est unique et que la technologie doit rester au service de l'humain. Tu as une question sur le fonctionnement de l'IA Dorry, une demande de démo, un souci technique ou simplement besoin d'échanger avec un humain ? Contacte-nous directement par email ou prend rendez-vous téléphonique avec l'un de nos conseillers. Nous te répondrons au plus vite !
                 </p>
 
@@ -54,7 +55,8 @@ const Contact = () => {
                     </div>
                     <a 
                       href="mailto:contact@dorry.app" 
-                      className="text-lg text-black hover:text-cyan-500 transition-colors font-medium"
+                      className="text-lg hover:text-cyan-500 transition-colors font-medium"
+                      style={{ color: '#000000' }}
                     >
                       contact@dorry.app
                     </a>
@@ -82,7 +84,7 @@ const Contact = () => {
       {/* Footer */}
       <footer className="bg-gray-100 py-8 border-t border-gray-300">
         <div className="container mx-auto px-4 md:px-8 text-center">
-          <p className="text-gray-600 text-sm">© 2025 Dorry. Tous droits réservés.</p>
+          <p className="text-sm" style={{ color: '#6b7280' }}>© 2025 Dorry. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
