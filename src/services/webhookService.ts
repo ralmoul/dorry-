@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/auth';
 
@@ -92,6 +93,11 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
   const applicationId = getApplicationId();
   console.log('🆔 [WEBHOOK] ID de l\'application:', applicationId);
   
+  // Générer un ID unique si l'utilisateur n'est pas connecté
+  const propertyId = user?.id || `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  console.log('🆔 [WEBHOOK] Property ID:', propertyId);
+  console.log('👤 [WEBHOOK] Type utilisateur:', user?.id ? 'connecté' : 'invité');
+  
   // Détection de la plateforme pour logging
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isAndroid = /Android/.test(navigator.userAgent);
@@ -178,18 +184,19 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     
     // Créer un nom de fichier avec la bonne extension
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `recording_${platform.toLowerCase()}_${user?.id || 'unknown'}_${Date.now()}.${fileExtension}`;
+    const fileName = `recording_${platform.toLowerCase()}_${propertyId}_${Date.now()}.${fileExtension}`;
     
     console.log('📝 [WEBHOOK] Nom du fichier:', fileName);
     
-    // Ajouter tous les champs au FormData, y compris l'ID de l'application
+    // Ajouter tous les champs au FormData avec property_id au lieu de userId
     formData.append('audio', finalAudioBlob, fileName);
     formData.append('applicationId', applicationId);
-    formData.append('userId', user?.id || 'unknown');
-    formData.append('userEmail', user?.email || 'unknown');
-    formData.append('userFirstName', user?.firstName || 'unknown');
-    formData.append('userLastName', user?.lastName || 'unknown');
-    formData.append('userCompany', user?.company || 'unknown');
+    formData.append('property_id', propertyId); // Renommé de userId à property_id
+    formData.append('userEmail', user?.email || 'guest@unknown.com');
+    formData.append('userFirstName', user?.firstName || 'Guest');
+    formData.append('userLastName', user?.lastName || 'User');
+    formData.append('userCompany', user?.company || 'Unknown');
+    formData.append('userType', user?.id ? 'authenticated' : 'guest');
     formData.append('timestamp', timestamp);
     formData.append('audioSize', finalAudioBlob.size.toString());
     formData.append('audioType', finalMimeType);
@@ -198,16 +205,17 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     formData.append('originalType', audioBlob.type || 'unknown');
     formData.append('userAgent', navigator.userAgent);
 
-    console.log('📦 [WEBHOOK] FormData préparé avec ID app:', {
+    console.log('📦 [WEBHOOK] FormData préparé avec property_id:', {
       applicationId,
+      property_id: propertyId,
+      userType: user?.id ? 'authenticated' : 'guest',
       fileName,
       audioSize: finalAudioBlob.size,
       audioType: finalMimeType,
       audioFormat: fileExtension,
       platform,
       originalType: audioBlob.type,
-      userId: user?.id || 'unknown',
-      userEmail: user?.email || 'unknown'
+      userEmail: user?.email || 'guest@unknown.com'
     });
 
     console.log('🌐 [WEBHOOK] ENVOI vers:', WEBHOOK_URL);
@@ -254,7 +262,8 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
         platform,
         format: finalMimeType,
         size: finalAudioBlob.size,
-        applicationId
+        applicationId,
+        property_id: propertyId
       });
       
       return { 
@@ -264,14 +273,16 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
         url: WEBHOOK_URL,
         format: finalMimeType,
         platform,
-        applicationId
+        applicationId,
+        property_id: propertyId
       };
     } else {
       console.error('❌ [WEBHOOK] ERREUR HTTP:', {
         status: response.status,
         statusText: response.statusText,
         platform,
-        applicationId
+        applicationId,
+        property_id: propertyId
       });
       
       let errorBody;
@@ -290,6 +301,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       originalType: audioBlob.type,
       size: audioBlob.size,
       applicationId,
+      property_id: propertyId,
       error: error instanceof Error ? error.message : String(error)
     });
     
@@ -319,7 +331,7 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       
       const a = document.createElement('a');
       a.href = audioUrl;
-      a.download = `recording_backup_${platform.toLowerCase()}_${applicationId}_${Date.now()}.${localFileExtension}`;
+      a.download = `recording_backup_${platform.toLowerCase()}_${propertyId}_${Date.now()}.${localFileExtension}`;
       console.log('⬇️ [WEBHOOK] Lien de téléchargement créé:', a.download);
     } catch (saveError) {
       console.error('💥 [WEBHOOK] Impossible de sauvegarder localement:', saveError);
@@ -327,6 +339,6 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
 
     throw new Error(errorMessage);
   } finally {
-    console.log('🏁 [WEBHOOK] Processus terminé pour:', platform, 'vers', WEBHOOK_URL, 'avec app ID:', applicationId);
+    console.log('🏁 [WEBHOOK] Processus terminé pour:', platform, 'vers', WEBHOOK_URL, 'avec property_id:', propertyId);
   }
 };
