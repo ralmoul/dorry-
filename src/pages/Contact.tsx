@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { ArrowLeft, Mail, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
 const Contact = () => {
-  return <div className="min-h-screen bg-white" style={{
-    color: '#000000'
-  }}>
+  return (
+    <div className="min-h-screen bg-white" style={{ color: '#000000' }}>
       {/* Add specific CSS overrides for this page only */}
       <style>
         {`
@@ -23,6 +24,15 @@ const Contact = () => {
           }
           .contact-page .text-white {
             color: #000000 !important;
+          }
+          .contact-page .title-cyan {
+            color: #06b6d4 !important;
+          }
+          .contact-page .title-gradient {
+            background: linear-gradient(to right, #06b6d4, #2563eb) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
           }
         `}
       </style>
@@ -47,16 +57,14 @@ const Contact = () => {
         <main className="pt-20 pb-16">
           <div className="container mx-auto px-4 md:px-8 max-w-4xl">
             <div className="bg-gray-50 rounded-xl p-8 md:p-12 border border-gray-200 shadow-lg">
-              <h1 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl md:text-4xl font-bold mb-8 title-cyan">
                 Page Contact — Dorry Voice AI
               </h1>
               
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold mb-6 text-cyan-500">Une question ? Besoin d'un renseignement ?</h2>
-                  <p className="text-xl md:text-2xl font-semibold mb-4" style={{
-                  color: '#000000'
-                }}>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-6 title-gradient">Une question ? Besoin d'un renseignement ?</h2>
+                  <p className="text-xl md:text-2xl font-semibold mb-4" style={{ color: '#000000' }}>
                     L'équipe Dorry est là pour vous aider !
                   </p>
                 </div>
@@ -108,6 +116,8 @@ const Contact = () => {
           </div>
         </footer>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Contact;
