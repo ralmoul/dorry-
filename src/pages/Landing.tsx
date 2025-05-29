@@ -5,7 +5,6 @@ import { FloatingParticles } from '@/components/ui/FloatingParticles';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 import { Mic, Brain, Search, FileText, Clock, Shield, Sparkles, TrendingUp, ArrowDown, Menu, X, User, FileCheck, MessageCircle, Mail, FileSpreadsheet, BarChart3 } from 'lucide-react';
-
 const Landing = () => {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,7 +29,6 @@ const Landing = () => {
     position: "CEO Startup",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop&crop=face"
   }];
-
   useEffect(() => {
     const handleScroll = () => {
       setIsNavScrolled(window.scrollY > 50);
@@ -64,7 +62,6 @@ const Landing = () => {
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
-    
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
@@ -662,7 +659,7 @@ const Landing = () => {
                 <div className="space-y-3">
                   <a href="/support" className="block text-slate-300 hover:text-cyan-400 transition-colors">Contact</a>
                   <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">FAQ</a>
-                  <a href="#" className="block text-slate-300 hover:text-cyan-400 transition-colors">Tutoriels</a>
+                  
                 </div>
               </div>
               <div className="text-center md:text-left">
