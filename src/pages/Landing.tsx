@@ -139,17 +139,7 @@ const Landing = () => {
         }} />)}
         </div>
         
-        {/* Ondes sonores animées */}
-        <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 flex justify-center items-center z-0 opacity-20">
-          <div className="flex space-x-1">
-            {Array.from({
-            length: 20
-          }).map((_, i) => <div key={i} className="w-1 bg-gradient-to-t from-cyan-400 to-blue-500 rounded-full" style={{
-            height: `${Math.sin(i / 3) * 30 + 40}px`,
-            animation: `soundWave 1.5s ease-in-out infinite ${i * 0.05}s`
-          }} />)}
-          </div>
-        </div>
+        {/* Remove sound waves animation */}
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16">
