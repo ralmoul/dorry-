@@ -1,8 +1,9 @@
 
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
-import { AuthState, SignupFormData, LoginFormData, User } from '@/types/auth';
+import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 import { authService } from '@/services/authService';
+import { authStorage } from '@/utils/authStorage';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -12,78 +13,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH] AuthProvider initialisation locale...');
+    console.log('🚀 [AUTH] AuthProvider initializing...');
     
-    // Vérifier si un utilisateur est stocké localement
-    const storedUser = localStorage.getItem('dorry_user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        console.log('✅ [AUTH] Utilisateur local restauré:', user.firstName, user.email);
-      } catch (error) {
-        console.error('❌ [AUTH] Erreur parsing utilisateur local:', error);
-        localStorage.removeItem('dorry_user');
-        setAuthState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-      }
-    } else {
+    const user = authStorage.loadUser();
+    
+    if (user) {
       setAuthState({
-        user: null,
-        isAuthenticated: false,
+        user,
+        isAuthenticated: true,
         isLoading: false,
       });
-      console.log('❌ [AUTH] Aucun utilisateur local trouvé');
+    } else {
+      setAuthState(prev => ({ ...prev, isLoading: false }));
     }
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
-    console.log('🔑 [AUTH] Tentative de connexion pour:', data.email);
     const result = await authService.login(data);
     
     if (result.success && result.user) {
+      // Update auth state
       setAuthState({
         user: result.user,
         isAuthenticated: true,
         isLoading: false,
       });
       
-      // Stocker l'utilisateur localement
-      localStorage.setItem('dorry_user', JSON.stringify(result.user));
-      console.log('✅ [AUTH] Utilisateur connecté et stocké localement');
+      // Store user data
+      authStorage.saveUser(result.user, data.rememberMe || false);
+      
+      return true;
     }
     
-    console.log('🔑 [AUTH] Résultat connexion:', result.success ? 'succès' : 'échec');
-    return result.success;
+    return false;
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
-    console.log('📝 [AUTH] Tentative d\'inscription pour:', data.email);
     return await authService.signup(data);
   };
 
-  const logout = async () => {
-    console.log('👋 [AUTH] Déconnexion locale');
-    localStorage.removeItem('dorry_user');
+  const logout = () => {
+    console.log('👋 [AUTH] Logging out user');
     setAuthState({
       user: null,
       isAuthenticated: false,
       isLoading: false,
     });
+    authStorage.clearUser();
   };
 
-  console.log('📊 [AUTH] État actuel local:', { 
+  console.log('📊 [AUTH] Current state:', { 
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
-    userId: authState.user?.id || 'none',
-    userName: authState.user?.firstName || 'none'
+    userId: authState.user?.id || 'none'
   });
 
   const contextValue: AuthContextType = {
