@@ -43,14 +43,6 @@ const Landing = () => {
           }
         });
       }
-
-      // Animation de la section fonctionnalités
-      if (featuresRef.current && isElementInViewport(featuresRef.current)) {
-        const interval = setInterval(() => {
-          setActiveFeature(prev => (prev + 1) % 4);
-        }, 3000);
-        return () => clearInterval(interval);
-      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -400,7 +392,7 @@ const Landing = () => {
             animationDelay: '0.3s'
           }}>
               <div className="relative aspect-square max-w-md mx-auto">
-                {/* Feature Icons with Animation */}
+                {/* Feature Icons without automatic animation */}
                 {[{
                 icon: <Mic className="w-full h-full" />,
                 position: 'top-0 left-0',
@@ -481,7 +473,7 @@ const Landing = () => {
                       {feature.description}
                     </p>
                     
-                    {/* Feature navigation */}
+                    {/* Feature navigation - manual control only */}
                     <div className="mt-8 flex justify-center space-x-2">
                       {Array.from({
                     length: 4
