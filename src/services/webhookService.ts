@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/auth';
 
@@ -89,14 +88,20 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
   console.log('🚀 [WEBHOOK] DÉBUT - Type audio original:', audioBlob.type);
   console.log('🚀 [WEBHOOK] DÉBUT - Utilisateur:', user?.email || 'non connecté');
   
+  // Vérifier que l'utilisateur est connecté
+  if (!user) {
+    console.error('❌ [WEBHOOK] ERREUR: Utilisateur non connecté!');
+    throw new Error('Vous devez être connecté pour envoyer un enregistrement');
+  }
+  
   // Obtenir l'ID de l'application
   const applicationId = getApplicationId();
   console.log('🆔 [WEBHOOK] ID de l\'application:', applicationId);
   
-  // Générer un ID unique si l'utilisateur n'est pas connecté
-  const propertyId = user?.id || `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Utiliser l'ID de l'utilisateur connecté comme property_id
+  const propertyId = user.id;
   console.log('🆔 [WEBHOOK] Property ID:', propertyId);
-  console.log('👤 [WEBHOOK] Type utilisateur:', user?.id ? 'connecté' : 'invité');
+  console.log('👤 [WEBHOOK] Utilisateur connecté:', user.email);
   
   // Détection de la plateforme pour logging
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -188,15 +193,15 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     
     console.log('📝 [WEBHOOK] Nom du fichier:', fileName);
     
-    // Ajouter tous les champs au FormData avec property_id au lieu de userId
+    // Ajouter tous les champs au FormData avec property_id
     formData.append('audio', finalAudioBlob, fileName);
     formData.append('applicationId', applicationId);
-    formData.append('property_id', propertyId); // Renommé de userId à property_id
-    formData.append('userEmail', user?.email || 'guest@unknown.com');
-    formData.append('userFirstName', user?.firstName || 'Guest');
-    formData.append('userLastName', user?.lastName || 'User');
-    formData.append('userCompany', user?.company || 'Unknown');
-    formData.append('userType', user?.id ? 'authenticated' : 'guest');
+    formData.append('property_id', propertyId);
+    formData.append('userEmail', user.email);
+    formData.append('userFirstName', user.firstName);
+    formData.append('userLastName', user.lastName);
+    formData.append('userCompany', user.company);
+    formData.append('userType', 'authenticated');
     formData.append('timestamp', timestamp);
     formData.append('audioSize', finalAudioBlob.size.toString());
     formData.append('audioType', finalMimeType);
@@ -208,14 +213,14 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
     console.log('📦 [WEBHOOK] FormData préparé avec property_id:', {
       applicationId,
       property_id: propertyId,
-      userType: user?.id ? 'authenticated' : 'guest',
+      userType: 'authenticated',
       fileName,
       audioSize: finalAudioBlob.size,
       audioType: finalMimeType,
       audioFormat: fileExtension,
       platform,
       originalType: audioBlob.type,
-      userEmail: user?.email || 'guest@unknown.com'
+      userEmail: user.email
     });
 
     console.log('🌐 [WEBHOOK] ENVOI vers:', WEBHOOK_URL);
@@ -319,9 +324,8 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       }
     }
 
-    // Sauvegarder localement en cas d'échec - avec fileExtension défini correctement
+    // Sauvegarder localement en cas d'échec
     try {
-      // Déterminer l'extension depuis le type MIME
       const localFileExtension = audioBlob.type.includes('ogg') ? 'ogg' : 
                                  audioBlob.type.includes('webm') ? 'webm' : 
                                  audioBlob.type.includes('mp4') ? 'mp4' : 'wav';

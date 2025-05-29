@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
@@ -13,6 +14,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onOpenSettings,
   onOpenUpcomingFeatures,
 }) => {
+  const { user } = useAuth();
   const {
     isRecording,
     isProcessing,
@@ -105,14 +107,16 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
                 Dorry
               </h1>
-              <span className="ml-3 sm:ml-4 text-sm sm:text-base text-gray-300">Bonjour, thomas</span>
+              <span className="ml-3 sm:ml-4 text-sm sm:text-base text-white">
+                Bonjour, {user?.firstName || 'Utilisateur'}
+              </span>
             </div>
             <div className="flex items-center space-x-3 sm:space-x-4">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onOpenUpcomingFeatures}
-                className="text-gray-300 hover:text-white p-1"
+                className="text-white hover:text-bright-turquoise p-1"
               >
                 <span className="text-lg sm:text-xl">✨</span>
               </motion.button>
@@ -120,7 +124,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onOpenSettings}
-                className="text-gray-300 hover:text-white p-1"
+                className="text-white hover:text-bright-turquoise p-1"
               >
                 <span className="text-lg sm:text-xl">⚙️</span>
               </motion.button>
@@ -183,7 +187,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-gray-300 text-sm sm:text-lg mb-8 sm:mb-10 md:mb-12 text-center px-4"
+                    className="text-white text-sm sm:text-lg mb-8 sm:mb-10 md:mb-12 text-center px-4"
                   >
                     Appuyer sur le micro pour commencer
                   </motion.div>
@@ -299,7 +303,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   </h3>
                 </div>
                 
-                <p className="text-gray-300 mb-6 sm:mb-7 text-sm sm:text-base">Dorry reçoit vos audios et :</p>
+                <p className="text-white mb-6 sm:mb-7 text-sm sm:text-base">Dorry reçoit vos audios et :</p>
                 
                 <ul className="space-y-4 sm:space-y-5">
                   {[
@@ -316,7 +320,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                       transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
                     >
                       <span className="text-bright-turquoise mr-3 mt-1 text-sm sm:text-base">•</span>
-                      <span className="text-gray-200 text-sm sm:text-base leading-relaxed">{item}</span>
+                      <span className="text-white text-sm sm:text-base leading-relaxed">{item}</span>
                     </motion.li>
                   ))}
                 </ul>
