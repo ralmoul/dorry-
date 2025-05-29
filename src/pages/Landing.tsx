@@ -60,6 +60,9 @@ const Landing = () => {
     return () => clearInterval(interval);
   }, [testimonials.length]);
   const handleMouseMove = e => {
+    // Désactiver l'animation sur mobile
+    if (window.innerWidth <= 768) return;
+    
     const heroImage = document.querySelector('.hero-image') as HTMLElement;
     if (heroImage) {
       const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
