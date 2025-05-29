@@ -78,7 +78,7 @@ export const WorkflowSteps = () => {
       if (visibleWorkflowSteps < steps.length) {
         setVisibleWorkflowSteps(prev => prev + 1);
       }
-    }, 800); // Délai augmenté de 300ms à 800ms
+    }, 7000); // Délai modifié à 7 secondes
 
     return () => clearTimeout(timer);
   }, [visibleWorkflowSteps, steps.length, hasStartedAnimation]);
