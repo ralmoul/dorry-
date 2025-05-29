@@ -425,9 +425,7 @@ const Landing = () => {
                   </div>)}
                 
                 {/* Central connecting element */}
-                <div className="absolute inset-1/4 rounded-full bg-slate-800/70 backdrop-blur-md flex items-center justify-center border border-slate-700/50 shadow-lg">
-                  
-                </div>
+                
                 
                 {/* Connecting lines */}
                 {Array.from({
