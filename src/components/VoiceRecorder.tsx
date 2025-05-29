@@ -362,21 +362,18 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     if (!recording.blob) {
       toast({
         title: "Erreur",
-        description: "Enregistrement non disponible pour le renvoi. Les anciens enregistrements ne peuvent pas être renvoyés.",
+        description: "Enregistrement non disponible pour le renvoi. Seuls les nouveaux enregistrements peuvent être renvoyés.",
         variant: "destructive"
       });
       return;
     }
 
-    // Vérification supplémentaire pour s'assurer que le blob est valide
-    if (!(recording.blob instanceof Blob) || recording.blob.size === 0) {
-      toast({
-        title: "Erreur",
-        description: "L'enregistrement est corrompu et ne peut pas être renvoyé.",
-        variant: "destructive"
-      });
-      return;
-    }
+    console.log('🔄 [VOICE_RECORDER] Tentative de renvoi:', {
+      id: recording.id,
+      hasBlob: !!recording.blob,
+      blobType: recording.blob?.constructor?.name,
+      blobSize: recording.blob?.size
+    });
 
     setResendingId(recording.id);
     
