@@ -42,7 +42,7 @@ export const useLandingAnimations = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveFeature(prev => (prev + 1) % 4);
-    }, 3000);
+    }, 7000);
     return () => clearInterval(interval);
   }, []);
 
