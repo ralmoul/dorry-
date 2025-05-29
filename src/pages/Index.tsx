@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Settings as SettingsIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 const Index = () => {
   const {
     user,
@@ -12,8 +13,9 @@ const Index = () => {
   } = useAuth();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple logout calls
+    if (isLoggingOut) return;
 
     setIsLoggingOut(true);
     try {
@@ -25,9 +27,11 @@ const Index = () => {
       setIsLoggingOut(false);
     }
   };
+
   const handleSettingsClick = () => {
     navigate('/settings');
   };
+
   const handleUpcomingFeaturesClick = () => {
     navigate('/upcoming-features');
   };
@@ -36,27 +40,32 @@ const Index = () => {
     navigate('/');
   };
 
-  // Function to capitalize first letter
   const capitalizeFirstLetter = (str: string) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-  return <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden">
-      {/* Fond violet avec dégradé et particules animées */}
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden">
+      {/* Fond violet avec dégradé optimisé */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
       
-      {/* Particules animées */}
+      {/* Particules animées réduites */}
       <div className="absolute inset-0 z-0">
-        {Array.from({
-        length: 30
-      }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" style={{
-        width: `${Math.random() * 10 + 5}px`,
-        height: `${Math.random() * 10 + 5}px`,
-        top: `${Math.random() * 100}%`,
-        left: `${Math.random() * 100}%`,
-        animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
-        filter: 'blur(1px)'
-      }} />)}
+        {Array.from({ length: window.innerWidth > 768 ? 30 : 15 }).map((_, i) => (
+          <div 
+            key={i} 
+            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" 
+            style={{
+              width: `${Math.random() * 8 + 3}px`,
+              height: `${Math.random() * 8 + 3}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animation: `float ${Math.random() * 20 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
+              filter: 'blur(1px)'
+            }} 
+          />
+        ))}
       </div>
 
       {/* Header */}
@@ -67,8 +76,8 @@ const Index = () => {
             alt="Dorry Logo" 
             className="w-8 h-8 md:w-10 md:h-10 cursor-pointer hover:opacity-80 transition-opacity" 
             onClick={handleLogoClick}
+            loading="lazy"
           />
-          
         </div>
         
         <div className="flex items-center space-x-2">
@@ -86,37 +95,41 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="relative z-10 flex-1 container mx-auto px-4 md:px-8 py-8">
-        {user && <div className="text-center mb-8">
+        {user && (
+          <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold mb-2">
               Bienvenue, {capitalizeFirstLetter(user.firstName)}
             </h2>
             <p className="text-slate-300">
               Prêt à enregistrer votre prochaine réunion ?
             </p>
-          </div>}
+          </div>
+        )}
         
         <div className="max-w-4xl mx-auto">
           <VoiceRecorder onOpenSettings={handleSettingsClick} onOpenUpcomingFeatures={handleUpcomingFeaturesClick} />
         </div>
       </main>
 
-      {/* Styles pour l'animation float */}
+      {/* Styles pour l'animation float optimisée */}
       <style>{`
         @keyframes float {
           0%, 100% {
             transform: translate(0, 0);
           }
           25% {
-            transform: translate(50px, -30px);
+            transform: translate(30px, -20px);
           }
           50% {
-            transform: translate(20px, 50px);
+            transform: translate(15px, 30px);
           }
           75% {
-            transform: translate(-30px, 20px);
+            transform: translate(-20px, 15px);
           }
         }
       `}</style>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

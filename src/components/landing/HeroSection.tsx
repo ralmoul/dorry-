@@ -9,18 +9,18 @@ export const HeroSection = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-0 pb-4 md:pb-0">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
       
-      {/* Particules animées améliorées */}
+      {/* Particules animées réduites pour mobile */}
       <div className="absolute inset-0 z-0">
-        {Array.from({ length: 30 }).map((_, i) => (
+        {Array.from({ length: window.innerWidth > 768 ? 30 : 15 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
             style={{
-              width: `${Math.random() * 10 + 5}px`,
-              height: `${Math.random() * 10 + 5}px`,
+              width: `${Math.random() * 8 + 3}px`,
+              height: `${Math.random() * 8 + 3}px`,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+              animation: `float ${Math.random() * 20 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
               filter: 'blur(1px)'
             }}
           />
@@ -39,7 +39,13 @@ export const HeroSection = () => {
             <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
-                  <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
+                  <img 
+                    src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
+                    alt="Dorry AI Assistant" 
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
               </div>
@@ -65,12 +71,18 @@ export const HeroSection = () => {
           <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{ animationDelay: '0.5s' }}>
             <div className="relative">
               <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
-                <img src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" alt="Dorry AI Assistant" className="w-full h-full object-contain" />
+                <img 
+                  src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
+                  alt="Dorry AI Assistant" 
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
               
-              {/* Cercles concentriques animés */}
-              {Array.from({ length: 3 }).map((_, i) => (
+              {/* Cercles concentriques animés - réduits sur mobile */}
+              {Array.from({ length: 2 }).map((_, i) => (
                 <div
                   key={i}
                   className="absolute inset-0 rounded-full border border-cyan-400/30"

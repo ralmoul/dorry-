@@ -12,32 +12,32 @@ export const CTASection = () => {
 
   return (
     <section className="py-16 md:py-32 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 relative overflow-hidden">
-      {/* Particules animées améliorées */}
+      {/* Particules animées réduites */}
       <div className="absolute inset-0 z-0">
-        {Array.from({ length: 40 }).map((_, i) => (
+        {Array.from({ length: window.innerWidth > 768 ? 40 : 20 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
             style={{
-              width: `${Math.random() * 8 + 2}px`,
-              height: `${Math.random() * 8 + 2}px`,
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 15 + 5}s ease-in-out infinite ${Math.random() * 5}s`,
+              animation: `float ${Math.random() * 20 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
               filter: 'blur(1px)'
             }}
           />
         ))}
       </div>
       
-      {/* Vagues animées */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 opacity-30">
+      {/* Vagues animées simplifiées */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 opacity-20">
         <svg viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
           <path
             fill="url(#gradient)"
             fillOpacity="1"
             d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            style={{ animation: 'wave 15s ease-in-out infinite' }}
+            style={{ animation: 'wave 20s ease-in-out infinite' }}
           ></path>
           <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">

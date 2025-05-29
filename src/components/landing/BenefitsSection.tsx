@@ -38,17 +38,17 @@ export const BenefitsSection = () => {
     <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-transparent to-slate-900/50"></div>
-        {Array.from({ length: 10 }).map((_, i) => (
+        {Array.from({ length: window.innerWidth > 768 ? 10 : 5 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
             style={{
-              width: `${Math.random() * 30 + 20}px`,
-              height: `${Math.random() * 30 + 20}px`,
+              width: `${Math.random() * 20 + 10}px`,
+              height: `${Math.random() * 20 + 10}px`,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 25 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
-              filter: 'blur(5px)'
+              animation: `float ${Math.random() * 30 + 20}s ease-in-out infinite ${Math.random() * 5}s`,
+              filter: 'blur(3px)'
             }}
           />
         ))}
@@ -78,9 +78,6 @@ export const BenefitsSection = () => {
                 {benefit.title}
               </h3>
               <p className="text-slate-300">{benefit.description}</p>
-              
-              {/* Effet de brillance au survol */}
-              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-400/0 via-cyan-400/10 to-blue-500/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"></div>
             </div>
           ))}
         </div>

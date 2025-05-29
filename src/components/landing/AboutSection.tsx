@@ -7,8 +7,14 @@ export const AboutSection = () => {
     <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 lg:gap-16 mb-12 md:mb-16">
       <div className="flex-1 relative order-2 lg:order-1 w-full">
         <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl">
-          <img src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" alt="Dorry AI Data Analysis" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 animate-pulse"></div>
+          <img 
+            src="/lovable-uploads/60b9c7c7-d7aa-4c2a-91c4-5839d83373b6.png" 
+            alt="Dorry AI Data Analysis" 
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-blue-500/5"></div>
           
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-full h-full flex flex-col justify-center items-center text-white opacity-0 hover:opacity-100 transition-opacity duration-300 bg-slate-900/70 backdrop-blur-sm p-4 md:p-6">
