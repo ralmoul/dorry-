@@ -33,8 +33,15 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
     setIsChecked(checked === true);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Si l'utilisateur ferme le modal sans donner de consentement, on considère cela comme un refus
+      handleRefuse();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white">
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
