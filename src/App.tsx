@@ -8,6 +8,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import Settings from "./pages/Settings";
 import UpcomingFeatures from "./pages/UpcomingFeatures";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/upcoming-features" element={<UpcomingFeatures onBack={() => window.history.back()} />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />

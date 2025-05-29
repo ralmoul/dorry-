@@ -1,21 +1,36 @@
 
 import React, { useState, useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
-import { Settings } from '@/components/Settings';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-  const [showSettings, setShowSettings] = useState(false);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple logout calls
+    
+    setIsLoggingOut(true);
     try {
       await logout();
+      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
     }
+  };
+
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  };
+
+  const handleUpcomingFeaturesClick = () => {
+    navigate('/upcoming-features');
   };
 
   // Function to capitalize first letter
@@ -61,11 +76,18 @@ const Index = () => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <span className="text-lg sm:text-xl">✨</span>
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={handleUpcomingFeaturesClick}
+            className="text-cyan-400 hover:bg-cyan-400/10"
+          >
+            <span className="text-lg">✨</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSettingsClick}
             className="text-cyan-400 hover:bg-cyan-400/10"
           >
             <SettingsIcon className="w-5 h-5" />
@@ -74,7 +96,8 @@ const Index = () => {
             variant="ghost"
             size="icon"
             onClick={handleLogout}
-            className="text-red-400 hover:bg-red-400/10"
+            disabled={isLoggingOut}
+            className="text-red-400 hover:bg-red-400/10 disabled:opacity-50"
           >
             <LogOut className="w-5 h-5" />
           </Button>
@@ -95,14 +118,10 @@ const Index = () => {
         )}
         
         <div className="max-w-4xl mx-auto">
-          {showSettings ? (
-            <Settings onBack={() => setShowSettings(false)} />
-          ) : (
-            <VoiceRecorder 
-              onOpenSettings={() => setShowSettings(true)}
-              onOpenUpcomingFeatures={() => window.location.href = '/upcoming-features'}
-            />
-          )}
+          <VoiceRecorder 
+            onOpenSettings={handleSettingsClick}
+            onOpenUpcomingFeatures={handleUpcomingFeaturesClick}
+          />
         </div>
       </main>
 
