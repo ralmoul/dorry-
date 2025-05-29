@@ -34,6 +34,13 @@ const Contact = () => {
           .contact-page .title-black {
             color: #000000 !important;
           }
+          .contact-page .gradient-title {
+            background: linear-gradient(to right, #00B8D4, #6A11CB) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            color: transparent !important;
+          }
         `}
       </style>
       
@@ -57,7 +64,7 @@ const Contact = () => {
         <main className="pt-20 pb-16">
           <div className="container mx-auto px-4 md:px-8 max-w-4xl">
             <div className="bg-gray-50 rounded-xl p-8 md:p-12 border border-gray-200 shadow-lg">
-              <h1 className="text-3xl md:text-4xl font-bold mb-8 title-cyan">
+              <h1 className="text-3xl md:text-4xl font-bold mb-8 gradient-title">
                 Page Contact — Dorry Voice AI
               </h1>
               
