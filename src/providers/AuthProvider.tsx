@@ -3,7 +3,6 @@ import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData, User } from '@/types/auth';
 import { authService } from '@/services/authService';
-import { supabase } from '@/integrations/supabase/client';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -13,115 +12,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH] AuthProvider initialisation Supabase...');
+    console.log('🚀 [AUTH] AuthProvider initialisation locale...');
     
-    // Vérifier d'abord la session actuelle
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('🔄 [AUTH] Session initiale:', session?.user?.id || 'aucune', error ? `erreur: ${error.message}` : 'ok');
-      
-      if (session?.user && !error) {
-        // Récupérer le profil utilisateur
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profileData, error: profileError }) => {
-            if (profileData && !profileError) {
-              const user: User = {
-                id: profileData.id,
-                firstName: profileData.first_name,
-                lastName: profileData.last_name,
-                email: profileData.email,
-                phone: profileData.phone,
-                company: profileData.company,
-                isApproved: true,
-                createdAt: profileData.created_at,
-              };
-
-              setAuthState({
-                user,
-                isAuthenticated: true,
-                isLoading: false,
-              });
-              
-              console.log('✅ [AUTH] Utilisateur initial connecté:', user.firstName, user.email);
-            } else {
-              console.error('❌ [AUTH] Erreur récupération profil initial:', profileError?.message);
-              setAuthState({
-                user: null,
-                isAuthenticated: false,
-                isLoading: false,
-              });
-            }
-          });
-      } else {
+    // Vérifier si un utilisateur est stocké localement
+    const storedUser = localStorage.getItem('dorry_user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        console.log('✅ [AUTH] Utilisateur local restauré:', user.firstName, user.email);
+      } catch (error) {
+        console.error('❌ [AUTH] Erreur parsing utilisateur local:', error);
+        localStorage.removeItem('dorry_user');
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
-        console.log('❌ [AUTH] Aucune session initiale');
       }
-    });
-    
-    // Écouter les changements d'état d'authentification Supabase
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 [AUTH] Changement d\'état Supabase:', event, session?.user?.id || 'aucune');
-        
-        if (session?.user) {
-          // Récupérer le profil utilisateur
-          const { data: profileData, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileData && !error) {
-            const user: User = {
-              id: profileData.id,
-              firstName: profileData.first_name,
-              lastName: profileData.last_name,
-              email: profileData.email,
-              phone: profileData.phone,
-              company: profileData.company,
-              isApproved: true,
-              createdAt: profileData.created_at,
-            };
-
-            setAuthState({
-              user,
-              isAuthenticated: true,
-              isLoading: false,
-            });
-            
-            console.log('✅ [AUTH] Utilisateur Supabase connecté:', user.firstName, user.email);
-          } else {
-            console.error('❌ [AUTH] Erreur récupération profil:', error?.message);
-            setAuthState({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-            });
-          }
-        } else {
-          setAuthState({
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-          console.log('❌ [AUTH] Aucune session Supabase');
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    } else {
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      console.log('❌ [AUTH] Aucun utilisateur local trouvé');
+    }
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     console.log('🔑 [AUTH] Tentative de connexion pour:', data.email);
     const result = await authService.login(data);
+    
+    if (result.success && result.user) {
+      setAuthState({
+        user: result.user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      
+      // Stocker l'utilisateur localement
+      localStorage.setItem('dorry_user', JSON.stringify(result.user));
+      console.log('✅ [AUTH] Utilisateur connecté et stocké localement');
+    }
+    
     console.log('🔑 [AUTH] Résultat connexion:', result.success ? 'succès' : 'échec');
     return result.success;
   };
@@ -132,11 +70,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    console.log('👋 [AUTH] Déconnexion Supabase');
-    await supabase.auth.signOut();
+    console.log('👋 [AUTH] Déconnexion locale');
+    localStorage.removeItem('dorry_user');
+    setAuthState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
   };
 
-  console.log('📊 [AUTH] État actuel Supabase:', { 
+  console.log('📊 [AUTH] État actuel local:', { 
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
     userId: authState.user?.id || 'none',
