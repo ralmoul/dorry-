@@ -43,24 +43,26 @@ const Landing = () => {
           }
         });
       }
-
-      // Animation de la section fonctionnalités
-      if (featuresRef.current && isElementInViewport(featuresRef.current)) {
-        const interval = setInterval(() => {
-          setActiveFeature(prev => (prev + 1) % 4);
-        }, 3000);
-        return () => clearInterval(interval);
-      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [visibleWorkflowSteps]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
+
+  // Auto-advance features every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature(prev => (prev + 1) % 4);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleMouseMove = e => {
     // Désactiver l'animation sur mobile
     if (window.innerWidth <= 768) return;
@@ -79,6 +81,7 @@ const Landing = () => {
     const rect = el.getBoundingClientRect();
     return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
   };
+
   return <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
@@ -417,12 +420,12 @@ const Landing = () => {
                 icon: <FileText className="w-full h-full" />,
                 position: 'bottom-0 right-0',
                 color: 'from-cyan-400 to-blue-500'
-              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-500 transform`} style={{
+              }].map((item, index) => <div key={index} className={`absolute w-1/2 h-1/2 p-6 ${item.position} transition-all duration-1000 transform`} style={{
                 opacity: activeFeature === index ? 1 : 0.3,
-                transform: activeFeature === index ? 'scale(1.1)' : 'scale(0.9)',
+                transform: `scale(${activeFeature === index ? 1.1 : 0.9}) translateX(${activeFeature === index ? '0px' : (index % 2 === 0 ? '-10px' : '10px')})`,
                 filter: activeFeature === index ? 'none' : 'blur(1px)'
               }}>
-                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg`}>
+                    <div className={`w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-sm flex items-center justify-center text-transparent bg-clip-text bg-gradient-to-r ${item.color} p-4 border border-slate-700/50 shadow-lg transition-all duration-1000 ${activeFeature === index ? 'shadow-2xl border-opacity-100' : 'shadow-md border-opacity-30'}`}>
                       {item.icon}
                     </div>
                   </div>)}
@@ -437,10 +440,10 @@ const Landing = () => {
                 {/* Connecting lines */}
                 {Array.from({
                 length: 4
-              }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left" style={{
+              }).map((_, i) => <div key={i} className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left transition-all duration-1000" style={{
                 transform: `rotate(${i * 90}deg)`,
                 opacity: activeFeature === i ? 1 : 0.3,
-                transition: 'opacity 0.5s ease'
+                width: activeFeature === i ? '40%' : '30%'
               }}></div>)}
               </div>
             </div>
@@ -449,7 +452,7 @@ const Landing = () => {
             <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{
             animationDelay: '0.3s'
           }}>
-              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg">
+              <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg relative overflow-hidden">
                 {[{
                 title: "Parlez, Dorry écoute",
                 description: "Enregistrez vos réunions ou entretiens, même en mains libres, avec une qualité audio exceptionnelle. Dorry capture chaque mot, chaque nuance, même quand vous êtes concentré sur l'essentiel.",
@@ -466,7 +469,7 @@ const Landing = () => {
                 title: "Compte rendu détaillé",
                 description: "Recevez une synthèse claire livrée en moins de 5 minutes, complète, prête à être archivée. Un compte-rendu structuré et précis disponible en quelques minutes.",
                 icon: <FileText className="w-10 h-10 md:w-12 md:h-12" />
-              }].map((feature, index) => <div key={index} className={`transition-all duration-500 transform ${activeFeature === index ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute'}`} style={{
+              }].map((feature, index) => <div key={index} className={`transition-all duration-1000 transform ${activeFeature === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 absolute inset-0 p-8'}`} style={{
                 display: activeFeature === index ? 'block' : 'none'
               }}>
                     <div className="flex items-center mb-4">
@@ -481,11 +484,15 @@ const Landing = () => {
                       {feature.description}
                     </p>
                     
-                    {/* Feature navigation */}
+                    {/* Feature navigation with progress indicator */}
                     <div className="mt-8 flex justify-center space-x-2">
                       {Array.from({
                     length: 4
-                  }).map((_, i) => <button key={i} className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`} onClick={() => setActiveFeature(i)}></button>)}
+                  }).map((_, i) => <button key={i} className={`relative w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-8' : 'bg-slate-600'}`} onClick={() => setActiveFeature(i)}>
+                        {activeFeature === i && (
+                          <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse"></div>
+                        )}
+                      </button>)}
                     </div>
                   </div>)}
               </div>
@@ -826,4 +833,5 @@ const Landing = () => {
       </style>
     </div>;
 };
+
 export default Landing;
