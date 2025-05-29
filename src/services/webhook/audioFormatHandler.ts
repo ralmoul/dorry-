@@ -54,3 +54,50 @@ export const determineAudioFormat = (audioBlob: Blob): {
 
   return { mimeType, extension };
 };
+
+export const processAudioBlob = (audioBlob: Blob, platformInfo: any) => {
+  const { mimeType, extension } = determineAudioFormat(audioBlob);
+  
+  console.log('🔄 [WEBHOOK] Traitement du blob audio:', {
+    originalSize: audioBlob.size,
+    originalType: audioBlob.type,
+    finalMimeType: mimeType,
+    extension,
+    platform: platformInfo.platform
+  });
+  
+  return {
+    finalAudioBlob: audioBlob,
+    fileExtension: extension,
+    finalMimeType: mimeType
+  };
+};
+
+export const createFileName = (platform: string, propertyId: string, extension: string): string => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const fileName = `audio_${platform}_${propertyId}_${timestamp}.${extension}`;
+  
+  console.log('📝 [WEBHOOK] Nom de fichier créé:', fileName);
+  
+  return fileName;
+};
+
+export const createBackupDownload = (audioBlob: Blob, platform: string, propertyId: string) => {
+  try {
+    const { extension } = determineAudioFormat(audioBlob);
+    const fileName = createFileName(platform, propertyId, extension);
+    
+    const url = URL.createObjectURL(audioBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    console.log('💾 [WEBHOOK] Sauvegarde locale créée:', fileName);
+  } catch (error) {
+    console.error('❌ [WEBHOOK] Erreur lors de la sauvegarde locale:', error);
+  }
+};
