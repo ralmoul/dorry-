@@ -12,7 +12,6 @@ import UpcomingFeatures from "./pages/UpcomingFeatures";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import LegalNotice from "./pages/LegalNotice";
-import Support from "./pages/Support";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -36,7 +35,6 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/legal-notice" element={<LegalNotice />} />
-            <Route path="/support" element={<Support />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/" element={<Landing />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
