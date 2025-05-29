@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { useAuth } from '@/hooks/useAuth';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 
 interface VoiceRecorderProps {
@@ -25,10 +25,13 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     cancelRecording,
   } = useAudioRecorder();
 
+  const { user, logout } = useAuth();
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
   
+  console.log('👤 [VOICE_RECORDER] Utilisateur connecté:', user?.firstName, user?.email, user?.id);
+
   // Simule l'animation des ondes vocales
   useEffect(() => {
     if (isRecording) {
@@ -59,6 +62,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     } else {
       startRecording();
     }
+  };
+  
+  const handleLogout = async () => {
+    console.log('👋 [VOICE_RECORDER] Déconnexion demandée');
+    await logout();
   };
   
   return (
@@ -105,7 +113,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
                 Dorry
               </h1>
-              <span className="ml-3 sm:ml-4 text-sm sm:text-base text-gray-300">Bonjour, thomas</span>
+              <span className="ml-3 sm:ml-4 text-sm sm:text-base text-gray-300">
+                Bonjour, {user?.firstName || 'Utilisateur'}
+              </span>
             </div>
             <div className="flex items-center space-x-3 sm:space-x-4">
               <motion.button
@@ -123,6 +133,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 className="text-gray-300 hover:text-white p-1"
               >
                 <span className="text-lg sm:text-xl">⚙️</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogout}
+                className="text-gray-300 hover:text-white p-1"
+                title="Déconnexion"
+              >
+                <span className="text-lg sm:text-xl">🚪</span>
               </motion.button>
             </div>
           </motion.div>
