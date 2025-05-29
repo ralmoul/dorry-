@@ -9,19 +9,12 @@ import { useNavigate } from 'react-router-dom';
 const Index = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple logout calls
-    
-    setIsLoggingOut(true);
     try {
       await logout();
-      navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      setIsLoggingOut(false);
     }
   };
 
@@ -96,8 +89,7 @@ const Index = () => {
             variant="ghost"
             size="icon"
             onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="text-red-400 hover:bg-red-400/10 disabled:opacity-50"
+            className="text-red-400 hover:bg-red-400/10"
           >
             <LogOut className="w-5 h-5" />
           </Button>
