@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Menu, X } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavigationProps {
   isNavScrolled: boolean;
@@ -9,6 +10,16 @@ interface NavigationProps {
 }
 
 export const Navigation = ({ isNavScrolled, isMobileMenuOpen, setIsMobileMenuOpen }: NavigationProps) => {
+  const { isAuthenticated } = useAuth();
+
+  const handleAccountClick = () => {
+    if (isAuthenticated) {
+      window.location.href = '/app';
+    } else {
+      window.location.href = '/login';
+    }
+  };
+
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
@@ -24,9 +35,12 @@ export const Navigation = ({ isNavScrolled, isMobileMenuOpen, setIsMobileMenuOpe
         <div className="hidden md:flex space-x-8">
         </div>
         <div className="hidden md:flex space-x-4">
-          <a href="/login" className="px-6 py-2 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors">
-            Se connecter
-          </a>
+          <button 
+            onClick={handleAccountClick}
+            className="px-6 py-2 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors"
+          >
+            Mon compte
+          </button>
           <a href="/signup" className="px-6 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 rounded-lg hover:shadow-lg transition-all">
             S'inscrire
           </a>
@@ -38,9 +52,12 @@ export const Navigation = ({ isNavScrolled, isMobileMenuOpen, setIsMobileMenuOpe
         <div className="md:hidden absolute top-full left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col space-y-4">
-              <a href="/login" className="px-6 py-3 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors text-center">
-                Se connecter
-              </a>
+              <button 
+                onClick={handleAccountClick}
+                className="px-6 py-3 border-2 border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-400/10 transition-colors text-center"
+              >
+                Mon compte
+              </button>
               <a href="/signup" className="px-6 py-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 rounded-lg hover:shadow-lg transition-all text-center font-semibold">
                 S'inscrire
               </a>
