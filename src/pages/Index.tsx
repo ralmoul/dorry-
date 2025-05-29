@@ -8,16 +8,17 @@ import UpcomingFeatures from './UpcomingFeatures';
 const Index = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showUpcomingFeatures, setShowUpcomingFeatures] = useState(false);
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   useEffect(() => {
-    console.log('🔍 [INDEX] Auth state check:', { isAuthenticated, isLoading });
+    console.log('🔍 [INDEX] Auth state check:', { isAuthenticated, isLoading, hasUser: !!user });
     
-    if (!isLoading && !isAuthenticated) {
+    // Vérifier si l'utilisateur est connecté via notre système personnalisé
+    if (!isLoading && !isAuthenticated && !user) {
       console.log('❌ [INDEX] User not authenticated, redirecting to login');
       window.location.href = '/login';
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, user]);
 
   // Afficher un écran de chargement pendant la vérification
   if (isLoading) {
@@ -31,8 +32,8 @@ const Index = () => {
     );
   }
 
-  // Si l'utilisateur n'est pas connecté, ne rien afficher (redirection en cours)
-  if (!isAuthenticated) {
+  // Si l'utilisateur n'est pas connecté via notre système personnalisé, ne rien afficher (redirection en cours)
+  if (!isAuthenticated || !user) {
     return null;
   }
 
