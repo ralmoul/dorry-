@@ -1,32 +1,40 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Shield, Mic } from 'lucide-react';
+
 interface ConsentModalProps {
   isOpen: boolean;
   onConsentGiven: () => void;
   onConsentRefused: () => void;
 }
+
 export const ConsentModal: React.FC<ConsentModalProps> = ({
   isOpen,
   onConsentGiven,
   onConsentRefused
 }) => {
   const [isChecked, setIsChecked] = useState(false);
+
   const handleConsent = () => {
     if (isChecked) {
       onConsentGiven();
     }
   };
+
   const handleRefuse = () => {
     setIsChecked(false);
     onConsentRefused();
   };
+
   const handleCheckboxChange = (checked: boolean | "indeterminate") => {
     setIsChecked(checked === true);
   };
-  return <Dialog open={isOpen} onOpenChange={() => {}}>
+
+  return (
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white">
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
@@ -49,9 +57,14 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
 
           <div className="bg-slate-800/50 rounded-lg p-4 border border-cyan-400/20">
             <div className="flex items-start space-x-3">
-              <Checkbox id="consent-checkbox" checked={isChecked} onCheckedChange={handleCheckboxChange} className="mt-1 border-cyan-400 data-[state=checked]:bg-cyan-400 data-[state=checked]:text-slate-900" />
+              <Checkbox 
+                id="consent-checkbox" 
+                checked={isChecked} 
+                onCheckedChange={handleCheckboxChange}
+                className="mt-1 border-cyan-400 data-[state=checked]:bg-cyan-400 data-[state=checked]:text-slate-900" 
+              />
               <label htmlFor="consent-checkbox" className="text-sm text-slate-300 leading-relaxed cursor-pointer flex-1">
-                J'accepte que mon message soit enregistré et traité selon la{' '}
+                Le porteur de projet et vous acceptez que le message soit enregistré et traité selon la{' '}
                 <a href="/privacy-policy" target="_blank" className="text-cyan-400 hover:text-cyan-300 underline">
                   politique de confidentialité
                 </a>.
@@ -75,5 +88,6 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
           </p>
         </div>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
