@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,10 +10,11 @@ import { UserDetailsModal } from './admin/UserDetailsModal';
 import { AuditPanel } from './admin/AuditPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { DatabaseProfile } from '@/types/auth';
+import { AdminUserProfile } from '@/services/adminService';
 
 export const AdminPanel = () => {
   const [users, setUsers] = useState<DatabaseProfile[]>([]);
-  const [selectedUser, setSelectedUser] = useState<DatabaseProfile | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AdminUserProfile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
@@ -289,7 +289,18 @@ export const AdminPanel = () => {
   };
 
   const openUserDetails = (user: DatabaseProfile) => {
-    setSelectedUser(user);
+    // Transform DatabaseProfile to AdminUserProfile format
+    const adminUserProfile: AdminUserProfile = {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      company: user.company,
+      is_approved: user.is_approved,
+      created_at: user.created_at
+    };
+    setSelectedUser(adminUserProfile);
     setIsModalOpen(true);
   };
 
@@ -599,16 +610,7 @@ export const AdminPanel = () => {
 
         {/* User Details Modal */}
         <UserDetailsModal
-          user={selectedUser ? {
-            id: selectedUser.id,
-            firstName: selectedUser.first_name,
-            lastName: selectedUser.last_name,
-            email: selectedUser.email,
-            phone: selectedUser.phone,
-            company: selectedUser.company,
-            isApproved: selectedUser.is_approved,
-            createdAt: selectedUser.created_at
-          } : null}
+          user={selectedUser}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onApprove={(userId) => approveUser(userId)}
