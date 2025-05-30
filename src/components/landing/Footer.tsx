@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const Footer = () => {
@@ -27,7 +28,7 @@ export const Footer = () => {
                     localStorage.removeItem('dorry_cookie_preferences');
                     window.location.reload();
                   }}
-                  className="block text-slate-300 hover:text-cyan-400 transition-colors text-left"
+                  className="w-full text-left text-slate-300 hover:text-cyan-400 transition-colors bg-transparent border-none p-0 cursor-pointer text-sm md:text-base"
                 >
                   Gérer mes cookies
                 </button>
