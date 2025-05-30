@@ -25,7 +25,18 @@ export const cleanupHistoryService = {
         return [];
       }
 
-      return data || [];
+      // Transformer les données pour correspondre à l'interface CleanupHistoryEntry
+      const transformedData: CleanupHistoryEntry[] = (data || []).map(entry => ({
+        id: entry.id,
+        execution_date: entry.execution_date,
+        status: entry.status as 'success' | 'failed' | 'partial',
+        records_cleaned: entry.records_cleaned as Record<string, number>,
+        error_message: entry.error_message || undefined,
+        execution_duration_ms: entry.execution_duration_ms,
+        triggered_by: entry.triggered_by
+      }));
+
+      return transformedData;
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'historique:', error);
       return [];
