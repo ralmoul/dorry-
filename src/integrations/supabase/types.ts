@@ -42,6 +42,75 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          blocked_until: string | null
+          created_at: string | null
+          email: string
+          failed_attempts: number | null
+          id: string
+          ip_address: unknown
+          last_attempt_at: string | null
+          updated_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string | null
+          email: string
+          failed_attempts?: number | null
+          id?: string
+          ip_address: unknown
+          last_attempt_at?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string | null
+          email?: string
+          failed_attempts?: number | null
+          id?: string
+          ip_address?: unknown
+          last_attempt_at?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          purpose: string
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          purpose: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          purpose?: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company: string
@@ -75,6 +144,114 @@ export type Database = {
           last_name?: string
           phone?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      security_audit_logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_mfa_settings: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string | null
+          id: string
+          is_verified: boolean | null
+          mfa_enabled: boolean | null
+          mfa_method: string | null
+          phone_number: string | null
+          totp_secret: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          mfa_enabled?: boolean | null
+          mfa_method?: string | null
+          phone_number?: string | null
+          totp_secret?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          mfa_enabled?: boolean | null
+          mfa_method?: string | null
+          phone_number?: string | null
+          totp_secret?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          last_activity: string | null
+          session_token: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -118,6 +295,10 @@ export type Database = {
     Functions: {
       approve_user_profile: {
         Args: { user_id: string }
+        Returns: undefined
+      }
+      cleanup_expired_security_data: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       is_admin: {

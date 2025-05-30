@@ -1,241 +1,132 @@
-
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { enhancedAuthService } from '@/services/enhancedAuthService';
+import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
+import { PasswordStrength } from '@/services/passwordService';
 
 const Signup = () => {
-  // États pour les champs du formulaire
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [company, setCompany] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rgpdConsent, setRgpdConsent] = useState(false);
-  const [termsConsent, setTermsConsent] = useState(false);
-  
-  // États pour la gestion des erreurs et du chargement
-  const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [phoneError, setPhoneError] = useState('');
-  const [companyError, setCompanyError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [consentError, setConsentError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // État pour les animations d'ondes vocales
-  const [isWaveAnimating, setIsWaveAnimating] = useState(true);
-  
-  // État pour la force du mot de passe
-  const [passwordStrength, setPasswordStrength] = useState({
-    score: 0,
-    message: ''
+  // états pour les champs du formulaire
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    company: '',
+    password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isWaveAnimating, setIsWaveAnimating] = useState(true);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
 
-  const { signup } = useAuth();
   const { toast } = useToast();
-  
-  // Fonction de validation d'email
+
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
-  
-  // Fonction de validation de téléphone français
-  const validatePhone = (phone: string) => {
-    const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-    return phoneRegex.test(phone.replace(/\s+/g, ''));
+
+  const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
   };
-  
-  // Calcul de la force du mot de passe
-  const calculatePasswordStrength = (password: string) => {
-    if (!password) {
-      return { score: 0, message: '' };
-    }
-    
-    let score = 0;
-    
-    // Longueur minimum 8 caractères
-    if (password.length >= 8) {
-      score += 1;
-    }
-    
-    // Majuscules
-    if (/[A-Z]/.test(password)) {
-      score += 1;
-    }
-    
-    // Chiffres
-    if (/[0-9]/.test(password)) {
-      score += 1;
-    }
-    
-    // Caractères spéciaux
-    if (/[^A-Za-z0-9]/.test(password)) {
-      score += 1;
-    }
-    
-    let message = '';
-    
-    switch (score) {
-      case 0:
-      case 1:
-        message = 'Faible';
-        break;
-      case 2:
-        message = 'Moyen';
-        break;
-      case 3:
-        message = 'Fort';
-        break;
-      case 4:
-        message = 'Très fort';
-        break;
-    }
-    
-    return { score, message };
-  };
-  
-  // Mise à jour de la force du mot de passe
-  useEffect(() => {
-    setPasswordStrength(calculatePasswordStrength(password));
-  }, [password]);
-  
-  // Effet pour l'animation des ondes vocales
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsWaveAnimating(prev => !prev);
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
-  
-  // Gestion de la soumission du formulaire
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Réinitialisation des erreurs
-    setFirstNameError('');
-    setLastNameError('');
     setEmailError('');
-    setPhoneError('');
-    setCompanyError('');
     setPasswordError('');
-    setConsentError('');
     
-    // Validation des champs
     let isValid = true;
     
-    if (!firstName.trim()) {
-      setFirstNameError('Le prénom est obligatoire');
-      isValid = false;
+    // Validation des champs requis
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || 
+        !formData.phone.trim() || !formData.company.trim() || !formData.password.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Tous les champs sont obligatoires.",
+        variant: "destructive"
+      });
+      return;
     }
     
-    if (!lastName.trim()) {
-      setLastNameError('Le nom est obligatoire');
-      isValid = false;
-    }
-    
-    if (!email.trim()) {
-      setEmailError('L\'email est obligatoire');
-      isValid = false;
-    } else if (!validateEmail(email)) {
+    // Validation de l'email
+    if (!validateEmail(formData.email)) {
       setEmailError('Veuillez entrer une adresse email valide');
       isValid = false;
     }
     
-    if (!phone.trim()) {
-      setPhoneError('Le numéro de téléphone est obligatoire');
-      isValid = false;
-    } else if (!validatePhone(phone)) {
-      setPhoneError('Veuillez entrer un numéro de téléphone français valide');
+    // Validation du mot de passe renforcée
+    if (!passwordStrength?.isValid) {
+      setPasswordError('Le mot de passe ne respecte pas les critères de sécurité requis');
       isValid = false;
     }
     
-    if (!company.trim()) {
-      setCompanyError('Le nom de l\'entreprise est obligatoire');
-      isValid = false;
-    }
-    
-    if (!password) {
-      setPasswordError('Le mot de passe est obligatoire');
-      isValid = false;
-    } else if (password.length < 8) {
-      setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
-      isValid = false;
-    } else if (passwordStrength.score < 2) {
-      setPasswordError('Le mot de passe est trop faible. Utilisez majuscules, chiffres et caractères spéciaux');
-      isValid = false;
-    }
-
-    if (!rgpdConsent || !termsConsent) {
-      setConsentError('Vous devez accepter les conditions d\'utilisation et la politique de confidentialité');
-      isValid = false;
+    // Validation des consentements RGPD
+    if (!acceptedTerms || !acceptedPrivacy) {
+      toast({
+        title: "Consentements requis",
+        description: "Vous devez accepter les CGU et la Politique de confidentialité pour créer un compte.",
+        variant: "destructive"
+      });
+      return;
     }
     
     if (isValid) {
       setIsLoading(true);
       
       try {
-        console.log('🚀 Tentative de création de compte pour:', email);
+        console.log('🚀 Tentative d\'inscription sécurisée pour:', formData.email);
         
-        const result = await signup({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.trim(),
-          company: company.trim(),
-          password
-        });
+        const result = await enhancedAuthService.secureSignup(formData);
 
         if (result.success) {
-          console.log('✅ Demande de création de compte envoyée avec succès');
-          
-          // Animation de confettis
-          createConfetti();
-          
+          console.log('✅ Inscription réussie');
           toast({
-            title: "Demande envoyée !",
-            description: "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée.",
+            title: "Demande envoyée avec succès",
+            description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
           });
-
-          // Réinitialiser le formulaire
-          setFirstName('');
-          setLastName('');
-          setEmail('');
-          setPhone('');
-          setCompany('');
-          setPassword('');
-          setRgpdConsent(false);
-          setTermsConsent(false);
           
-          // Rediriger vers la page de connexion après 3 secondes
+          // Réinitialiser le formulaire
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            company: '',
+            password: ''
+          });
+          setAcceptedTerms(false);
+          setAcceptedPrivacy(false);
+          
+          // Redirection vers login après 3 secondes
           setTimeout(() => {
             window.location.href = '/login';
           }, 3000);
-          
         } else {
-          console.log('❌ Échec de la création de compte:', result.message);
-          
-          // Gestion sécurisée des erreurs
-          if (result.message?.includes('email')) {
-            setEmailError('Cette adresse email est déjà utilisée');
+          console.log('❌ Échec de l\'inscription:', result.message);
+          if (result.message?.includes('mot de passe')) {
+            setPasswordError(result.message);
           } else {
             toast({
               title: "Erreur",
-              description: "Une erreur est survenue lors de la création du compte. Veuillez réessayer.",
+              description: result.message || "Une erreur est survenue lors de la création du compte.",
               variant: "destructive"
             });
           }
         }
       } catch (error) {
-        console.error('💥 Erreur lors de la création du compte:', error);
+        console.error('💥 Erreur lors de l\'inscription:', error);
         toast({
           title: "Erreur",
-          description: "Une erreur technique est survenue. Veuillez réessayer plus tard.",
+          description: "Une erreur inattendue est survenue.",
           variant: "destructive"
         });
       } finally {
@@ -243,52 +134,24 @@ const Signup = () => {
       }
     }
   };
-  
-  // Fonction pour créer l'effet de confettis
-  const createConfetti = () => {
-    const confettiCount = 100;
-    const colors = ['#00B8D4', '#6A11CB', '#10B981', '#F59E0B'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsWaveAnimating(prev => !prev);
+    }, 2000);
     
-    for (let i = 0; i < confettiCount; i++) {
-      const confetti = document.createElement('div');
-      confetti.classList.add('confetti');
-      
-      // Taille aléatoire
-      const size = Math.random() * 10 + 5;
-      confetti.style.width = `${size}px`;
-      confetti.style.height = `${size}px`;
-      
-      // Position aléatoire
-      const posX = Math.random() * window.innerWidth;
-      confetti.style.left = `${posX}px`;
-      
-      // Couleur aléatoire
-      const colorIndex = Math.floor(Math.random() * colors.length);
-      confetti.style.backgroundColor = colors[colorIndex];
-      
-      // Animation
-      const animationDuration = Math.random() * 3 + 2;
-      confetti.style.animation = `confetti-fall ${animationDuration}s ease-in-out forwards`;
-      
-      document.body.appendChild(confetti);
-      
-      // Supprimer après l'animation
-      setTimeout(() => {
-        confetti.remove();
-      }, animationDuration * 1000);
-    }
-  };
+    return () => clearInterval(interval);
+  }, []);
 
   const handleBackToHome = () => {
     window.location.href = '/';
   };
-  
+
   return (
     <>
       <style dangerouslySetInnerHTML={{
         __html: `
-          /* Styles pour les nouvelles interfaces de login et signup de Dorry.app */
-
+          
           :root {
             --primary-gradient: linear-gradient(135deg, #00B8D4 0%, #6A11CB 100%);
             --secondary-gradient: linear-gradient(135deg, #00B8D4 0%, #3A1957 100%);
@@ -413,7 +276,7 @@ const Signup = () => {
           }
 
           .auth-logo {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
@@ -438,31 +301,19 @@ const Signup = () => {
             margin-top: 0.5rem;
           }
 
-          .auth-form {
-            animation: slideIn 0.5s ease-out;
-          }
-
-          @keyframes slideIn {
-            from {
-              opacity: 0;
-              transform: translateX(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-
-          .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-          }
-
           .form-group {
             margin-bottom: 1.5rem;
             position: relative;
+          }
+
+          .form-group.half {
+            display: inline-block;
+            width: 48%;
+            margin-right: 4%;
+          }
+
+          .form-group.half:nth-child(even) {
+            margin-right: 0;
           }
 
           .form-label {
@@ -518,26 +369,6 @@ const Signup = () => {
             color: var(--text-primary);
           }
 
-          .password-strength {
-            height: 4px;
-            margin-top: 0.5rem;
-            border-radius: 2px;
-            background-color: var(--input-bg);
-            overflow: hidden;
-          }
-
-          .password-strength-bar {
-            height: 100%;
-            width: 0;
-            transition: width 0.3s ease, background-color 0.3s ease;
-          }
-
-          .password-strength-text {
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            text-align: right;
-          }
-
           .error-message {
             color: var(--error);
             font-size: 0.75rem;
@@ -560,11 +391,25 @@ const Signup = () => {
             }
           }
 
+          .consent-section {
+            background-color: rgba(0, 184, 212, 0.05);
+            border: 1px solid rgba(0, 184, 212, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .consent-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #00B8D4;
+            margin-bottom: 0.5rem;
+          }
+
           .form-checkbox {
             display: flex;
             align-items: flex-start;
-            margin-bottom: 1rem;
-            gap: 0.75rem;
+            margin-bottom: 0.75rem;
           }
 
           .form-checkbox input {
@@ -579,7 +424,7 @@ const Signup = () => {
             position: relative;
             padding-left: 2rem;
             cursor: pointer;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
             user-select: none;
             line-height: 1.4;
@@ -621,6 +466,17 @@ const Signup = () => {
             opacity: 1;
           }
 
+          .checkbox-label a {
+            color: #00B8D4;
+            text-decoration: none;
+            transition: color 0.3s ease;
+          }
+
+          .checkbox-label a:hover {
+            color: #6A11CB;
+            text-decoration: underline;
+          }
+
           .btn {
             display: inline-block;
             padding: 0.75rem 1.5rem;
@@ -646,33 +502,9 @@ const Signup = () => {
             box-shadow: 0 15px 25px -5px rgba(0, 184, 212, 0.4), 0 10px 10px -5px rgba(106, 17, 203, 0.5);
           }
 
-          .btn-primary:active {
-            transform: translateY(1px);
-          }
-
           .btn-block {
             display: block;
             width: 100%;
-          }
-
-          .btn-primary .btn-content {
-            position: relative;
-            z-index: 1;
-          }
-
-          .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s ease;
-          }
-
-          .btn-primary:hover::before {
-            left: 100%;
           }
 
           .loading-spinner {
@@ -750,45 +582,6 @@ const Signup = () => {
             text-decoration: underline;
           }
 
-          .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: #00B8D4;
-            opacity: 0;
-            z-index: 1000;
-            pointer-events: none;
-          }
-
-          @keyframes confetti-fall {
-            0% {
-              opacity: 1;
-              top: -10px;
-              transform: translateX(0) rotate(0deg);
-            }
-            100% {
-              opacity: 0;
-              top: 100vh;
-              transform: translateX(100px) rotate(360deg);
-            }
-          }
-
-          .legal-links {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: 1rem;
-          }
-
-          .legal-links a {
-            color: #00B8D4;
-            text-decoration: none;
-          }
-
-          .legal-links a:hover {
-            text-decoration: underline;
-          }
-
           @media (max-width: 768px) {
             .container {
               padding: 1rem;
@@ -799,9 +592,10 @@ const Signup = () => {
               max-width: 100%;
             }
 
-            .form-row {
-              grid-template-columns: 1fr;
-              gap: 0;
+            .form-group.half {
+              display: block;
+              width: 100%;
+              margin-right: 0;
             }
           }
         `
@@ -824,7 +618,6 @@ const Signup = () => {
           ))}
         </div>
 
-        {/* Bouton retour en haut à gauche de la page */}
         <button 
           onClick={handleBackToHome} 
           className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10 flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
@@ -846,38 +639,36 @@ const Signup = () => {
                   />
                 ))}
               </div>
-              <p className="auth-subtitle">Créez votre compte pour commencer</p>
+              <p className="auth-subtitle">Créez votre compte sécurisé</p>
             </div>
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="firstName" className="form-label">Prénom *</label>
-                  <input 
-                    type="text" 
-                    id="firstName" 
-                    className={`form-input ${firstNameError ? 'error' : ''}`}
-                    placeholder="Prénom" 
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                  />
-                  {firstNameError && <div className="error-message">{firstNameError}</div>}
-                </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group half">
+                <label htmlFor="firstName" className="form-label">Prénom *</label>
+                <input 
+                  type="text" 
+                  id="firstName" 
+                  className="form-input"
+                  placeholder="Votre prénom" 
+                  value={formData.firstName}
+                  onChange={handleInputChange('firstName')}
+                  required
+                  autoComplete="given-name"
+                />
+              </div>
 
-                <div className="form-group">
-                  <label htmlFor="lastName" className="form-label">Nom *</label>
-                  <input 
-                    type="text" 
-                    id="lastName" 
-                    className={`form-input ${lastNameError ? 'error' : ''}`}
-                    placeholder="Nom" 
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                  />
-                  {lastNameError && <div className="error-message">{lastNameError}</div>}
-                </div>
+              <div className="form-group half">
+                <label htmlFor="lastName" className="form-label">Nom *</label>
+                <input 
+                  type="text" 
+                  id="lastName" 
+                  className="form-input"
+                  placeholder="Votre nom" 
+                  value={formData.lastName}
+                  onChange={handleInputChange('lastName')}
+                  required
+                  autoComplete="family-name"
+                />
               </div>
 
               <div className="form-group">
@@ -888,9 +679,10 @@ const Signup = () => {
                     id="email" 
                     className={`form-input ${emailError ? 'error' : ''}`}
                     placeholder="votre@email.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={handleInputChange('email')}
                     required
+                    autoComplete="email"
                   />
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -913,179 +705,116 @@ const Signup = () => {
 
               <div className="form-group">
                 <label htmlFor="phone" className="form-label">Téléphone *</label>
-                <div className="input-container">
-                  <input 
-                    type="tel" 
-                    id="phone" 
-                    className={`form-input ${phoneError ? 'error' : ''}`}
-                    placeholder="+33 6 12 34 56 78" 
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="input-icon" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                </div>
-                {phoneError && <div className="error-message">{phoneError}</div>}
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  className="form-input"
+                  placeholder="+33 6 12 34 56 78" 
+                  value={formData.phone}
+                  onChange={handleInputChange('phone')}
+                  required
+                  autoComplete="tel"
+                />
               </div>
 
               <div className="form-group">
                 <label htmlFor="company" className="form-label">Entreprise *</label>
-                <div className="input-container">
-                  <input 
-                    type="text" 
-                    id="company" 
-                    className={`form-input ${companyError ? 'error' : ''}`}
-                    placeholder="Nom de votre entreprise" 
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    required
-                  />
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="input-icon" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <path d="M8 2v4" />
-                    <path d="M16 2v4" />
-                    <rect width="18" height="18" x="3" y="4" rx="2" />
-                    <path d="M3 10h18" />
-                  </svg>
-                </div>
-                {companyError && <div className="error-message">{companyError}</div>}
+                <input 
+                  type="text" 
+                  id="company" 
+                  className="form-input"
+                  placeholder="Nom de votre entreprise" 
+                  value={formData.company}
+                  onChange={handleInputChange('company')}
+                  required
+                  autoComplete="organization"
+                />
               </div>
 
               <div className="form-group">
-                <label htmlFor="password" className="form-label">Mot de passe * (min. 8 caractères)</label>
+                <label htmlFor="password" className="form-label">Mot de passe * (12 caractères minimum)</label>
                 <div className="input-container">
                   <input 
                     type={showPassword ? "text" : "password"} 
                     id="password" 
                     className={`form-input ${passwordError ? 'error' : ''}`}
-                    placeholder="••••••••" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••" 
+                    value={formData.password}
+                    onChange={handleInputChange('password')}
                     required
-                    minLength={8}
+                    autoComplete="new-password"
+                    minLength={12}
                   />
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="input-icon cursor-pointer" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <>
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                        <line x1="2" x2="22" y1="2" y2="22" />
-                      </>
-                    ) : (
-                      <>
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </>
-                    )}
-                  </svg>
+                  {showPassword ? (
+                    <EyeOff 
+                      className="input-icon w-5 h-5" 
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  ) : (
+                    <Eye 
+                      className="input-icon w-5 h-5" 
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  )}
                 </div>
-                <div className="password-strength">
-                  <div 
-                    className="password-strength-bar" 
-                    style={{ 
-                      width: `${passwordStrength.score * 25}%`,
-                      backgroundColor: 
-                        passwordStrength.score === 0 ? '#EF4444' :
-                        passwordStrength.score === 1 ? '#F59E0B' :
-                        passwordStrength.score === 2 ? '#F59E0B' :
-                        passwordStrength.score === 3 ? '#10B981' : '#10B981'
-                    }}
-                  ></div>
-                </div>
-                <div className="password-strength-text">{passwordStrength.message}</div>
                 {passwordError && <div className="error-message">{passwordError}</div>}
-              </div>
-
-              {/* Consentements RGPD */}
-              <div className="form-checkbox">
-                <input 
-                  type="checkbox" 
-                  id="rgpdConsent"
-                  checked={rgpdConsent}
-                  onChange={(e) => setRgpdConsent(e.target.checked)}
-                  required
+                
+                <PasswordStrengthIndicator 
+                  password={formData.password} 
+                  onStrengthChange={setPasswordStrength}
                 />
-                <label htmlFor="rgpdConsent" className="checkbox-label">
-                  J'accepte la collecte et le traitement de mes données personnelles conformément à la 
-                  <a href="/privacy-policy" target="_blank" rel="noopener noreferrer"> Politique de confidentialité</a>
-                </label>
               </div>
 
-              <div className="form-checkbox">
-                <input 
-                  type="checkbox" 
-                  id="termsConsent"
-                  checked={termsConsent}
-                  onChange={(e) => setTermsConsent(e.target.checked)}
-                  required
-                />
-                <label htmlFor="termsConsent" className="checkbox-label">
-                  J'accepte les 
-                  <a href="/terms-of-service" target="_blank" rel="noopener noreferrer"> Conditions Générales d'Utilisation</a>
-                </label>
+              <div className="consent-section">
+                <div className="consent-title">Consentements RGPD requis</div>
+                
+                <div className="form-checkbox">
+                  <input 
+                    type="checkbox" 
+                    id="acceptTerms"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    required
+                  />
+                  <label htmlFor="acceptTerms" className="checkbox-label">
+                    J'accepte les <a href="/terms-of-service" target="_blank">Conditions Générales d'Utilisation</a> *
+                  </label>
+                </div>
+                
+                <div className="form-checkbox">
+                  <input 
+                    type="checkbox" 
+                    id="acceptPrivacy"
+                    checked={acceptedPrivacy}
+                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                    required
+                  />
+                  <label htmlFor="acceptPrivacy" className="checkbox-label">
+                    J'accepte la <a href="/privacy-policy" target="_blank">Politique de Confidentialité</a> et le traitement de mes données personnelles *
+                  </label>
+                </div>
               </div>
-
-              {consentError && <div className="error-message" style={{textAlign: 'center', marginBottom: '1rem'}}>{consentError}</div>}
 
               <button 
                 type="submit" 
                 className="btn btn-primary btn-block" 
-                disabled={isLoading}
+                disabled={isLoading || !passwordStrength?.isValid || !acceptedTerms || !acceptedPrivacy}
               >
                 {isLoading ? (
                   <>
                     <span className="loading-spinner"></span>
-                    <span>Traitement en cours...</span>
+                    <span>Envoi en cours...</span>
                   </>
                 ) : (
-                  <span className="btn-content">Demander l'accès</span>
+                  "Demander l'accès"
                 )}
               </button>
 
-              <div className="legal-links">
-                En créant un compte, vous acceptez nos 
-                <a href="/terms-of-service" target="_blank" rel="noopener noreferrer"> CGU</a> et notre 
-                <a href="/privacy-policy" target="_blank" rel="noopener noreferrer"> Politique de confidentialité</a>
-              </div>
-
               <div className="auth-footer">
                 <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+                <p style={{marginTop: '0.5rem', fontSize: '0.75rem'}}>
+                  <a href="/privacy-policy">Politique de confidentialité</a> • <a href="/terms-of-service">CGU</a>
+                </p>
               </div>
             </form>
           </div>

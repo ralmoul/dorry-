@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { enhancedAuthService } from '@/services/enhancedAuthService';
 
 const Login = () => {
   // États pour les champs du formulaire
@@ -56,9 +56,9 @@ const Login = () => {
       setIsLoading(true);
       
       try {
-        console.log('🚀 Tentative de connexion pour:', email);
+        console.log('🚀 Tentative de connexion sécurisée pour:', email);
         
-        const result = await login({
+        const result = await enhancedAuthService.secureLogin({
           email: email.trim().toLowerCase(),
           password,
           rememberMe
@@ -74,13 +74,22 @@ const Login = () => {
           window.location.href = '/app';
         } else {
           console.log('❌ Échec de la connexion - message sécurisé affiché');
-          // Message d'erreur volontairement vague pour éviter le brute-force
-          setPasswordError('Email ou mot de passe incorrect');
+          
+          if (result.isBlocked) {
+            toast({
+              title: "Compte bloqué",
+              description: result.message || "Trop de tentatives de connexion. Réessayez plus tard.",
+              variant: "destructive"
+            });
+          } else {
+            // Message d'erreur sécurisé
+            setPasswordError(result.message || 'Identifiants incorrects');
+          }
         }
       } catch (error) {
         console.error('💥 Erreur lors de la connexion:', error);
         // Message d'erreur générique pour la sécurité
-        setPasswordError('Email ou mot de passe incorrect');
+        setPasswordError('Identifiants incorrects');
       } finally {
         setIsLoading(false);
       }
@@ -560,6 +569,17 @@ const Login = () => {
             text-decoration: underline;
           }
 
+          .security-notice {
+            background-color: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+          }
+
           @media (max-width: 768px) {
             .container {
               padding: 1rem;
@@ -612,7 +632,11 @@ const Login = () => {
                   />
                 ))}
               </div>
-              <p className="auth-subtitle">Votre assistante vocal intelligent vous attend</p>
+              <p className="auth-subtitle">Connexion sécurisée à votre compte</p>
+            </div>
+
+            <div className="security-notice">
+              🔒 Connexion sécurisée avec protection anti-brute force et journalisation des tentatives
             </div>
 
             <form className="auth-form" onSubmit={handleSubmit}>
@@ -655,39 +679,23 @@ const Login = () => {
                     type={showPassword ? "text" : "password"} 
                     id="password" 
                     className={`form-input ${passwordError ? 'error' : ''}`}
-                    placeholder="••••••••" 
+                    placeholder="••••••••••••" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
                   />
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="input-icon" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <>
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                        <line x1="2" x2="22" y1="2" y2="22" />
-                      </>
-                    ) : (
-                      <>
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </>
-                    )}
-                  </svg>
+                  {showPassword ? (
+                    <EyeOff 
+                      className="input-icon w-5 h-5" 
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  ) : (
+                    <Eye 
+                      className="input-icon w-5 h-5" 
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  )}
                 </div>
                 {passwordError && <div className="error-message">{passwordError}</div>}
               </div>
@@ -700,7 +708,7 @@ const Login = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
                 <label htmlFor="rememberMe" className="checkbox-label">
-                  Rester connecté (uniquement si vous acceptez les cookies de session)
+                  Rester connecté (max 24h, nécessite cookies de session)
                 </label>
               </div>
 
@@ -727,6 +735,9 @@ const Login = () => {
 
               <div className="auth-footer">
                 <p>Vous n'avez pas de compte ? <a href="/signup">Créer un compte</a></p>
+                <p style={{marginTop: '0.5rem', fontSize: '0.75rem'}}>
+                  <a href="/privacy-policy">Politique de confidentialité</a>
+                </p>
               </div>
             </form>
           </div>
