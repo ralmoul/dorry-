@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
   requireApproval?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requireApproval = true }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, requireApproval = false }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   console.log('🛡️ [PROTECTED_ROUTE] État:', { 
@@ -37,9 +37,9 @@ export const ProtectedRoute = ({ children, requireApproval = true }: ProtectedRo
     return <Navigate to="/login" replace />;
   }
 
-  // Vérifier l'approbation si requise
+  // Vérifier l'approbation si requise (par défaut désactivée maintenant)
   if (requireApproval && user && !user.isApproved) {
-    console.log('⚠️ [PROTECTED_ROUTE] Utilisateur non approuvé, redirection vers /');
+    console.log('⚠️ [PROTECTED_ROUTE] Utilisateur non approuvé');
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-white text-center max-w-md">
@@ -58,6 +58,6 @@ export const ProtectedRoute = ({ children, requireApproval = true }: ProtectedRo
   }
 
   // Afficher le contenu protégé
-  console.log('✅ [PROTECTED_ROUTE] Utilisateur authentifié et approuvé, affichage du contenu');
+  console.log('✅ [PROTECTED_ROUTE] Utilisateur authentifié, affichage du contenu');
   return <>{children}</>;
 };
