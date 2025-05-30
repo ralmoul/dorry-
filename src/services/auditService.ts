@@ -237,7 +237,21 @@ export const getAuditHistory = async (limit: number = 20, offset: number = 0): P
       throw error;
     }
 
-    return data || [];
+    // Convertir les données de la base (Json) vers notre interface (string[])
+    const auditReports: AuditReport[] = (data || []).map(item => ({
+      id: item.id,
+      audit_date: item.audit_date,
+      total_consents: item.total_consents,
+      consents_given: item.consents_given,
+      consents_refused: item.consents_refused,
+      compliance_score: item.compliance_score,
+      issues_found: Array.isArray(item.issues_found) ? item.issues_found : [],
+      recommendations: Array.isArray(item.recommendations) ? item.recommendations : [],
+      audit_period_start: item.audit_period_start,
+      audit_period_end: item.audit_period_end
+    }));
+
+    return auditReports;
   } catch (error) {
     console.error('💥 [AUDIT] Erreur critique lors de la récupération de l\'historique:', error);
     throw error;
