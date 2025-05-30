@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData, User, DatabaseProfile } from '@/types/auth';
@@ -53,15 +52,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('🔍 [AUTH] STRICT USER CHECK - Must exist and be approved:', userId);
       
-      // 1️⃣ - D'abord vérifier via la vue sécurisée
+      // 1️⃣ - D'abord vérifier via la fonction sécurisée
       const { data: approvalData, error: approvalError } = await supabase
-        .from('profiles_email_approval')
-        .select('*')
-        .eq('email', userEmail)
-        .single();
+        .rpc('check_user_approval', { user_email: userEmail });
       
-      if (approvalError || !approvalData || !approvalData.is_approved) {
-        console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via view:', approvalError);
+      if (approvalError || !approvalData || approvalData.length === 0 || !approvalData[0].is_approved) {
+        console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via function:', approvalError);
         forceLogoutImmediate();
         return;
       }

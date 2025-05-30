@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -15,22 +14,20 @@ export const authService = {
       const cleanEmail = data.email.toLowerCase().trim();
       console.log('🔍 [LOGIN] STRICT CHECK - User must exist and be approved first:', cleanEmail);
       
-      // 1️⃣ - VÉRIFICATION STRICTE PRÉALABLE via la vue sécurisée
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles_email_approval')
-        .select('*')
-        .eq('email', cleanEmail)
-        .single();
+      // 1️⃣ - VÉRIFICATION STRICTE PRÉALABLE via la fonction sécurisée
+      const { data: approvalData, error: approvalError } = await supabase
+        .rpc('check_user_approval', { user_email: cleanEmail });
       
-      if (profileError || !profileData) {
+      if (approvalError || !approvalData || approvalData.length === 0) {
         console.error('❌ [LOGIN] STRICT BLOCK - User does not exist in our database');
         return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
       }
       
-      console.log('✅ [LOGIN] User found in database:', profileData.email, 'Approved:', profileData.is_approved);
+      const userApproval = approvalData[0];
+      console.log('✅ [LOGIN] User found in database:', cleanEmail, 'Approved:', userApproval.is_approved);
       
       // 2️⃣ - VÉRIFICATION DU STATUT D'APPROBATION - BLOCAGE IMMÉDIAT SI NON APPROUVÉ
-      if (!profileData.is_approved) {
+      if (!userApproval.is_approved) {
         console.log('❌ [LOGIN] STRICT BLOCK - User account not approved');
         return { 
           success: false, 
@@ -55,7 +52,7 @@ export const authService = {
       console.log('✅ [LOGIN] Supabase Auth successful for user:', authData.user.id);
       
       // 4️⃣ - SÉCURITÉ SUPPLÉMENTAIRE : Vérifier que l'ID Supabase correspond à notre base
-      if (authData.user.id !== profileData.id) {
+      if (authData.user.id !== userApproval.user_id) {
         console.error('❌ [LOGIN] CRITICAL - User ID mismatch between auth and profile');
         // Déconnecter immédiatement pour sécurité
         await supabase.auth.signOut();
