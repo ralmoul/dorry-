@@ -141,7 +141,7 @@ export const authService = {
         is_approved: false // CRITIQUE : Toujours "false" par défaut
       };
       
-      console.log('📝 [SIGNUP] Inserting user data:', { ...newUserData, password: '[HIDDEN]' });
+      console.log('📝 [SIGNUP] Inserting user data:', newUserData);
       
       const { data: newUser, error: insertError } = await supabase
         .from('profiles')
@@ -151,21 +151,13 @@ export const authService = {
       
       if (insertError) {
         console.error('❌ [SIGNUP] Insert error:', insertError);
+        // CORRECTION : Logs détaillés pour debug
         console.error('❌ [SIGNUP] Insert error details:', {
           code: insertError.code,
           message: insertError.message,
           details: insertError.details,
           hint: insertError.hint
         });
-        
-        // Messages d'erreur plus spécifiques
-        if (insertError.code === '23505') {
-          return { 
-            success: false, 
-            message: 'Un compte avec cet email existe déjà.' 
-          };
-        }
-        
         return { 
           success: false, 
           message: 'Erreur lors de la création du compte. Veuillez réessayer.' 
@@ -193,27 +185,11 @@ export const authService = {
       
     } catch (error) {
       console.error('💥 [SIGNUP] Unexpected error:', error);
+      // CORRECTION : Log détaillé de l'erreur pour debug
       console.error('💥 [SIGNUP] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      
-      // Message d'erreur plus spécifique selon le type d'erreur
-      if (error instanceof Error) {
-        if (error.message.includes('violates row-level security')) {
-          return { 
-            success: false, 
-            message: 'Erreur de sécurité lors de la création du compte. Veuillez contacter le support.' 
-          };
-        }
-        if (error.message.includes('duplicate key')) {
-          return { 
-            success: false, 
-            message: 'Un compte avec cet email existe déjà.' 
-          };
-        }
-      }
-      
       return { 
         success: false, 
-        message: 'Une erreur technique est survenue lors de la création du compte. Veuillez réessayer.' 
+        message: 'Une erreur inattendue est survenue lors de la création du compte' 
       };
     }
   }

@@ -2,7 +2,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
-import { Header } from '@/components/Header';
 
 const Index = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -41,21 +40,9 @@ const Index = () => {
     );
   }
 
-  const handleOpenSettings = () => {
-    window.location.href = '/settings';
-  };
-
-  const handleOpenUpcomingFeatures = () => {
-    window.location.href = '/upcoming-features';
-  };
-
   return (
     <div className="min-h-screen gradient-bg">
-      <Header onOpenSettings={handleOpenSettings} />
-      <VoiceRecorder 
-        onOpenSettings={handleOpenSettings}
-        onOpenUpcomingFeatures={handleOpenUpcomingFeatures}
-      />
+      <VoiceRecorder />
     </div>
   );
 };
