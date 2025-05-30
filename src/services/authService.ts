@@ -127,8 +127,13 @@ export const authService = {
       
       console.log('✅ [SIGNUP] Email available, creating user...');
       
+      // Generate a new UUID for the user
+      const { data: uuidData, error: uuidError } = await supabase.rpc('gen_random_uuid');
+      const userId = uuidData || crypto.randomUUID();
+      
       // Create new user with pending status by default
       const newUserData = {
+        id: userId,
         first_name: data.firstName.trim(),
         last_name: data.lastName.trim(),
         email: cleanEmail,
