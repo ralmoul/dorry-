@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean
+          session_token: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean
+          session_token: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean
+          session_token?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       audit_reports: {
         Row: {
           audit_date: string
@@ -349,6 +379,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_admin_session: {
+        Args: {
+          password_input: string
+          client_ip?: unknown
+          client_user_agent?: string
+        }
+        Returns: {
+          success: boolean
+          session_token: string
+          expires_at: string
+        }[]
+      }
       get_audit_history: {
         Args: { limit_count?: number; offset_count?: number }
         Returns: {
@@ -377,6 +419,10 @@ export type Database = {
           triggered_by: string
         }[]
       }
+      invalidate_admin_session: {
+        Args: { token: string }
+        Returns: undefined
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
@@ -384,6 +430,14 @@ export type Database = {
       reject_user_profile: {
         Args: { user_id: string }
         Returns: undefined
+      }
+      verify_admin_password: {
+        Args: { password_input: string }
+        Returns: boolean
+      }
+      verify_admin_session: {
+        Args: { token: string }
+        Returns: boolean
       }
     }
     Enums: {

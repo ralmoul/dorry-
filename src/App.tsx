@@ -8,6 +8,8 @@ import { AuthProvider } from "@/providers/AuthProvider";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import Settings from "./pages/Settings";
 import UpcomingFeatures from "./pages/UpcomingFeatures";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -37,6 +39,8 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/upcoming-features" element={<UpcomingFeatures onBack={() => window.history.back()} />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
