@@ -37,22 +37,22 @@ export const AuditPanel = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-xl font-sharp">
+            <AlertCircle className="h-5 w-5 text-bright-turquoise" />
             Audit de Conformité RGPD
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-muted-foreground">
             Surveillance automatisée de la conformité et des logs de consentement
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               onClick={handleRunAudit} 
               disabled={isAuditing}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold"
             >
               <Play className="h-4 w-4" />
               {isAuditing ? 'Audit en cours...' : 'Lancer l\'audit mensuel'}
@@ -62,7 +62,7 @@ export const AuditPanel = () => {
               variant="outline" 
               onClick={handleRunTests} 
               disabled={isRunningTests}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
             >
               <TestTube className="h-4 w-4" />
               {isRunningTests ? 'Tests en cours...' : 'Tests unitaires'}
@@ -70,60 +70,66 @@ export const AuditPanel = () => {
           </div>
 
           {auditError && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{auditError}</p>
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 text-sm font-medium">{auditError}</p>
             </div>
           )}
         </CardContent>
       </Card>
 
       {lastAuditReport && (
-        <Card>
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
-            <CardTitle>Dernier Rapport d'Audit</CardTitle>
-            <CardDescription>
-              Généré le {new Date(lastAuditReport.audit_date).toLocaleDateString('fr-FR')}
+            <CardTitle className="text-xl font-sharp">Dernier Rapport d'Audit</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Généré le {new Date(lastAuditReport.audit_date).toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             {/* Score de conformité */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-slate-900/20 rounded-lg border border-bright-turquoise/20">
               <div>
-                <h4 className="font-semibold">Score de Conformité</h4>
-                <p className="text-sm text-slate-600">Basé sur l'analyse des logs</p>
+                <h4 className="font-semibold text-lg font-sharp">Score de Conformité</h4>
+                <p className="text-sm text-muted-foreground">Basé sur l'analyse des logs</p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${getComplianceColor(lastAuditReport.compliance_score)}`}></div>
-                <span className="font-bold text-lg">{lastAuditReport.compliance_score}%</span>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 rounded-full ${getComplianceColor(lastAuditReport.compliance_score)}`}></div>
+                <span className="font-bold text-2xl font-sharp">{lastAuditReport.compliance_score}%</span>
               </div>
             </div>
 
             {/* Statistiques */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{lastAuditReport.total_consents}</div>
-                <div className="text-sm text-blue-800">Total consentements</div>
+              <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                <div className="text-3xl font-bold text-blue-400 font-sharp">{lastAuditReport.total_consents}</div>
+                <div className="text-sm text-blue-300 mt-1">Total consentements</div>
               </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{lastAuditReport.consents_given}</div>
-                <div className="text-sm text-green-800">Acceptés</div>
+              <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/30">
+                <div className="text-3xl font-bold text-green-400 font-sharp">{lastAuditReport.consents_given}</div>
+                <div className="text-sm text-green-300 mt-1">Acceptés</div>
               </div>
-              <div className="text-center p-3 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-600">{lastAuditReport.consents_refused}</div>
-                <div className="text-sm text-red-800">Refusés</div>
+              <div className="text-center p-4 bg-red-500/10 rounded-lg border border-red-500/30">
+                <div className="text-3xl font-bold text-red-400 font-sharp">{lastAuditReport.consents_refused}</div>
+                <div className="text-sm text-red-300 mt-1">Refusés</div>
               </div>
             </div>
 
             {/* Problèmes identifiés */}
             {lastAuditReport.issues_found.length > 0 && (
-              <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-orange-500" />
+              <div className="space-y-3">
+                <h4 className="font-semibold text-lg flex items-center gap-2 font-sharp">
+                  <AlertCircle className="h-5 w-5 text-orange-500" />
                   Problèmes Identifiés
                 </h4>
-                <div className="space-y-1">
+                <div className="flex flex-wrap gap-2">
                   {lastAuditReport.issues_found.map((issue, index) => (
-                    <Badge key={index} variant="destructive" className="mr-2 mb-1">
+                    <Badge key={index} className="bg-red-500/20 text-red-400 border-red-500/30 px-3 py-1">
                       {issue}
                     </Badge>
                   ))}
@@ -132,14 +138,14 @@ export const AuditPanel = () => {
             )}
 
             {/* Recommandations */}
-            <div>
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+            <div className="space-y-3">
+              <h4 className="font-semibold text-lg flex items-center gap-2 font-sharp">
+                <CheckCircle className="h-5 w-5 text-green-500" />
                 Recommandations
               </h4>
-              <div className="space-y-1">
+              <div className="flex flex-wrap gap-2">
                 {lastAuditReport.recommendations.map((rec, index) => (
-                  <Badge key={index} variant="secondary" className="mr-2 mb-1">
+                  <Badge key={index} className="bg-green-500/20 text-green-400 border-green-500/30 px-3 py-1">
                     {rec}
                   </Badge>
                 ))}
