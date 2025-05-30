@@ -301,6 +301,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_cleanup_history: {
+        Args: { limit_count?: number }
+        Returns: {
+          id: string
+          execution_date: string
+          status: string
+          records_cleaned: Json
+          error_message: string
+          execution_duration_ms: number
+          triggered_by: string
+        }[]
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
