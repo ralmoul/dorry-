@@ -149,34 +149,69 @@ export const AdminPanel = () => {
     }
   };
 
-  const updateUserStatus = async (userId: string, newStatus: boolean) => {
+  const approveUser = async (userId: string) => {
     try {
-      console.log(`🔄 [ADMIN] Updating user ${userId} status to ${newStatus}`);
+      console.log(`✅ [ADMIN] Approving user ${userId}`);
       setIsUpdating(userId);
       
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          is_approved: newStatus,
+          is_approved: true,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId);
       
       if (error) {
-        console.error('❌ [ADMIN] Error updating status:', error);
+        console.error('❌ [ADMIN] Error approving user:', error);
         toast({
           title: "Erreur",
-          description: "Impossible de mettre à jour le statut.",
+          description: "Impossible d'approuver l'utilisateur.",
           variant: "destructive"
         });
         return;
       }
       
-      console.log('✅ [ADMIN] Status updated successfully - realtime will handle UI update');
+      console.log('✅ [ADMIN] User approved successfully - realtime will handle UI update');
       setIsModalOpen(false);
       
-      // Ne pas mettre à jour manuellement - laisser le realtime s'en occuper
-      // La mise à jour sera automatique via handleRealtimeUpdate
+    } catch (error) {
+      console.error('💥 [ADMIN] Unexpected error:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue est survenue.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdating(null);
+    }
+  };
+
+  const revokeUser = async (userId: string) => {
+    try {
+      console.log(`🚫 [ADMIN] Revoking user ${userId}`);
+      setIsUpdating(userId);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          is_approved: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('❌ [ADMIN] Error revoking user:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de révoquer l'utilisateur.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      console.log('✅ [ADMIN] User revoked successfully - realtime will handle UI update');
+      setIsModalOpen(false);
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -195,13 +230,20 @@ export const AdminPanel = () => {
       console.log(`🗑️ [ADMIN] Deleting user ${userId}`);
       setIsUpdating(userId);
       
-      const { error } = await supabase
+      // D'abord supprimer de auth.users si l'utilisateur existe
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      if (authError) {
+        console.log('⚠️ [ADMIN] Auth user deletion error (may not exist):', authError);
+      }
+      
+      // Ensuite supprimer de profiles
+      const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
       
-      if (error) {
-        console.error('❌ [ADMIN] Error deleting user:', error);
+      if (profileError) {
+        console.error('❌ [ADMIN] Error deleting user profile:', profileError);
         toast({
           title: "Erreur",
           description: "Impossible de supprimer l'utilisateur.",
@@ -212,9 +254,6 @@ export const AdminPanel = () => {
       
       console.log('✅ [ADMIN] User deleted successfully - realtime will handle UI update');
       setIsModalOpen(false);
-      
-      // Ne pas mettre à jour manuellement - laisser le realtime s'en occuper
-      // La suppression sera automatique via handleRealtimeUpdate
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -392,7 +431,7 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, true)}
+                            onClick={() => approveUser(user.id)}
                             disabled={isUpdating === user.id}
                             className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
                           >
@@ -477,7 +516,7 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, false)}
+                            onClick={() => revokeUser(user.id)}
                             disabled={isUpdating === user.id}
                             className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
                           >
@@ -530,9 +569,9 @@ export const AdminPanel = () => {
         } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApprove={(userId) => updateUserStatus(userId, true)}
-        onReject={(userId) => updateUserStatus(userId, false)}
-        onRevoke={(userId) => updateUserStatus(userId, false)}
+        onApprove={(userId) => approveUser(userId)}
+        onReject={(userId) => revokeUser(userId)}
+        onRevoke={(userId) => revokeUser(userId)}
         onDelete={(userId) => deleteUser(userId)}
       />
     </div>
