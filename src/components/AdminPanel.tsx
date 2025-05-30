@@ -373,7 +373,7 @@ export const AdminPanel = () => {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
                 <p className="text-sm text-muted-foreground">
-                  🔥 EDGE FUNCTION DELETE ACTIVE • Suppression complète auth.users + profiles • {users.length} utilisateur(s)
+                  Veuillez actualiser la page après chaque action si elle ne s'actualise pas en cliquant ici →
                 </p>
               </div>
               <Button 
