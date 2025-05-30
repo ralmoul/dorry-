@@ -61,7 +61,7 @@ export const AdminPanel = () => {
         setIsLoading(true);
       }
       
-      // Récupérer les utilisateurs depuis la table profiles
+      // Récupérer les utilisateurs depuis la table profiles avec une requête admin
       const { data: profilesData, error } = await supabase
         .from('profiles')
         .select('*')
@@ -126,72 +126,41 @@ export const AdminPanel = () => {
     try {
       console.log(`✅ [ADMIN] Début de l'approbation pour l'utilisateur ${userId}`);
       
-      // Vérifier d'abord l'état actuel de l'utilisateur
-      const { data: currentUser, error: fetchError } = await supabase
-        .from('profiles')
-        .select('is_approved')
-        .eq('id', userId)
-        .single();
+      // Utiliser une requête RPC (Remote Procedure Call) pour bypasser les politiques RLS
+      const { data, error } = await supabase.rpc('approve_user_profile', {
+        user_id: userId
+      });
       
-      if (fetchError) {
-        console.error('❌ [ADMIN] Erreur lors de la vérification de l\'état actuel:', fetchError);
-        toast({
-          title: "Erreur",
-          description: "Impossible de vérifier l'état de l'utilisateur.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      console.log('📊 [ADMIN] État actuel de l\'utilisateur:', currentUser);
-      
-      // Si déjà approuvé, ne rien faire
-      if (currentUser.is_approved === true) {
-        console.log('⚠️ [ADMIN] L\'utilisateur est déjà approuvé');
-        toast({
-          title: "Information",
-          description: "L'utilisateur est déjà approuvé.",
-        });
-        return;
-      }
-      
-      // Effectuer la mise à jour avec une requête explicite
-      console.log('🔄 [ADMIN] Mise à jour de is_approved vers true...');
-      const { data: updateData, error: updateError } = await supabase
-        .from('profiles')
-        .update({ 
-          is_approved: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
-        .select(); // Récupérer les données mises à jour
-      
-      if (updateError) {
-        console.error('❌ [ADMIN] Erreur lors de la mise à jour:', updateError);
-        toast({
-          title: "Erreur",
-          description: `Erreur lors de l'approbation: ${updateError.message}`,
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      console.log('✅ [ADMIN] Mise à jour réussie, données retournées:', updateData);
-      
-      // Vérifier que la mise à jour a bien eu lieu
-      const { data: verificationData, error: verificationError } = await supabase
-        .from('profiles')
-        .select('is_approved')
-        .eq('id', userId)
-        .single();
-      
-      if (verificationError) {
-        console.error('❌ [ADMIN] Erreur lors de la vérification:', verificationError);
+      if (error) {
+        console.error('❌ [ADMIN] Erreur lors de l\'approbation via RPC:', error);
+        
+        // Essayer avec une mise à jour directe si RPC échoue
+        console.log('🔄 [ADMIN] Tentative de mise à jour directe...');
+        const { data: updateData, error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            is_approved: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId)
+          .select();
+        
+        if (updateError) {
+          console.error('❌ [ADMIN] Erreur lors de la mise à jour directe:', updateError);
+          toast({
+            title: "Erreur",
+            description: `Erreur lors de l'approbation: ${updateError.message}`,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        console.log('✅ [ADMIN] Mise à jour directe réussie:', updateData);
       } else {
-        console.log('🔍 [ADMIN] Vérification après mise à jour:', verificationData);
+        console.log('✅ [ADMIN] Approbation via RPC réussie:', data);
       }
       
-      // Mettre à jour l'état local
+      // Mettre à jour l'état local immédiatement
       setUsers(prevUsers => 
         prevUsers.map(user => 
           user.id === userId ? { ...user, is_approved: true } : user
@@ -205,11 +174,11 @@ export const AdminPanel = () => {
       
       console.log('✅ [ADMIN] Processus d\'approbation terminé avec succès');
       
-      // Recharger les données après un délai plus court
+      // Recharger les données après un délai
       setTimeout(() => {
         console.log('🔄 [ADMIN] Rechargement des données pour vérification...');
         loadUsers();
-      }, 1000);
+      }, 2000);
       
     } catch (error) {
       console.error('💥 [ADMIN] Erreur inattendue lors de l\'approbation:', error);
@@ -225,26 +194,38 @@ export const AdminPanel = () => {
     try {
       console.log(`❌ [ADMIN] Début du rejet pour l'utilisateur ${userId}`);
       
-      const { data: updateData, error } = await supabase
-        .from('profiles')
-        .update({ 
-          is_approved: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
-        .select();
+      // Utiliser RPC pour le rejet aussi
+      const { data, error } = await supabase.rpc('reject_user_profile', {
+        user_id: userId
+      });
       
       if (error) {
-        console.error('❌ [ADMIN] Erreur lors du rejet:', error);
-        toast({
-          title: "Erreur",
-          description: `Erreur lors du rejet: ${error.message}`,
-          variant: "destructive"
-        });
-        return;
+        console.error('❌ [ADMIN] Erreur lors du rejet via RPC:', error);
+        
+        // Essayer avec une mise à jour directe si RPC échoue
+        const { data: updateData, error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            is_approved: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId)
+          .select();
+        
+        if (updateError) {
+          console.error('❌ [ADMIN] Erreur lors du rejet:', updateError);
+          toast({
+            title: "Erreur",
+            description: `Erreur lors du rejet: ${updateError.message}`,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        console.log('✅ [ADMIN] Rejet direct réussi:', updateData);
+      } else {
+        console.log('✅ [ADMIN] Rejet via RPC réussi:', data);
       }
-      
-      console.log('✅ [ADMIN] Rejet réussi, données retournées:', updateData);
       
       // Mettre à jour l'état local
       setUsers(prevUsers => 
@@ -264,7 +245,7 @@ export const AdminPanel = () => {
       // Recharger les données
       setTimeout(() => {
         loadUsers();
-      }, 1000);
+      }, 2000);
       
     } catch (error) {
       console.error('💥 [ADMIN] Erreur inattendue lors du rejet:', error);
