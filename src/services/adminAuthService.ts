@@ -10,6 +10,8 @@ export interface AdminSession {
 export const adminAuthService = {
   async loginAdmin(password: string): Promise<AdminSession> {
     try {
+      console.log('🔐 [ADMIN_AUTH] Tentative de connexion admin...');
+      
       // Obtenir l'IP et user agent du client
       const userAgent = navigator.userAgent;
       
@@ -19,9 +21,11 @@ export const adminAuthService = {
       });
 
       if (error) {
-        console.error('❌ [ADMIN_AUTH] Erreur lors de la connexion:', error);
+        console.error('❌ [ADMIN_AUTH] Erreur RPC:', error);
         return { success: false };
       }
+
+      console.log('📊 [ADMIN_AUTH] Réponse RPC:', data);
 
       if (data && data.length > 0 && data[0].success) {
         // Stocker le token de session
@@ -35,6 +39,7 @@ export const adminAuthService = {
         };
       }
 
+      console.log('❌ [ADMIN_AUTH] Mot de passe incorrect');
       return { success: false };
     } catch (error) {
       console.error('💥 [ADMIN_AUTH] Erreur critique:', error);
@@ -48,11 +53,13 @@ export const adminAuthService = {
       const expires = localStorage.getItem('admin_session_expires');
 
       if (!token || !expires) {
+        console.log('🔍 [ADMIN_AUTH] Aucun token trouvé');
         return false;
       }
 
       // Vérifier l'expiration côté client
       if (new Date(expires) <= new Date()) {
+        console.log('⏰ [ADMIN_AUTH] Token expiré côté client');
         this.logoutAdmin();
         return false;
       }
@@ -63,10 +70,12 @@ export const adminAuthService = {
       });
 
       if (error || !data) {
+        console.log('❌ [ADMIN_AUTH] Vérification serveur échouée:', error);
         this.logoutAdmin();
         return false;
       }
 
+      console.log('✅ [ADMIN_AUTH] Session valide');
       return data;
     } catch (error) {
       console.error('💥 [ADMIN_AUTH] Erreur vérification session:', error);

@@ -25,6 +25,8 @@ export const useAdminAuth = () => {
 
   const login = async (password: string): Promise<{ success: boolean; message?: string }> => {
     try {
+      console.log('🔐 [ADMIN_AUTH_HOOK] Tentative de connexion avec mot de passe:', password.substring(0, 3) + '...');
+      
       const result = await adminAuthService.loginAdmin(password);
       
       if (result.success) {
