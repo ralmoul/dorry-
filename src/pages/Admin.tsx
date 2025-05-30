@@ -14,7 +14,7 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const ADMIN_PASSWORD = 'TBv$nq7A#9sDSTt';
+  const ADMIN_PASSWORD = 'admin123'; // Mot de passe simple pour l'admin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +69,7 @@ const Admin = () => {
             Administration
           </CardTitle>
           <CardDescription className="text-white text-sm sm:text-base">
-            Accès réglementé - Mot de passe requis
+            Accès réglementé - Mot de passe : admin123
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
@@ -84,7 +84,7 @@ const Admin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="Entrez le mot de passe"
+                placeholder="admin123"
                 className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-11 text-white placeholder:text-gray-400"
                 autoComplete="current-password"
               />
@@ -99,7 +99,7 @@ const Admin = () => {
           </form>
           <div className="mt-4 text-center">
             <p className="text-xs text-white">
-              Accès autorisé uniquement pour l'administrateur
+              Mot de passe : admin123
             </p>
           </div>
         </CardContent>
