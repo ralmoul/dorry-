@@ -124,56 +124,98 @@ export const AdminPanel = () => {
 
   const approveUser = async (userId: string) => {
     try {
-      console.log(`✅ [ADMIN] Approbation de l'utilisateur ${userId}`);
+      console.log(`✅ [ADMIN] Début de l'approbation pour l'utilisateur ${userId}`);
       
-      // Mettre à jour l'état local immédiatement pour un feedback visuel
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: true } : user
-      ));
+      // Vérifier d'abord l'état actuel de l'utilisateur
+      const { data: currentUser, error: fetchError } = await supabase
+        .from('profiles')
+        .select('is_approved')
+        .eq('id', userId)
+        .single();
       
-      const { error } = await supabase
+      if (fetchError) {
+        console.error('❌ [ADMIN] Erreur lors de la vérification de l\'état actuel:', fetchError);
+        toast({
+          title: "Erreur",
+          description: "Impossible de vérifier l'état de l'utilisateur.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      console.log('📊 [ADMIN] État actuel de l\'utilisateur:', currentUser);
+      
+      // Si déjà approuvé, ne rien faire
+      if (currentUser.is_approved === true) {
+        console.log('⚠️ [ADMIN] L\'utilisateur est déjà approuvé');
+        toast({
+          title: "Information",
+          description: "L'utilisateur est déjà approuvé.",
+        });
+        return;
+      }
+      
+      // Effectuer la mise à jour avec une requête explicite
+      console.log('🔄 [ADMIN] Mise à jour de is_approved vers true...');
+      const { data: updateData, error: updateError } = await supabase
         .from('profiles')
         .update({ 
           is_approved: true,
           updated_at: new Date().toISOString()
         })
-        .eq('id', userId);
+        .eq('id', userId)
+        .select(); // Récupérer les données mises à jour
       
-      if (error) {
-        console.error('❌ [ADMIN] Erreur lors de l\'approbation:', error);
-        // Revenir à l'état précédent en cas d'erreur
-        setUsers(users.map(user => 
-          user.id === userId ? { ...user, is_approved: false } : user
-        ));
+      if (updateError) {
+        console.error('❌ [ADMIN] Erreur lors de la mise à jour:', updateError);
         toast({
           title: "Erreur",
-          description: "Impossible d'approuver l'utilisateur.",
+          description: `Erreur lors de l'approbation: ${updateError.message}`,
           variant: "destructive"
         });
         return;
       }
+      
+      console.log('✅ [ADMIN] Mise à jour réussie, données retournées:', updateData);
+      
+      // Vérifier que la mise à jour a bien eu lieu
+      const { data: verificationData, error: verificationError } = await supabase
+        .from('profiles')
+        .select('is_approved')
+        .eq('id', userId)
+        .single();
+      
+      if (verificationError) {
+        console.error('❌ [ADMIN] Erreur lors de la vérification:', verificationError);
+      } else {
+        console.log('🔍 [ADMIN] Vérification après mise à jour:', verificationData);
+      }
+      
+      // Mettre à jour l'état local
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId ? { ...user, is_approved: true } : user
+        )
+      );
       
       toast({
         title: "Utilisateur approuvé",
         description: "L'utilisateur peut maintenant accéder à l'application.",
       });
       
-      console.log('✅ [ADMIN] Utilisateur approuvé avec succès');
+      console.log('✅ [ADMIN] Processus d\'approbation terminé avec succès');
       
-      // Recharger les données pour s'assurer de la cohérence
+      // Recharger les données après un délai plus court
       setTimeout(() => {
+        console.log('🔄 [ADMIN] Rechargement des données pour vérification...');
         loadUsers();
-      }, 500);
+      }, 1000);
       
     } catch (error) {
-      console.error('💥 [ADMIN] Erreur lors de l\'approbation:', error);
-      // Revenir à l'état précédent en cas d'erreur
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: false } : user
-      ));
+      console.error('💥 [ADMIN] Erreur inattendue lors de l\'approbation:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue.",
+        description: "Une erreur inattendue est survenue.",
         variant: "destructive"
       });
     }
@@ -181,34 +223,35 @@ export const AdminPanel = () => {
 
   const rejectUser = async (userId: string) => {
     try {
-      console.log(`❌ [ADMIN] Rejet de l'utilisateur ${userId}`);
+      console.log(`❌ [ADMIN] Début du rejet pour l'utilisateur ${userId}`);
       
-      // Mettre à jour l'état local immédiatement pour un feedback visuel
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: false } : user
-      ));
-      
-      const { error } = await supabase
+      const { data: updateData, error } = await supabase
         .from('profiles')
         .update({ 
           is_approved: false,
           updated_at: new Date().toISOString()
         })
-        .eq('id', userId);
+        .eq('id', userId)
+        .select();
       
       if (error) {
         console.error('❌ [ADMIN] Erreur lors du rejet:', error);
-        // Revenir à l'état précédent en cas d'erreur
-        setUsers(users.map(user => 
-          user.id === userId ? { ...user, is_approved: true } : user
-        ));
         toast({
           title: "Erreur",
-          description: "Impossible de rejeter l'utilisateur.",
+          description: `Erreur lors du rejet: ${error.message}`,
           variant: "destructive"
         });
         return;
       }
+      
+      console.log('✅ [ADMIN] Rejet réussi, données retournées:', updateData);
+      
+      // Mettre à jour l'état local
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId ? { ...user, is_approved: false } : user
+        )
+      );
       
       toast({
         title: "Utilisateur rejeté",
@@ -216,22 +259,18 @@ export const AdminPanel = () => {
         variant: "destructive",
       });
       
-      console.log('❌ [ADMIN] Utilisateur rejeté avec succès');
+      console.log('✅ [ADMIN] Processus de rejet terminé avec succès');
       
-      // Recharger les données pour s'assurer de la cohérence
+      // Recharger les données
       setTimeout(() => {
         loadUsers();
-      }, 500);
+      }, 1000);
       
     } catch (error) {
-      console.error('💥 [ADMIN] Erreur lors du rejet:', error);
-      // Revenir à l'état précédent en cas d'erreur
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: true } : user
-      ));
+      console.error('💥 [ADMIN] Erreur inattendue lors du rejet:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue.",
+        description: "Une erreur inattendue est survenue.",
         variant: "destructive"
       });
     }
