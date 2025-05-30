@@ -17,40 +17,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Écouter les changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 [AUTH_PROVIDER] Changement d\'état auth:', event);
+      console.log('🔄 [AUTH_PROVIDER] Changement d\'état auth:', event, 'Session:', !!session);
       
       if (session?.user) {
         console.log('👤 [AUTH_PROVIDER] Session utilisateur trouvée, récupération du profil...');
         
-        // Récupérer le profil utilisateur
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+        try {
+          // Récupérer le profil utilisateur
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profile && !profileError) {
-          const user = {
-            id: session.user.id,
-            firstName: profile.first_name,
-            lastName: profile.last_name,
-            email: profile.email,
-            phone: profile.phone,
-            company: profile.company,
-            isApproved: true,
-            createdAt: profile.created_at,
-          };
+          if (profile && !profileError) {
+            const user = {
+              id: session.user.id,
+              firstName: profile.first_name,
+              lastName: profile.last_name,
+              email: profile.email,
+              phone: profile.phone,
+              company: profile.company,
+              isApproved: profile.is_approved,
+              createdAt: profile.created_at,
+            };
 
-          console.log('✅ [AUTH_PROVIDER] Utilisateur authentifié:', user.firstName);
+            console.log('✅ [AUTH_PROVIDER] Utilisateur authentifié:', user.firstName, 'Approuvé:', user.isApproved);
+            
+            if (user.isApproved) {
+              setAuthState({
+                user,
+                isAuthenticated: true,
+                isLoading: false,
+              });
+            } else {
+              console.warn('⚠️ [AUTH_PROVIDER] Utilisateur non approuvé, déconnexion...');
+              await supabase.auth.signOut();
+              setAuthState({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+              });
+            }
+          } else {
+            console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé, déconnexion...');
+            console.error('Profile error:', profileError);
+            await supabase.auth.signOut();
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+          }
+        } catch (error) {
+          console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
+          await supabase.auth.signOut();
           setAuthState({
-            user,
-            isAuthenticated: true,
+            user: null,
+            isAuthenticated: false,
             isLoading: false,
           });
-        } else {
-          console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé, déconnexion...');
-          console.error('Profile error:', profileError);
-          await supabase.auth.signOut();
         }
       } else {
         console.log('❌ [AUTH_PROVIDER] Aucune session utilisateur');
@@ -92,8 +118,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     console.log('🔐 [AUTH_PROVIDER] Tentative de connexion pour:', data.email);
-    const result = await authService.login(data);
-    return result.success;
+    try {
+      const result = await authService.login(data);
+      return result.success;
+    } catch (error) {
+      console.error('❌ [AUTH_PROVIDER] Erreur de connexion:', error);
+      return false;
+    }
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
@@ -110,7 +141,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
     userId: authState.user?.id || 'aucun',
-    userFirstName: authState.user?.firstName || 'aucun'
+    userFirstName: authState.user?.firstName || 'aucun',
+    isApproved: authState.user?.isApproved
   });
 
   const contextValue: AuthContextType = {
