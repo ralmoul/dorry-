@@ -49,11 +49,27 @@ const Index = () => {
     );
   }
 
+  // Handlers pour les props manquantes
+  const handleOpenSettings = () => {
+    window.location.href = '/settings';
+  };
+
+  const handleOpenUpcomingFeatures = () => {
+    window.location.href = '/upcoming-features';
+  };
+
+  const handleBack = () => {
+    window.location.href = '/';
+  };
+
   // Utilisateur authentifié et approuvé, afficher l'application
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900">
-      <VoiceRecorder />
-      <Settings />
+      <VoiceRecorder 
+        onOpenSettings={handleOpenSettings}
+        onOpenUpcomingFeatures={handleOpenUpcomingFeatures}
+      />
+      <Settings onBack={handleBack} />
       <AdminPanel />
     </div>
   );
