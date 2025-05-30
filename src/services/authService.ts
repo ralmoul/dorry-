@@ -109,15 +109,17 @@ export const authService = {
         console.log('❌ [SIGNUP] Email already exists in profiles table');
         const existingProfile = existingProfiles[0];
         
-        if (!existingProfile.is_approved) {
+        if (existingProfile.is_approved) {
+          // Compte déjà approuvé - message d'erreur
           return { 
             success: false, 
-            message: 'Une demande de création de compte a déjà été faite avec cette adresse email et est en attente de validation. Veuillez patienter.' 
+            message: 'Un compte existe déjà avec cette adresse email.' 
           };
         } else {
+          // Compte en attente - message de succès indiquant que la demande a été envoyée
           return { 
-            success: false, 
-            message: 'Une demande de création de compte a déjà été faite avec cette adresse email.' 
+            success: true, 
+            message: 'Votre demande d\'accès a été envoyée et est en attente de validation. Vous recevrez un email de confirmation.' 
           };
         }
       }
@@ -231,7 +233,7 @@ export const authService = {
               
               return { 
                 success: true, 
-                message: 'Votre compte a été créé avec succès ! Il sera activé après validation par notre équipe. Vous recevrez un email de confirmation.' 
+                message: 'Votre demande d\'accès a été envoyée avec succès ! Elle sera activée après validation par notre équipe. Vous recevrez un email de confirmation.' 
               };
             }
           }
@@ -305,7 +307,7 @@ export const authService = {
       
       return { 
         success: true, 
-        message: 'Votre compte a été créé avec succès ! Il sera activé après validation par notre équipe. Vous recevrez un email de confirmation.' 
+        message: 'Votre demande d\'accès a été envoyée avec succès ! Elle sera activée après validation par notre équipe. Vous recevrez un email de confirmation.' 
       };
       
     } catch (error) {
