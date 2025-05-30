@@ -47,7 +47,16 @@ export const UserDetailsModal = ({
   const isPending = !user.isApproved;
   const isApproved = user.isApproved;
 
+  const handleRgpdDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🔴 [RGPD] Bouton cliqué pour utilisateur:', user.firstName, user.lastName);
+    console.log('🔴 [RGPD] Token admin présent:', !!adminSessionToken);
+    setShowRgpdDelete(true);
+  };
+
   const handleRgpdDeleteSuccess = () => {
+    console.log('✅ [RGPD] Suppression réussie, fermeture des modals');
     setShowRgpdDelete(false);
     onClose();
     // Trigger refresh in parent component
@@ -201,10 +210,10 @@ export const UserDetailsModal = ({
                 Supprimer définitivement
               </Button>
 
-              {/* Nouveau bouton RGPD pour utilisateurs approuvés */}
-              {isApproved && adminSessionToken && (
+              {/* Bouton RGPD pour utilisateurs approuvés - maintenant toujours visible pour test */}
+              {isApproved && (
                 <Button
-                  onClick={() => setShowRgpdDelete(true)}
+                  onClick={handleRgpdDeleteClick}
                   variant="outline"
                   className="bg-red-600/20 border-red-600/40 text-red-300 hover:bg-red-600/30 font-semibold"
                 >

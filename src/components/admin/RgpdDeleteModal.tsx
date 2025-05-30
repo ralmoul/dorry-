@@ -64,14 +64,29 @@ export const RgpdDeleteModal = ({
   // Charger les statistiques utilisateur quand la modal s'ouvre
   useEffect(() => {
     if (isOpen && user) {
+      console.log('🔍 [RGPD] Modal ouverte, chargement des stats pour:', user.firstName, user.lastName);
       loadUserStats();
     }
   }, [isOpen, user]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setStep('overview');
+      setConfirmText('');
+      setExportData(false);
+      setProgress(0);
+      setExportedData(null);
+      setIsLoading(false);
+    }
+  }, [isOpen]);
 
   const loadUserStats = async () => {
     if (!user) return;
 
     try {
+      console.log('📊 [RGPD] Chargement des statistiques pour userId:', user.id);
+      
       const [voiceData, consentData, sessionData, mfaData, otpData, loginData] = await Promise.all([
         supabase.from('voice_recordings').select('id', { count: 'exact' }).eq('user_id', user.id),
         supabase.from('consent_logs').select('id', { count: 'exact' }).eq('user_id', user.id),
@@ -81,20 +96,29 @@ export const RgpdDeleteModal = ({
         supabase.from('login_attempts').select('id', { count: 'exact' }).eq('email', user.email)
       ]);
 
-      setUserStats({
+      const stats = {
         voice_recordings: voiceData.count || 0,
         consent_logs: consentData.count || 0,
         sessions: sessionData.count || 0,
         mfa_settings: mfaData.count || 0,
         otp_codes: otpData.count || 0,
         login_attempts: loginData.count || 0
-      });
+      };
+
+      console.log('📈 [RGPD] Stats chargées:', stats);
+      setUserStats(stats);
     } catch (error) {
-      console.error('Erreur lors du chargement des stats:', error);
+      console.error('❌ [RGPD] Erreur lors du chargement des stats:', error);
+      toast({
+        title: "Erreur de chargement",
+        description: "Impossible de charger les statistiques utilisateur.",
+        variant: "destructive"
+      });
     }
   };
 
   const handleClose = () => {
+    console.log('🚪 [RGPD] Fermeture de la modal');
     setStep('overview');
     setConfirmText('');
     setExportData(false);
@@ -158,7 +182,18 @@ export const RgpdDeleteModal = ({
   };
 
   const handleRgpdDelete = async () => {
-    if (!user || !adminSessionToken) return;
+    if (!user || !adminSessionToken) {
+      console.error('❌ [RGPD] Données manquantes:', { user: !!user, token: !!adminSessionToken });
+      toast({
+        title: "Erreur de configuration",
+        description: "Session admin invalide ou utilisateur introuvable.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log('🚀 [RGPD] Démarrage suppression pour:', user.firstName, user.lastName);
+    console.log('🔑 [RGPD] Token admin:', adminSessionToken.substring(0, 8) + '...');
     
     setIsLoading(true);
     setStep('processing');
@@ -179,11 +214,15 @@ export const RgpdDeleteModal = ({
       clearInterval(progressInterval);
 
       if (error) {
+        console.error('❌ [RGPD] Erreur de la function:', error);
         throw new Error(error.message || 'Erreur de suppression');
       }
 
-      if (data.exportData) {
+      console.log('✅ [RGPD] Suppression réussie:', data);
+
+      if (data?.exportData) {
         setExportedData(data.exportData);
+        console.log('📥 [RGPD] Données exportées disponibles');
       }
 
       setProgress(100);
@@ -202,7 +241,7 @@ export const RgpdDeleteModal = ({
 
     } catch (error) {
       clearInterval(progressInterval);
-      console.error('❌ [RGPD-DELETE] Error:', error);
+      console.error('❌ [RGPD] Error:', error);
       
       toast({
         title: "Erreur de suppression",
@@ -216,9 +255,14 @@ export const RgpdDeleteModal = ({
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    console.log('⚠️ [RGPD] Modal appelée sans utilisateur');
+    return null;
+  }
 
   const isConfirmValid = confirmText === 'SUPPRIMER';
+
+  console.log('🎨 [RGPD] Rendu modal - Étape:', step, 'Utilisateur:', user.firstName, user.lastName);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
