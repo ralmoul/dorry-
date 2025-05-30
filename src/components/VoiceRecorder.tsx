@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X, RefreshCw } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { useVoiceRecordings } from '@/hooks/useVoiceRecordings';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { ConsentModal } from '@/components/ui/ConsentModal';
 import { Button } from '@/components/ui/button';
@@ -15,25 +16,11 @@ interface VoiceRecorderProps {
   onOpenUpcomingFeatures: () => void;
 }
 
-interface Recording {
-  id: string;
-  name: string;
-  date: Date;
-  duration: number;
-  blob?: Blob;
-  blobData?: string; // base64 encoded blob data
-  blobType?: string; // mime type of the blob
-  userId: string;
-}
-
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onOpenSettings,
   onOpenUpcomingFeatures
 }) => {
-  const {
-    user,
-    isAuthenticated
-  } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   
   const {
     isRecording,
@@ -54,8 +41,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     setRecordingConfirmedCallback
   } = useAudioRecorder();
   
+  const {
+    recordings,
+    isLoading: recordingsLoading,
+    addRecording,
+    updateRecordingName,
+    deleteRecording
+  } = useVoiceRecordings();
+  
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
-  const [recordings, setRecordings] = useState<Recording[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -65,213 +59,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
   
-  // Load recordings from localStorage on component mount
-  useEffect(() => {
-    if (user?.id) {
-      loadUserRecordings();
-    }
-  }, [user?.id]);
-
-  // Clean up expired recordings (older than 7 days) and filter by last 7 days
-  useEffect(() => {
-    const cleanupAndFilterRecordings = () => {
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      setRecordings(prev => {
-        // Filter recordings from the last 7 days (not just 7 recordings)
-        const filtered = prev.filter(rec => new Date(rec.date) > sevenDaysAgo);
-        // Sort by date (most recent first)
-        const sorted = filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
-        if (sorted.length !== prev.length) {
-          saveUserRecordings(sorted);
-        }
-        return sorted;
-      });
-    };
-
-    if (user?.id) {
-      cleanupAndFilterRecordings();
-      const interval = setInterval(cleanupAndFilterRecordings, 60 * 60 * 1000); // Check every hour
-      return () => clearInterval(interval);
-    }
-  }, [user?.id]);
-
   // Set up the callback for when recording is confirmed
   useEffect(() => {
     const handleNewRecording = (blob: Blob, duration: number) => {
       console.log('🎵 [VOICE_RECORDER] Nouveau enregistrement reçu:', { duration, size: blob.size });
-      addNewRecording(blob, duration);
+      addRecording(blob, duration);
     };
     
     setRecordingConfirmedCallback(handleNewRecording);
-  }, [setRecordingConfirmedCallback, user?.id]);
-
-  // Convert blob to base64 for storage
-  const blobToBase64 = (blob: Blob): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        resolve(result.split(',')[1]); // Remove data:mime;base64, prefix
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
-
-  // Convert base64 back to blob
-  const base64ToBlob = (base64: string, type: string): Blob => {
-    try {
-      if (!base64 || typeof base64 !== 'string') {
-        throw new Error('Base64 data is invalid or empty');
-      }
-      
-      if (!type || typeof type !== 'string') {
-        throw new Error('MIME type is invalid or empty');
-      }
-
-      console.log('🔄 [VOICE_RECORDER] Début reconstitution blob:', {
-        base64Length: base64.length,
-        type: type,
-        base64Preview: base64.substring(0, 50) + '...'
-      });
-      
-      const byteCharacters = atob(base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type });
-      
-      if (!(blob instanceof Blob)) {
-        throw new Error('Failed to create valid Blob object');
-      }
-      
-      if (blob.size === 0) {
-        throw new Error('Created blob is empty');
-      }
-      
-      console.log('✅ [VOICE_RECORDER] Blob reconstitué avec succès:', {
-        size: blob.size,
-        type: blob.type,
-        isBlob: blob instanceof Blob,
-        constructor: blob.constructor.name,
-        isValidBlob: blob instanceof Blob && blob.size > 0
-      });
-      
-      return blob;
-    } catch (error) {
-      console.error('❌ [VOICE_RECORDER] Erreur lors de la reconstitution du blob:', error);
-      throw error;
-    }
-  };
-
-  const loadUserRecordings = async () => {
-    const savedRecordings = localStorage.getItem(`dorry_recordings_${user?.id}`);
-    if (savedRecordings) {
-      try {
-        const parsed = JSON.parse(savedRecordings);
-        const recordingsWithDates = await Promise.all(parsed.map(async (rec: any) => {
-          const recording: Recording = {
-            id: rec.id,
-            name: rec.name,
-            date: new Date(rec.date),
-            duration: rec.duration,
-            userId: rec.userId
-          };
-
-          if (rec.blobData && rec.blobType && typeof rec.blobData === 'string' && rec.blobData.length > 0) {
-            try {
-              console.log('🔄 [VOICE_RECORDER] Tentative de reconstitution pour:', rec.id);
-              recording.blob = base64ToBlob(rec.blobData, rec.blobType);
-              console.log('✅ [VOICE_RECORDER] Blob reconstitué avec succès pour:', rec.id);
-            } catch (error) {
-              console.error('❌ [VOICE_RECORDER] Échec reconstitution blob pour', rec.id, ':', error);
-            }
-          } else {
-            console.log('⚠️ [VOICE_RECORDER] Pas de données blob valides pour:', rec.id);
-          }
-
-          return recording;
-        }));
-        
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const filtered = recordingsWithDates.filter((rec: Recording) => new Date(rec.date) > sevenDaysAgo);
-        const sorted = filtered.sort((a: Recording, b: Recording) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
-        console.log('📂 [VOICE_RECORDER] Enregistrements chargés:', sorted.length);
-        setRecordings(sorted);
-      } catch (error) {
-        console.error('❌ [VOICE_RECORDER] Erreur lors du chargement:', error);
-      }
-    }
-  };
-
-  const saveUserRecordings = async (recs: Recording[]) => {
-    if (user?.id) {
-      console.log('💾 [VOICE_RECORDER] Sauvegarde de', recs.length, 'enregistrements');
-      
-      const recordingsForStorage = await Promise.all(recs.map(async (rec) => {
-        const recordingForStorage: any = {
-          id: rec.id,
-          name: rec.name,
-          date: rec.date,
-          duration: rec.duration,
-          userId: rec.userId
-        };
-
-        if (rec.blob && rec.blob instanceof Blob && rec.blob.size > 0) {
-          try {
-            recordingForStorage.blobData = await blobToBase64(rec.blob);
-            recordingForStorage.blobType = rec.blob.type;
-            console.log('💾 [VOICE_RECORDER] Blob sauvegardé pour:', rec.id, 'type:', rec.blob.type, 'taille:', rec.blob.size);
-          } catch (error) {
-            console.error('❌ [VOICE_RECORDER] Erreur lors de la conversion du blob:', error);
-          }
-        }
-
-        return recordingForStorage;
-      }));
-
-      localStorage.setItem(`dorry_recordings_${user.id}`, JSON.stringify(recordingsForStorage));
-    }
-  };
-
-  const addNewRecording = async (blob: Blob, duration: number) => {
-    if (!user?.id) {
-      console.error('❌ [VOICE_RECORDER] Pas d\'utilisateur connecté');
-      return;
-    }
-
-    if (!blob || !(blob instanceof Blob) || blob.size === 0) {
-      console.error('❌ [VOICE_RECORDER] Blob invalide, enregistrement non sauvegardé');
-      return;
-    }
-
-    const newRecording: Recording = {
-      id: Date.now().toString(),
-      name: '',
-      date: new Date(),
-      duration,
-      blob,
-      userId: user.id
-    };
-
-    console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id, 'avec blob de taille:', blob.size);
-
-    setRecordings(prev => {
-      const updated = [newRecording, ...prev];
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      const filtered = updated.filter(rec => new Date(rec.date) > sevenDaysAgo);
-      
-      console.log('📝 [VOICE_RECORDER] Historique mis à jour:', filtered.length, 'enregistrements');
-      saveUserRecordings(filtered);
-      return filtered;
-    });
-  };
+  }, [setRecordingConfirmedCallback, addRecording]);
 
   // Simule l'animation des ondes vocales
   useEffect(() => {
@@ -328,12 +124,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     return `Enregistrement du ${formatDateDisplay(date)}, ${formatTimeDisplay(date)}`;
   };
 
-  const handleStartEdit = (recording: Recording) => {
+  const handleStartEdit = (recording: any) => {
     setEditingId(recording.id);
     setEditingName(recording.name || getDefaultName(recording.date));
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingId) return;
 
     const trimmedName = editingName.trim();
@@ -370,11 +166,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    const updatedRecordings = recordings.map(rec => 
-      rec.id === editingId ? { ...rec, name: trimmedName } : rec
-    );
-    setRecordings(updatedRecordings);
-    saveUserRecordings(updatedRecordings);
+    await updateRecordingName(editingId, trimmedName);
     setEditingId(null);
     setEditingName('');
     
@@ -397,7 +189,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const handlePlay = (recording: Recording) => {
+  const handlePlay = (recording: any) => {
     if (playingId === recording.id) {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -440,23 +232,16 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  const handleDelete = (recordingId: string) => {
-    const updatedRecordings = recordings.filter(rec => rec.id !== recordingId);
-    setRecordings(updatedRecordings);
-    saveUserRecordings(updatedRecordings);
-    
+  const handleDelete = async (recordingId: string) => {
     if (playingId === recordingId && audioRef.current) {
       audioRef.current.pause();
       setPlayingId(null);
     }
 
-    toast({
-      title: "Enregistrement supprimé",
-      description: "L'enregistrement a été supprimé avec succès"
-    });
+    await deleteRecording(recordingId);
   };
 
-  const handleResend = async (recording: Recording) => {
+  const handleResend = async (recording: any) => {
     console.log('🔄 [VOICE_RECORDER] Tentative de renvoi pour:', recording.id);
     
     if (!recording.blob) {
@@ -472,16 +257,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     const isValidBlob = recording.blob instanceof Blob 
       && recording.blob.constructor.name === 'Blob'
       && recording.blob.size > 0;
-
-    console.log('🔍 [VOICE_RECORDER] Vérification blob complète:', {
-      id: recording.id,
-      isBlob: recording.blob instanceof Blob,
-      constructor: recording.blob.constructor.name,
-      size: recording.blob.size,
-      type: recording.blob.type,
-      isValidBlob: isValidBlob,
-      toString: recording.blob.toString()
-    });
 
     if (!isValidBlob) {
       console.error('❌ [VOICE_RECORDER] Blob invalide détecté');
@@ -753,13 +528,19 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-slate-700/50 shadow-2xl">
                     <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 text-center">
                       Vos enregistrements des 7 derniers jours
+                      {recordingsLoading && (
+                        <span className="ml-2 text-sm text-slate-400">(Chargement...)</span>
+                      )}
                     </h3>
                     
                     {recordings.length === 0 ? (
                       <div className="text-center py-6 sm:py-8">
                         <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🐟</div>
                         <p className="text-slate-300 text-sm sm:text-base px-2">
-                          Ici, la mémoire, c'est 7 jours : assez pour ne rien rater, pas assez pour s'inquiéter !
+                          {recordingsLoading 
+                            ? "Chargement de vos enregistrements..."
+                            : "Ici, la mémoire, c'est 7 jours : assez pour ne rien rater, pas assez pour s'inquiéter !"
+                          }
                         </p>
                       </div>
                     ) : (
@@ -894,7 +675,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                         <div className="text-center mt-4 sm:mt-6 pt-4 border-t border-slate-600/30">
                           <div className="text-2xl sm:text-3xl mb-2">🐟</div>
                           <p className="text-slate-400 text-xs sm:text-sm px-2 leading-relaxed">
-                            Vos enregistrements sont strictement confidentiels et automatiquement supprimés après 7 jours.<br/>
+                            Vos enregistrements sont synchronisés sur tous vos appareils et automatiquement supprimés après 7 jours.<br/>
                             Dorry ne partage rien sans votre accord.
                           </p>
                         </div>

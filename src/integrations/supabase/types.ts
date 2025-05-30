@@ -81,6 +81,39 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_recordings: {
+        Row: {
+          blob_data: string
+          blob_type: string
+          created_at: string
+          duration: number
+          id: string
+          name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blob_data: string
+          blob_type: string
+          created_at?: string
+          duration: number
+          id?: string
+          name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blob_data?: string
+          blob_type?: string
+          created_at?: string
+          duration?: number
+          id?: string
+          name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
