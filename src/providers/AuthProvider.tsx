@@ -3,7 +3,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 import { authService } from '@/services/authService';
-import { authStorage } from '@/utils/authStorage';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -13,59 +13,72 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH] AuthProvider initializing...');
+    console.log('🚀 [AUTH] AuthProvider initializing with Supabase...');
     
-    const user = authStorage.loadUser();
-    console.log('📊 [AUTH] Loaded user from storage:', user);
-    
-    if (user) {
-      console.log('✅ [AUTH] User found, setting authenticated state');
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } else {
-      console.log('❌ [AUTH] No user found, setting unauthenticated state');
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-    }
+    // Écouter les changements d'état d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 [AUTH] Auth state changed:', event);
+      
+      if (session?.user) {
+        // Récupérer le profil utilisateur
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          const user = {
+            id: session.user.id,
+            firstName: profile.first_name,
+            lastName: profile.last_name,
+            email: profile.email,
+            phone: profile.phone,
+            company: profile.company,
+            isApproved: true,
+            createdAt: profile.created_at,
+          };
+
+          console.log('✅ [AUTH] User authenticated:', user.firstName);
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        }
+      } else {
+        console.log('❌ [AUTH] User logged out');
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
+    });
+
+    // Vérifier la session actuelle
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     console.log('🔐 [AUTH] Login attempt for:', data.email);
     const result = await authService.login(data);
-    
-    if (result.success && result.user) {
-      console.log('✅ [AUTH] Login successful, updating state');
-      // Update auth state
-      setAuthState({
-        user: result.user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      
-      // Store user data
-      authStorage.saveUser(result.user, data.rememberMe || false);
-      
-      return true;
-    }
-    
-    console.log('❌ [AUTH] Login failed');
-    return false;
+    return result.success;
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
     return await authService.signup(data);
   };
 
-  const logout = () => {
+  const logout = async () => {
     console.log('👋 [AUTH] Logging out user');
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    authStorage.clearUser();
+    await supabase.auth.signOut();
   };
 
   console.log('📊 [AUTH] Current provider state:', { 

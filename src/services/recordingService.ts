@@ -44,18 +44,9 @@ export const recordingService = {
   }): Promise<VoiceRecording> {
     console.log('💾 [RECORDING_SERVICE] Sauvegarde d\'un nouvel enregistrement...');
     
-    // Récupérer l'utilisateur connecté
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      console.error('❌ [RECORDING_SERVICE] Utilisateur non connecté:', userError);
-      throw new Error('Utilisateur non connecté');
-    }
-    
     const { data, error } = await supabase
       .from('voice_recordings')
       .insert([{
-        user_id: user.id,
         name: recording.name || null,
         duration: recording.duration,
         blob_data: recording.blob_data,
