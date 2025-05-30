@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -16,14 +17,14 @@ export const authService = {
       
       // 1️⃣ - VÉRIFICATION STRICTE PRÉALABLE via la fonction sécurisée
       const { data: approvalData, error: approvalError } = await supabase
-        .rpc('check_user_approval', { user_email: cleanEmail });
+        .rpc('check_user_approval' as any, { user_email: cleanEmail });
       
-      if (approvalError || !approvalData || approvalData.length === 0) {
+      if (approvalError || !approvalData || (Array.isArray(approvalData) && approvalData.length === 0)) {
         console.error('❌ [LOGIN] STRICT BLOCK - User does not exist in our database');
         return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
       }
       
-      const userApproval = approvalData[0];
+      const userApproval = Array.isArray(approvalData) ? approvalData[0] : approvalData;
       console.log('✅ [LOGIN] User found in database:', cleanEmail, 'Approved:', userApproval.is_approved);
       
       // 2️⃣ - VÉRIFICATION DU STATUT D'APPROBATION - BLOCAGE IMMÉDIAT SI NON APPROUVÉ

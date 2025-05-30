@@ -1,3 +1,4 @@
+
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData, User, DatabaseProfile } from '@/types/auth';
@@ -54,9 +55,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // 1️⃣ - D'abord vérifier via la fonction sécurisée
       const { data: approvalData, error: approvalError } = await supabase
-        .rpc('check_user_approval', { user_email: userEmail });
+        .rpc('check_user_approval' as any, { user_email: userEmail });
       
-      if (approvalError || !approvalData || approvalData.length === 0 || !approvalData[0].is_approved) {
+      if (approvalError || !approvalData || (Array.isArray(approvalData) && approvalData.length === 0)) {
+        console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via function:', approvalError);
+        forceLogoutImmediate();
+        return;
+      }
+      
+      const userApproval = Array.isArray(approvalData) ? approvalData[0] : approvalData;
+      if (!userApproval.is_approved) {
         console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via function:', approvalError);
         forceLogoutImmediate();
         return;
