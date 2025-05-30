@@ -137,9 +137,108 @@ export const authService = {
         }
       });
       
-      // Cas spécial : email existe déjà dans auth.users mais pas dans profiles
+      // 🧹 CAS SPÉCIAL : Email existe dans auth.users mais pas dans profiles (utilisateur orphelin)
       if (authError && authError.message.includes('User already registered')) {
-        console.log('⚠️ [SIGNUP] Email exists in auth.users but not in profiles - data inconsistency');
+        console.log('🧹 [SIGNUP] NETTOYAGE - Email orphelin détecté dans auth.users, tentative de nettoyage...');
+        
+        // Essayer de récupérer l'utilisateur orphelin et le supprimer
+        try {
+          // Tenter une connexion temporaire pour récupérer l'ID de l'utilisateur orphelin
+          const { data: tempAuthData } = await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: data.password,
+          });
+          
+          if (tempAuthData.user) {
+            console.log('🗑️ [SIGNUP] Suppression de l\'utilisateur orphelin:', tempAuthData.user.id);
+            
+            // Supprimer l'utilisateur orphelin de auth.users
+            const { error: deleteError } = await supabase.auth.admin.deleteUser(tempAuthData.user.id);
+            
+            if (deleteError) {
+              console.error('❌ [SIGNUP] Erreur lors de la suppression de l\'utilisateur orphelin:', deleteError);
+            } else {
+              console.log('✅ [SIGNUP] Utilisateur orphelin supprimé, retry signup...');
+              
+              // Déconnecter la session temporaire
+              await supabase.auth.signOut();
+              
+              // Retry la création après nettoyage
+              const { data: retryAuthData, error: retryAuthError } = await supabase.auth.signUp({
+                email: cleanEmail,
+                password: data.password,
+                options: {
+                  data: {
+                    first_name: data.firstName.trim(),
+                    last_name: data.lastName.trim(),
+                    phone: data.phone.trim(),
+                    company: data.company.trim(),
+                  }
+                }
+              });
+              
+              if (retryAuthError || !retryAuthData.user) {
+                console.error('❌ [SIGNUP] Retry failed après nettoyage:', retryAuthError);
+                return { 
+                  success: false, 
+                  message: 'Erreur technique lors de la création du compte après nettoyage. Veuillez réessayer.' 
+                };
+              }
+              
+              // Continuer avec le nouveau compte créé
+              const newAuthData = retryAuthData;
+              console.log('✅ [SIGNUP] Compte recréé avec succès après nettoyage:', newAuthData.user.id);
+              
+              // 3️⃣ - Créer l'entrée dans profiles
+              const profileData = {
+                id: newAuthData.user.id,
+                first_name: data.firstName.trim(),
+                last_name: data.lastName.trim(),
+                email: cleanEmail,
+                phone: data.phone.trim(),
+                company: data.company.trim(),
+                is_approved: false
+              };
+              
+              console.log('📝 [SIGNUP] Creating profile entry after cleanup:', profileData);
+              
+              const { data: profileResult, error: profileError } = await supabase
+                .from('profiles')
+                .insert(profileData)
+                .select()
+                .single();
+              
+              if (profileError) {
+                console.error('❌ [SIGNUP] Profile creation error after cleanup:', profileError);
+                
+                // Si la création du profil échoue, supprimer l'utilisateur auth créé
+                console.log('🔄 [SIGNUP] Cleaning up auth user due to profile creation failure');
+                await supabase.auth.admin.deleteUser(newAuthData.user.id);
+                
+                return { 
+                  success: false, 
+                  message: 'Erreur lors de la création du profil utilisateur. Veuillez réessayer.' 
+                };
+              }
+              
+              console.log('✅ [SIGNUP] Profile created successfully after cleanup:', profileResult);
+              
+              // Déconnecter l'utilisateur immédiatement car il doit être approuvé
+              await supabase.auth.signOut();
+              
+              console.log('🎉 [SIGNUP] Signup complete after cleanup - user pending approval');
+              
+              return { 
+                success: true, 
+                message: 'Votre compte a été créé avec succès ! Il sera activé après validation par notre équipe. Vous recevrez un email de confirmation.' 
+              };
+            }
+          }
+        } catch (cleanupError) {
+          console.error('💥 [SIGNUP] Erreur lors du nettoyage:', cleanupError);
+        }
+        
+        // Si le nettoyage échoue, retourner le message d'erreur original
         return { 
           success: false, 
           message: 'Cette adresse email est déjà utilisée. Si vous avez un compte, veuillez vous connecter. Sinon, contactez le support.' 
