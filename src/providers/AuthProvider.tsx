@@ -29,21 +29,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           console.log('🔍 [AUTH_PROVIDER] Recherche du profil pour:', session.user.id);
           
-          // Requête rapide avec timeout de 3 secondes
-          const profilePromise = supabase
+          // Requête pour récupérer le profil avec timeout
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .maybeSingle();
-
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile fetch timeout')), 3000)
-          );
-
-          const { data: profile, error: profileError } = await Promise.race([
-            profilePromise,
-            timeoutPromise
-          ]) as any;
 
           console.log('📊 [AUTH_PROVIDER] Résultat de la requête profil:', { profile, profileError });
 
@@ -57,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: profile.email || session.user.email,
               phone: profile.phone || '',
               company: profile.company || '',
-              isApproved: profile.is_approved === true, // Force boolean
+              isApproved: profile.is_approved === true,
               createdAt: profile.created_at,
             };
 
@@ -72,8 +63,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               isLoading: false,
             });
           } else {
-            // Créer un utilisateur de base avec approbation par défaut
-            console.warn('⚠️ [AUTH_PROVIDER] Erreur profil, création utilisateur de base');
+            // Si pas de profil trouvé, créer un utilisateur temporaire avec les métadonnées
+            console.warn('⚠️ [AUTH_PROVIDER] Aucun profil trouvé, création utilisateur temporaire');
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -81,11 +72,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: session.user.email || '',
               phone: session.user.user_metadata?.phone || '',
               company: session.user.user_metadata?.company || '',
-              isApproved: true, // Approuvé par défaut pour éviter le blocage
+              isApproved: false, // Non approuvé par défaut jusqu'à validation admin
               createdAt: new Date().toISOString(),
             };
 
-            console.log('🔧 [AUTH_PROVIDER] Utilisation utilisateur de base:', user);
+            console.log('🔧 [AUTH_PROVIDER] Utilisation utilisateur temporaire:', user);
 
             setAuthState({
               user,
@@ -96,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
           console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
           if (mounted) {
-            // En cas d'erreur, on authentifie avec approbation par défaut
+            // En cas d'erreur, authentifier quand même l'utilisateur
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -104,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: session.user.email || '',
               phone: session.user.user_metadata?.phone || '',
               company: session.user.user_metadata?.company || '',
-              isApproved: true, // Approuvé par défaut
+              isApproved: false, // Non approuvé par défaut en cas d'erreur
               createdAt: new Date().toISOString(),
             };
 
@@ -130,15 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         console.log('🔍 [AUTH_PROVIDER] Vérification de la session initiale...');
         
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session check timeout')), 5000)
-        );
-
-        const { data: { session }, error } = await Promise.race([
-          sessionPromise,
-          timeoutPromise
-        ]) as any;
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('❌ [AUTH_PROVIDER] Erreur lors de la récupération de la session:', error);
@@ -175,12 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     console.log('🔐 [AUTH_PROVIDER] Tentative de connexion pour:', data.email);
     try {
-      const loginPromise = authService.login(data);
-      const timeoutPromise = new Promise<{ success: boolean }>((_, reject) => 
-        setTimeout(() => reject(new Error('Login timeout')), 10000)
-      );
-
-      const result = await Promise.race([loginPromise, timeoutPromise]);
+      const result = await authService.login(data);
       console.log('🔐 [AUTH_PROVIDER] Résultat de la connexion:', result);
       return result.success;
     } catch (error) {
