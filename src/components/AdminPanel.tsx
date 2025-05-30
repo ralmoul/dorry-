@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -311,13 +310,13 @@ export const AdminPanel = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen gradient-bg p-4 sm:p-6">
+      <div className="min-h-screen gradient-bg p-2 sm:p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-            <CardContent className="p-8 sm:p-12 text-center">
-              <RefreshCw className="w-12 h-12 sm:w-16 sm:h-16 text-bright-turquoise animate-spin mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2 font-sharp">Chargement en cours...</h3>
-              <p className="text-muted-foreground text-sm sm:text-base">
+            <CardContent className="p-4 sm:p-12 text-center">
+              <RefreshCw className="w-8 h-8 sm:w-16 sm:h-16 text-bright-turquoise animate-spin mx-auto mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2 font-sharp">Chargement en cours...</h3>
+              <p className="text-muted-foreground text-xs sm:text-base">
                 Synchronisation avec la base de données Supabase.
               </p>
             </CardContent>
@@ -328,18 +327,17 @@ export const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-bg p-3 sm:p-6">
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+    <div className="min-h-screen gradient-bg p-2 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-3 sm:space-y-6">
         {/* Header */}
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
-              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-bright-turquoise" />
-              <span className="hidden sm:inline">Administration Dory - RGPD & AUDIT ⚡</span>
-              <span className="sm:hidden">Admin Dory ⚡</span>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-lg sm:text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-1 sm:gap-2">
+              <Users className="h-5 w-5 sm:h-8 sm:w-8 text-bright-turquoise" />
+              <span className="text-sm sm:text-2xl">Admin Dory ⚡</span>
             </CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              📡 Gestion utilisateurs • 🔍 Audit RGPD • ⚖️ Conformité automatisée
+            <CardDescription className="text-xs sm:text-base">
+              📡 Gestion • 🔍 Audit • ⚖️ Conformité
             </CardDescription>
           </CardHeader>
         </Card>
@@ -347,54 +345,54 @@ export const AdminPanel = () => {
         {/* Tabs pour organiser l'interface */}
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-lg border-bright-turquoise/20 h-auto p-1">
-            <TabsTrigger value="users" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3">
               <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Gestion Utilisateurs</span>
-              <span className="sm:hidden">Utilisateurs</span>
+              <span className="hidden xs:inline">Utilisateurs</span>
+              <span className="xs:hidden">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+            <TabsTrigger value="audit" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3">
               <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Audit RGPD</span>
-              <span className="sm:hidden">RGPD</span>
+              <span className="hidden xs:inline">Audit RGPD</span>
+              <span className="xs:hidden">RGPD</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Onglet Gestion Utilisateurs */}
-          <TabsContent value="users" className="space-y-4 sm:space-y-6">
+          <TabsContent value="users" className="space-y-3 sm:space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="grid grid-cols-3 gap-1 sm:gap-4">
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardContent className="p-3 sm:p-6">
+                <CardContent className="p-2 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs sm:text-sm text-muted-foreground">En attente</p>
-                      <p className="text-lg sm:text-2xl font-semibold text-orange-500 font-sharp">{pendingUsers.length}</p>
+                      <p className="text-xs text-muted-foreground">Attente</p>
+                      <p className="text-sm sm:text-2xl font-semibold text-orange-500 font-sharp">{pendingUsers.length}</p>
                     </div>
-                    <Clock className="h-5 w-5 sm:h-8 sm:w-8 text-orange-500/60" />
+                    <Clock className="h-4 w-4 sm:h-8 sm:w-8 text-orange-500/60" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardContent className="p-3 sm:p-6">
+                <CardContent className="p-2 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Approuvés</p>
-                      <p className="text-lg sm:text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
+                      <p className="text-xs text-muted-foreground">Validés</p>
+                      <p className="text-sm sm:text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
                     </div>
-                    <UserCheck className="h-5 w-5 sm:h-8 sm:w-8 text-green-500/60" />
+                    <UserCheck className="h-4 w-4 sm:h-8 sm:w-8 text-green-500/60" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardContent className="p-3 sm:p-6">
+                <CardContent className="p-2 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Total</p>
-                      <p className="text-lg sm:text-2xl font-semibold font-sharp">{users.length}</p>
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <p className="text-sm sm:text-2xl font-semibold font-sharp">{users.length}</p>
                     </div>
-                    <Users className="h-5 w-5 sm:h-8 sm:w-8 text-muted-foreground" />
+                    <Users className="h-4 w-4 sm:h-8 sm:w-8 text-muted-foreground" />
                   </div>
                 </CardContent>
               </Card>
@@ -402,21 +400,21 @@ export const AdminPanel = () => {
 
             {/* Control Panel */}
             <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Synchronisation temps réel active
+              <CardContent className="p-2 sm:p-4">
+                <div className="flex flex-col space-y-2 sm:flex-row sm:justify-between sm:items-center sm:space-y-0">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <p className="text-xs text-muted-foreground">
+                      Sync temps réel
                     </p>
                   </div>
                   <Button 
                     onClick={loadUsers}
                     variant="outline"
                     size="sm"
-                    className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs sm:text-sm"
+                    className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 sm:h-auto"
                   >
-                    <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <RefreshCw className="w-3 h-3 mr-1" />
                     Actualiser
                   </Button>
                 </div>
@@ -426,62 +424,64 @@ export const AdminPanel = () => {
             {/* Pending Users */}
             {pendingUsers.length > 0 && (
               <Card className="bg-card/50 backdrop-blur-lg border-orange-500/20">
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl text-orange-500 flex items-center gap-2 font-sharp">
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="text-base sm:text-xl text-orange-500 flex items-center gap-1 sm:gap-2 font-sharp">
                     <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
-                    🔥 Demandes en attente ({pendingUsers.length})
+                    🔥 En attente ({pendingUsers.length})
                   </CardTitle>
-                  <CardDescription className="text-sm">
-                    🚨 Comptes nécessitant une validation
+                  <CardDescription className="text-xs sm:text-sm">
+                    🚨 Comptes nécessitant validation
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 sm:p-6">
-                  {/* Version mobile - Liste simple */}
+                  {/* Version mobile optimisée */}
                   <div className="block sm:hidden">
-                    {pendingUsers.map((user) => (
-                      <div key={user.id} className="p-4 border-b border-orange-500/20 last:border-b-0">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1">
-                            <h4 className="font-medium font-sharp text-sm">
-                              {user.first_name} {user.last_name}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">{user.email}</p>
-                            <p className="text-xs text-muted-foreground">{user.company}</p>
+                    <div className="max-h-96 overflow-y-auto">
+                      {pendingUsers.map((user) => (
+                        <div key={user.id} className="p-3 border-b border-orange-500/20 last:border-b-0 bg-orange-500/5">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium font-sharp text-sm truncate">
+                                {user.first_name} {user.last_name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              <p className="text-xs text-muted-foreground truncate">{user.company}</p>
+                            </div>
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs ml-2 flex-shrink-0">
+                              ⏳
+                            </Badge>
                           </div>
-                          <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs">
-                            ⏳ En attente
-                          </Badge>
+                          <div className="grid grid-cols-3 gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openUserDetails(user)}
+                              className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 px-1"
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => approveUser(user.id)}
+                              disabled={isUpdating === user.id}
+                              className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20 text-xs h-7 px-1"
+                            >
+                              <Check className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => deleteUser(user.id)}
+                              disabled={isUpdating === user.id}
+                              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs h-7 px-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openUserDetails(user)}
-                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs px-2"
-                          >
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => approveUser(user.id)}
-                            disabled={isUpdating === user.id}
-                            className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20 text-xs px-2"
-                          >
-                            <Check className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteUser(user.id)}
-                            disabled={isUpdating === user.id}
-                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs px-2"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   {/* Version desktop - Tableau */}
@@ -562,67 +562,69 @@ export const AdminPanel = () => {
             {/* Approved Users */}
             {approvedUsers.length > 0 && (
               <Card className="bg-card/50 backdrop-blur-lg border-green-500/20">
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-lg sm:text-xl text-green-500 flex items-center gap-2 font-sharp">
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="text-base sm:text-xl text-green-500 flex items-center gap-1 sm:gap-2 font-sharp">
                     <UserCheck className="h-4 w-4 sm:h-5 sm:w-5" />
                     Utilisateurs approuvés ({approvedUsers.length})
                   </CardTitle>
-                  <CardDescription className="text-sm">
-                    Comptes validés avec accès complet à l'application
+                  <CardDescription className="text-xs sm:text-sm">
+                    Comptes validés avec accès complet
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 sm:p-6">
-                  {/* Version mobile - Liste simple */}
+                  {/* Version mobile optimisée */}
                   <div className="block sm:hidden">
-                    {approvedUsers.map((user) => (
-                      <div key={user.id} className="p-4 border-b border-green-500/20 last:border-b-0">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1">
-                            <h4 className="font-medium font-sharp text-sm">
-                              {user.first_name} {user.last_name}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">{user.email}</p>
-                            <p className="text-xs text-muted-foreground">{user.company}</p>
+                    <div className="max-h-96 overflow-y-auto">
+                      {approvedUsers.map((user) => (
+                        <div key={user.id} className="p-3 border-b border-green-500/20 last:border-b-0 bg-green-500/5">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium font-sharp text-sm truncate">
+                                {user.first_name} {user.last_name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              <p className="text-xs text-muted-foreground truncate">{user.company}</p>
+                            </div>
+                            <div className="flex flex-col gap-1 ml-2 flex-shrink-0">
+                              <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                                ✓
+                              </Badge>
+                              <Badge className="bg-red-600/20 text-red-300 border-red-600/30 text-xs">
+                                RGPD
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="flex flex-col gap-1">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                              Approuvé
-                            </Badge>
-                            <Badge className="bg-red-600/20 text-red-300 border-red-600/30 text-xs">
-                              RGPD
-                            </Badge>
+                          <div className="grid grid-cols-3 gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openUserDetails(user)}
+                              className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 px-1"
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => revokeUser(user.id)}
+                              disabled={isUpdating === user.id}
+                              className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 text-xs h-7 px-1"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => deleteUser(user.id)}
+                              disabled={isUpdating === user.id}
+                              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs h-7 px-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openUserDetails(user)}
-                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs px-2"
-                          >
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => revokeUser(user.id)}
-                            disabled={isUpdating === user.id}
-                            className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 text-xs px-1"
-                          >
-                            Révoquer
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteUser(user.id)}
-                            disabled={isUpdating === user.id}
-                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs px-2"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
                   {/* Version desktop - Tableau */}
@@ -708,10 +710,10 @@ export const AdminPanel = () => {
             {/* Empty State */}
             {users.length === 0 && (
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardContent className="p-8 sm:p-12 text-center">
-                  <Users className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
-                  <p className="text-muted-foreground text-sm sm:text-base">
+                <CardContent className="p-6 sm:p-12 text-center">
+                  <Users className="h-8 w-8 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-base sm:text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
+                  <p className="text-muted-foreground text-xs sm:text-base">
                     Les nouvelles demandes apparaîtront instantanément ici.
                   </p>
                 </CardContent>
