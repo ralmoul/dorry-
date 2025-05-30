@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useAuditManager } from '@/hooks/useAuditManager';
-import { RgpdDeleteModal } from '@/components/admin/RgpdDeleteModal';
+import { UserDetailsModal } from '@/components/admin/UserDetailsModal';
 import { adminService, AdminUserProfile } from '@/services/adminService';
 import { 
   Users, 
@@ -23,7 +23,8 @@ import {
   Database,
   UserCheck,
   UserX,
-  UserMinus
+  UserMinus,
+  Eye
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -33,7 +34,7 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<AdminUserProfile | null>(null);
-  const [isRgpdModalOpen, setIsRgpdModalOpen] = useState(false);
+  const [isUserDetailsModalOpen, setIsUserDetailsModalOpen] = useState(false);
   
   const { isAuthenticated, isLoading: authLoading, logout } = useAdminAuth();
   const { runMonthlyAudit, runUnitTests, isAuditing, lastAuditReport } = useAuditManager();
@@ -78,7 +79,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUserAction = async (userId: string, action: 'approve' | 'reject' | 'delete') => {
+  const handleUserAction = async (userId: string, action: 'approve' | 'reject' | 'delete' | 'revoke') => {
     setActionLoading(`${action}-${userId}`);
     
     try {
@@ -104,6 +105,13 @@ const AdminDashboard = () => {
             description: "L'utilisateur a été supprimé définitivement."
           });
           break;
+        case 'revoke':
+          await adminService.rejectUser(userId);
+          toast({
+            title: "Accès révoqué",
+            description: "L'accès de l'utilisateur a été révoqué."
+          });
+          break;
       }
       
       // Recharger les données
@@ -119,31 +127,23 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleRgpdDelete = (user: AdminUserProfile) => {
-    console.log('🔴 [ADMIN] Opening RGPD modal for user:', user.first_name, user.last_name);
-    console.log('🔴 [ADMIN] Admin session token:', adminSessionToken ? 'Present' : 'Missing');
-    
-    // Transform to expected format
-    const transformedUser = {
-      id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      email: user.email,
-      phone: user.phone,
-      company: user.company,
-      isApproved: user.is_approved,
-      createdAt: user.created_at
-    };
-    
-    setSelectedUser(transformedUser as any);
-    setIsRgpdModalOpen(true);
+  const handleViewUserDetails = (user: AdminUserProfile) => {
+    console.log('🔍 [ADMIN] Opening user details for:', user.first_name, user.last_name);
+    setSelectedUser(user);
+    setIsUserDetailsModalOpen(true);
   };
 
-  const handleRgpdDeleteSuccess = async () => {
-    console.log('✅ [ADMIN] RGPD deletion successful, refreshing data');
-    setIsRgpdModalOpen(false);
+  const handleUserDetailsModalClose = () => {
+    console.log('🚪 [ADMIN] Closing user details modal');
+    setIsUserDetailsModalOpen(false);
     setSelectedUser(null);
+  };
+
+  const handleUserDetailsAction = async (userId: string) => {
+    console.log('🔄 [ADMIN] User details action completed, refreshing data');
     await loadDashboardData();
+    setIsUserDetailsModalOpen(false);
+    setSelectedUser(null);
   };
 
   const handleSecurityCleanup = async () => {
@@ -311,15 +311,27 @@ const AdminDashboard = () => {
                 <CardContent className="space-y-2 sm:space-y-4 p-3 sm:p-6">
                   {pendingUsers.map(user => (
                     <div key={user.id} className="p-2 sm:p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-white text-sm sm:text-base truncate">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                        <div 
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => handleViewUserDetails(user)}
+                        >
+                          <h4 className="font-semibold text-white text-sm sm:text-base truncate hover:text-bright-turquoise transition-colors">
                             {user.first_name} {user.last_name}
                           </h4>
                           <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
                           <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.company}</p>
                         </div>
                         <div className="flex flex-wrap gap-1 sm:gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleViewUserDetails(user)}
+                            className="bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30 h-7 sm:h-8 px-2 sm:px-3 text-xs flex-1 sm:flex-none"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            <span className="sm:hidden">👁</span>
+                            <span className="hidden sm:inline">Voir</span>
+                          </Button>
                           <Button
                             size="sm"
                             onClick={() => handleUserAction(user.id, 'approve')}
@@ -377,9 +389,12 @@ const AdminDashboard = () => {
                 <div className="space-y-2 sm:space-y-3">
                   {approvedUsers.map(user => (
                     <div key={user.id} className="p-2 sm:p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-white text-sm sm:text-base truncate">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                        <div 
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => handleViewUserDetails(user)}
+                        >
+                          <h4 className="font-semibold text-white text-sm sm:text-base truncate hover:text-bright-turquoise transition-colors">
                             {user.first_name} {user.last_name}
                           </h4>
                           <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
@@ -394,15 +409,17 @@ const AdminDashboard = () => {
                               RGPD
                             </Badge>
                           </div>
-                          <Button
-                            size="sm"
-                            onClick={() => handleRgpdDelete(user)}
-                            className="bg-red-600/20 text-red-300 border-red-600/30 hover:bg-red-600/30 h-7 sm:h-8 px-2 sm:px-3 text-xs w-full sm:w-auto"
-                          >
-                            <Trash2 className="h-3 w-3 mr-1" />
-                            <span className="sm:hidden">RGPD</span>
-                            <span className="hidden sm:inline">Suppression RGPD</span>
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              onClick={() => handleViewUserDetails(user)}
+                              className="bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30 h-7 sm:h-8 px-2 sm:px-3 text-xs"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              <span className="sm:hidden">👁</span>
+                              <span className="hidden sm:inline">Détails</span>
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -532,16 +549,15 @@ const AdminDashboard = () => {
         </Tabs>
       </div>
 
-      {/* Modal RGPD */}
-      <RgpdDeleteModal
+      {/* Modal UserDetailsModal */}
+      <UserDetailsModal
         user={selectedUser}
-        isOpen={isRgpdModalOpen}
-        onClose={() => {
-          console.log('🚪 [ADMIN] Closing RGPD modal');
-          setIsRgpdModalOpen(false);
-          setSelectedUser(null);
-        }}
-        onDeleted={handleRgpdDeleteSuccess}
+        isOpen={isUserDetailsModalOpen}
+        onClose={handleUserDetailsModalClose}
+        onApprove={(userId) => handleUserAction(userId, 'approve')}
+        onReject={(userId) => handleUserAction(userId, 'reject')}
+        onDelete={handleUserDetailsAction}
+        onRevoke={(userId) => handleUserAction(userId, 'revoke')}
         adminSessionToken={adminSessionToken || ''}
       />
     </div>
