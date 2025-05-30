@@ -8,13 +8,30 @@ import { AboutSection } from '@/components/landing/AboutSection';
 import { CTASection } from '@/components/landing/CTASection';
 import { Footer } from '@/components/landing/Footer';
 import { Navigation } from '@/components/landing/Navigation';
+import { useLandingAnimations } from '@/hooks/useLandingAnimations';
 
 const Landing = () => {
+  const {
+    isNavScrolled,
+    isMobileMenuOpen,
+    setIsMobileMenuOpen,
+    activeFeature,
+    setActiveFeature,
+    handleMouseMove
+  } = useLandingAnimations();
+
   return (
-    <div className="min-h-screen">
-      <Navigation />
+    <div className="min-h-screen" onMouseMove={handleMouseMove}>
+      <Navigation 
+        isNavScrolled={isNavScrolled}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
       <HeroSection />
-      <FeaturesSection />
+      <FeaturesSection 
+        activeFeature={activeFeature}
+        setActiveFeature={setActiveFeature}
+      />
       <BenefitsSection />
       <StatsSection />
       <WorkflowSteps />
