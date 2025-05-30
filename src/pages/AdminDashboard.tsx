@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,11 +30,16 @@ const AdminDashboard = () => {
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AdminUserProfile | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const { isAuthenticated, isLoading: authLoading, logout } = useAdminAuth();
   const { runMonthlyAudit, runUnitTests, isAuditing, lastAuditReport } = useAuditManager();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Récupérer le token de session admin depuis localStorage
+  const adminSessionToken = localStorage.getItem('admin_session_token');
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -113,6 +117,17 @@ const AdminDashboard = () => {
     }
   };
 
+  const openUserDetails = (user: AdminUserProfile) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleUserDeleted = async () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+    await loadDashboardData();
+  };
+
   const handleSecurityCleanup = async () => {
     setActionLoading('cleanup');
     try {
@@ -178,7 +193,7 @@ const AdminDashboard = () => {
               Administration Dorry.app
             </h1>
             <p className="text-muted-foreground mt-1">
-              Panel de contrôle et gestion système
+              Panel de contrôle et gestion système - RGPD Ready 🛡️
             </p>
           </div>
           <Button
@@ -276,7 +291,7 @@ const AdminDashboard = () => {
                 <CardContent className="space-y-4">
                   {pendingUsers.map(user => (
                     <div key={user.id} className="flex items-center justify-between p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                      <div className="flex-1">
+                      <div className="flex-1 cursor-pointer" onClick={() => openUserDetails(user)}>
                         <h4 className="font-semibold text-white">
                           {user.first_name} {user.last_name}
                         </h4>
@@ -326,12 +341,15 @@ const AdminDashboard = () => {
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-400" />
                   Utilisateurs approuvés ({approvedUsers.length})
+                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30 ml-2">
+                    🛡️ RGPD Ready
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {approvedUsers.map(user => (
-                    <div key={user.id} className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <div key={user.id} className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg border border-green-500/20 cursor-pointer hover:bg-green-500/15 transition-colors" onClick={() => openUserDetails(user)}>
                       <div>
                         <h4 className="font-semibold text-white">
                           {user.first_name} {user.last_name}
@@ -339,9 +357,14 @@ const AdminDashboard = () => {
                         <p className="text-sm text-muted-foreground">{user.email}</p>
                         <p className="text-sm text-muted-foreground">{user.company}</p>
                       </div>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Actif
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                          Actif
+                        </Badge>
+                        <Badge className="bg-red-600/20 text-red-300 border-red-600/30 text-xs">
+                          RGPD
+                        </Badge>
+                      </div>
                     </div>
                   ))}
                 </div>

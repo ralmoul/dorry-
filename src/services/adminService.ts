@@ -98,6 +98,32 @@ export const adminService = {
     }
   },
 
+  // Nouvelle méthode pour suppression RGPD complète
+  async deleteUserRgpd(userId: string, adminSessionToken: string, exportData: boolean = false): Promise<any> {
+    try {
+      console.log('🗑️ [ADMIN] Démarrage suppression RGPD pour utilisateur:', userId);
+      
+      const { data, error } = await supabase.functions.invoke('admin-delete-user-rgpd', {
+        body: {
+          userId,
+          adminSessionToken,
+          exportData
+        }
+      });
+
+      if (error) {
+        console.error('❌ [ADMIN] Erreur suppression RGPD:', error);
+        throw error;
+      }
+
+      console.log('✅ [ADMIN] Suppression RGPD réussie:', data);
+      return data;
+    } catch (error) {
+      console.error('💥 [ADMIN] Erreur critique suppression RGPD:', error);
+      throw error;
+    }
+  },
+
   // Gestion des audits de sécurité
   async getSecurityLogs(limit: number = 100): Promise<any[]> {
     try {

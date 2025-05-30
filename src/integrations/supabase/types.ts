@@ -380,13 +380,7 @@ export type Database = {
         Returns: undefined
       }
       create_admin_session: {
-        Args:
-          | {
-              password_input: string
-              client_ip?: unknown
-              client_user_agent?: string
-            }
-          | { password_input: string; client_user_agent?: string }
+        Args: { password_input: string; client_user_agent?: string }
         Returns: {
           success: boolean
           session_token: string
