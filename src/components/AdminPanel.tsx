@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserCheck, Trash2, Eye, RefreshCw } from 'lucide-react';
+import { Users, UserCheck, Trash2, Eye, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserDetailsModal } from './admin/UserDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,7 +89,7 @@ export const AdminPanel = () => {
         email: profile.email,
         phone: profile.phone,
         company: profile.company,
-        is_approved: true, // Tous les profils Supabase sont considérés comme approuvés
+        is_approved: profile.is_approved || false, // Utiliser la valeur réelle de la DB
         created_at: profile.created_at,
       })) || [];
       
@@ -121,6 +121,87 @@ export const AdminPanel = () => {
 
   const handleRefresh = () => {
     loadUsers(true);
+  };
+
+  const approveUser = async (userId: string) => {
+    try {
+      console.log(`✅ [ADMIN] Approbation de l'utilisateur ${userId}`);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_approved: true })
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('❌ [ADMIN] Erreur lors de l\'approbation:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'approuver l'utilisateur.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Mettre à jour l'état local
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, is_approved: true } : user
+      ));
+      
+      toast({
+        title: "Utilisateur approuvé",
+        description: "L'utilisateur peut maintenant accéder à l'application.",
+      });
+      
+      console.log('✅ [ADMIN] Utilisateur approuvé avec succès');
+    } catch (error) {
+      console.error('💥 [ADMIN] Erreur lors de l\'approbation:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const rejectUser = async (userId: string) => {
+    try {
+      console.log(`❌ [ADMIN] Rejet de l'utilisateur ${userId}`);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_approved: false })
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('❌ [ADMIN] Erreur lors du rejet:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de rejeter l'utilisateur.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Mettre à jour l'état local
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, is_approved: false } : user
+      ));
+      
+      toast({
+        title: "Utilisateur rejeté",
+        description: "L'accès de l'utilisateur a été refusé.",
+        variant: "destructive",
+      });
+      
+      console.log('❌ [ADMIN] Utilisateur rejeté avec succès');
+    } catch (error) {
+      console.error('💥 [ADMIN] Erreur lors du rejet:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
   };
 
   const deleteUser = async (userId: string) => {
@@ -169,6 +250,9 @@ export const AdminPanel = () => {
     setIsModalOpen(true);
   };
 
+  const pendingUsers = users.filter(user => !user.is_approved);
+  const approvedUsers = users.filter(user => user.is_approved);
+
   if (isLoading) {
     return (
       <div className="min-h-screen gradient-bg p-6">
@@ -202,13 +286,25 @@ export const AdminPanel = () => {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-card/50 backdrop-blur-lg border-orange-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">En attente</p>
+                  <p className="text-2xl font-semibold text-orange-500 font-sharp">{pendingUsers.length}</p>
+                </div>
+                <Users className="h-8 w-8 text-orange-500/60" />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Utilisateurs enregistrés</p>
-                  <p className="text-2xl font-semibold text-green-500 font-sharp">{users.length}</p>
+                  <p className="text-sm text-muted-foreground">Approuvés</p>
+                  <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
               </div>
@@ -219,7 +315,7 @@ export const AdminPanel = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total utilisateurs</p>
+                  <p className="text-sm text-muted-foreground">Total</p>
                   <p className="text-2xl font-semibold font-sharp">{users.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-muted-foreground" />
@@ -248,12 +344,13 @@ export const AdminPanel = () => {
           </CardContent>
         </Card>
 
-        {users.length > 0 && (
-          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+        {/* Utilisateurs en attente */}
+        {pendingUsers.length > 0 && (
+          <Card className="bg-card/50 backdrop-blur-lg border-orange-500/20">
             <CardHeader>
-              <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
-                <UserCheck className="h-5 w-5" />
-                Utilisateurs enregistrés ({users.length})
+              <CardTitle className="text-xl text-orange-500 flex items-center gap-2 font-sharp">
+                <Users className="h-5 w-5" />
+                Utilisateurs en attente de validation ({pendingUsers.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -265,11 +362,12 @@ export const AdminPanel = () => {
                     <TableHead>Téléphone</TableHead>
                     <TableHead>Entreprise</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Statut</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
+                  {pendingUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium font-sharp">
                         {user.first_name} {user.last_name}
@@ -281,7 +379,102 @@ export const AdminPanel = () => {
                         {new Date(user.created_at).toLocaleDateString('fr-FR')}
                       </TableCell>
                       <TableCell>
+                        <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
+                          En attente
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => approveUser(user.id)}
+                            className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => rejectUser(user.id)}
+                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openUserDetails(user)}
+                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteUser(user.id)}
+                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Utilisateurs approuvés */}
+        {approvedUsers.length > 0 && (
+          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+            <CardHeader>
+              <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
+                <UserCheck className="h-5 w-5" />
+                Utilisateurs approuvés ({approvedUsers.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Téléphone</TableHead>
+                    <TableHead>Entreprise</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {approvedUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium font-sharp">
+                        {user.first_name} {user.last_name}
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.phone}</TableCell>
+                      <TableCell>{user.company}</TableCell>
+                      <TableCell>
+                        {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                          Approuvé
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => rejectUser(user.id)}
+                            className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
+                          >
+                            Révoquer
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -341,9 +534,9 @@ export const AdminPanel = () => {
         } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApprove={() => {}}
-        onReject={() => {}}
-        onRevoke={() => {}}
+        onApprove={(userId) => approveUser(userId)}
+        onReject={(userId) => rejectUser(userId)}
+        onRevoke={(userId) => rejectUser(userId)}
         onDelete={(userId) => deleteUser(userId)}
       />
     </div>
