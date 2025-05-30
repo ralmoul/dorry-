@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, Download, Trash2, Shield, Database, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserData {
   id: string;
@@ -59,6 +60,39 @@ export const RgpdDeleteModal = ({
   const [exportedData, setExportedData] = useState<any>(null);
   
   const { toast } = useToast();
+
+  // Charger les statistiques utilisateur quand la modal s'ouvre
+  useEffect(() => {
+    if (isOpen && user) {
+      loadUserStats();
+    }
+  }, [isOpen, user]);
+
+  const loadUserStats = async () => {
+    if (!user) return;
+
+    try {
+      const [voiceData, consentData, sessionData, mfaData, otpData, loginData] = await Promise.all([
+        supabase.from('voice_recordings').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('consent_logs').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('user_sessions').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('user_mfa_settings').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('otp_codes').select('id', { count: 'exact' }).eq('user_id', user.id),
+        supabase.from('login_attempts').select('id', { count: 'exact' }).eq('email', user.email)
+      ]);
+
+      setUserStats({
+        voice_recordings: voiceData.count || 0,
+        consent_logs: consentData.count || 0,
+        sessions: sessionData.count || 0,
+        mfa_settings: mfaData.count || 0,
+        otp_codes: otpData.count || 0,
+        login_attempts: loginData.count || 0
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement des stats:', error);
+    }
+  };
 
   const handleClose = () => {
     setStep('overview');
@@ -134,29 +168,22 @@ export const RgpdDeleteModal = ({
     const progressInterval = simulateProgress();
 
     try {
-      const response = await fetch('/api/admin-delete-user-rgpd', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('admin-delete-user-rgpd', {
+        body: {
           userId: user.id,
           adminSessionToken,
           exportData
-        })
+        }
       });
 
       clearInterval(progressInterval);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erreur de suppression');
+      if (error) {
+        throw new Error(error.message || 'Erreur de suppression');
       }
 
-      const result = await response.json();
-      
-      if (result.exportData) {
-        setExportedData(result.exportData);
+      if (data.exportData) {
+        setExportedData(data.exportData);
       }
 
       setProgress(100);

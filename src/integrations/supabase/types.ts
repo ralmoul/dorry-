@@ -87,6 +87,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cleanup_history: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          execution_date: string | null
+          execution_duration_ms: number | null
+          id: string
+          records_cleaned: Json | null
+          status: string
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_date?: string | null
+          execution_duration_ms?: number | null
+          id?: string
+          records_cleaned?: Json | null
+          status: string
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_date?: string | null
+          execution_duration_ms?: number | null
+          id?: string
+          records_cleaned?: Json | null
+          status?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       consent_logs: {
         Row: {
           consent_given: boolean
@@ -425,6 +458,16 @@ export type Database = {
       }
       reject_user_profile: {
         Args: { user_id: string }
+        Returns: undefined
+      }
+      rgpd_delete_user_complete: {
+        Args: {
+          target_user_id: string
+          target_user_email: string
+          admin_ip?: unknown
+          admin_user_agent?: string
+          export_json?: Json
+        }
         Returns: undefined
       }
       verify_admin_password: {

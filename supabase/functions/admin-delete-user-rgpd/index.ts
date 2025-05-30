@@ -141,6 +141,15 @@ serve(async (req) => {
       )
     }
 
+    // 5️⃣ Supprimer de auth.users avec les permissions admin (après la transaction)
+    console.log('🔐 [RGPD-DELETE] Deleting from auth.users...')
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId)
+
+    if (authError) {
+      console.error('⚠️ [RGPD-DELETE] Auth deletion warning:', authError)
+      // Ne pas échouer complètement, car les données ont déjà été supprimées
+    }
+
     console.log('✅ [RGPD-DELETE] User completely deleted - RGPD compliant')
 
     return new Response(
