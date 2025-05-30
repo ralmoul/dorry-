@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminSession {
@@ -11,6 +10,11 @@ export const adminAuthService = {
   async loginAdmin(password: string): Promise<AdminSession> {
     try {
       console.log('🔐 [ADMIN_AUTH] Tentative de connexion admin...');
+      console.log('🔐 [ADMIN_AUTH] Mot de passe reçu:', password);
+      console.log('🔐 [ADMIN_AUTH] Longueur du mot de passe:', password.length);
+      console.log('🔐 [ADMIN_AUTH] Mot de passe attendu: N3!ruoQx^sB9pWz7V@ufR@1!nC7x$zK%8Uv*Lt');
+      console.log('🔐 [ADMIN_AUTH] Longueur attendue:', 'N3!ruoQx^sB9pWz7V@ufR@1!nC7x$zK%8Uv*Lt'.length);
+      console.log('🔐 [ADMIN_AUTH] Comparaison exacte:', password === 'N3!ruoQx^sB9pWz7V@ufR@1!nC7x$zK%8Uv*Lt');
       
       // Obtenir l'IP et user agent du client
       const userAgent = navigator.userAgent;
@@ -25,7 +29,7 @@ export const adminAuthService = {
         return { success: false };
       }
 
-      console.log('📊 [ADMIN_AUTH] Réponse RPC:', data);
+      console.log('📊 [ADMIN_AUTH] Réponse RPC complète:', data);
 
       if (data && data.length > 0 && data[0].success) {
         // Stocker le token de session
@@ -39,7 +43,7 @@ export const adminAuthService = {
         };
       }
 
-      console.log('❌ [ADMIN_AUTH] Mot de passe incorrect');
+      console.log('❌ [ADMIN_AUTH] Mot de passe incorrect selon le serveur');
       return { success: false };
     } catch (error) {
       console.error('💥 [ADMIN_AUTH] Erreur critique:', error);
