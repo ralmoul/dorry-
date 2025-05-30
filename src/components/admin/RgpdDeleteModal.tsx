@@ -266,198 +266,210 @@ export const RgpdDeleteModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl bg-card/95 backdrop-blur-lg border-red-500/20">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-red-400 flex items-center gap-2">
-            <Trash2 className="h-6 w-6" />
-            {step === 'overview' && 'Suppression RGPD - Droit à l\'effacement'}
-            {step === 'confirmation' && 'Confirmation finale - IRRÉVERSIBLE'}
-            {step === 'processing' && 'Suppression en cours...'}
-            {step === 'success' && 'Suppression terminée'}
+      <DialogContent className="max-w-2xl w-full mx-2 sm:mx-4 bg-card/95 backdrop-blur-lg border-red-500/20 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="px-2 sm:px-0">
+          <DialogTitle className="text-lg sm:text-xl font-semibold text-red-400 flex items-center gap-2 leading-tight">
+            <Trash2 className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+            <span className="break-words">
+              {step === 'overview' && 'Suppression RGPD - Droit à l\'effacement'}
+              {step === 'confirmation' && 'Confirmation finale - IRRÉVERSIBLE'}
+              {step === 'processing' && 'Suppression en cours...'}
+              {step === 'success' && 'Suppression terminée'}
+            </span>
           </DialogTitle>
         </DialogHeader>
 
-        {/* Étape 1: Vue d'ensemble */}
-        {step === 'overview' && (
-          <div className="space-y-6">
-            <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/30">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-5 w-5 text-red-400" />
-                <span className="font-semibold text-red-400 text-lg">ACTION IRRÉVERSIBLE</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Cette action supprimera DÉFINITIVEMENT toutes les données de l'utilisateur selon le RGPD.
-              </p>
-            </div>
-
-            {/* Informations utilisateur */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white">👤 Utilisateur concerné</h3>
-              <div className="p-3 bg-card/50 rounded border border-bright-turquoise/20">
-                <p className="font-medium">{user.firstName} {user.lastName}</p>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                <p className="text-sm text-muted-foreground">{user.company}</p>
-              </div>
-            </div>
-
-            {/* Données qui seront supprimées */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                📊 Données qui seront supprimées
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-orange-500/10 rounded border border-orange-500/20">
-                  <p className="text-sm font-medium">Enregistrements vocaux</p>
-                  <p className="text-lg font-bold text-orange-400">{userStats.voice_recordings}</p>
+        <div className="px-2 sm:px-0">
+          {/* Étape 1: Vue d'ensemble */}
+          {step === 'overview' && (
+            <div className="space-y-4 sm:space-y-6">
+              <div className="p-3 sm:p-4 bg-red-500/10 rounded-lg border border-red-500/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-400 flex-shrink-0" />
+                  <span className="font-semibold text-red-400 text-base sm:text-lg">ACTION IRRÉVERSIBLE</span>
                 </div>
-                <div className="p-3 bg-blue-500/10 rounded border border-blue-500/20">
-                  <p className="text-sm font-medium">Logs consentement</p>
-                  <p className="text-lg font-bold text-blue-400">{userStats.consent_logs}</p>
-                </div>
-                <div className="p-3 bg-purple-500/10 rounded border border-purple-500/20">
-                  <p className="text-sm font-medium">Sessions actives</p>
-                  <p className="text-lg font-bold text-purple-400">{userStats.sessions}</p>
-                </div>
-                <div className="p-3 bg-green-500/10 rounded border border-green-500/20">
-                  <p className="text-sm font-medium">Configuration MFA</p>
-                  <p className="text-lg font-bold text-green-400">{userStats.mfa_settings}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Export optionnel */}
-            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
-              <div className="flex items-center gap-2 mb-2">
-                <Shield className="h-4 w-4 text-blue-400" />
-                <span className="font-medium text-blue-400">Conformité RGPD</span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                Vous pouvez exporter les données avant suppression (recommandé).
-              </p>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={exportData}
-                  onChange={(e) => setExportData(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-sm">📥 Exporter les données en JSON avant suppression</span>
-              </label>
-            </div>
-
-            <div className="flex gap-3 pt-4 border-t border-red-500/20">
-              <Button onClick={handleClose} variant="outline" className="flex-1">
-                Annuler
-              </Button>
-              <Button 
-                onClick={() => setStep('confirmation')} 
-                className="flex-1 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
-              >
-                🗑️ Continuer la suppression
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Étape 2: Confirmation finale */}
-        {step === 'confirmation' && (
-          <div className="space-y-6">
-            <div className="p-4 bg-red-500/20 rounded-lg border-2 border-red-500/50">
-              <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="h-6 w-6 text-red-400" />
-                <span className="font-bold text-red-400 text-xl">DERNIÈRE CONFIRMATION</span>
-              </div>
-              <p className="text-white font-medium mb-2">
-                Pour confirmer, tapez exactement : <span className="font-mono bg-red-500/30 px-2 py-1 rounded">SUPPRIMER</span>
-              </p>
-              <Input
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-                placeholder="Tapez SUPPRIMER ici..."
-                className="bg-card/50 border-red-500/30 focus:border-red-400"
-                autoFocus
-              />
-            </div>
-
-            <div className="p-3 bg-yellow-500/10 rounded border border-yellow-500/30">
-              <h4 className="font-semibold text-yellow-400 mb-2">⚠️ Cette action supprimera DÉFINITIVEMENT :</h4>
-              <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>✓ Le compte Supabase Auth de {user.firstName} {user.lastName}</li>
-                <li>✓ Tous les enregistrements vocaux</li>
-                <li>✓ Tous les logs de consentement et sessions</li>
-                <li>✓ Toutes les configurations de sécurité (MFA, OTP)</li>
-                <li>✓ Toutes traces dans la base de données</li>
-              </ul>
-            </div>
-
-            <div className="flex gap-3 pt-4 border-t border-red-500/20">
-              <Button onClick={() => setStep('overview')} variant="outline" className="flex-1">
-                ← Retour
-              </Button>
-              <Button 
-                onClick={handleRgpdDelete}
-                disabled={!isConfirmValid || isLoading}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
-              >
-                🗑️ SUPPRIMER DÉFINITIVEMENT
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Étape 3: Traitement */}
-        {step === 'processing' && (
-          <div className="space-y-6 text-center">
-            <div className="p-6">
-              <Clock className="h-16 w-16 text-red-400 mx-auto mb-4 animate-spin" />
-              <h3 className="text-lg font-semibold mb-2">Suppression en cours...</h3>
-              <p className="text-muted-foreground mb-4">
-                Suppression RGPD de {user.firstName} {user.lastName}
-              </p>
-              <Progress value={progress} className="w-full" />
-              <p className="text-sm text-muted-foreground mt-2">{progress.toFixed(0)}% terminé</p>
-            </div>
-          </div>
-        )}
-
-        {/* Étape 4: Succès */}
-        {step === 'success' && (
-          <div className="space-y-6 text-center">
-            <div className="p-6">
-              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="h-8 w-8 text-green-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-green-400 mb-2">✅ SUPPRESSION TERMINÉE</h3>
-              <p className="text-muted-foreground mb-4">
-                {user.firstName} {user.lastName} et toutes ses données ont été supprimés définitivement.
-              </p>
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                Conforme RGPD - Droit à l'effacement respecté
-              </Badge>
-            </div>
-
-            {exportedData && (
-              <div className="p-4 bg-blue-500/10 rounded border border-blue-500/30">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Les données ont été exportées avant suppression.
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Cette action supprimera DÉFINITIVEMENT toutes les données de l'utilisateur selon le RGPD.
                 </p>
+              </div>
+
+              {/* Informations utilisateur */}
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="font-semibold text-white text-sm sm:text-base">👤 Utilisateur concerné</h3>
+                <div className="p-3 bg-card/50 rounded border border-bright-turquoise/20">
+                  <p className="font-medium text-sm sm:text-base break-words">{user.firstName} {user.lastName}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground break-all">{user.email}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground break-words">{user.company}</p>
+                </div>
+              </div>
+
+              {/* Données qui seront supprimées */}
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="font-semibold text-white flex items-center gap-2 text-sm sm:text-base">
+                  <Database className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  📊 Données qui seront supprimées
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  <div className="p-2 sm:p-3 bg-orange-500/10 rounded border border-orange-500/20">
+                    <p className="text-xs sm:text-sm font-medium text-center sm:text-left">Enregistrements vocaux</p>
+                    <p className="text-base sm:text-lg font-bold text-orange-400 text-center sm:text-left">{userStats.voice_recordings}</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-blue-500/10 rounded border border-blue-500/20">
+                    <p className="text-xs sm:text-sm font-medium text-center sm:text-left">Logs consentement</p>
+                    <p className="text-base sm:text-lg font-bold text-blue-400 text-center sm:text-left">{userStats.consent_logs}</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-purple-500/10 rounded border border-purple-500/20">
+                    <p className="text-xs sm:text-sm font-medium text-center sm:text-left">Sessions actives</p>
+                    <p className="text-base sm:text-lg font-bold text-purple-400 text-center sm:text-left">{userStats.sessions}</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-green-500/10 rounded border border-green-500/20">
+                    <p className="text-xs sm:text-sm font-medium text-center sm:text-left">Configuration MFA</p>
+                    <p className="text-base sm:text-lg font-bold text-green-400 text-center sm:text-left">{userStats.mfa_settings}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Export optionnel */}
+              <div className="p-3 sm:p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400 flex-shrink-0" />
+                  <span className="font-medium text-blue-400 text-sm sm:text-base">Conformité RGPD</span>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 leading-relaxed">
+                  Vous pouvez exporter les données avant suppression (recommandé).
+                </p>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={exportData}
+                    onChange={(e) => setExportData(e.target.checked)}
+                    className="rounded mt-0.5 flex-shrink-0"
+                  />
+                  <span className="text-xs sm:text-sm leading-relaxed">📥 Exporter les données en JSON avant suppression</span>
+                </label>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-red-500/20">
                 <Button 
-                  onClick={downloadExport} 
-                  variant="outline"
-                  className="bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20"
+                  onClick={handleClose} 
+                  variant="outline" 
+                  className="order-2 sm:order-1 w-full sm:flex-1 h-10 sm:h-auto text-sm"
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Télécharger l'export JSON
+                  Annuler
+                </Button>
+                <Button 
+                  onClick={() => setStep('confirmation')} 
+                  className="order-1 sm:order-2 w-full sm:flex-1 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 h-10 sm:h-auto text-sm"
+                >
+                  🗑️ Continuer la suppression
                 </Button>
               </div>
-            )}
+            </div>
+          )}
 
-            <p className="text-xs text-muted-foreground">
-              Cette fenêtre se fermera automatiquement dans quelques secondes...
-            </p>
-          </div>
-        )}
+          {/* Étape 2: Confirmation finale */}
+          {step === 'confirmation' && (
+            <div className="space-y-4 sm:space-y-6">
+              <div className="p-3 sm:p-4 bg-red-500/20 rounded-lg border-2 border-red-500/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-red-400 flex-shrink-0" />
+                  <span className="font-bold text-red-400 text-lg sm:text-xl">DERNIÈRE CONFIRMATION</span>
+                </div>
+                <p className="text-white font-medium mb-2 text-sm sm:text-base leading-relaxed">
+                  Pour confirmer, tapez exactement : <span className="font-mono bg-red-500/30 px-2 py-1 rounded text-sm">SUPPRIMER</span>
+                </p>
+                <Input
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="Tapez SUPPRIMER ici..."
+                  className="bg-card/50 border-red-500/30 focus:border-red-400 h-10 sm:h-auto text-sm sm:text-base"
+                  autoFocus
+                />
+              </div>
+
+              <div className="p-3 bg-yellow-500/10 rounded border border-yellow-500/30">
+                <h4 className="font-semibold text-yellow-400 mb-2 text-sm sm:text-base">⚠️ Cette action supprimera DÉFINITIVEMENT :</h4>
+                <ul className="text-xs sm:text-sm space-y-1 text-muted-foreground leading-relaxed">
+                  <li>✓ Le compte Supabase Auth de {user.firstName} {user.lastName}</li>
+                  <li>✓ Tous les enregistrements vocaux</li>
+                  <li>✓ Tous les logs de consentement et sessions</li>
+                  <li>✓ Toutes les configurations de sécurité (MFA, OTP)</li>
+                  <li>✓ Toutes traces dans la base de données</li>
+                </ul>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-red-500/20">
+                <Button 
+                  onClick={() => setStep('overview')} 
+                  variant="outline" 
+                  className="order-2 sm:order-1 w-full sm:flex-1 h-10 sm:h-auto text-sm"
+                >
+                  ← Retour
+                </Button>
+                <Button 
+                  onClick={handleRgpdDelete}
+                  disabled={!isConfirmValid || isLoading}
+                  className="order-1 sm:order-2 w-full sm:flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 h-10 sm:h-auto text-sm"
+                >
+                  🗑️ SUPPRIMER DÉFINITIVEMENT
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 3: Traitement */}
+          {step === 'processing' && (
+            <div className="space-y-6 text-center py-4 sm:py-6">
+              <div className="p-4 sm:p-6">
+                <Clock className="h-12 w-12 sm:h-16 sm:w-16 text-red-400 mx-auto mb-4 animate-spin" />
+                <h3 className="text-base sm:text-lg font-semibold mb-2">Suppression en cours...</h3>
+                <p className="text-muted-foreground mb-4 text-sm sm:text-base break-words">
+                  Suppression RGPD de {user.firstName} {user.lastName}
+                </p>
+                <Progress value={progress} className="w-full" />
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2">{progress.toFixed(0)}% terminé</p>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 4: Succès */}
+          {step === 'success' && (
+            <div className="space-y-4 sm:space-y-6 text-center">
+              <div className="p-4 sm:p-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-green-400 mb-2">✅ SUPPRESSION TERMINÉE</h3>
+                <p className="text-muted-foreground mb-4 text-sm sm:text-base break-words">
+                  {user.firstName} {user.lastName} et toutes ses données ont été supprimés définitivement.
+                </p>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs sm:text-sm">
+                  🛡️ Conforme RGPD - Droit à l'effacement respecté
+                </Badge>
+              </div>
+
+              {exportedData && (
+                <div className="p-3 sm:p-4 bg-blue-500/10 rounded border border-blue-500/30">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3 leading-relaxed">
+                    Les données ont été exportées avant suppression.
+                  </p>
+                  <Button 
+                    onClick={downloadExport} 
+                    variant="outline"
+                    className="bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20 w-full sm:w-auto h-10 sm:h-auto text-sm"
+                  >
+                    <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                    Télécharger l'export JSON
+                  </Button>
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Cette fenêtre se fermera automatiquement dans quelques secondes...
+              </p>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
