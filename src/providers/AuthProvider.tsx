@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('📊 [AUTH] Loaded user from storage:', user);
     
     if (user) {
-      // CORRECTION CRITIQUE : Vérifier le statut actuel dans Supabase
+      // Vérifier le statut actuel de l'utilisateur dans Supabase
       checkUserStatus(user.id);
     } else {
       console.log('❌ [AUTH] No user found, setting unauthenticated state');
@@ -78,8 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         authStorage.saveUser(updatedUser, true);
         
       } else {
-        // CORRECTION CRITIQUE : Utilisateur désapprouvé, déconnecter immédiatement
-        console.log('❌ [AUTH] User status changed to not approved - FORCE LOGOUT');
+        // Utilisateur désapprouvé, déconnecter
+        console.log('❌ [AUTH] User status changed to not approved');
         logout();
       }
     }
@@ -104,7 +104,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const dbUser: DatabaseProfile = userProfile;
       console.log('📊 [AUTH] User status check result:', dbUser.is_approved);
       
-      // CORRECTION CRITIQUE : Vérification stricte du statut d'approbation
       if (dbUser.is_approved) {
         const user: User = {
           id: dbUser.id,
@@ -125,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         authStorage.saveUser(user, true);
       } else {
-        console.log('❌ [AUTH] User not approved - FORCE LOGOUT');
+        console.log('❌ [AUTH] User not approved');
         logout();
       }
       
@@ -140,15 +139,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const result = await authService.login(data);
     
     if (result.success && result.user) {
-      // CORRECTION CRITIQUE : Vérification supplémentaire du statut d'approbation
-      if (!result.user.isApproved) {
-        console.log('❌ [AUTH] Login blocked - user not approved');
-        return { 
-          success: false, 
-          message: 'Votre compte est en cours de validation par notre équipe. Vous recevrez un email dès que votre accès sera activé.' 
-        };
-      }
-      
       console.log('✅ [AUTH] Login successful, updating state');
       setAuthState({
         user: result.user,
@@ -183,8 +173,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
     userId: authState.user?.id || 'none',
-    userFirstName: authState.user?.firstName || 'none',
-    userApproved: authState.user?.isApproved || false
+    userFirstName: authState.user?.firstName || 'none'
   });
 
   const contextValue: AuthContextType = {

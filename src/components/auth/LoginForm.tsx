@@ -8,11 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-
 interface LoginFormProps {
   onSwitchToSignup: () => void;
 }
-
 export const LoginForm = ({
   onSwitchToSignup
 }: LoginFormProps) => {
@@ -27,21 +25,18 @@ export const LoginForm = ({
   const {
     toast
   } = useToast();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🚀 [LOGIN FORM] Tentative de connexion...');
+    console.log('🚀 Tentative de connexion...');
     setIsLoading(true);
-    
     try {
-      const result = await login({
+      const success = await login({
         email,
         password,
         rememberMe
       });
-      
-      if (result.success) {
-        console.log('✅ [LOGIN FORM] Connexion réussie, redirection...');
+      if (success) {
+        console.log('✅ Connexion réussie, redirection...');
         toast({
           title: "Connexion réussie",
           description: "Vous êtes maintenant connecté."
@@ -49,15 +44,15 @@ export const LoginForm = ({
         // Redirection vers la page principale
         window.location.href = '/app';
       } else {
-        console.log('❌ [LOGIN FORM] Échec de la connexion:', result.message);
+        console.log('❌ Échec de la connexion');
         toast({
           title: "Erreur de connexion",
-          description: result.message || "Email ou mot de passe incorrect, ou compte non approuvé.",
+          description: "Email ou mot de passe incorrect, ou compte non approuvé.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('💥 [LOGIN FORM] Erreur lors de la connexion:', error);
+      console.error('💥 Erreur lors de la connexion:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la connexion.",
@@ -67,13 +62,10 @@ export const LoginForm = ({
       setIsLoading(false);
     }
   };
-
   const handleBackToHome = () => {
     window.location.href = '/';
   };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[4649eebf] bg-[#4649ee]/75 relative">
+  return <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[4649eebf] bg-[#4649ee]/75 relative">
       {/* Bouton retour en haut à gauche de la page */}
       <Button variant="ghost" size="sm" onClick={handleBackToHome} className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10">
         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -121,6 +113,5 @@ export const LoginForm = ({
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };

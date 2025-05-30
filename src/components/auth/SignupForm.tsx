@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,20 +28,18 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   const {
     toast
   } = useToast();
-
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [field]: e.target.value
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('📝 [SIGNUP FORM] Soumission du formulaire avec:', formData);
+    console.log('Soumission du formulaire avec:', formData);
 
-    // CORRECTION : Validation côté client améliorée
+    // Vérifier que tous les champs sont remplis
     if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.company.trim() || !formData.password.trim()) {
       toast({
         title: "Erreur",
@@ -75,15 +72,12 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       setIsLoading(false);
       return;
     }
-
     try {
-      const result = await signup(formData);
-      
-      if (result.success) {
-        console.log('✅ [SIGNUP FORM] Inscription réussie');
+      const success = await signup(formData);
+      if (success) {
         toast({
           title: "Demande envoyée",
-          description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
+          description: "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
         });
         // Réinitialiser le formulaire
         setFormData({
@@ -99,15 +93,14 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           onSwitchToLogin();
         }, 2000);
       } else {
-        console.log('❌ [SIGNUP FORM] Échec de l\'inscription:', result.message);
         toast({
           title: "Erreur",
-          description: result.message || "Cette adresse email est déjà utilisée ou une erreur est survenue.",
+          description: "Cette adresse email est déjà utilisée ou une erreur est survenue.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('💥 [SIGNUP FORM] Erreur lors de la création du compte:', error);
+      console.error('Erreur lors de la création du compte:', error);
       toast({
         title: "Erreur",
         description: "Une erreur technique est survenue. Veuillez réessayer.",

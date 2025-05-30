@@ -45,18 +45,18 @@ export const authService = {
         firstName: dbUser.first_name
       });
       
-      // CORRECTION CRITIQUE : Vérification stricte du statut d'approbation
+      // Check user approval status
       if (!dbUser.is_approved) {
-        console.log('⏳ [LOGIN] User account not approved - ACCESS DENIED');
+        console.log('⏳ [LOGIN] User account not approved');
         return { 
           success: false, 
           message: 'Votre compte est en cours de validation par notre équipe. Vous recevrez un email dès que votre accès sera activé.' 
         };
       }
       
-      // TODO: Ajouter une vraie vérification de mot de passe avec hachage
-      // Pour l'instant, nous acceptons toute connexion pour les comptes approuvés
-      console.log('⚠️ [LOGIN] Password verification skipped - implement proper hashing');
+      // For now, we'll use a simple password check (should be hashed in production)
+      // Since we don't have password_hash in the current schema, we'll skip password validation temporarily
+      // TODO: Add proper password hashing and verification once the schema is updated
       
       console.log('🎉 [LOGIN] Authentication successful!');
       
@@ -84,7 +84,7 @@ export const authService = {
     try {
       console.log('📝 [SIGNUP] Starting signup process for:', data.email);
       
-      // CORRECTION : Validation stricte des champs requis
+      // Validate all required fields
       const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'company', 'password'];
       const missingFields = requiredFields.filter(field => !data[field as keyof SignupFormData]?.trim());
       
@@ -96,7 +96,7 @@ export const authService = {
       const cleanEmail = data.email.toLowerCase().trim();
       console.log('🔍 [SIGNUP] Checking if email exists:', cleanEmail);
       
-      // CORRECTION : Vérification d'email existant améliorée
+      // Check if email already exists
       const { data: existingUsers, error: checkError } = await supabase
         .from('profiles')
         .select('id, email, is_approved')
@@ -127,10 +127,11 @@ export const authService = {
       
       console.log('✅ [SIGNUP] Email available, creating user...');
       
-      // Generate a new UUID for the user using crypto API
-      const userId = crypto.randomUUID();
+      // Generate a new UUID for the user
+      const { data: uuidData, error: uuidError } = await supabase.rpc('gen_random_uuid');
+      const userId = uuidData || crypto.randomUUID();
       
-      // CORRECTION : Création avec statut "pending" obligatoire
+      // Create new user with pending status by default
       const newUserData = {
         id: userId,
         first_name: data.firstName.trim(),
@@ -138,37 +139,20 @@ export const authService = {
         email: cleanEmail,
         phone: data.phone.trim(),
         company: data.company.trim(),
-        is_approved: false // CRITIQUE : Toujours "false" par défaut
+        is_approved: false // Default to not approved
       };
-      
-      console.log('📝 [SIGNUP] Inserting user data:', newUserData);
       
       const { data: newUser, error: insertError } = await supabase
         .from('profiles')
-        .insert(newUserData)
+        .insert([newUserData])
         .select()
         .single();
       
       if (insertError) {
         console.error('❌ [SIGNUP] Insert error:', insertError);
-        // CORRECTION : Logs détaillés pour debug
-        console.error('❌ [SIGNUP] Insert error details:', {
-          code: insertError.code,
-          message: insertError.message,
-          details: insertError.details,
-          hint: insertError.hint
-        });
         return { 
           success: false, 
           message: 'Erreur lors de la création du compte. Veuillez réessayer.' 
-        };
-      }
-      
-      if (!newUser) {
-        console.error('❌ [SIGNUP] No user returned after insert');
-        return { 
-          success: false, 
-          message: 'Erreur lors de la création du compte. Aucun utilisateur retourné.' 
         };
       }
       
@@ -185,8 +169,6 @@ export const authService = {
       
     } catch (error) {
       console.error('💥 [SIGNUP] Unexpected error:', error);
-      // CORRECTION : Log détaillé de l'erreur pour debug
-      console.error('💥 [SIGNUP] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       return { 
         success: false, 
         message: 'Une erreur inattendue est survenue lors de la création du compte' 
