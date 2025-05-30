@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,19 +40,7 @@ export const AdminPanel = () => {
         setIsLoading(true);
       }
       
-      // Créer une session temporaire pour l'admin si nécessaire
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Créer une session anonyme pour permettre l'accès aux données
-        console.log('📝 [ADMIN] Création d\'une session temporaire pour l\'admin...');
-        const { error: signInError } = await supabase.auth.signInAnonymously();
-        if (signInError) {
-          console.error('❌ [ADMIN] Erreur création session anonyme:', signInError);
-        }
-      }
-      
-      // Récupérer tous les profils depuis la table profiles
+      // Récupérer tous les profils depuis la table profiles - maintenant accessible publiquement
       const { data: profilesData, error } = await supabase
         .from('profiles')
         .select('*')
@@ -69,7 +56,7 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('✅ [ADMIN] Profils chargés:', profilesData?.length || 0);
+      console.log('✅ [ADMIN] Profils chargés:', profilesData?.length || 0, 'utilisateurs');
       
       // Les données sont déjà dans le bon format
       setUsers(profilesData || []);
