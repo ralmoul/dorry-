@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -187,149 +188,158 @@ const Admin = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-dark-navy via-[#1a1f3a] to-dark-navy p-4">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent">
+      <div className="min-h-screen bg-gradient-to-br from-dark-navy via-[#1a1f3a] to-dark-navy p-2 sm:p-4">
+        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+          {/* Header optimisé mobile */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent truncate">
                 Administration Dorry.app
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-sm sm:text-base">
                 Panel de contrôle et gestion système - RGPD Ready 🛡️
               </p>
             </div>
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+              size="sm"
+              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 flex-shrink-0 h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Déconnexion
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Déconnexion</span>
+              <span className="xs:hidden">Exit</span>
             </Button>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Stats Cards optimisées mobile */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center space-x-2">
-                  <Users className="h-5 w-5 text-blue-400" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Utilisateurs</p>
-                    <p className="text-2xl font-bold text-blue-400">{users.length}</p>
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">Utilisateurs</p>
+                    <p className="text-lg sm:text-2xl font-bold text-blue-400">{users.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center space-x-2">
-                  <UserCheck className="h-5 w-5 text-green-400" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Approuvés</p>
-                    <p className="text-2xl font-bold text-green-400">{approvedUsers.length}</p>
+                  <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">Approuvés</p>
+                    <p className="text-lg sm:text-2xl font-bold text-green-400">{approvedUsers.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5 text-orange-400" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">En attente</p>
-                    <p className="text-2xl font-bold text-orange-400">{pendingUsers.length}</p>
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">En attente</p>
+                    <p className="text-lg sm:text-2xl font-bold text-orange-400">{pendingUsers.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center space-x-2">
-                  <Activity className="h-5 w-5 text-purple-400" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Sessions actives</p>
-                    <p className="text-2xl font-bold text-purple-400">{activeSessions.length}</p>
+                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">Sessions actives</p>
+                    <p className="text-lg sm:text-2xl font-bold text-purple-400">{activeSessions.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Main Content */}
-          <Tabs defaultValue="users" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-lg">
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Utilisateurs
+          {/* Main Content avec tabs optimisées */}
+          <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
+            <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-lg h-auto p-1">
+              <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3 h-8 sm:h-auto">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Utilisateurs</span>
+                <span className="xs:hidden">Users</span>
               </TabsTrigger>
-              <TabsTrigger value="audits" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Audits RGPD
+              <TabsTrigger value="audits" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3 h-8 sm:h-auto">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Audits RGPD</span>
+                <span className="xs:hidden">RGPD</span>
               </TabsTrigger>
-              <TabsTrigger value="security" className="flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Sécurité
+              <TabsTrigger value="security" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3 h-8 sm:h-auto">
+                <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Sécurité</span>
+                <span className="xs:hidden">Secu</span>
               </TabsTrigger>
-              <TabsTrigger value="system" className="flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                Système
+              <TabsTrigger value="system" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3 h-8 sm:h-auto">
+                <Database className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Système</span>
+                <span className="xs:hidden">Sys</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="users" className="space-y-4">
-              {/* Demandes en attente */}
+            <TabsContent value="users" className="space-y-3 sm:space-y-4">
+              {/* Demandes en attente optimisées mobile */}
               {pendingUsers.length > 0 && (
                 <Card className="bg-card/50 backdrop-blur-lg border-orange-500/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-orange-400">
-                      <AlertCircle className="h-5 w-5" />
-                      Demandes de compte en attente ({pendingUsers.length})
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-orange-400 text-base sm:text-xl">
+                      <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                      <span className="truncate">Demandes en attente ({pendingUsers.length})</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
                     {pendingUsers.map(user => (
-                      <div key={user.id} className="flex items-center justify-between p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                        <div className="flex-1 cursor-pointer" onClick={() => openUserDetails(user)}>
-                          <h4 className="font-semibold text-white">
+                      <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-orange-500/10 rounded-lg border border-orange-500/20 gap-3 sm:gap-0">
+                        <div className="flex-1 cursor-pointer min-w-0" onClick={() => openUserDetails(user)}>
+                          <h4 className="font-semibold text-white text-sm sm:text-base truncate">
                             {user.first_name} {user.last_name}
                           </h4>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                          <p className="text-sm text-muted-foreground">{user.company}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.company}</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 justify-end sm:justify-start flex-wrap">
                           <Button
                             size="sm"
                             onClick={() => handleUserAction(user.id, 'approve')}
                             disabled={actionLoading === `approve-${user.id}`}
-                            className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30"
+                            className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm flex-1 sm:flex-none min-w-[70px] sm:min-w-0"
                           >
-                            <UserCheck className="h-4 w-4 mr-1" />
-                            Approuver
+                            <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="hidden xs:inline">Approuver</span>
+                            <span className="xs:hidden">OK</span>
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleUserAction(user.id, 'reject')}
                             disabled={actionLoading === `reject-${user.id}`}
-                            className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30"
+                            className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30 h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm flex-1 sm:flex-none min-w-[70px] sm:min-w-0"
                           >
-                            <UserX className="h-4 w-4 mr-1" />
-                            Rejeter
+                            <UserX className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="hidden xs:inline">Rejeter</span>
+                            <span className="xs:hidden">NO</span>
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleUserAction(user.id, 'delete')}
                             disabled={actionLoading === `delete-${user.id}`}
-                            className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30"
+                            className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm flex-1 sm:flex-none min-w-[70px] sm:min-w-0"
                           >
-                            <UserMinus className="h-4 w-4 mr-1" />
-                            Supprimer
+                            <UserMinus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="hidden xs:inline">Supprimer</span>
+                            <span className="xs:hidden">DEL</span>
                           </Button>
                         </div>
                       </div>
@@ -338,33 +348,35 @@ const Admin = () => {
                 </Card>
               )}
 
-              {/* Utilisateurs approuvés */}
+              {/* Utilisateurs approuvés optimisés mobile */}
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-400" />
-                    Utilisateurs approuvés ({approvedUsers.length})
-                    <Badge className="bg-red-500/20 text-red-400 border-red-500/30 ml-2">
+                <CardHeader className="p-3 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 flex-shrink-0" />
+                      <span className="truncate">Utilisateurs approuvés ({approvedUsers.length})</span>
+                    </CardTitle>
+                    <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs self-start sm:self-auto flex-shrink-0">
                       🛡️ RGPD Ready
                     </Badge>
-                  </CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 sm:p-6">
                   <div className="space-y-3">
                     {approvedUsers.map(user => (
-                      <div key={user.id} className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg border border-green-500/20 cursor-pointer hover:bg-green-500/15 transition-colors" onClick={() => openUserDetails(user)}>
-                        <div>
-                          <h4 className="font-semibold text-white">
+                      <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-green-500/10 rounded-lg border border-green-500/20 cursor-pointer hover:bg-green-500/15 transition-colors gap-3 sm:gap-0" onClick={() => openUserDetails(user)}>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-white text-sm sm:text-base truncate">
                             {user.first_name} {user.last_name}
                           </h4>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                          <p className="text-sm text-muted-foreground">{user.company}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.company}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        <div className="flex items-center gap-2 justify-end sm:justify-start flex-wrap">
+                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs flex-shrink-0">
                             Actif
                           </Badge>
-                          <Badge className="bg-red-600/20 text-red-300 border-red-600/30 text-xs">
+                          <Badge className="bg-red-600/20 text-red-300 border-red-600/30 text-xs flex-shrink-0">
                             RGPD
                           </Badge>
                         </div>
@@ -375,57 +387,57 @@ const Admin = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="audits" className="space-y-4">
+            <TabsContent value="audits" className="space-y-3 sm:space-y-4">
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-bright-turquoise" />
-                    Audits RGPD et Conformité
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                    <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-bright-turquoise flex-shrink-0" />
+                    <span className="truncate">Audits RGPD et Conformité</span>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     Gestion des audits de conformité et surveillance RGPD
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-4">
+                <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                     <Button 
                       onClick={handleRunAudit}
                       disabled={isAuditing}
-                      className="bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold"
+                      className="bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm flex-1 sm:flex-none"
                     >
-                      <Play className="h-4 w-4 mr-2" />
-                      {isAuditing ? 'Audit en cours...' : 'Lancer audit RGPD'}
+                      <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="truncate">{isAuditing ? 'Audit en cours...' : 'Lancer audit RGPD'}</span>
                     </Button>
                     
                     <Button 
                       variant="outline"
                       onClick={runUnitTests}
-                      className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
+                      className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm flex-1 sm:flex-none"
                     >
-                      <Activity className="h-4 w-4 mr-2" />
-                      Tests unitaires
+                      <Activity className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="truncate">Tests unitaires</span>
                     </Button>
                   </div>
 
                   {lastAuditReport && (
-                    <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
-                      <h4 className="font-semibold text-blue-400 mb-2">Dernier rapport d'audit</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <p className="text-muted-foreground">Score de conformité</p>
-                          <p className="font-bold text-blue-400">{lastAuditReport.compliance_score}%</p>
+                    <div className="p-3 sm:p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                      <h4 className="font-semibold text-blue-400 mb-2 text-sm sm:text-base">Dernier rapport d'audit</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <p className="text-muted-foreground truncate">Score conformité</p>
+                          <p className="font-bold text-blue-400 text-sm sm:text-base">{lastAuditReport.compliance_score}%</p>
                         </div>
-                        <div>
-                          <p className="text-muted-foreground">Total consentements</p>
-                          <p className="font-bold">{lastAuditReport.total_consents}</p>
+                        <div className="text-center">
+                          <p className="text-muted-foreground truncate">Total consentements</p>
+                          <p className="font-bold text-sm sm:text-base">{lastAuditReport.total_consents}</p>
                         </div>
-                        <div>
-                          <p className="text-muted-foreground">Acceptés</p>
-                          <p className="font-bold text-green-400">{lastAuditReport.consents_given}</p>
+                        <div className="text-center">
+                          <p className="text-muted-foreground truncate">Acceptés</p>
+                          <p className="font-bold text-green-400 text-sm sm:text-base">{lastAuditReport.consents_given}</p>
                         </div>
-                        <div>
-                          <p className="text-muted-foreground">Refusés</p>
-                          <p className="font-bold text-red-400">{lastAuditReport.consents_refused}</p>
+                        <div className="text-center">
+                          <p className="text-muted-foreground truncate">Refusés</p>
+                          <p className="font-bold text-red-400 text-sm sm:text-base">{lastAuditReport.consents_refused}</p>
                         </div>
                       </div>
                     </div>
@@ -434,25 +446,25 @@ const Admin = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="security" className="space-y-4">
+            <TabsContent value="security" className="space-y-3 sm:space-y-4">
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-purple-400" />
-                    Logs de sécurité ({securityLogs.length})
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400 flex-shrink-0" />
+                    <span className="truncate">Logs de sécurité ({securityLogs.length})</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 sm:p-6">
                   <div className="space-y-2 max-h-96 overflow-y-auto">
                     {securityLogs.slice(0, 20).map(log => (
                       <div key={log.id} className="p-3 bg-purple-500/10 rounded border border-purple-500/20">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-sm text-purple-400">{log.event_type}</span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="font-mono text-xs sm:text-sm text-purple-400 truncate">{log.event_type}</span>
+                          <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                             {new Date(log.created_at).toLocaleString('fr-FR')}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                           IP: {log.ip_address || 'N/A'}
                         </p>
                       </div>
@@ -462,30 +474,30 @@ const Admin = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="system" className="space-y-4">
+            <TabsContent value="system" className="space-y-3 sm:space-y-4">
               <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5 text-green-400" />
-                    Maintenance système
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                    <Database className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 flex-shrink-0" />
+                    <span className="truncate">Maintenance système</span>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-xs sm:text-sm">
                     Outils de nettoyage et maintenance de la base de données
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
                   <Button
                     onClick={handleSecurityCleanup}
                     disabled={actionLoading === 'cleanup'}
-                    className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30"
+                    className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm w-full sm:w-auto"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     {actionLoading === 'cleanup' ? 'Nettoyage...' : 'Nettoyage sécurité'}
                   </Button>
                   
-                  <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
-                    <h4 className="font-semibold text-yellow-400 mb-2">Sessions actives</h4>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="p-3 sm:p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                    <h4 className="font-semibold text-yellow-400 mb-2 text-sm sm:text-base">Sessions actives</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {activeSessions.length} session(s) utilisateur active(s)
                     </p>
                   </div>
