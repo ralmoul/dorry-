@@ -171,13 +171,16 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('✅ [ADMIN] User approved successfully - realtime will handle UI update');
+      console.log('✅ [ADMIN] User approved successfully');
       setIsModalOpen(false);
       
       toast({
         title: "✅ Utilisateur approuvé",
         description: "L'utilisateur a été approuvé avec succès et peut maintenant se connecter.",
       });
+      
+      // Actualiser immédiatement la page
+      window.location.reload();
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -214,7 +217,7 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('✅ [ADMIN] User revoked successfully - realtime will handle UI update');
+      console.log('✅ [ADMIN] User revoked successfully');
       setIsModalOpen(false);
       
       toast({
@@ -222,6 +225,9 @@ export const AdminPanel = () => {
         description: "L'accès de l'utilisateur a été révoqué.",
         variant: "destructive"
       });
+      
+      // Actualiser immédiatement la page
+      window.location.reload();
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -265,7 +271,7 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('🎉 [ADMIN] User completely deleted - realtime will handle UI update');
+      console.log('🎉 [ADMIN] User completely deleted');
       setIsModalOpen(false);
       
       toast({
@@ -273,10 +279,8 @@ export const AdminPanel = () => {
         description: "L'utilisateur a été supprimé de l'authentification et des profils. L'email est maintenant disponible.",
       });
       
-      // Rafraîchir la liste pour s'assurer que tout est à jour
-      setTimeout(() => {
-        loadUsers();
-      }, 1000);
+      // Actualiser immédiatement la page
+      window.location.reload();
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error during deletion:', error);
@@ -382,7 +386,7 @@ export const AdminPanel = () => {
                 </p>
               </div>
               <Button 
-                onClick={loadUsers}
+                onClick={() => window.location.reload()}
                 variant="outline"
                 size="sm"
                 className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
