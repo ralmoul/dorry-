@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Users, UserCheck, Clock, Trash2, Eye } from 'lucide-react';
+import { Users, UserCheck, Trash2, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserDetailsModal } from './admin/UserDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,11 +62,12 @@ export const AdminPanel = () => {
         email: profile.email,
         phone: profile.phone,
         company: profile.company,
-        is_approved: true, // Les profils Supabase sont considérés comme approuvés par défaut
+        is_approved: true, // Tous les profils Supabase sont considérés comme approuvés
         created_at: profile.created_at,
       })) || [];
       
       setUsers(transformedUsers);
+      console.log('Transformed users:', transformedUsers);
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -76,36 +77,6 @@ export const AdminPanel = () => {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const updateUserStatus = async (userId: string, isApproved: boolean) => {
-    try {
-      console.log(`Updating user ${userId} status to ${isApproved ? 'approved' : 'rejected'}`);
-      
-      // Mettre à jour le statut dans la table profiles
-      // Note: La table profiles n'a pas de colonne is_approved par défaut,
-      // donc pour l'instant on simule juste l'action
-      
-      // Update local state
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: isApproved } : user
-      ));
-      setIsModalOpen(false);
-      
-      const action = isApproved ? 'approuvé' : 'rejeté';
-      toast({
-        title: `Utilisateur ${action}`,
-        description: `Le compte a été ${action} avec succès.`,
-        variant: isApproved ? "default" : "destructive",
-      });
-    } catch (error) {
-      console.error('Error updating user status:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -153,13 +124,6 @@ export const AdminPanel = () => {
     setIsModalOpen(true);
   };
 
-  // Pour l'instant, tous les utilisateurs de la table profiles sont considérés comme approuvés
-  const pendingUsers = users.filter(user => !user.is_approved);
-  const approvedUsers = users.filter(user => user.is_approved);
-
-  console.log('Pending users:', pendingUsers);
-  console.log('Approved users:', approvedUsers);
-
   if (isLoading) {
     return (
       <div className="min-h-screen gradient-bg p-6">
@@ -193,25 +157,13 @@ export const AdminPanel = () => {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Demandes en attente</p>
-                  <p className="text-2xl font-semibold text-bright-turquoise font-sharp">{pendingUsers.length}</p>
-                </div>
-                <Clock className="h-8 w-8 text-bright-turquoise/60" />
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Utilisateurs enregistrés</p>
-                  <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
+                  <p className="text-2xl font-semibold text-green-500 font-sharp">{users.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
               </div>
@@ -335,9 +287,9 @@ export const AdminPanel = () => {
         } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApprove={(userId) => updateUserStatus(userId, true)}
-        onReject={(userId) => deleteUser(userId)}
-        onRevoke={(userId) => updateUserStatus(userId, false)}
+        onApprove={() => {}}
+        onReject={() => {}}
+        onRevoke={() => {}}
         onDelete={(userId) => deleteUser(userId)}
       />
     </div>
