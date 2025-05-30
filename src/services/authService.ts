@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -13,47 +12,53 @@ export const authService = {
       }
 
       const cleanEmail = data.email.toLowerCase().trim();
-      console.log('🔐 [LOGIN] Attempting Supabase Auth login for:', cleanEmail);
+      console.log('🔍 [LOGIN] Checking if user exists in our database first:', cleanEmail);
       
-      // 1️⃣ - Utiliser Supabase Auth pour vérifier email + mot de passe
+      // 1️⃣ - NOUVELLE ÉTAPE : Vérifier d'abord que l'utilisateur existe dans notre base de données
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', cleanEmail)
+        .single();
+      
+      if (profileError || !profileData) {
+        console.error('❌ [LOGIN] User does not exist in our database:', profileError?.message);
+        return { success: false, message: 'Email ou mot de passe incorrect' };
+      }
+      
+      console.log('✅ [LOGIN] User found in database, proceeding with Supabase Auth');
+      
+      // 2️⃣ - Maintenant essayer l'authentification Supabase
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: data.password,
       });
       
       if (authError || !authData.user) {
-        console.error('❌ [LOGIN] Supabase Auth error:', authError?.message);
+        console.error('❌ [LOGIN] Supabase Auth failed:', authError?.message);
         return { success: false, message: 'Email ou mot de passe incorrect' };
       }
       
       console.log('✅ [LOGIN] Supabase Auth successful for user:', authData.user.id);
       
-      // 2️⃣ - Vérifier le profil et le statut d'approbation
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-      
-      if (profileError || !profileData) {
-        console.error('❌ [LOGIN] Profile not found:', profileError?.message);
-        // Déconnecter de Supabase Auth
+      // 3️⃣ - Vérifier que l'ID correspond (sécurité supplémentaire)
+      if (authData.user.id !== profileData.id) {
+        console.error('❌ [LOGIN] User ID mismatch between auth and profile');
         await supabase.auth.signOut();
-        return { success: false, message: 'Profil utilisateur non trouvé' };
+        return { success: false, message: 'Erreur d\'authentification' };
       }
       
       const dbUser: DatabaseProfile = profileData;
-      console.log('📊 [LOGIN] Profile found:', { 
+      console.log('📊 [LOGIN] Profile verified:', { 
         id: dbUser.id, 
         email: dbUser.email, 
         isApproved: dbUser.is_approved,
         firstName: dbUser.first_name
       });
       
-      // 3️⃣ - BLOCAGE STRICT - Vérification obligatoire du statut d'approbation
+      // 4️⃣ - BLOCAGE STRICT - Vérification obligatoire du statut d'approbation
       if (!dbUser.is_approved) {
         console.log('❌ [LOGIN] BLOCKED - User account not approved');
-        // Déconnecter de Supabase Auth
         await supabase.auth.signOut();
         return { 
           success: false, 
@@ -63,7 +68,7 @@ export const authService = {
       
       console.log('🎉 [LOGIN] Authentication successful for approved user!');
       
-      // 4️⃣ - Créer l'objet utilisateur pour l'application
+      // 5️⃣ - Créer l'objet utilisateur pour l'application
       const user: User = {
         id: dbUser.id,
         firstName: dbUser.first_name,
