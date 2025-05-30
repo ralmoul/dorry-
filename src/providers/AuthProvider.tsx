@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
@@ -29,12 +28,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           console.log('🔍 [AUTH_PROVIDER] Recherche du profil pour:', session.user.id);
           
-          // Requête pour récupérer le profil avec timeout
-          const { data: profile, error: profileError } = await supabase
+          // Ajouter un timeout pour éviter les blocages
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 5000)
+          );
+          
+          const profilePromise = supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .maybeSingle();
+
+          const { data: profile, error: profileError } = await Promise.race([
+            profilePromise,
+            timeoutPromise
+          ]) as any;
 
           console.log('📊 [AUTH_PROVIDER] Résultat de la requête profil:', { profile, profileError });
 
@@ -63,8 +71,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               isLoading: false,
             });
           } else {
-            // Si pas de profil trouvé, créer un utilisateur temporaire avec les métadonnées
-            console.warn('⚠️ [AUTH_PROVIDER] Aucun profil trouvé, création utilisateur temporaire');
+            // Si pas de profil trouvé ou timeout, créer un utilisateur temporaire
+            console.warn('⚠️ [AUTH_PROVIDER] Aucun profil trouvé ou timeout, création utilisateur temporaire');
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -72,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: session.user.email || '',
               phone: session.user.user_metadata?.phone || '',
               company: session.user.user_metadata?.company || '',
-              isApproved: false, // Non approuvé par défaut jusqu'à validation admin
+              isApproved: false,
               createdAt: new Date().toISOString(),
             };
 
@@ -87,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
           console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
           if (mounted) {
-            // En cas d'erreur, authentifier quand même l'utilisateur
+            // En cas d'erreur ou timeout, authentifier quand même l'utilisateur
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -95,7 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: session.user.email || '',
               phone: session.user.user_metadata?.phone || '',
               company: session.user.user_metadata?.company || '',
-              isApproved: false, // Non approuvé par défaut en cas d'erreur
+              isApproved: false,
               createdAt: new Date().toISOString(),
             };
 

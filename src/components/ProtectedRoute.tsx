@@ -42,11 +42,14 @@ export const ProtectedRoute = ({ children, requireApproval = false }: ProtectedR
     return <Navigate to="/login" replace />;
   }
 
-  // La page admin fonctionne sans vérification d'approbation
-  const isAdminPage = location.pathname === '/admin';
+  // Pour la page admin, pas de vérification d'approbation nécessaire
+  if (location.pathname === '/admin') {
+    console.log('✅ [PROTECTED_ROUTE] Page admin, accès autorisé');
+    return <>{children}</>;
+  }
   
-  // Vérifier l'approbation SEULEMENT si requise ET si ce n'est PAS la page admin
-  if (requireApproval && !isAdminPage && user && !user.isApproved) {
+  // Pour les autres pages, vérifier l'approbation si requise
+  if (requireApproval && user && !user.isApproved) {
     console.log('⚠️ [PROTECTED_ROUTE] Utilisateur non approuvé, redirection vers login');
     return <Navigate to="/login" replace />;
   }
