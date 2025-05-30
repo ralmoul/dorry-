@@ -2,6 +2,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
+import { Header } from '@/components/Header';
 
 const Index = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -50,6 +51,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen gradient-bg">
+      <Header onOpenSettings={handleOpenSettings} />
       <VoiceRecorder 
         onOpenSettings={handleOpenSettings}
         onOpenUpcomingFeatures={handleOpenUpcomingFeatures}
