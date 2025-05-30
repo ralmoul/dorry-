@@ -17,12 +17,21 @@ export const recordingService = {
   async getUserRecordings(): Promise<VoiceRecording[]> {
     console.log('🔍 [RECORDING_SERVICE] Récupération des enregistrements utilisateur...');
     
+    // Vérifier que l'utilisateur est connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('❌ [RECORDING_SERVICE] Utilisateur non connecté:', userError);
+      throw new Error('Utilisateur non connecté');
+    }
+    
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
     const { data, error } = await supabase
       .from('voice_recordings')
       .select('*')
+      .eq('user_id', user.id)
       .gte('created_at', sevenDaysAgo.toISOString())
       .order('created_at', { ascending: false });
     
@@ -77,10 +86,19 @@ export const recordingService = {
   async updateRecordingName(id: string, name: string): Promise<void> {
     console.log('✏️ [RECORDING_SERVICE] Mise à jour du nom:', id);
     
+    // Vérifier que l'utilisateur est connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('❌ [RECORDING_SERVICE] Utilisateur non connecté:', userError);
+      throw new Error('Utilisateur non connecté');
+    }
+    
     const { error } = await supabase
       .from('voice_recordings')
       .update({ name })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id); // S'assurer que l'utilisateur ne peut modifier que ses propres enregistrements
     
     if (error) {
       console.error('❌ [RECORDING_SERVICE] Erreur lors de la mise à jour:', error);
@@ -94,10 +112,19 @@ export const recordingService = {
   async deleteRecording(id: string): Promise<void> {
     console.log('🗑️ [RECORDING_SERVICE] Suppression de l\'enregistrement:', id);
     
+    // Vérifier que l'utilisateur est connecté
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('❌ [RECORDING_SERVICE] Utilisateur non connecté:', userError);
+      throw new Error('Utilisateur non connecté');
+    }
+    
     const { error } = await supabase
       .from('voice_recordings')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id); // S'assurer que l'utilisateur ne peut supprimer que ses propres enregistrements
     
     if (error) {
       console.error('❌ [RECORDING_SERVICE] Erreur lors de la suppression:', error);

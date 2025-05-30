@@ -33,7 +33,7 @@ export const AdminPanel = () => {
 
   const loadUsers = async () => {
     try {
-      console.log('Loading users from Supabase profiles table...');
+      console.log('🔍 [ADMIN] Chargement des utilisateurs depuis Supabase...');
       setIsLoading(true);
       
       // Récupérer les utilisateurs depuis la table profiles
@@ -43,7 +43,7 @@ export const AdminPanel = () => {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error loading profiles:', error);
+        console.error('❌ [ADMIN] Erreur lors du chargement des profils:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger les utilisateurs.",
@@ -52,7 +52,7 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('Profiles loaded from Supabase:', profilesData);
+      console.log('✅ [ADMIN] Profils chargés depuis Supabase:', profilesData?.length || 0);
       
       // Transformer les données pour correspondre à l'interface attendue
       const transformedUsers = profilesData?.map(profile => ({
@@ -67,9 +67,13 @@ export const AdminPanel = () => {
       })) || [];
       
       setUsers(transformedUsers);
-      console.log('Transformed users:', transformedUsers);
+      console.log('📊 [ADMIN] Utilisateurs transformés:', transformedUsers.length);
+      
+      if (transformedUsers.length === 0) {
+        console.log('⚠️ [ADMIN] Aucun utilisateur trouvé dans la base de données');
+      }
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error('💥 [ADMIN] Erreur inattendue lors du chargement:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors du chargement.",
@@ -82,7 +86,7 @@ export const AdminPanel = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      console.log(`Deleting user ${userId}`);
+      console.log(`🗑️ [ADMIN] Suppression de l'utilisateur ${userId}`);
       
       // Supprimer l'utilisateur de la table profiles
       const { error } = await supabase
@@ -91,7 +95,7 @@ export const AdminPanel = () => {
         .eq('id', userId);
       
       if (error) {
-        console.error('Error deleting user:', error);
+        console.error('❌ [ADMIN] Erreur lors de la suppression:', error);
         toast({
           title: "Erreur",
           description: "Impossible de supprimer l'utilisateur.",
@@ -100,7 +104,7 @@ export const AdminPanel = () => {
         return;
       }
       
-      // Update local state
+      // Mettre à jour l'état local
       setUsers(users.filter(user => user.id !== userId));
       setIsModalOpen(false);
       
@@ -109,8 +113,10 @@ export const AdminPanel = () => {
         description: "Le compte a été supprimé définitivement.",
         variant: "destructive",
       });
+      
+      console.log('✅ [ADMIN] Utilisateur supprimé avec succès');
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('💥 [ADMIN] Erreur lors de la suppression:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue.",

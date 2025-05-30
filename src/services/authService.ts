@@ -1,134 +1,74 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { SignupFormData, LoginFormData } from '@/types/auth';
 
 export const authService = {
-  async login(data: { email: string; password: string; rememberMe?: boolean }): Promise<{ success: boolean; user?: any }> {
+  async signup(data: SignupFormData): Promise<boolean> {
     try {
-      console.log('🔐 [LOGIN] Starting Supabase login process for:', data.email);
-      
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email.toLowerCase().trim(),
-        password: data.password,
-      });
-
-      if (error) {
-        console.error('❌ [LOGIN] Supabase auth error:', error);
-        
-        // Gérer spécifiquement l'erreur de confirmation email
-        if (error.message.includes('Email not confirmed')) {
-          console.error('❌ [LOGIN] Email not confirmed - vérifiez les paramètres Supabase');
-          return { success: false };
-        }
-        
-        return { success: false };
-      }
-
-      if (!authData.user) {
-        console.error('❌ [LOGIN] No user returned from Supabase');
-        return { success: false };
-      }
-
-      console.log('✅ [LOGIN] Supabase authentication successful');
-      
-      // Récupérer le profil utilisateur depuis la table profiles
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.error('❌ [LOGIN] Profile not found:', profileError);
-        console.log('🔍 [LOGIN] Trying to create profile from auth user data...');
-        
-        // Si le profil n'existe pas, le créer à partir des métadonnées utilisateur
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            first_name: authData.user.user_metadata?.first_name || 'Utilisateur',
-            last_name: authData.user.user_metadata?.last_name || '',
-            email: authData.user.email || '',
-            phone: authData.user.user_metadata?.phone || '',
-            company: authData.user.user_metadata?.company || '',
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('❌ [LOGIN] Failed to create profile:', createError);
-          return { success: false };
-        }
-
-        console.log('✅ [LOGIN] Profile created successfully');
-        const user = {
-          id: authData.user.id,
-          firstName: newProfile.first_name,
-          lastName: newProfile.last_name,
-          email: newProfile.email,
-          phone: newProfile.phone,
-          company: newProfile.company,
-          isApproved: true,
-          createdAt: newProfile.created_at,
-        };
-
-        return { success: true, user };
-      }
-
-      const user = {
-        id: authData.user.id,
-        firstName: profile.first_name,
-        lastName: profile.last_name,
-        email: profile.email,
-        phone: profile.phone,
-        company: profile.company,
-        isApproved: true,
-        createdAt: profile.created_at,
-      };
-
-      return { success: true, user };
-      
-    } catch (error) {
-      console.error('💥 [LOGIN] Unexpected error:', error);
-      return { success: false };
-    }
-  },
-
-  async signup(data: { 
-    firstName: string; 
-    lastName: string; 
-    email: string; 
-    phone: string; 
-    company: string; 
-    password: string; 
-  }): Promise<boolean> {
-    try {
-      console.log('📝 [SIGNUP] Starting Supabase signup process for:', data.email);
+      console.log('🔐 [AUTH_SERVICE] Attempting signup for:', data.email);
       
       const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email.toLowerCase().trim(),
+        email: data.email,
         password: data.password,
         options: {
           data: {
-            first_name: data.firstName.trim(),
-            last_name: data.lastName.trim(),
-            phone: data.phone.trim(),
-            company: data.company.trim(),
+            first_name: data.firstName,
+            last_name: data.lastName,
+            phone: data.phone,
+            company: data.company,
           }
         }
       });
 
       if (error) {
-        console.error('❌ [SIGNUP] Supabase signup error:', error);
-        return false;
+        console.error('❌ [AUTH_SERVICE] Signup error:', error);
+        throw new Error(error.message);
       }
 
-      console.log('✅ [SIGNUP] Supabase signup successful');
+      console.log('✅ [AUTH_SERVICE] Signup successful:', authData.user?.id);
       return true;
-      
     } catch (error) {
-      console.error('💥 [SIGNUP] Unexpected error:', error);
-      return false;
+      console.error('💥 [AUTH_SERVICE] Signup failed:', error);
+      throw error;
+    }
+  },
+
+  async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean }> {
+    try {
+      console.log('🔐 [AUTH_SERVICE] Attempting login for:', data.email);
+      
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        console.error('❌ [AUTH_SERVICE] Login error:', error);
+        throw new Error(error.message);
+      }
+
+      console.log('✅ [AUTH_SERVICE] Login successful:', authData.user?.id);
+      return { success: true };
+    } catch (error) {
+      console.error('💥 [AUTH_SERVICE] Login failed:', error);
+      throw error;
+    }
+  },
+
+  async logout(): Promise<void> {
+    try {
+      console.log('👋 [AUTH_SERVICE] Logging out...');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('❌ [AUTH_SERVICE] Logout error:', error);
+        throw new Error(error.message);
+      }
+      
+      console.log('✅ [AUTH_SERVICE] Logout successful');
+    } catch (error) {
+      console.error('💥 [AUTH_SERVICE] Logout failed:', error);
+      throw error;
     }
   }
 };

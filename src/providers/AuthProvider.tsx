@@ -13,14 +13,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH] AuthProvider initializing with Supabase...');
+    console.log('🚀 [AUTH_PROVIDER] Initialisation avec Supabase...');
     
     // Écouter les changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 [AUTH] Auth state changed:', event);
+      console.log('🔄 [AUTH_PROVIDER] Changement d\'état auth:', event);
       
       if (session?.user) {
-        console.log('👤 [AUTH] User session found, fetching profile...');
+        console.log('👤 [AUTH_PROVIDER] Session utilisateur trouvée, récupération du profil...');
         
         // Récupérer le profil utilisateur
         const { data: profile, error: profileError } = await supabase
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .eq('id', session.user.id)
           .single();
 
-        if (profile) {
+        if (profile && !profileError) {
           const user = {
             id: session.user.id,
             firstName: profile.first_name,
@@ -41,18 +41,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             createdAt: profile.created_at,
           };
 
-          console.log('✅ [AUTH] User authenticated:', user.firstName);
+          console.log('✅ [AUTH_PROVIDER] Utilisateur authentifié:', user.firstName);
           setAuthState({
             user,
             isAuthenticated: true,
             isLoading: false,
           });
         } else {
-          console.warn('⚠️ [AUTH] Profile not found for user, logging out...');
+          console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé, déconnexion...');
+          console.error('Profile error:', profileError);
           await supabase.auth.signOut();
         }
       } else {
-        console.log('❌ [AUTH] No user session');
+        console.log('❌ [AUTH_PROVIDER] Aucune session utilisateur');
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -64,21 +65,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Vérifier la session actuelle
     const checkSession = async () => {
       try {
+        console.log('🔍 [AUTH_PROVIDER] Vérification de la session existante...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('❌ [AUTH] Error getting session:', error);
+          console.error('❌ [AUTH_PROVIDER] Erreur lors de la récupération de la session:', error);
           setAuthState(prev => ({ ...prev, isLoading: false }));
           return;
         }
         
         if (!session) {
-          console.log('📭 [AUTH] No existing session found');
+          console.log('📭 [AUTH_PROVIDER] Aucune session existante trouvée');
           setAuthState(prev => ({ ...prev, isLoading: false }));
         }
         // Si une session existe, elle sera gérée par onAuthStateChange
       } catch (error) {
-        console.error('💥 [AUTH] Unexpected error checking session:', error);
+        console.error('💥 [AUTH_PROVIDER] Erreur inattendue lors de la vérification:', error);
         setAuthState(prev => ({ ...prev, isLoading: false }));
       }
     };
@@ -89,25 +91,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
-    console.log('🔐 [AUTH] Login attempt for:', data.email);
+    console.log('🔐 [AUTH_PROVIDER] Tentative de connexion pour:', data.email);
     const result = await authService.login(data);
     return result.success;
   };
 
   const signup = async (data: SignupFormData): Promise<boolean> => {
+    console.log('📝 [AUTH_PROVIDER] Tentative d\'inscription pour:', data.email);
     return await authService.signup(data);
   };
 
   const logout = async () => {
-    console.log('👋 [AUTH] Logging out user');
+    console.log('👋 [AUTH_PROVIDER] Déconnexion de l\'utilisateur');
     await supabase.auth.signOut();
   };
 
-  console.log('📊 [AUTH] Current provider state:', { 
+  console.log('📊 [AUTH_PROVIDER] État actuel du provider:', { 
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
-    userId: authState.user?.id || 'none',
-    userFirstName: authState.user?.firstName || 'none'
+    userId: authState.user?.id || 'aucun',
+    userFirstName: authState.user?.firstName || 'aucun'
   });
 
   const contextValue: AuthContextType = {
