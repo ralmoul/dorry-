@@ -40,9 +40,20 @@ const Index = () => {
     );
   }
 
+  const handleOpenSettings = () => {
+    window.location.href = '/settings';
+  };
+
+  const handleOpenUpcomingFeatures = () => {
+    window.location.href = '/upcoming-features';
+  };
+
   return (
     <div className="min-h-screen gradient-bg">
-      <VoiceRecorder />
+      <VoiceRecorder 
+        onOpenSettings={handleOpenSettings}
+        onOpenUpcomingFeatures={handleOpenUpcomingFeatures}
+      />
     </div>
   );
 };
