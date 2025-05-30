@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -91,25 +90,25 @@ export const authService = {
       }
       
       const cleanEmail = data.email.toLowerCase().trim();
-      console.log('🔍 [SIGNUP] Checking if email exists:', cleanEmail);
+      console.log('🔍 [SIGNUP] Checking if email exists in profiles table:', cleanEmail);
       
-      // Check if email already exists in profiles
-      const { data: existingUsers, error: checkError } = await supabase
+      // 1️⃣ - Vérifier d'abord dans la table profiles
+      const { data: existingProfiles, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id, email, is_approved')
         .eq('email', cleanEmail)
         .limit(1);
       
-      if (checkError) {
-        console.error('❌ [SIGNUP] Error checking existing email:', checkError);
+      if (profileCheckError) {
+        console.error('❌ [SIGNUP] Error checking existing email in profiles:', profileCheckError);
         return { success: false, message: 'Erreur lors de la vérification de l\'email' };
       }
       
-      if (existingUsers && existingUsers.length > 0) {
-        console.log('❌ [SIGNUP] Email already exists');
-        const existingUser = existingUsers[0];
+      if (existingProfiles && existingProfiles.length > 0) {
+        console.log('❌ [SIGNUP] Email already exists in profiles table');
+        const existingProfile = existingProfiles[0];
         
-        if (!existingUser.is_approved) {
+        if (!existingProfile.is_approved) {
           return { 
             success: false, 
             message: 'Une demande de création de compte a déjà été faite avec cette adresse email et est en attente de validation. Veuillez patienter.' 
@@ -122,9 +121,9 @@ export const authService = {
         }
       }
       
-      console.log('✅ [SIGNUP] Email available, creating user via Supabase Auth...');
+      console.log('🔍 [SIGNUP] Email not found in profiles, checking auth.users via signup attempt...');
       
-      // 1️⃣ - Create user via Supabase Auth first
+      // 2️⃣ - Tenter la création via Supabase Auth pour détecter les conflits
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: cleanEmail,
         password: data.password,
@@ -138,11 +137,20 @@ export const authService = {
         }
       });
       
+      // Cas spécial : email existe déjà dans auth.users mais pas dans profiles
+      if (authError && authError.message.includes('User already registered')) {
+        console.log('⚠️ [SIGNUP] Email exists in auth.users but not in profiles - data inconsistency');
+        return { 
+          success: false, 
+          message: 'Cette adresse email est déjà utilisée. Si vous avez un compte, veuillez vous connecter. Sinon, contactez le support.' 
+        };
+      }
+      
       if (authError) {
         console.error('❌ [SIGNUP] Auth signup error:', authError);
         return { 
           success: false, 
-          message: 'Erreur lors de la création du compte. Veuillez réessayer.' 
+          message: 'Erreur lors de la création du compte : ' + authError.message 
         };
       }
       
@@ -150,13 +158,13 @@ export const authService = {
         console.error('❌ [SIGNUP] No user returned from auth signup');
         return { 
           success: false, 
-          message: 'Erreur lors de la création du compte. Veuillez réessayer.' 
+          message: 'Erreur lors de la création du compte. Aucun utilisateur créé.' 
         };
       }
       
-      console.log('✅ [SIGNUP] Auth user created:', authData.user.id);
+      console.log('✅ [SIGNUP] Auth user created successfully:', authData.user.id);
       
-      // 2️⃣ - Create profile entry manually (in case trigger doesn't work)
+      // 3️⃣ - Créer l'entrée dans profiles
       const profileData = {
         id: authData.user.id,
         first_name: data.firstName.trim(),
@@ -178,17 +186,22 @@ export const authService = {
       if (profileError) {
         console.error('❌ [SIGNUP] Profile creation error:', profileError);
         
-        // If profile creation fails, we still consider signup successful
-        // as the auth user was created and trigger might handle it
-        console.log('⚠️ [SIGNUP] Profile creation failed, but auth user exists - trigger should handle it');
-      } else {
-        console.log('✅ [SIGNUP] Profile created successfully:', profileResult);
+        // Si la création du profil échoue, supprimer l'utilisateur auth créé
+        console.log('🔄 [SIGNUP] Cleaning up auth user due to profile creation failure');
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        
+        return { 
+          success: false, 
+          message: 'Erreur lors de la création du profil utilisateur. Veuillez réessayer.' 
+        };
       }
       
-      // Sign out the user immediately since they need approval
+      console.log('✅ [SIGNUP] Profile created successfully:', profileResult);
+      
+      // Déconnecter l'utilisateur immédiatement car il doit être approuvé
       await supabase.auth.signOut();
       
-      console.log('🎉 [SIGNUP] User created - will appear in admin panel immediately');
+      console.log('🎉 [SIGNUP] Signup complete - user pending approval');
       
       return { 
         success: true, 
