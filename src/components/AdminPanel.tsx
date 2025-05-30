@@ -20,6 +20,7 @@ export const AdminPanel = () => {
 
   useEffect(() => {
     loadUsers();
+    // 1️⃣ ACTUALISATION AUTOMATIQUE - Setup subscription immédiate
     setupRealtimeSubscription();
     
     return () => {
@@ -29,24 +30,27 @@ export const AdminPanel = () => {
   }, []);
 
   const setupRealtimeSubscription = () => {
-    console.log('🔄 [ADMIN] Setting up realtime subscription for profiles');
+    console.log('🔄 [ADMIN] Setting up IMMEDIATE realtime subscription for all profile changes');
     
     const channel = supabase
-      .channel('admin-profiles-changes')
+      .channel('admin-profiles-realtime')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: '*', // Écouter tous les événements
           schema: 'public',
           table: 'profiles'
         },
         (payload) => {
-          console.log('📡 [ADMIN] Realtime update received:', payload);
+          console.log('📡 [ADMIN] IMMEDIATE profile change detected:', payload.eventType, payload);
           handleRealtimeUpdate(payload);
         }
       )
       .subscribe((status) => {
         console.log('📡 [ADMIN] Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ [ADMIN] Real-time subscription active - new accounts will appear immediately');
+        }
       });
 
     return () => {
@@ -55,18 +59,22 @@ export const AdminPanel = () => {
   };
 
   const handleRealtimeUpdate = (payload: any) => {
-    console.log('🔄 [ADMIN] Processing realtime update:', payload.eventType);
+    console.log('🔄 [ADMIN] Processing IMMEDIATE realtime update:', payload.eventType);
     
     switch (payload.eventType) {
       case 'INSERT':
+        // 1️⃣ ACTUALISATION IMMÉDIATE - Nouvel utilisateur ajouté
+        console.log('➕ [ADMIN] NEW USER - Adding to list immediately:', payload.new);
         setUsers(prev => [payload.new, ...prev]);
         toast({
-          title: "Nouveau utilisateur",
-          description: `${payload.new.first_name} ${payload.new.last_name} s'est inscrit`,
+          title: "✨ Nouvelle demande",
+          description: `${payload.new.first_name} ${payload.new.last_name} vient de s'inscrire`,
         });
         break;
         
       case 'UPDATE':
+        // Mise à jour du statut d'un utilisateur
+        console.log('🔄 [ADMIN] USER UPDATE - Updating status immediately:', payload.new);
         setUsers(prev => prev.map(user => 
           user.id === payload.new.id ? payload.new : user
         ));
@@ -81,6 +89,8 @@ export const AdminPanel = () => {
         break;
         
       case 'DELETE':
+        // Suppression d'un utilisateur
+        console.log('🗑️ [ADMIN] USER DELETE - Removing from list immediately:', payload.old);
         setUsers(prev => prev.filter(user => user.id !== payload.old.id));
         toast({
           title: "Utilisateur supprimé",
@@ -237,10 +247,10 @@ export const AdminPanel = () => {
           <CardHeader>
             <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <Users className="h-8 w-8 text-bright-turquoise" />
-              Administration Dory - Temps Réel
+              Administration Dory - MISE À JOUR IMMÉDIATE
             </CardTitle>
             <CardDescription>
-              Gestion des comptes utilisateurs avec synchronisation temps réel via Supabase
+              📡 Actualisation automatique en temps réel • Nouvelles demandes visibles instantanément
             </CardDescription>
           </CardHeader>
         </Card>
@@ -291,7 +301,7 @@ export const AdminPanel = () => {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
                 <p className="text-sm text-muted-foreground">
-                  Synchronisation temps réel active • {users.length} utilisateur(s) • Dernière MAJ: {new Date().toLocaleTimeString('fr-FR')}
+                  ✅ Synchronisation temps réel ACTIVE • Nouvelles demandes apparaissent instantanément • {users.length} utilisateur(s)
                 </p>
               </div>
               <Button 
@@ -313,10 +323,10 @@ export const AdminPanel = () => {
             <CardHeader>
               <CardTitle className="text-xl text-orange-500 flex items-center gap-2 font-sharp">
                 <Clock className="h-5 w-5" />
-                Demandes en attente ({pendingUsers.length})
+                ⚡ Demandes en attente ({pendingUsers.length})
               </CardTitle>
               <CardDescription>
-                Comptes nécessitant une validation pour accéder à l'application
+                🚨 Comptes nécessitant une validation - APPARITION IMMÉDIATE
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -342,7 +352,7 @@ export const AdminPanel = () => {
                       <TableCell>{user.company}</TableCell>
                       <TableCell>
                         <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
-                          En attente
+                          ⏳ En attente
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -484,7 +494,7 @@ export const AdminPanel = () => {
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
-                Aucune demande de création de compte n'a été reçue. La synchronisation temps réel est active.
+                ✅ Synchronisation temps réel active - Les nouvelles demandes apparaîtront instantanément ici.
               </p>
             </CardContent>
           </Card>

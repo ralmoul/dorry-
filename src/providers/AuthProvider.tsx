@@ -20,19 +20,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('📊 [AUTH] Loaded user from storage:', user);
     
     if (user) {
-      // POINT 2️⃣ - Vérifier le statut actuel de l'utilisateur dans Supabase
-      checkUserStatus(user.id);
+      // 2️⃣ - BLOCAGE STRICT - Vérifier immédiatement le statut dans Supabase
+      checkUserStatusStrict(user.id);
     } else {
       console.log('❌ [AUTH] No user found, setting unauthenticated state');
       setAuthState(prev => ({ ...prev, isLoading: false }));
     }
 
-    // Setup realtime subscription pour les changements de profil
+    // Setup realtime subscription pour déconnexion automatique si statut change
     setupRealtimeSubscription();
   }, []);
 
   const setupRealtimeSubscription = () => {
-    console.log('📡 [AUTH] Setting up realtime subscription for profile changes');
+    console.log('📡 [AUTH] Setting up realtime subscription for profile status changes');
     
     const channel = supabase
       .channel('profile-status-changes')
@@ -60,9 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const currentUser = authState.user;
     
     if (currentUser && currentUser.id === updatedProfile.id) {
-      console.log('🔄 [AUTH] Current user profile updated:', updatedProfile.is_approved);
+      console.log('🔄 [AUTH] Current user profile updated - checking approval status:', updatedProfile.is_approved);
       
-      // POINT 2️⃣ - Seuls les utilisateurs approuvés peuvent rester connectés
+      // 2️⃣ - BLOCAGE STRICT - Seuls les utilisateurs approuvés restent connectés
       if (updatedProfile.is_approved) {
         // Utilisateur approuvé, maintenir la session
         const updatedUser = {
@@ -79,16 +79,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         authStorage.saveUser(updatedUser, true);
         
       } else {
-        // Utilisateur désapprouvé, déconnecter immédiatement
-        console.log('❌ [AUTH] User status changed to not approved - logging out');
-        logout();
+        // Utilisateur désapprouvé ou en attente, déconnecter immédiatement
+        console.log('❌ [AUTH] User status changed to not approved - BLOCKING access');
+        forceLogout();
       }
     }
   };
 
-  const checkUserStatus = async (userId: string) => {
+  const checkUserStatusStrict = async (userId: string) => {
     try {
-      console.log('🔍 [AUTH] Checking user status for:', userId);
+      console.log('🔍 [AUTH] STRICT CHECK - Verifying user approval status for:', userId);
       
       const { data: userProfile, error } = await supabase
         .from('profiles')
@@ -97,15 +97,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
       
       if (error || !userProfile) {
-        console.error('❌ [AUTH] Error checking user status:', error);
-        logout();
+        console.error('❌ [AUTH] Error checking user status or user not found:', error);
+        forceLogout();
         return;
       }
       
       const dbUser: DatabaseProfile = userProfile;
-      console.log('📊 [AUTH] User status check result:', dbUser.is_approved);
+      console.log('📊 [AUTH] User status check result - approved:', dbUser.is_approved);
       
-      // POINT 2️⃣ - Vérification stricte du statut approved
+      // 2️⃣ - BLOCAGE STRICT - Seuls les utilisateurs approuvés peuvent rester connectés
       if (dbUser.is_approved) {
         const user: User = {
           id: dbUser.id,
@@ -126,13 +126,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         authStorage.saveUser(user, true);
       } else {
-        console.log('❌ [AUTH] User not approved - access denied');
-        logout();
+        console.log('❌ [AUTH] STRICT BLOCK - User not approved, access denied');
+        forceLogout();
       }
       
     } catch (error) {
       console.error('💥 [AUTH] Unexpected error checking user status:', error);
-      logout();
+      forceLogout();
     }
   };
 
@@ -141,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const result = await authService.login(data);
     
     if (result.success && result.user) {
-      // POINT 2️⃣ - Double vérification que l'utilisateur est approuvé
+      // 2️⃣ - BLOCAGE STRICT - Double vérification que l'utilisateur est approuvé
       if (result.user.isApproved) {
         console.log('✅ [AUTH] Login successful for approved user, updating state');
         setAuthState({
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         authStorage.saveUser(result.user, data.rememberMe || false);
         return { success: true };
       } else {
-        console.log('❌ [AUTH] User not approved - blocking login');
+        console.log('❌ [AUTH] STRICT BLOCK - User not approved, blocking login');
         return { success: false, message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' };
       }
     }
@@ -164,18 +164,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (data: SignupFormData): Promise<{ success: boolean; message?: string }> => {
     console.log('📝 [AUTH] Signup attempt for:', data.email);
-    // POINT 1️⃣ - L'enregistrement se fait dans authService.signup qui utilise la table profiles
+    // 1️⃣ - La création se fait dans authService.signup (apparition immédiate dans l'admin)
     return await authService.signup(data);
   };
 
-  const logout = () => {
-    console.log('👋 [AUTH] Logging out user');
+  const forceLogout = () => {
+    console.log('👋 [AUTH] FORCE LOGOUT - Clearing user session');
     setAuthState({
       user: null,
       isAuthenticated: false,
       isLoading: false,
     });
     authStorage.clearUser();
+  };
+
+  const logout = () => {
+    console.log('👋 [AUTH] User logout');
+    forceLogout();
   };
 
   console.log('📊 [AUTH] Current provider state:', { 

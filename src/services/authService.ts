@@ -45,9 +45,9 @@ export const authService = {
         firstName: dbUser.first_name
       });
       
-      // Check user approval status - POINT 2️⃣
+      // 2️⃣ BLOCAGE STRICT - Vérification obligatoire du statut d'approbation
       if (!dbUser.is_approved) {
-        console.log('⏳ [LOGIN] User account not approved');
+        console.log('❌ [LOGIN] BLOCKED - User account not approved');
         return { 
           success: false, 
           message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' 
@@ -126,7 +126,7 @@ export const authService = {
       // Generate a new UUID for the user using crypto.randomUUID()
       const userId = crypto.randomUUID();
       
-      // POINT 1️⃣ - Create new user with pending status by default pour apparaître dans le panel admin
+      // 1️⃣ - Create new user with pending status (will trigger admin panel update)
       const newUserData = {
         id: userId,
         first_name: data.firstName.trim(),
@@ -134,10 +134,10 @@ export const authService = {
         email: cleanEmail,
         phone: data.phone.trim(),
         company: data.company.trim(),
-        is_approved: false // Status "en attente" par défaut
+        is_approved: false // Status "en attente" - apparaît immédiatement dans l'admin
       };
       
-      console.log('📝 [SIGNUP] Inserting new profile:', newUserData);
+      console.log('📝 [SIGNUP] Inserting new profile for admin panel:', newUserData);
       
       const { data: newUser, error: insertError } = await supabase
         .from('profiles')
@@ -153,7 +153,7 @@ export const authService = {
         };
       }
       
-      console.log('🎉 [SIGNUP] User created successfully and will appear in admin panel:', { 
+      console.log('🎉 [SIGNUP] User created - will appear in admin panel immediately:', { 
         id: newUser.id, 
         email: newUser.email,
         isApproved: newUser.is_approved
