@@ -5,7 +5,7 @@ import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/au
 export const authService = {
   async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; user?: User; message?: string }> {
     try {
-      console.log('🔐 [LOGIN] Starting login process for:', data.email);
+      console.log('🔐 [LOGIN] Starting STRICT login process for:', data.email);
       
       if (!data.email || !data.password) {
         console.error('❌ [LOGIN] Missing email or password');
@@ -14,8 +14,8 @@ export const authService = {
 
       const cleanEmail = data.email.toLowerCase().trim();
       
-      // 1️⃣ - VÉRIFIER D'ABORD SI L'UTILISATEUR EXISTE ET EST APPROUVÉ
-      console.log('🔍 [LOGIN] Checking if user exists and is approved...');
+      // 1️⃣ - VÉRIFICATION ABSOLUE : L'utilisateur DOIT exister dans profiles ET être approuvé
+      console.log('🔍 [LOGIN] STRICT CHECK - User must exist in profiles AND be approved');
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -23,18 +23,18 @@ export const authService = {
         .single();
       
       if (profileError || !profile) {
-        console.log('❌ [LOGIN] User not found in profiles');
+        console.log('❌ [LOGIN] BLOCKED - User does not exist in profiles table');
         return { success: false, message: 'Identifiants incorrects.' };
       }
       
       if (!profile.is_approved) {
-        console.log('❌ [LOGIN] User exists but not approved');
+        console.log('❌ [LOGIN] BLOCKED - User exists but not approved');
         return { success: false, message: 'Votre compte n\'est pas approuvé.' };
       }
       
-      console.log('✅ [LOGIN] User exists and is approved, proceeding with auth...');
+      console.log('✅ [LOGIN] User exists and is approved, attempting Supabase auth...');
       
-      // 2️⃣ - SEULEMENT MAINTENANT, AUTHENTIFIER VIA SUPABASE
+      // 2️⃣ - SEULEMENT MAINTENANT, authentifier via Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: data.password,
@@ -47,7 +47,14 @@ export const authService = {
       
       console.log('✅ [LOGIN] Authentication successful for approved user');
       
-      // 3️⃣ - Créer l'objet utilisateur final
+      // 3️⃣ - DOUBLE VÉRIFICATION : s'assurer que l'ID correspond
+      if (authData.user.id !== profile.id) {
+        console.error('❌ [LOGIN] SECURITY BREACH - User ID mismatch, signing out');
+        await supabase.auth.signOut();
+        return { success: false, message: 'Erreur de sécurité.' };
+      }
+      
+      // 4️⃣ - Créer l'objet utilisateur final
       const user: User = {
         id: profile.id,
         firstName: profile.first_name,

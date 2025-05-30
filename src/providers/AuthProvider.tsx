@@ -1,3 +1,4 @@
+
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData, User, DatabaseProfile } from '@/types/auth';
@@ -15,16 +16,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log('🚀 [AUTH] AuthProvider initializing...');
     
-    // 1️⃣ - Vérifier la session Supabase Auth active
-    checkSupabaseSessionStrict();
+    // 1️⃣ - Vérifier la session Supabase Auth active STRICTEMENT
+    checkSupabaseSessionAbsolutelyStrict();
 
     // 2️⃣ - Setup realtime subscription pour déconnexion automatique si statut change
     setupRealtimeSubscription();
   }, []);
 
-  const checkSupabaseSessionStrict = async () => {
+  const checkSupabaseSessionAbsolutelyStrict = async () => {
     try {
-      console.log('🔍 [AUTH] STRICT SESSION CHECK - Verifying session and user status...');
+      console.log('🔍 [AUTH] ABSOLUTE STRICT SESSION CHECK - No tolerance for unapproved users');
       
       const { data: { session }, error } = await supabase.auth.getSession();
       
@@ -35,9 +36,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       if (session?.user) {
-        console.log('✅ [AUTH] Active Supabase session found:', session.user.id);
-        // VÉRIFICATION STRICTE : L'utilisateur doit être approuvé
-        await checkUserApprovalStrict(session.user.id);
+        console.log('🔍 [AUTH] Active Supabase session found, checking approval...');
+        // VÉRIFICATION ABSOLUE : L'utilisateur doit exister dans profiles ET être approuvé
+        await checkUserApprovalAbsolutelyStrict(session.user.id);
       } else {
         console.log('❌ [AUTH] No active Supabase session');
         setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -48,19 +49,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const checkUserApprovalStrict = async (userId: string) => {
+  const checkUserApprovalAbsolutelyStrict = async (userId: string) => {
     try {
-      console.log('🔍 [AUTH] STRICT APPROVAL CHECK for user:', userId);
+      console.log('🔍 [AUTH] ABSOLUTE STRICT APPROVAL CHECK for user:', userId);
       
-      // VÉRIFICATION DIRECTE DU STATUT APPROVED
+      // VÉRIFICATION DIRECTE : doit exister dans profiles ET être approuvé
       const { data: userProfile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
       
-      if (error || !userProfile || !userProfile.is_approved) {
-        console.log('❌ [AUTH] STRICT BLOCK - User not approved, immediate logout');
+      if (error || !userProfile) {
+        console.log('❌ [AUTH] ABSOLUTE BLOCK - User not found in profiles, immediate logout');
+        forceLogoutImmediate();
+        return;
+      }
+      
+      if (!userProfile.is_approved) {
+        console.log('❌ [AUTH] ABSOLUTE BLOCK - User not approved, immediate logout');
         forceLogoutImmediate();
         return;
       }
