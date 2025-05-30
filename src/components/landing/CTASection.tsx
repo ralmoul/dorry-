@@ -55,6 +55,15 @@ export const CTASection = () => {
         <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
           L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
         </p>
+        
+        {/* Note RGPD prominente */}
+        <div className="mb-8 p-4 bg-cyan-400/10 border border-cyan-400/30 rounded-xl max-w-2xl mx-auto animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+          <p className="text-cyan-400 font-medium text-sm md:text-base">
+            🔒 Vos données, votre choix : Dorry.app est 100% conforme RGPD. 
+            Données vocales supprimées après 7 jours, consentement explicite journalisé, sécurité garantie.
+          </p>
+        </div>
+
         <div className="animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
           <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
             Demander l'accès
