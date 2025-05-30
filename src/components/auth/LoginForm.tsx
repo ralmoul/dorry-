@@ -30,11 +30,18 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     setIsLoading(true);
 
     try {
-      const success = await login({
+      // Ajouter un timeout pour éviter le chargement infini
+      const loginPromise = login({
         email,
         password,
         rememberMe
       });
+
+      const timeoutPromise = new Promise<boolean>((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout de connexion')), 15000)
+      );
+
+      const success = await Promise.race([loginPromise, timeoutPromise]);
 
       if (success) {
         console.log('✅ [LOGIN_FORM] Connexion réussie');
@@ -43,8 +50,10 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           description: "Vous êtes maintenant connecté."
         });
         
-        // Redirection immédiate vers /app
-        navigate('/app');
+        // Attendre un peu avant la redirection pour laisser le temps à l'état de se mettre à jour
+        setTimeout(() => {
+          navigate('/app');
+        }, 500);
       } else {
         console.log('❌ [LOGIN_FORM] Échec de la connexion');
         toast({
@@ -57,7 +66,9 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       console.error('💥 [LOGIN_FORM] Erreur lors de la connexion:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la connexion.",
+        description: error instanceof Error && error.message === 'Timeout de connexion' 
+          ? "La connexion a pris trop de temps. Veuillez réessayer."
+          : "Une erreur est survenue lors de la connexion.",
         variant: "destructive"
       });
     } finally {
@@ -100,6 +111,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                 value={email} 
                 onChange={e => setEmail(e.target.value)} 
                 required 
+                disabled={isLoading}
                 className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-10 sm:h-11 text-white placeholder:text-gray-400" 
               />
             </div>
@@ -112,12 +124,14 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                   value={password} 
                   onChange={e => setPassword(e.target.value)} 
                   required 
+                  disabled={isLoading}
                   className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11 text-white placeholder:text-gray-400" 
                 />
                 <button 
                   type="button" 
                   onClick={() => setShowPassword(!showPassword)} 
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-bright-turquoise text-white"
+                  disabled={isLoading}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-bright-turquoise text-white disabled:opacity-50"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -128,6 +142,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                 id="rememberMe" 
                 checked={rememberMe} 
                 onCheckedChange={checked => setRememberMe(checked as boolean)} 
+                disabled={isLoading}
                 className="border-bright-turquoise/50 data-[state=checked]:bg-bright-turquoise data-[state=checked]:border-bright-turquoise" 
               />
               <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-white">
@@ -136,17 +151,25 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
             </div>
             <Button 
               type="submit" 
-              disabled={isLoading} 
+              disabled={isLoading || !email || !password} 
               className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base"
             >
-              {isLoading ? 'Connexion...' : 'Se connecter'}
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-dark-navy"></div>
+                  <span>Connexion...</span>
+                </div>
+              ) : (
+                'Se connecter'
+              )}
             </Button>
           </form>
           <div className="mt-3 sm:mt-4 text-center">
             <button 
               type="button" 
               onClick={onSwitchToSignup} 
-              className="text-bright-turquoise hover:text-bright-turquoise/80 text-xs sm:text-sm"
+              disabled={isLoading}
+              className="text-bright-turquoise hover:text-bright-turquoise/80 text-xs sm:text-sm disabled:opacity-50"
             >
               Créer un compte
             </button>

@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
@@ -27,14 +26,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('👤 [AUTH_PROVIDER] Session utilisateur trouvée:', session.user.id);
         
         try {
-          // Récupérer le profil utilisateur avec plus de logs
           console.log('🔍 [AUTH_PROVIDER] Recherche du profil pour:', session.user.id);
           
-          const { data: profile, error: profileError } = await supabase
+          // Utiliser un timeout pour éviter les requêtes infinies
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 10000)
+          );
+          
+          const profilePromise = supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
+
+          const result = await Promise.race([profilePromise, timeoutPromise]);
+          const { data: profile, error: profileError } = result as any;
 
           console.log('📊 [AUTH_PROVIDER] Résultat de la requête profil:', { profile, profileError });
 
@@ -57,17 +63,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               isApproved: user.isApproved
             });
             
-            // Toujours authentifier l'utilisateur, même s'il n'est pas approuvé
-            // L'approbation sera gérée dans les routes protégées
             setAuthState({
               user,
               isAuthenticated: true,
               isLoading: false,
             });
+          } else if (profileError && profileError.code !== 'PGRST116') {
+            // Erreur autre que "pas trouvé"
+            console.error('❌ [AUTH_PROVIDER] Erreur profil:', profileError);
+            throw profileError;
           } else {
+            // Profil non trouvé, créer automatiquement
             console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé, création automatique...');
             
-            // Créer automatiquement le profil si il n'existe pas
             const newProfile = {
               id: session.user.id,
               first_name: session.user.user_metadata?.first_name || '',
@@ -83,6 +91,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               .insert([newProfile])
               .select()
               .single();
+
+            if (!mounted) return;
 
             if (createdProfile && !createError) {
               console.log('✅ [AUTH_PROVIDER] Profil créé automatiquement');
@@ -104,9 +114,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               });
             } else {
               console.error('❌ [AUTH_PROVIDER] Erreur création profil:', createError);
+              // Même en cas d'erreur de création de profil, on authentifie l'utilisateur
+              const user = {
+                id: session.user.id,
+                firstName: session.user.user_metadata?.first_name || '',
+                lastName: session.user.user_metadata?.last_name || '',
+                email: session.user.email || '',
+                phone: session.user.user_metadata?.phone || '',
+                company: session.user.user_metadata?.company || '',
+                isApproved: false,
+                createdAt: new Date().toISOString(),
+              };
+
               setAuthState({
-                user: null,
-                isAuthenticated: false,
+                user,
+                isAuthenticated: true,
                 isLoading: false,
               });
             }
@@ -114,9 +136,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
           console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
           if (mounted) {
+            // En cas d'erreur, on authentifie quand même l'utilisateur avec les données de base
+            const user = {
+              id: session.user.id,
+              firstName: session.user.user_metadata?.first_name || '',
+              lastName: session.user.user_metadata?.last_name || '',
+              email: session.user.email || '',
+              phone: session.user.user_metadata?.phone || '',
+              company: session.user.user_metadata?.company || '',
+              isApproved: false,
+              createdAt: new Date().toISOString(),
+            };
+
             setAuthState({
-              user: null,
-              isAuthenticated: false,
+              user,
+              isAuthenticated: true,
               isLoading: false,
             });
           }
