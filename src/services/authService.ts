@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -127,9 +126,8 @@ export const authService = {
       
       console.log('✅ [SIGNUP] Email available, creating user...');
       
-      // Generate a new UUID for the user
-      const { data: uuidData, error: uuidError } = await supabase.rpc('gen_random_uuid');
-      const userId = uuidData || crypto.randomUUID();
+      // Generate a new UUID for the user using crypto API
+      const userId = crypto.randomUUID();
       
       // Create new user with pending status by default
       const newUserData = {
@@ -144,7 +142,7 @@ export const authService = {
       
       const { data: newUser, error: insertError } = await supabase
         .from('profiles')
-        .insert([newUserData])
+        .insert(newUserData)
         .select()
         .single();
       
