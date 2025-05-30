@@ -8,22 +8,11 @@ import { Check, X, Users, UserCheck, Clock, Trash2, Eye, RefreshCw } from 'lucid
 import { useToast } from '@/hooks/use-toast';
 import { UserDetailsModal } from './admin/UserDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
-
-interface User {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  company: string;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  updated_at: string;
-}
+import { DatabaseProfile } from '@/types/auth';
 
 export const AdminPanel = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<DatabaseProfile[]>([]);
+  const [selectedUser, setSelectedUser] = useState<DatabaseProfile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
@@ -82,13 +71,12 @@ export const AdminPanel = () => {
           user.id === payload.new.id ? payload.new : user
         ));
         const statusLabels = {
-          pending: 'en attente',
-          approved: 'approuvé',
-          rejected: 'rejeté'
+          true: 'approuvé',
+          false: 'en attente'
         };
         toast({
           title: "Statut mis à jour",
-          description: `${payload.new.first_name} ${payload.new.last_name} est maintenant ${statusLabels[payload.new.status as keyof typeof statusLabels]}`,
+          description: `${payload.new.first_name} ${payload.new.last_name} est maintenant ${statusLabels[payload.new.is_approved ? 'true' : 'false' as keyof typeof statusLabels]}`,
         });
         break;
         
@@ -137,15 +125,18 @@ export const AdminPanel = () => {
     }
   };
 
-  const updateUserStatus = async (userId: string, newStatus: 'pending' | 'approved' | 'rejected') => {
+  const updateUserStatus = async (userId: string, newStatus: boolean) => {
     try {
       console.log(`🔄 [ADMIN] Updating user ${userId} status to ${newStatus}`);
       setIsUpdating(userId);
       
-      const { data, error } = await supabase.rpc('admin_update_profile_status', {
-        profile_id: userId,
-        new_status: newStatus
-      });
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          is_approved: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
       
       if (error) {
         console.error('❌ [ADMIN] Error updating status:', error);
@@ -157,17 +148,13 @@ export const AdminPanel = () => {
         return;
       }
       
-      if (!data) {
-        toast({
-          title: "Erreur",
-          description: "Statut invalide ou utilisateur introuvable.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
       setIsModalOpen(false);
       console.log('✅ [ADMIN] Status updated successfully');
+      
+      toast({
+        title: "Statut mis à jour",
+        description: `L'utilisateur a été ${newStatus ? 'approuvé' : 'désapprouvé'}.`,
+      });
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -216,14 +203,13 @@ export const AdminPanel = () => {
     }
   };
 
-  const openUserDetails = (user: User) => {
+  const openUserDetails = (user: DatabaseProfile) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  const pendingUsers = users.filter(user => user.status === 'pending');
-  const approvedUsers = users.filter(user => user.status === 'approved');
-  const rejectedUsers = users.filter(user => user.status === 'rejected');
+  const pendingUsers = users.filter(user => !user.is_approved);
+  const approvedUsers = users.filter(user => user.is_approved);
 
   if (isLoading) {
     return (
@@ -260,7 +246,7 @@ export const AdminPanel = () => {
         </Card>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -281,18 +267,6 @@ export const AdminPanel = () => {
                   <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Rejetés</p>
-                  <p className="text-2xl font-semibold text-red-500 font-sharp">{rejectedUsers.length}</p>
-                </div>
-                <X className="h-8 w-8 text-red-500/60" />
               </div>
             </CardContent>
           </Card>
@@ -393,20 +367,11 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, 'approved')}
+                            onClick={() => updateUserStatus(user.id, true)}
                             disabled={isUpdating === user.id}
                             className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
                           >
                             <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateUserStatus(user.id, 'rejected')}
-                            disabled={isUpdating === user.id}
-                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
-                          >
-                            <X className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
@@ -487,96 +452,11 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, 'pending')}
+                            onClick={() => updateUserStatus(user.id, false)}
                             disabled={isUpdating === user.id}
                             className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
                           >
                             Révoquer
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteUser(user.id)}
-                            disabled={isUpdating === user.id}
-                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Rejected Users */}
-        {rejectedUsers.length > 0 && (
-          <Card className="bg-card/50 backdrop-blur-lg border-red-500/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-red-500 flex items-center gap-2 font-sharp">
-                <X className="h-5 w-5" />
-                Utilisateurs rejetés ({rejectedUsers.length})
-              </CardTitle>
-              <CardDescription>
-                Comptes refusés sans accès à l'application
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Entreprise</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Rejet</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rejectedUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium font-sharp">
-                        {user.first_name} {user.last_name}
-                        <div className="text-sm text-muted-foreground">{user.phone}</div>
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.company}</TableCell>
-                      <TableCell>
-                        <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                          Rejeté
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(user.updated_at).toLocaleDateString('fr-FR', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openUserDetails(user)}
-                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateUserStatus(user.id, 'approved')}
-                            disabled={isUpdating === user.id}
-                            className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
-                          >
-                            Approuver
                           </Button>
                           <Button
                             size="sm"
@@ -620,14 +500,14 @@ export const AdminPanel = () => {
           email: selectedUser.email,
           phone: selectedUser.phone,
           company: selectedUser.company,
-          isApproved: selectedUser.status === 'approved',
+          isApproved: selectedUser.is_approved,
           createdAt: selectedUser.created_at
         } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApprove={(userId) => updateUserStatus(userId, 'approved')}
-        onReject={(userId) => updateUserStatus(userId, 'rejected')}
-        onRevoke={(userId) => updateUserStatus(userId, 'pending')}
+        onApprove={(userId) => updateUserStatus(userId, true)}
+        onReject={(userId) => updateUserStatus(userId, false)}
+        onRevoke={(userId) => updateUserStatus(userId, false)}
         onDelete={(userId) => deleteUser(userId)}
       />
     </div>

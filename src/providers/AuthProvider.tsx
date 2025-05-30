@@ -1,7 +1,7 @@
 
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
-import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
+import { AuthState, SignupFormData, LoginFormData, User, DatabaseProfile } from '@/types/auth';
 import { authService } from '@/services/authService';
 import { authStorage } from '@/utils/authStorage';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,13 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleProfileUpdate = (payload: any) => {
-    const updatedProfile = payload.new;
+    const updatedProfile: DatabaseProfile = payload.new;
     const currentUser = authState.user;
     
     if (currentUser && currentUser.id === updatedProfile.id) {
-      console.log('🔄 [AUTH] Current user profile updated:', updatedProfile.status);
+      console.log('🔄 [AUTH] Current user profile updated:', updatedProfile.is_approved);
       
-      if (updatedProfile.status === 'approved') {
+      if (updatedProfile.is_approved) {
         // Utilisateur approuvé, maintenir la session
         const updatedUser = {
           ...currentUser,
@@ -77,9 +77,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         authStorage.saveUser(updatedUser, true);
         
-      } else if (updatedProfile.status === 'rejected' || updatedProfile.status === 'pending') {
-        // Utilisateur rejeté ou mis en attente, déconnecter
-        console.log('❌ [AUTH] User status changed to:', updatedProfile.status);
+      } else {
+        // Utilisateur désapprouvé, déconnecter
+        console.log('❌ [AUTH] User status changed to not approved');
         logout();
       }
     }
@@ -101,18 +101,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
-      console.log('📊 [AUTH] User status check result:', userProfile.status);
+      const dbUser: DatabaseProfile = userProfile;
+      console.log('📊 [AUTH] User status check result:', dbUser.is_approved);
       
-      if (userProfile.status === 'approved') {
-        const user = {
-          id: userProfile.id,
-          firstName: userProfile.first_name,
-          lastName: userProfile.last_name,
-          email: userProfile.email,
-          phone: userProfile.phone,
-          company: userProfile.company,
-          isApproved: true,
-          createdAt: userProfile.created_at,
+      if (dbUser.is_approved) {
+        const user: User = {
+          id: dbUser.id,
+          firstName: dbUser.first_name,
+          lastName: dbUser.last_name,
+          email: dbUser.email,
+          phone: dbUser.phone,
+          company: dbUser.company,
+          isApproved: dbUser.is_approved,
+          createdAt: dbUser.created_at,
         };
         
         setAuthState({
@@ -123,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         authStorage.saveUser(user, true);
       } else {
-        console.log('❌ [AUTH] User not approved, status:', userProfile.status);
+        console.log('❌ [AUTH] User not approved');
         logout();
       }
       

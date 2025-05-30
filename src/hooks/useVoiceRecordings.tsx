@@ -2,27 +2,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-
-interface VoiceRecording {
-  id: string;
-  name: string | null;
-  original_name: string | null;
-  duration: number;
-  created_at: string;
-  updated_at: string;
-  blob_data: string;
-  blob_type: string;
-  status: 'active' | 'deleted';
-  file_size: number | null;
-  transcription: string | null;
-}
+import { VoiceRecording } from '@/types/auth';
 
 export const useVoiceRecordings = () => {
   const [recordings, setRecordings] = useState<VoiceRecording[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
-  const { toast } = useToast();
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -32,7 +18,7 @@ export const useVoiceRecordings = () => {
       setRecordings([]);
       setIsLoading(false);
     }
-
+    
     return () => {
       supabase.removeAllChannels();
     };
@@ -40,11 +26,11 @@ export const useVoiceRecordings = () => {
 
   const setupRealtimeSubscription = () => {
     if (!user) return;
-
-    console.log('📡 [RECORDINGS] Setting up realtime subscription for user:', user.id);
+    
+    console.log('📡 [RECORDINGS] Setting up realtime subscription for voice recordings');
     
     const channel = supabase
-      .channel(`user-recordings-${user.id}`)
+      .channel('voice-recordings-changes')
       .on(
         'postgres_changes',
         {
@@ -54,11 +40,13 @@ export const useVoiceRecordings = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('📡 [RECORDINGS] Realtime update:', payload);
+          console.log('📡 [RECORDINGS] Realtime update received:', payload);
           handleRealtimeUpdate(payload);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 [RECORDINGS] Subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -66,68 +54,50 @@ export const useVoiceRecordings = () => {
   };
 
   const handleRealtimeUpdate = (payload: any) => {
+    console.log('🔄 [RECORDINGS] Processing realtime update:', payload.eventType);
+    
     switch (payload.eventType) {
       case 'INSERT':
-        if (payload.new.status === 'active') {
-          setRecordings(prev => [payload.new, ...prev]);
-          toast({
-            title: "Nouvel enregistrement",
-            description: "Votre enregistrement a été sauvegardé",
-          });
-        }
+        setRecordings(prev => [payload.new, ...prev]);
         break;
         
       case 'UPDATE':
         setRecordings(prev => prev.map(recording => 
           recording.id === payload.new.id ? payload.new : recording
-        ).filter(recording => recording.status === 'active'));
+        ));
         break;
         
       case 'DELETE':
         setRecordings(prev => prev.filter(recording => recording.id !== payload.old.id));
-        toast({
-          title: "Enregistrement supprimé",
-          description: "L'enregistrement a été supprimé de votre historique",
-          variant: "destructive",
-        });
         break;
     }
   };
 
   const loadRecordings = async () => {
     if (!user) return;
-
+    
     try {
-      console.log('📊 [RECORDINGS] Loading recordings for user:', user.id);
+      console.log('📊 [RECORDINGS] Loading recordings from Supabase...');
       setIsLoading(true);
-
-      const { data, error } = await supabase
+      setError(null);
+      
+      const { data: recordingsData, error: fetchError } = await supabase
         .from('voice_recordings')
         .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'active')
         .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('❌ [RECORDINGS] Error loading recordings:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger vos enregistrements",
-          variant: "destructive"
-        });
+      
+      if (fetchError) {
+        console.error('❌ [RECORDINGS] Error loading recordings:', fetchError);
+        setError('Impossible de charger les enregistrements');
         return;
       }
-
-      console.log('✅ [RECORDINGS] Recordings loaded:', data?.length || 0);
-      setRecordings(data || []);
-
+      
+      console.log('✅ [RECORDINGS] Recordings loaded:', recordingsData?.length || 0);
+      setRecordings(recordingsData || []);
     } catch (error) {
       console.error('💥 [RECORDINGS] Unexpected error:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue est survenue",
-        variant: "destructive"
-      });
+      setError('Une erreur inattendue est survenue');
     } finally {
       setIsLoading(false);
     }
@@ -137,136 +107,110 @@ export const useVoiceRecordings = () => {
     audioBlob: Blob,
     duration: number,
     name?: string
-  ): Promise<boolean> => {
+  ): Promise<{ success: boolean; message?: string }> => {
     if (!user) {
-      toast({
-        title: "Erreur",
-        description: "Vous devez être connecté pour sauvegarder",
-        variant: "destructive"
-      });
-      return false;
+      return { success: false, message: 'Utilisateur non connecté' };
     }
 
     try {
-      console.log('💾 [RECORDINGS] Saving recording for user:', user.id);
-
+      console.log('💾 [RECORDINGS] Saving recording...');
+      
       // Convert blob to base64
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const base64String = btoa(String.fromCharCode(...uint8Array));
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(audioBlob);
+      });
 
       const recordingData = {
         user_id: user.id,
-        name: name || null,
-        original_name: name || `Enregistrement du ${new Date().toLocaleDateString('fr-FR')}`,
         duration: Math.round(duration),
-        blob_data: base64String,
+        blob_data: base64Data,
         blob_type: audioBlob.type,
-        file_size: audioBlob.size,
-        status: 'active'
+        name: name || null
       };
 
-      const { error } = await supabase
+      const { data: newRecording, error: insertError } = await supabase
         .from('voice_recordings')
-        .insert([recordingData]);
+        .insert([recordingData])
+        .select()
+        .single();
 
-      if (error) {
-        console.error('❌ [RECORDINGS] Error saving recording:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de sauvegarder l'enregistrement",
-          variant: "destructive"
-        });
-        return false;
+      if (insertError) {
+        console.error('❌ [RECORDINGS] Error saving recording:', insertError);
+        return { success: false, message: 'Erreur lors de la sauvegarde' };
       }
 
-      console.log('✅ [RECORDINGS] Recording saved successfully');
-      return true;
-
+      console.log('✅ [RECORDINGS] Recording saved successfully:', newRecording.id);
+      return { success: true, message: 'Enregistrement sauvegardé avec succès' };
+      
     } catch (error) {
       console.error('💥 [RECORDINGS] Unexpected error:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue est survenue",
-        variant: "destructive"
-      });
-      return false;
+      return { success: false, message: 'Une erreur inattendue est survenue' };
     }
   };
 
-  const renameRecording = async (recordingId: string, newName: string): Promise<boolean> => {
-    if (!user) return false;
-
+  const updateRecordingName = async (
+    recordingId: string,
+    newName: string
+  ): Promise<{ success: boolean; message?: string }> => {
     try {
-      console.log('✏️ [RECORDINGS] Renaming recording:', recordingId, 'to:', newName);
-
-      const { error } = await supabase
+      console.log('✏️ [RECORDINGS] Updating recording name:', recordingId);
+      
+      const { error: updateError } = await supabase
         .from('voice_recordings')
         .update({ 
-          name: newName,
+          name: newName.trim() || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', recordingId)
-        .eq('user_id', user.id);
+        .eq('user_id', user?.id);
 
-      if (error) {
-        console.error('❌ [RECORDINGS] Error renaming recording:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de renommer l'enregistrement",
-          variant: "destructive"
-        });
-        return false;
+      if (updateError) {
+        console.error('❌ [RECORDINGS] Error updating name:', updateError);
+        return { success: false, message: 'Erreur lors du renommage' };
       }
 
-      console.log('✅ [RECORDINGS] Recording renamed successfully');
-      toast({
-        title: "Enregistrement renommé",
-        description: `Nouveau nom: ${newName}`,
-      });
-      return true;
-
+      console.log('✅ [RECORDINGS] Recording name updated successfully');
+      return { success: true, message: 'Nom mis à jour avec succès' };
+      
     } catch (error) {
       console.error('💥 [RECORDINGS] Unexpected error:', error);
-      return false;
+      return { success: false, message: 'Une erreur inattendue est survenue' };
     }
   };
 
-  const deleteRecording = async (recordingId: string): Promise<boolean> => {
-    if (!user) return false;
-
+  const deleteRecording = async (
+    recordingId: string
+  ): Promise<{ success: boolean; message?: string }> => {
     try {
       console.log('🗑️ [RECORDINGS] Deleting recording:', recordingId);
-
-      const { error } = await supabase
+      
+      const { error: deleteError } = await supabase
         .from('voice_recordings')
-        .update({ 
-          status: 'deleted',
-          updated_at: new Date().toISOString()
-        })
+        .delete()
         .eq('id', recordingId)
-        .eq('user_id', user.id);
+        .eq('user_id', user?.id);
 
-      if (error) {
-        console.error('❌ [RECORDINGS] Error deleting recording:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de supprimer l'enregistrement",
-          variant: "destructive"
-        });
-        return false;
+      if (deleteError) {
+        console.error('❌ [RECORDINGS] Error deleting recording:', deleteError);
+        return { success: false, message: 'Erreur lors de la suppression' };
       }
 
       console.log('✅ [RECORDINGS] Recording deleted successfully');
-      return true;
-
+      return { success: true, message: 'Enregistrement supprimé avec succès' };
+      
     } catch (error) {
       console.error('💥 [RECORDINGS] Unexpected error:', error);
-      return false;
+      return { success: false, message: 'Une erreur inattendue est survenue' };
     }
   };
 
-  const getRecordingBlob = (recording: VoiceRecording): Blob | null => {
+  const getRecordingBlob = (recording: VoiceRecording): Blob => {
     try {
       const binaryString = atob(recording.blob_data);
       const bytes = new Uint8Array(binaryString.length);
@@ -275,20 +219,33 @@ export const useVoiceRecordings = () => {
       }
       return new Blob([bytes], { type: recording.blob_type });
     } catch (error) {
-      console.error('❌ [RECORDINGS] Error converting blob:', error);
-      return null;
+      console.error('❌ [RECORDINGS] Error converting recording to blob:', error);
+      throw new Error('Impossible de lire l\'enregistrement');
     }
   };
 
-  // Cleanup old recordings (7 days)
-  const cleanupOldRecordings = async (): Promise<void> => {
+  // Cleanup old recordings (older than 7 days)
+  const cleanupOldRecordings = async () => {
+    if (!user) return;
+    
     try {
-      const { error } = await supabase.rpc('cleanup_old_recordings');
-      if (error) {
-        console.error('❌ [RECORDINGS] Error cleaning up old recordings:', error);
+      console.log('🧹 [RECORDINGS] Cleaning up old recordings...');
+      
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const { error: deleteError } = await supabase
+        .from('voice_recordings')
+        .delete()
+        .eq('user_id', user.id)
+        .lt('created_at', sevenDaysAgo.toISOString());
+
+      if (deleteError) {
+        console.error('❌ [RECORDINGS] Error during cleanup:', deleteError);
       } else {
-        console.log('🧹 [RECORDINGS] Old recordings cleaned up');
+        console.log('✅ [RECORDINGS] Old recordings cleaned up successfully');
       }
+      
     } catch (error) {
       console.error('💥 [RECORDINGS] Unexpected error during cleanup:', error);
     }
@@ -297,11 +254,12 @@ export const useVoiceRecordings = () => {
   return {
     recordings,
     isLoading,
+    error,
     saveRecording,
-    renameRecording,
+    updateRecordingName,
     deleteRecording,
     getRecordingBlob,
-    loadRecordings,
     cleanupOldRecordings,
+    refreshRecordings: loadRecordings
   };
 };
