@@ -1,11 +1,10 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
 export const authService = {
   async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; user?: User; message?: string }> {
     try {
-      console.log('🔐 [LOGIN] Starting STRICT login process for:', data.email);
+      console.log('🔐 [LOGIN] Starting login process for:', data.email);
       
       if (!data.email || !data.password) {
         console.error('❌ [LOGIN] Missing email or password');
@@ -14,40 +13,43 @@ export const authService = {
 
       const cleanEmail = data.email.toLowerCase().trim();
       
-      // 1️⃣ - VÉRIFICATION ABSOLUE : L'utilisateur DOIT exister dans profiles ET être approuvé
-      console.log('🔍 [LOGIN] STRICT CHECK - User must exist in profiles AND be approved');
+      // 1️⃣ - Vérifier si l'utilisateur existe dans la table profiles
+      console.log('🔍 [LOGIN] Checking if user exists in profiles table');
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('email', cleanEmail)
         .single();
       
+      // Cas 3️⃣ : Aucune demande de création de compte
       if (profileError || !profile) {
-        console.log('❌ [LOGIN] BLOCKED - User does not exist in profiles table');
-        return { success: false, message: 'Identifiants incorrects.' };
+        console.log('❌ [LOGIN] No account request found for this email');
+        return { success: false, message: 'Aucune demande de création de compte n\'a été faite avec cette adresse email.' };
       }
       
+      // Cas 2️⃣ : Compte en attente de validation
       if (!profile.is_approved) {
-        console.log('❌ [LOGIN] BLOCKED - User exists but not approved');
-        return { success: false, message: 'Votre compte n\'est pas approuvé.' };
+        console.log('❌ [LOGIN] Account pending approval');
+        return { success: false, message: 'Votre compte est en attente de validation, veuillez patienter.' };
       }
       
       console.log('✅ [LOGIN] User exists and is approved, attempting Supabase auth...');
       
-      // 2️⃣ - SEULEMENT MAINTENANT, authentifier via Supabase Auth
+      // 2️⃣ - Tenter l'authentification Supabase
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: data.password,
       });
       
+      // Cas 1️⃣ : Email ou mot de passe invalide
       if (authError || !authData.user) {
-        console.error('❌ [LOGIN] Supabase Auth failed:', authError?.message);
-        return { success: false, message: 'Identifiants incorrects.' };
+        console.error('❌ [LOGIN] Invalid credentials:', authError?.message);
+        return { success: false, message: 'Adresse email ou mot de passe incorrect.' };
       }
       
-      console.log('✅ [LOGIN] Authentication successful for approved user');
+      console.log('✅ [LOGIN] Authentication successful');
       
-      // 3️⃣ - DOUBLE VÉRIFICATION : s'assurer que l'ID correspond
+      // 3️⃣ - Vérification de sécurité : s'assurer que l'ID correspond
       if (authData.user.id !== profile.id) {
         console.error('❌ [LOGIN] SECURITY BREACH - User ID mismatch, signing out');
         await supabase.auth.signOut();
