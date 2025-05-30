@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,44 @@ import { useNavigate } from 'react-router-dom';
 const Index = () => {
   const {
     user,
-    logout
+    logout,
+    isAuthenticated,
+    isLoading
   } = useAuth();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Protection d'authentification
+  useEffect(() => {
+    console.log('🔍 [INDEX] Checking authentication status:', {
+      isLoading,
+      isAuthenticated,
+      hasUser: !!user,
+      userApproved: user?.isApproved
+    });
+
+    if (!isLoading && (!isAuthenticated || !user || !user.isApproved)) {
+      console.log('❌ [INDEX] User not authenticated or not approved, redirecting to login');
+      navigate('/login');
+    }
+  }, [isLoading, isAuthenticated, user, navigate]);
+
+  // Afficher un loader pendant la vérification d'authentification
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p className="text-slate-300">Vérification de l'authentification...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si pas authentifié, ne rien afficher (redirection en cours)
+  if (!isAuthenticated || !user || !user.isApproved) {
+    return null;
+  }
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -20,7 +54,7 @@ const Index = () => {
     setIsLoggingOut(true);
     try {
       await logout();
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -95,16 +129,14 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="relative z-10 flex-1 container mx-auto px-4 md:px-8 py-8">
-        {user && (
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              Bienvenue, {capitalizeFirstLetter(user.firstName)}
-            </h2>
-            <p className="text-slate-300">
-              Prêt à enregistrer votre prochaine réunion ?
-            </p>
-          </div>
-        )}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">
+            Bienvenue, {capitalizeFirstLetter(user.firstName)}
+          </h2>
+          <p className="text-slate-300">
+            Prêt à enregistrer votre prochaine réunion ?
+          </p>
+        </div>
         
         <div className="max-w-4xl mx-auto">
           <VoiceRecorder onOpenSettings={handleSettingsClick} onOpenUpcomingFeatures={handleUpcomingFeaturesClick} />
