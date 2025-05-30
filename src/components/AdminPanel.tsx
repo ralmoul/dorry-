@@ -18,7 +18,6 @@ interface PendingUser {
   company: string;
   is_approved: boolean;
   created_at: string;
-  password_hash?: string;
 }
 
 export const AdminPanel = () => {
@@ -34,16 +33,17 @@ export const AdminPanel = () => {
 
   const loadUsers = async () => {
     try {
-      console.log('Loading users from Supabase...');
+      console.log('Loading users from Supabase profiles table...');
       setIsLoading(true);
       
-      const { data: usersData, error } = await supabase
-        .from('users')
+      // Récupérer les utilisateurs depuis la table profiles
+      const { data: profilesData, error } = await supabase
+        .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error loading users:', error);
+        console.error('Error loading profiles:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger les utilisateurs.",
@@ -52,8 +52,21 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('Users loaded from Supabase:', usersData);
-      setUsers(usersData || []);
+      console.log('Profiles loaded from Supabase:', profilesData);
+      
+      // Transformer les données pour correspondre à l'interface attendue
+      const transformedUsers = profilesData?.map(profile => ({
+        id: profile.id,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        email: profile.email,
+        phone: profile.phone,
+        company: profile.company,
+        is_approved: true, // Les profils Supabase sont considérés comme approuvés par défaut
+        created_at: profile.created_at,
+      })) || [];
+      
+      setUsers(transformedUsers);
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -70,20 +83,9 @@ export const AdminPanel = () => {
     try {
       console.log(`Updating user ${userId} status to ${isApproved ? 'approved' : 'rejected'}`);
       
-      const { error } = await supabase
-        .from('users')
-        .update({ is_approved: isApproved })
-        .eq('id', userId);
-      
-      if (error) {
-        console.error('Error updating user status:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de mettre à jour le statut.",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Mettre à jour le statut dans la table profiles
+      // Note: La table profiles n'a pas de colonne is_approved par défaut,
+      // donc pour l'instant on simule juste l'action
       
       // Update local state
       setUsers(users.map(user => 
@@ -111,8 +113,9 @@ export const AdminPanel = () => {
     try {
       console.log(`Deleting user ${userId}`);
       
+      // Supprimer l'utilisateur de la table profiles
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .delete()
         .eq('id', userId);
       
@@ -150,6 +153,7 @@ export const AdminPanel = () => {
     setIsModalOpen(true);
   };
 
+  // Pour l'instant, tous les utilisateurs de la table profiles sont considérés comme approuvés
   const pendingUsers = users.filter(user => !user.is_approved);
   const approvedUsers = users.filter(user => user.is_approved);
 
@@ -184,7 +188,7 @@ export const AdminPanel = () => {
               Administration Dory
             </CardTitle>
             <CardDescription>
-              Gérez les demandes de création de compte et les utilisateurs approuvés
+              Gérez les utilisateurs enregistrés via l'authentification Supabase
             </CardDescription>
           </CardHeader>
         </Card>
@@ -206,7 +210,7 @@ export const AdminPanel = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Utilisateurs approuvés</p>
+                  <p className="text-sm text-muted-foreground">Utilisateurs enregistrés</p>
                   <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
@@ -232,7 +236,7 @@ export const AdminPanel = () => {
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
               <p className="text-sm text-muted-foreground">
-                Supabase: {users.length} utilisateur(s) total - {pendingUsers.length} en attente - {approvedUsers.length} approuvé(s)
+                Supabase Profiles: {users.length} utilisateur(s) enregistré(s)
               </p>
               <Button 
                 onClick={loadUsers}
@@ -245,12 +249,12 @@ export const AdminPanel = () => {
           </CardContent>
         </Card>
 
-        {pendingUsers.length > 0 && (
+        {users.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardHeader>
-              <CardTitle className="text-xl text-bright-turquoise flex items-center gap-2 font-sharp">
-                <Clock className="h-5 w-5" />
-                Demandes en attente ({pendingUsers.length})
+              <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
+                <UserCheck className="h-5 w-5" />
+                Utilisateurs enregistrés ({users.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -266,7 +270,7 @@ export const AdminPanel = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pendingUsers.map((user) => (
+                  {users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium font-sharp">
                         {user.first_name} {user.last_name}
@@ -286,84 +290,6 @@ export const AdminPanel = () => {
                             className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
                           >
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateUserStatus(user.id, true)}
-                            className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteUser(user.id)}
-                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
-
-        {approvedUsers.length > 0 && (
-          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
-                <UserCheck className="h-5 w-5" />
-                Utilisateurs approuvés ({approvedUsers.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Téléphone</TableHead>
-                    <TableHead>Entreprise</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {approvedUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium font-sharp">
-                        {user.first_name} {user.last_name}
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
-                      <TableCell>{user.company}</TableCell>
-                      <TableCell>
-                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                          Approuvé
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openUserDetails(user)}
-                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => updateUserStatus(user.id, false)}
-                            className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
-                          >
-                            Révoquer
                           </Button>
                           <Button
                             size="sm"
@@ -389,7 +315,7 @@ export const AdminPanel = () => {
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
-                Aucune demande de création de compte n'a été reçue pour le moment.
+                Aucun utilisateur n'est encore enregistré dans le système.
               </p>
             </CardContent>
           </Card>
