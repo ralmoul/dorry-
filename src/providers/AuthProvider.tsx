@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData, User, DatabaseProfile } from '@/types/auth';
@@ -37,8 +36,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (session?.user) {
         console.log('✅ [AUTH] Active Supabase session found:', session.user.id);
-        // VÉRIFICATION STRICTE : L'utilisateur doit exister et être approuvé dans notre base
-        await checkUserStatusAndApprovalStrict(session.user.id, session.user.email || '');
+        // VÉRIFICATION STRICTE : L'utilisateur doit être approuvé
+        await checkUserApprovalStrict(session.user.id);
       } else {
         console.log('❌ [AUTH] No active Supabase session');
         setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -49,60 +48,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const checkUserStatusAndApprovalStrict = async (userId: string, userEmail: string) => {
+  const checkUserApprovalStrict = async (userId: string) => {
     try {
-      console.log('🔍 [AUTH] STRICT USER CHECK - Must exist and be approved:', userId);
+      console.log('🔍 [AUTH] STRICT APPROVAL CHECK for user:', userId);
       
-      // 1️⃣ - D'abord vérifier via la fonction sécurisée
-      const { data: approvalData, error: approvalError } = await supabase
-        .rpc('check_user_approval' as any, { user_email: userEmail });
-      
-      if (approvalError || !approvalData || (Array.isArray(approvalData) && approvalData.length === 0)) {
-        console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via function:', approvalError);
-        forceLogoutImmediate();
-        return;
-      }
-      
-      const userApproval = Array.isArray(approvalData) ? approvalData[0] : approvalData;
-      if (!userApproval.is_approved) {
-        console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via function:', approvalError);
-        forceLogoutImmediate();
-        return;
-      }
-      
-      // 2️⃣ - Ensuite récupérer le profil complet
+      // VÉRIFICATION DIRECTE DU STATUT APPROVED
       const { data: userProfile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
       
-      if (error || !userProfile) {
-        console.error('❌ [AUTH] STRICT BLOCK - User not found in our database:', error);
-        forceLogoutImmediate();
-        return;
-      }
-      
-      const dbUser: DatabaseProfile = userProfile;
-      console.log('📊 [AUTH] User status check result - approved:', dbUser.is_approved);
-      
-      // BLOCAGE STRICT - Seuls les utilisateurs approuvés peuvent rester connectés
-      if (!dbUser.is_approved) {
+      if (error || !userProfile || !userProfile.is_approved) {
         console.log('❌ [AUTH] STRICT BLOCK - User not approved, immediate logout');
         forceLogoutImmediate();
         return;
       }
       
-      // Utilisateur valide et approuvé
+      console.log('✅ [AUTH] User is approved, maintaining session');
+      
+      // Utilisateur validé et approuvé
       const user: User = {
-        id: dbUser.id,
-        firstName: dbUser.first_name,
-        lastName: dbUser.last_name,
-        email: dbUser.email,
-        phone: dbUser.phone,
-        company: dbUser.company,
-        isApproved: dbUser.is_approved,
-        createdAt: dbUser.created_at,
+        id: userProfile.id,
+        firstName: userProfile.first_name,
+        lastName: userProfile.last_name,
+        email: userProfile.email,
+        phone: userProfile.phone,
+        company: userProfile.company,
+        isApproved: userProfile.is_approved,
+        createdAt: userProfile.created_at,
       };
       
       setAuthState({
@@ -115,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('✅ [AUTH] User validated and authenticated successfully');
       
     } catch (error) {
-      console.error('💥 [AUTH] Unexpected error checking user status:', error);
+      console.error('💥 [AUTH] Unexpected error checking user approval:', error);
       forceLogoutImmediate();
     }
   };
