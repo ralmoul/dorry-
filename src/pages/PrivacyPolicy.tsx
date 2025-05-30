@@ -53,60 +53,109 @@ const PrivacyPolicy = () => {
         <main className="pt-20 pb-16">
           <div className="container mx-auto px-4 md:px-8 max-w-4xl">
             <div className="bg-gray-50 rounded-xl p-8 md:p-12 border border-gray-200 shadow-lg">
-              <h1 className="text-4xl font-bold gradient-title mb-4">Politique de confidentialité</h1>
-              <p className="text-lg mb-8">Chez Dorry, votre vie privée est notre priorité. Découvrez comment nous protégeons et utilisons vos données.</p>
+              <h1 className="text-4xl font-bold gradient-title mb-4">Politique de confidentialité – Dorry.app</h1>
+              <p className="text-sm text-gray-600 mb-8 italic">Dernière mise à jour : 30 mai 2025</p>
+              
+              <p className="text-lg mb-8">
+                Chez <strong>Dorry.app</strong>, la protection de vos données personnelles est une priorité. Cette politique vous explique comment nous collectons, utilisons, stockons et protégeons vos informations, conformément au RGPD.
+              </p>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">1. Collecte des données</h2>
-                  <p className="mb-4">Dorry collecte uniquement les données nécessaires au fonctionnement de l'application :</p>
-                  <ul className="list-disc list-inside space-y-2">
-                    <li>Informations d'inscription (nom, prénom, email, entreprise)</li>
-                    <li>Enregistrements audio des réunions et entretiens</li>
-                    <li>Données d'utilisation pour améliorer nos services</li>
+                  <h2 className="text-2xl font-bold mb-4">1. Identité du responsable de traitement</h2>
+                  <ul className="space-y-2">
+                    <li><strong>Responsable :</strong> Thomas Bouziza</li>
+                    <li><strong>Adresse :</strong> Val-de-reuil 27100</li>
+                    <li><strong>Contact :</strong> contact@dorry.app</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">2. Consentement à l'enregistrement vocal</h2>
-                  <p className="mb-4">
-                    Conformément au RGPD, Dorry exige votre consentement explicite avant tout enregistrement vocal :
-                  </p>
+                  <h2 className="text-2xl font-bold mb-4">2. Données collectées</h2>
+                  <p className="mb-4">Nous collectons :</p>
                   <ul className="list-disc list-inside space-y-2">
-                    <li>Un modal de consentement s'affiche avant chaque nouvel enregistrement</li>
-                    <li>Le porteur de projet et vous devez accepter que le message soit enregistré et traité selon cette politique de confidentialité</li>
-                    <li>Vous pouvez refuser l'enregistrement à tout moment</li>
-                    <li>Aucun enregistrement ne peut démarrer sans votre consentement explicite</li>
-                    <li>Vous gardez le contrôle total sur vos données vocales</li>
-                  </ul>
-                  <p className="mt-4 text-sm bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                    <strong>Important :</strong> En fermant le modal de consentement ou en cliquant sur "Refuser", aucun enregistrement ne sera effectué et vous pourrez continuer à utiliser les autres fonctionnalités de l'application.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-2xl font-bold mb-4">3. Utilisation des données</h2>
-                  <p className="mb-4">
-                    Vos données sont utilisées exclusivement pour :
-                  </p>
-                  <ul className="list-disc list-inside space-y-2">
-                    <li>Analyser vos enregistrements et générer des comptes rendus</li>
-                    <li>Améliorer la qualité de nos analyses IA</li>
-                    <li>Vous envoyer les comptes rendus par email</li>
-                    <li>Assurer le support technique</li>
+                    <li>Données d'identification : nom, prénom, adresse e-mail</li>
+                    <li>Données d'authentification : mot de passe chiffré</li>
+                    <li>Données vocales : enregistrements audio, transcriptions textuelles, nom d'utilisateur</li>
+                    <li>Données techniques : adresse IP, logs de connexion, type d'appareil</li>
+                    <li>Cookies (voir <a href="/cookie-policy" className="text-cyan-500 hover:text-cyan-600 underline">Politique cookies</a>)</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">4. Protection des données</h2>
+                  <h2 className="text-2xl font-bold mb-4">3. Finalités et base légale</h2>
+                  <p className="mb-4">Nous utilisons vos données pour :</p>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Créer et gérer votre compte</li>
+                    <li>Fournir et améliorer le service (assistant vocal, transcription, IA, historique vocal)</li>
+                    <li>Sécuriser l'accès à votre espace personnel</li>
+                    <li>Envoyer des notifications (emails, alertes)</li>
+                    <li>Répondre à vos demandes d'assistance</li>
+                  </ul>
+                  <p className="mt-4">
+                    <strong>Base légale</strong> : consentement explicite, exécution du contrat, obligation légale, intérêt légitime (sécurité, amélioration continue).
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">4. Conservation des données</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li><strong>Données vocales</strong> : conservées 7 jours maximum, puis supprimées automatiquement</li>
+                    <li><strong>Compte utilisateur</strong> : supprimé à la demande ou après 2 ans d'inactivité</li>
+                    <li><strong>Logs techniques</strong> : 1 an max</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">5. Destinataires</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Équipe Dorry.app et prestataires techniques (hébergement, outils de mail)</li>
+                    <li>Aucun partage à des tiers sans consentement explicite</li>
+                    <li>Sous-traitants conformes RGPD (hébergement en Europe)</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">6. Droits des utilisateurs</h2>
+                  <p className="mb-4">Vous pouvez à tout moment :</p>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Accéder à vos données</li>
+                    <li>Demander la rectification ou la suppression</li>
+                    <li>Vous opposer ou demander la limitation du traitement</li>
+                    <li>Retirer votre consentement</li>
+                    <li>Obtenir une copie de vos données (portabilité)</li>
+                  </ul>
+                  <p className="mt-4">
+                    Pour exercer vos droits : <a href="mailto:contact@dorry.app" className="text-cyan-500 hover:text-cyan-600 underline">contact@dorry.app</a>
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">7. Sécurité</h2>
                   <p>
-                    Toutes vos données sont chiffrées et stockées de manière sécurisée. Nous respectons le RGPD et ne partageons jamais vos données avec des tiers sans votre consentement explicite.
+                    Nous mettons en œuvre des mesures de sécurité avancées : chiffrement, contrôle d'accès, surveillance, sauvegardes régulières.
                   </p>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">5. Vos droits</h2>
-                  <p>Vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à contact@dorry.app.</p>
+                  <h2 className="text-2xl font-bold mb-4">8. Cookies</h2>
+                  <p>
+                    Voir notre <a href="/cookie-policy" className="text-cyan-500 hover:text-cyan-600 underline">politique cookies</a> pour plus de détails.
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">9. Réclamations</h2>
+                  <p>
+                    Vous pouvez contacter la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:text-cyan-600 underline">www.cnil.fr</a>) pour toute réclamation concernant vos données.
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">Contact DPO</h2>
+                  <p>
+                    <strong>Contact DPO :</strong> <a href="mailto:contact@dorry.app" className="text-cyan-500 hover:text-cyan-600 underline">contact@dorry.app</a>
+                  </p>
                 </section>
               </div>
             </div>

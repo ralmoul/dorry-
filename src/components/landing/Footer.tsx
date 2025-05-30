@@ -20,6 +20,7 @@ export const Footer = () => {
                 <a href="/privacy-policy" className="block text-slate-300 hover:text-cyan-400 transition-colors">Politique de confidentialité</a>
                 <a href="/terms-of-service" className="block text-slate-300 hover:text-cyan-400 transition-colors">Conditions d'utilisation</a>
                 <a href="/legal-notice" className="block text-slate-300 hover:text-cyan-400 transition-colors">Mentions légales</a>
+                <a href="/cookie-policy" className="block text-slate-300 hover:text-cyan-400 transition-colors">Politique cookies</a>
               </div>
             </div>
             <div className="text-center md:text-left">

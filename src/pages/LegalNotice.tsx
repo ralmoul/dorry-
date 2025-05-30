@@ -53,55 +53,61 @@ const LegalNotice = () => {
         <main className="pt-20 pb-16">
           <div className="container mx-auto px-4 md:px-8 max-w-4xl">
             <div className="bg-gray-50 rounded-xl p-8 md:p-12 border border-gray-200 shadow-lg">
-              <h1 className="text-4xl font-bold gradient-title mb-4">Mentions légales</h1>
-              <p className="text-lg mb-8">
-                Informations légales concernant Dorry.
-              </p>
+              <h1 className="text-4xl font-bold gradient-title mb-4">Mentions légales – Dorry.app</h1>
+              <p className="text-sm text-gray-600 mb-8 italic">Dernière mise à jour : 30 mai 2025</p>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">Éditeur du site</h2>
-                  <div className="space-y-2">
-                    <p><strong>Raison sociale :</strong> Thomas Bouziza</p>
-                    <p><strong>Nom commercial :</strong> Thomas Bouziza</p>
-                    <p><strong>Forme juridique :</strong> Exploitation personnelle</p>
-                    <p><strong>Adresse du siège / établissement principal :</strong> Val-de-reuil 27100</p>
-                    <p><strong>Immatriculation au RCS :</strong> 883 178 394 R.C.S. Rouen</p>
-                    <p><strong>Date d'immatriculation :</strong> 14/01/2025</p>
-                    <p><strong>Activité :</strong> Programmation informatique et automatisation</p>
-                  </div>
+                  <h2 className="text-2xl font-bold mb-4">1. Éditeur du site</h2>
+                  <ul className="space-y-2">
+                    <li><strong>Nom/Raison sociale :</strong> Thomas Bouziza</li>
+                    <li><strong>Nom commercial :</strong> Thomas Bouziza</li>
+                    <li><strong>Forme juridique :</strong> Exploitation personnelle</li>
+                    <li><strong>Adresse du siège / établissement principal :</strong> Val-de-reuil 27100</li>
+                    <li><strong>Immatriculation au RCS :</strong> 883 178 394 R.C.S. Rouen</li>
+                    <li><strong>Date d'immatriculation :</strong> 14/01/2025</li>
+                    <li><strong>Activité :</strong> Programmation informatique et automatisation</li>
+                    <li><strong>Email :</strong> <a href="mailto:contact@dorry.app" className="text-cyan-500 hover:text-cyan-600 underline">contact@dorry.app</a></li>
+                    <li><strong>Téléphone :</strong> +33 6 52 64 10 56</li>
+                    <li><strong>Directeur de publication :</strong> Thomas Bouziza</li>
+                  </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">Directeur de publication</h2>
+                  <h2 className="text-2xl font-bold mb-4">2. Hébergeur</h2>
+                  <ul className="space-y-2">
+                    <li><strong>Nom :</strong> OVH SAS</li>
+                    <li><strong>Adresse :</strong> 2 rue Kellermann, 59100 Roubaix</li>
+                    <li><strong>Téléphone :</strong> 09 72 10 10 07</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">3. Propriété intellectuelle</h2>
                   <p>
-                    <strong>Nom :</strong> Thomas Bouziza
+                    Tous les contenus présents sur Dorry.app sont protégés par le droit d'auteur et sont la propriété de Thomas Bouziza sauf mention contraire. Toute reproduction, même partielle, est interdite sans autorisation préalable.
                   </p>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">Hébergement</h2>
-                  <div className="space-y-2">
-                    <p><strong>Hébergeur :</strong> OVH SAS</p>
-                    <p><strong>Adresse :</strong> 2 rue Kellermann, 59100 Roubaix</p>
-                    <p><strong>Téléphone :</strong> 09 72 10 10 07</p>
-                  </div>
-                </section>
-
-                <section>
-                  <h2 className="text-2xl font-bold mb-4">Propriété intellectuelle</h2>
+                  <h2 className="text-2xl font-bold mb-4">4. Contact</h2>
                   <p>
-                    L'ensemble du contenu de ce site (textes, images, logos, icônes) est la propriété exclusive de Thomas Bouziza, sauf mention contraire. Toute reproduction, même partielle, est interdite sans autorisation préalable.
+                    Pour toute question ou réclamation : <a href="mailto:contact@dorry.app" className="text-cyan-500 hover:text-cyan-600 underline">contact@dorry.app</a>
                   </p>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">Contact</h2>
-                  <div className="space-y-2">
-                    <p><strong>Email :</strong> contact@dorry.app</p>
-                    <p><strong>Téléphone :</strong> +33 6 52 64 10 56</p>
-                    <p><strong>Adresse :</strong> Val-de-reuil 27100</p>
-                  </div>
+                  <h2 className="text-2xl font-bold mb-4">5. Signalement de contenus illicites</h2>
+                  <p>
+                    Pour signaler un contenu illicite : <a href="mailto:contact@dorry.app" className="text-cyan-500 hover:text-cyan-600 underline">contact@dorry.app</a>
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">6. Numéro d'immatriculation / SIRET</h2>
+                  <p>
+                    RCS : 883 178 394 R.C.S. Rouen
+                  </p>
                 </section>
               </div>
             </div>

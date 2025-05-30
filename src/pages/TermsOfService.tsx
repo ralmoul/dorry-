@@ -53,48 +53,83 @@ const TermsOfService = () => {
         <main className="pt-20 pb-16">
           <div className="container mx-auto px-4 md:px-8 max-w-4xl">
             <div className="bg-gray-50 rounded-xl p-8 md:p-12 border border-gray-200 shadow-lg">
-              <h1 className="text-4xl font-bold gradient-title mb-4">Conditions d'utilisation</h1>
-              <p className="text-lg mb-8">Les conditions qui régissent l'utilisation de Dorry, votre assistante IA pour l'accompagnement.</p>
+              <h1 className="text-4xl font-bold gradient-title mb-4">Conditions Générales d'Utilisation (CGU) – Dorry.app</h1>
+              <p className="text-sm text-gray-600 mb-8 italic">Dernière mise à jour : 30 mai 2025</p>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">1. Acceptation des conditions</h2>
-                  <p>En utilisant Dorry, vous acceptez ces conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.</p>
+                  <h2 className="text-2xl font-bold mb-4">1. Objet</h2>
+                  <p>Les présentes CGU définissent les règles d'utilisation du service Dorry.app.</p>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">2. Description du service</h2>
-                  <p className="mb-4">Dorry est une assistante IA qui :</p>
+                  <h2 className="text-2xl font-bold mb-4">2. Inscription</h2>
                   <ul className="list-disc list-inside space-y-2">
-                    <li>Enregistre et analyse vos réunions d'accompagnement</li>
-                    <li>Génère automatiquement des comptes rendus détaillés</li>
-                    <li>Détecte les informations importantes des porteurs de projet</li>
-                    <li>Vérifie les adresses QPV automatiquement</li>
+                    <li>Inscription réservée aux utilisateurs majeurs.</li>
+                    <li>Chaque utilisateur doit fournir des informations exactes.</li>
+                    <li>Le compte est personnel et non transférable.</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">3. Responsabilités de l'utilisateur</h2>
-                  <p className="mb-4">
-                    Vous vous engagez à :
-                  </p>
+                  <h2 className="text-2xl font-bold mb-4">3. Accès au service</h2>
                   <ul className="list-disc list-inside space-y-2">
-                    <li>Obtenir le consentement des participants avant l'enregistrement</li>
-                    <li>Utiliser le service dans le respect de la loi</li>
-                    <li>Maintenir la confidentialité de vos identifiants</li>
-                    <li>Ne pas tenter de contourner les mesures de sécurité</li>
+                    <li>L'accès à l'app est réservé aux utilisateurs approuvés.</li>
+                    <li>Dorry.app se réserve le droit de suspendre l'accès en cas de non-respect des CGU, fraude, ou comportement abusif.</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">4. Limitation de responsabilité</h2>
-                  <p>Dorry est fourni "en l'état". Nous nous efforçons de maintenir la qualité du service mais ne garantissons pas une disponibilité 100% ou une précision absolue des analyses.</p>
+                  <h2 className="text-2xl font-bold mb-4">4. Utilisation des enregistrements vocaux</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Les enregistrements vocaux sont utilisés uniquement pour fournir et améliorer les services (IA, transcription, historique).</li>
+                    <li>L'utilisateur s'engage à ne pas enregistrer de contenus illicites.</li>
+                  </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold mb-4">5. Modification des conditions</h2>
+                  <h2 className="text-2xl font-bold mb-4">5. Propriété intellectuelle</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>L'ensemble du contenu, des marques et de la technologie appartient à Dorry.app ou ses partenaires.</li>
+                    <li>Toute reproduction ou extraction est interdite sans accord écrit.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">6. Responsabilités</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Dorry.app ne garantit pas l'absence d'interruptions ou d'erreurs, mais s'engage à corriger tout incident.</li>
+                    <li>L'utilisateur est responsable de la sécurité de son compte.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">7. Données personnelles</h2>
                   <p>
-                    Nous nous réservons le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés des changements importants.
+                    Voir la <a href="/privacy-policy" className="text-cyan-500 hover:text-cyan-600 underline">Politique de confidentialité</a> pour les détails sur la gestion des données.
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">8. Modification des CGU</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Les CGU peuvent être modifiées à tout moment.</li>
+                    <li>Les utilisateurs seront informés des changements majeurs.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">9. Droit applicable</h2>
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Les présentes CGU sont soumises au droit français.</li>
+                    <li>En cas de litige, compétence exclusive des tribunaux du siège de Dorry.app.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-bold mb-4">10. Contact</h2>
+                  <p>
+                    Pour toute question : <a href="mailto:contact@dorry.app" className="text-cyan-500 hover:text-cyan-600 underline">contact@dorry.app</a>
                   </p>
                 </section>
               </div>
