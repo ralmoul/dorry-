@@ -16,6 +16,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          is_approved: boolean
           last_name: string
           phone: string
           updated_at: string
@@ -26,6 +27,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          is_approved?: boolean
           last_name: string
           phone: string
           updated_at?: string
@@ -36,48 +38,43 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
+          is_approved?: boolean
           last_name?: string
           phone?: string
           updated_at?: string
         }
         Relationships: []
       }
-      users: {
+      voice_recordings: {
         Row: {
-          company: string
+          blob_data: string
+          blob_type: string
           created_at: string
-          email: string
-          first_name: string
+          duration: number
           id: string
-          is_approved: boolean
-          last_name: string
-          password_hash: string
-          phone: string
+          name: string | null
           updated_at: string
+          user_id: string
         }
         Insert: {
-          company: string
+          blob_data: string
+          blob_type: string
           created_at?: string
-          email: string
-          first_name: string
+          duration: number
           id?: string
-          is_approved?: boolean
-          last_name: string
-          password_hash: string
-          phone: string
+          name?: string | null
           updated_at?: string
+          user_id: string
         }
         Update: {
-          company?: string
+          blob_data?: string
+          blob_type?: string
           created_at?: string
-          email?: string
-          first_name?: string
+          duration?: number
           id?: string
-          is_approved?: boolean
-          last_name?: string
-          password_hash?: string
-          phone?: string
+          name?: string | null
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -86,7 +83,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      approve_user_profile: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      reject_user_profile: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

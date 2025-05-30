@@ -4,46 +4,117 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Users, UserCheck, Clock, Trash2, Eye } from 'lucide-react';
+import { Check, X, Users, UserCheck, Clock, Trash2, Eye, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserDetailsModal } from './admin/UserDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
 
-interface PendingUser {
+interface User {
   id: string;
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
   company: string;
-  is_approved: boolean;
+  status: 'pending' | 'approved' | 'rejected';
   created_at: string;
-  password_hash?: string;
+  updated_at: string;
 }
 
 export const AdminPanel = () => {
-  const [users, setUsers] = useState<PendingUser[]>([]);
-  const [selectedUser, setSelectedUser] = useState<PendingUser | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     loadUsers();
+    setupRealtimeSubscription();
+    
+    return () => {
+      // Cleanup subscription when component unmounts
+      supabase.removeAllChannels();
+    };
   }, []);
+
+  const setupRealtimeSubscription = () => {
+    console.log('🔄 [ADMIN] Setting up realtime subscription for profiles');
+    
+    const channel = supabase
+      .channel('admin-profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          console.log('📡 [ADMIN] Realtime update received:', payload);
+          handleRealtimeUpdate(payload);
+        }
+      )
+      .subscribe((status) => {
+        console.log('📡 [ADMIN] Subscription status:', status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleRealtimeUpdate = (payload: any) => {
+    console.log('🔄 [ADMIN] Processing realtime update:', payload.eventType);
+    
+    switch (payload.eventType) {
+      case 'INSERT':
+        setUsers(prev => [payload.new, ...prev]);
+        toast({
+          title: "Nouveau utilisateur",
+          description: `${payload.new.first_name} ${payload.new.last_name} s'est inscrit`,
+        });
+        break;
+        
+      case 'UPDATE':
+        setUsers(prev => prev.map(user => 
+          user.id === payload.new.id ? payload.new : user
+        ));
+        const statusLabels = {
+          pending: 'en attente',
+          approved: 'approuvé',
+          rejected: 'rejeté'
+        };
+        toast({
+          title: "Statut mis à jour",
+          description: `${payload.new.first_name} ${payload.new.last_name} est maintenant ${statusLabels[payload.new.status as keyof typeof statusLabels]}`,
+        });
+        break;
+        
+      case 'DELETE':
+        setUsers(prev => prev.filter(user => user.id !== payload.old.id));
+        toast({
+          title: "Utilisateur supprimé",
+          description: "L'utilisateur a été supprimé définitivement",
+          variant: "destructive",
+        });
+        break;
+    }
+  };
 
   const loadUsers = async () => {
     try {
-      console.log('Loading users from Supabase...');
+      console.log('📊 [ADMIN] Loading users from Supabase...');
       setIsLoading(true);
       
       const { data: usersData, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error loading users:', error);
+        console.error('❌ [ADMIN] Error loading users:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger les utilisateurs.",
@@ -52,13 +123,13 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('Users loaded from Supabase:', usersData);
+      console.log('✅ [ADMIN] Users loaded:', usersData?.length || 0);
       setUsers(usersData || []);
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error('💥 [ADMIN] Unexpected error:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors du chargement.",
+        description: "Une erreur inattendue est survenue.",
         variant: "destructive"
       });
     } finally {
@@ -66,17 +137,18 @@ export const AdminPanel = () => {
     }
   };
 
-  const updateUserStatus = async (userId: string, isApproved: boolean) => {
+  const updateUserStatus = async (userId: string, newStatus: 'pending' | 'approved' | 'rejected') => {
     try {
-      console.log(`Updating user ${userId} status to ${isApproved ? 'approved' : 'rejected'}`);
+      console.log(`🔄 [ADMIN] Updating user ${userId} status to ${newStatus}`);
+      setIsUpdating(userId);
       
-      const { error } = await supabase
-        .from('users')
-        .update({ is_approved: isApproved })
-        .eq('id', userId);
+      const { data, error } = await supabase.rpc('admin_update_profile_status', {
+        profile_id: userId,
+        new_status: newStatus
+      });
       
       if (error) {
-        console.error('Error updating user status:', error);
+        console.error('❌ [ADMIN] Error updating status:', error);
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour le statut.",
@@ -85,39 +157,42 @@ export const AdminPanel = () => {
         return;
       }
       
-      // Update local state
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: isApproved } : user
-      ));
-      setIsModalOpen(false);
+      if (!data) {
+        toast({
+          title: "Erreur",
+          description: "Statut invalide ou utilisateur introuvable.",
+          variant: "destructive"
+        });
+        return;
+      }
       
-      const action = isApproved ? 'approuvé' : 'rejeté';
-      toast({
-        title: `Utilisateur ${action}`,
-        description: `Le compte a été ${action} avec succès.`,
-        variant: isApproved ? "default" : "destructive",
-      });
+      setIsModalOpen(false);
+      console.log('✅ [ADMIN] Status updated successfully');
+      
     } catch (error) {
-      console.error('Error updating user status:', error);
+      console.error('💥 [ADMIN] Unexpected error:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue.",
+        description: "Une erreur inattendue est survenue.",
         variant: "destructive"
       });
+    } finally {
+      setIsUpdating(null);
     }
   };
 
   const deleteUser = async (userId: string) => {
     try {
-      console.log(`Deleting user ${userId}`);
+      console.log(`🗑️ [ADMIN] Deleting user ${userId}`);
+      setIsUpdating(userId);
       
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .delete()
         .eq('id', userId);
       
       if (error) {
-        console.error('Error deleting user:', error);
+        console.error('❌ [ADMIN] Error deleting user:', error);
         toast({
           title: "Erreur",
           description: "Impossible de supprimer l'utilisateur.",
@@ -126,35 +201,29 @@ export const AdminPanel = () => {
         return;
       }
       
-      // Update local state
-      setUsers(users.filter(user => user.id !== userId));
       setIsModalOpen(false);
+      console.log('✅ [ADMIN] User deleted successfully');
       
-      toast({
-        title: "Utilisateur supprimé",
-        description: "Le compte a été supprimé définitivement.",
-        variant: "destructive",
-      });
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('💥 [ADMIN] Unexpected error:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue.",
+        description: "Une erreur inattendue est survenue.",
         variant: "destructive"
       });
+    } finally {
+      setIsUpdating(null);
     }
   };
 
-  const openUserDetails = (user: PendingUser) => {
+  const openUserDetails = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  const pendingUsers = users.filter(user => !user.is_approved);
-  const approvedUsers = users.filter(user => user.is_approved);
-
-  console.log('Pending users:', pendingUsers);
-  console.log('Approved users:', approvedUsers);
+  const pendingUsers = users.filter(user => user.status === 'pending');
+  const approvedUsers = users.filter(user => user.status === 'approved');
+  const rejectedUsers = users.filter(user => user.status === 'rejected');
 
   if (isLoading) {
     return (
@@ -162,10 +231,10 @@ export const AdminPanel = () => {
         <div className="max-w-6xl mx-auto space-y-6">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-pulse-ai mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold mb-2 font-sharp">Chargement...</h3>
+              <RefreshCw className="w-16 h-16 text-bright-turquoise animate-spin mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 font-sharp">Chargement en cours...</h3>
               <p className="text-muted-foreground">
-                Chargement des utilisateurs depuis Supabase.
+                Synchronisation avec la base de données Supabase.
               </p>
             </CardContent>
           </Card>
@@ -177,27 +246,29 @@ export const AdminPanel = () => {
   return (
     <div className="min-h-screen gradient-bg p-6">
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardHeader>
             <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <Users className="h-8 w-8 text-bright-turquoise" />
-              Administration Dory
+              Administration Dory - Temps Réel
             </CardTitle>
             <CardDescription>
-              Gérez les demandes de création de compte et les utilisateurs approuvés
+              Gestion des comptes utilisateurs avec synchronisation temps réel via Supabase
             </CardDescription>
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Demandes en attente</p>
-                  <p className="text-2xl font-semibold text-bright-turquoise font-sharp">{pendingUsers.length}</p>
+                  <p className="text-sm text-muted-foreground">En attente</p>
+                  <p className="text-2xl font-semibold text-orange-500 font-sharp">{pendingUsers.length}</p>
                 </div>
-                <Clock className="h-8 w-8 text-bright-turquoise/60" />
+                <Clock className="h-8 w-8 text-orange-500/60" />
               </div>
             </CardContent>
           </Card>
@@ -206,7 +277,7 @@ export const AdminPanel = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Utilisateurs approuvés</p>
+                  <p className="text-sm text-muted-foreground">Approuvés</p>
                   <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
@@ -218,7 +289,19 @@ export const AdminPanel = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total utilisateurs</p>
+                  <p className="text-sm text-muted-foreground">Rejetés</p>
+                  <p className="text-2xl font-semibold text-red-500 font-sharp">{rejectedUsers.length}</p>
+                </div>
+                <X className="h-8 w-8 text-red-500/60" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total</p>
                   <p className="text-2xl font-semibold font-sharp">{users.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-muted-foreground" />
@@ -227,41 +310,50 @@ export const AdminPanel = () => {
           </Card>
         </div>
 
-        {/* Refresh button */}
+        {/* Control Panel */}
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
-              <p className="text-sm text-muted-foreground">
-                Supabase: {users.length} utilisateur(s) total - {pendingUsers.length} en attente - {approvedUsers.length} approuvé(s)
-              </p>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                <p className="text-sm text-muted-foreground">
+                  Synchronisation temps réel active • {users.length} utilisateur(s) • Dernière MAJ: {new Date().toLocaleTimeString('fr-FR')}
+                </p>
+              </div>
               <Button 
                 onClick={loadUsers}
                 variant="outline"
+                size="sm"
                 className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
               >
+                <RefreshCw className="w-4 h-4 mr-2" />
                 Actualiser
               </Button>
             </div>
           </CardContent>
         </Card>
 
+        {/* Pending Users */}
         {pendingUsers.length > 0 && (
-          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+          <Card className="bg-card/50 backdrop-blur-lg border-orange-500/20">
             <CardHeader>
-              <CardTitle className="text-xl text-bright-turquoise flex items-center gap-2 font-sharp">
+              <CardTitle className="text-xl text-orange-500 flex items-center gap-2 font-sharp">
                 <Clock className="h-5 w-5" />
                 Demandes en attente ({pendingUsers.length})
               </CardTitle>
+              <CardDescription>
+                Comptes nécessitant une validation pour accéder à l'application
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nom</TableHead>
+                    <TableHead>Utilisateur</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Téléphone</TableHead>
                     <TableHead>Entreprise</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Inscription</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -270,12 +362,23 @@ export const AdminPanel = () => {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium font-sharp">
                         {user.first_name} {user.last_name}
+                        <div className="text-sm text-muted-foreground">{user.phone}</div>
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
                       <TableCell>{user.company}</TableCell>
                       <TableCell>
-                        {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                        <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
+                          En attente
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.created_at).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -290,7 +393,8 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, true)}
+                            onClick={() => updateUserStatus(user.id, 'approved')}
+                            disabled={isUpdating === user.id}
                             className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
                           >
                             <Check className="h-4 w-4" />
@@ -298,7 +402,17 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => updateUserStatus(user.id, 'rejected')}
+                            disabled={isUpdating === user.id}
+                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => deleteUser(user.id)}
+                            disabled={isUpdating === user.id}
                             className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -313,23 +427,27 @@ export const AdminPanel = () => {
           </Card>
         )}
 
+        {/* Approved Users */}
         {approvedUsers.length > 0 && (
-          <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+          <Card className="bg-card/50 backdrop-blur-lg border-green-500/20">
             <CardHeader>
               <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
                 <UserCheck className="h-5 w-5" />
                 Utilisateurs approuvés ({approvedUsers.length})
               </CardTitle>
+              <CardDescription>
+                Comptes validés avec accès complet à l'application
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nom</TableHead>
+                    <TableHead>Utilisateur</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Téléphone</TableHead>
                     <TableHead>Entreprise</TableHead>
                     <TableHead>Statut</TableHead>
+                    <TableHead>Validation</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -338,14 +456,23 @@ export const AdminPanel = () => {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium font-sharp">
                         {user.first_name} {user.last_name}
+                        <div className="text-sm text-muted-foreground">{user.phone}</div>
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
                       <TableCell>{user.company}</TableCell>
                       <TableCell>
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
                           Approuvé
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.updated_at).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -360,7 +487,8 @@ export const AdminPanel = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateUserStatus(user.id, false)}
+                            onClick={() => updateUserStatus(user.id, 'pending')}
+                            disabled={isUpdating === user.id}
                             className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
                           >
                             Révoquer
@@ -369,6 +497,7 @@ export const AdminPanel = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => deleteUser(user.id)}
+                            disabled={isUpdating === user.id}
                             className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -383,19 +512,106 @@ export const AdminPanel = () => {
           </Card>
         )}
 
+        {/* Rejected Users */}
+        {rejectedUsers.length > 0 && (
+          <Card className="bg-card/50 backdrop-blur-lg border-red-500/20">
+            <CardHeader>
+              <CardTitle className="text-xl text-red-500 flex items-center gap-2 font-sharp">
+                <X className="h-5 w-5" />
+                Utilisateurs rejetés ({rejectedUsers.length})
+              </CardTitle>
+              <CardDescription>
+                Comptes refusés sans accès à l'application
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Entreprise</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Rejet</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rejectedUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium font-sharp">
+                        {user.first_name} {user.last_name}
+                        <div className="text-sm text-muted-foreground">{user.phone}</div>
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.company}</TableCell>
+                      <TableCell>
+                        <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+                          Rejeté
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.updated_at).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openUserDetails(user)}
+                            className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateUserStatus(user.id, 'approved')}
+                            disabled={isUpdating === user.id}
+                            className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
+                          >
+                            Approuver
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteUser(user.id)}
+                            disabled={isUpdating === user.id}
+                            className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty State */}
         {users.length === 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-12 text-center">
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
-                Aucune demande de création de compte n'a été reçue pour le moment.
+                Aucune demande de création de compte n'a été reçue. La synchronisation temps réel est active.
               </p>
             </CardContent>
           </Card>
         )}
       </div>
 
+      {/* User Details Modal */}
       <UserDetailsModal
         user={selectedUser ? {
           id: selectedUser.id,
@@ -404,14 +620,14 @@ export const AdminPanel = () => {
           email: selectedUser.email,
           phone: selectedUser.phone,
           company: selectedUser.company,
-          isApproved: selectedUser.is_approved,
+          isApproved: selectedUser.status === 'approved',
           createdAt: selectedUser.created_at
         } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApprove={(userId) => updateUserStatus(userId, true)}
-        onReject={(userId) => deleteUser(userId)}
-        onRevoke={(userId) => updateUserStatus(userId, false)}
+        onApprove={(userId) => updateUserStatus(userId, 'approved')}
+        onReject={(userId) => updateUserStatus(userId, 'rejected')}
+        onRevoke={(userId) => updateUserStatus(userId, 'pending')}
         onDelete={(userId) => deleteUser(userId)}
       />
     </div>

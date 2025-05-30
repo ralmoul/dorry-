@@ -4,6 +4,7 @@ import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
 import { authService } from '@/services/authService';
 import { authStorage } from '@/utils/authStorage';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -19,42 +20,141 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('📊 [AUTH] Loaded user from storage:', user);
     
     if (user) {
-      console.log('✅ [AUTH] User found, setting authenticated state');
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      // Vérifier le statut actuel de l'utilisateur dans Supabase
+      checkUserStatus(user.id);
     } else {
       console.log('❌ [AUTH] No user found, setting unauthenticated state');
       setAuthState(prev => ({ ...prev, isLoading: false }));
     }
+
+    // Setup realtime subscription pour les changements de profil
+    setupRealtimeSubscription();
   }, []);
 
-  const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
+  const setupRealtimeSubscription = () => {
+    console.log('📡 [AUTH] Setting up realtime subscription for profile changes');
+    
+    const channel = supabase
+      .channel('profile-status-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          console.log('📡 [AUTH] Profile update received:', payload);
+          handleProfileUpdate(payload);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleProfileUpdate = (payload: any) => {
+    const updatedProfile = payload.new;
+    const currentUser = authState.user;
+    
+    if (currentUser && currentUser.id === updatedProfile.id) {
+      console.log('🔄 [AUTH] Current user profile updated:', updatedProfile.status);
+      
+      if (updatedProfile.status === 'approved') {
+        // Utilisateur approuvé, maintenir la session
+        const updatedUser = {
+          ...currentUser,
+          isApproved: true
+        };
+        
+        setAuthState({
+          user: updatedUser,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        
+        authStorage.saveUser(updatedUser, true);
+        
+      } else if (updatedProfile.status === 'rejected' || updatedProfile.status === 'pending') {
+        // Utilisateur rejeté ou mis en attente, déconnecter
+        console.log('❌ [AUTH] User status changed to:', updatedProfile.status);
+        logout();
+      }
+    }
+  };
+
+  const checkUserStatus = async (userId: string) => {
+    try {
+      console.log('🔍 [AUTH] Checking user status for:', userId);
+      
+      const { data: userProfile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error || !userProfile) {
+        console.error('❌ [AUTH] Error checking user status:', error);
+        logout();
+        return;
+      }
+      
+      console.log('📊 [AUTH] User status check result:', userProfile.status);
+      
+      if (userProfile.status === 'approved') {
+        const user = {
+          id: userProfile.id,
+          firstName: userProfile.first_name,
+          lastName: userProfile.last_name,
+          email: userProfile.email,
+          phone: userProfile.phone,
+          company: userProfile.company,
+          isApproved: true,
+          createdAt: userProfile.created_at,
+        };
+        
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        
+        authStorage.saveUser(user, true);
+      } else {
+        console.log('❌ [AUTH] User not approved, status:', userProfile.status);
+        logout();
+      }
+      
+    } catch (error) {
+      console.error('💥 [AUTH] Unexpected error checking user status:', error);
+      logout();
+    }
+  };
+
+  const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; message?: string }> => {
     console.log('🔐 [AUTH] Login attempt for:', data.email);
     const result = await authService.login(data);
     
     if (result.success && result.user) {
       console.log('✅ [AUTH] Login successful, updating state');
-      // Update auth state
       setAuthState({
         user: result.user,
         isAuthenticated: true,
         isLoading: false,
       });
       
-      // Store user data
       authStorage.saveUser(result.user, data.rememberMe || false);
-      
-      return true;
+      return { success: true };
     }
     
-    console.log('❌ [AUTH] Login failed');
-    return false;
+    console.log('❌ [AUTH] Login failed:', result.message);
+    return { success: false, message: result.message };
   };
 
-  const signup = async (data: SignupFormData): Promise<boolean> => {
+  const signup = async (data: SignupFormData): Promise<{ success: boolean; message?: string }> => {
+    console.log('📝 [AUTH] Signup attempt for:', data.email);
     return await authService.signup(data);
   };
 
