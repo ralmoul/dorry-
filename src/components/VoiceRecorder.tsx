@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { useVoiceRecordings } from '@/hooks/useVoiceRecordings';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { ConsentModal } from '@/components/ui/ConsentModal';
 import { Button } from '@/components/ui/button';
@@ -12,15 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
   onOpenUpcomingFeatures: () => void;
-}
-
-interface Recording {
-  id: string;
-  name: string;
-  date: Date;
-  duration: number;
-  blob?: Blob;
-  userId: string;
 }
 
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
@@ -50,9 +43,19 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     handleConsentRefused,
     setRecordingConfirmedCallback
   } = useAudioRecorder();
+
+  // Utilisation du hook Supabase pour la persistance
+  const {
+    recordings,
+    isLoading: isLoadingRecordings,
+    error: recordingsError,
+    saveRecording,
+    updateRecordingName,
+    deleteRecording,
+    getRecordingBlob
+  } = useVoiceRecordings();
   
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
-  const [recordings, setRecordings] = useState<Recording[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -60,108 +63,45 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
-  
-  // Load recordings from localStorage on component mount
-  useEffect(() => {
-    if (user?.id) {
-      loadUserRecordings();
-    }
-  }, [user?.id]);
-
-  // Clean up expired recordings (older than 7 days) and filter by last 7 days
-  useEffect(() => {
-    const cleanupAndFilterRecordings = () => {
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      setRecordings(prev => {
-        // Filter recordings from the last 7 days (not just 7 recordings)
-        const filtered = prev.filter(rec => new Date(rec.date) > sevenDaysAgo);
-        // Sort by date (most recent first)
-        const sorted = filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
-        if (sorted.length !== prev.length) {
-          saveUserRecordings(sorted);
-        }
-        return sorted;
-      });
-    };
-
-    if (user?.id) {
-      cleanupAndFilterRecordings();
-      const interval = setInterval(cleanupAndFilterRecordings, 60 * 60 * 1000); // Check every hour
-      return () => clearInterval(interval);
-    }
-  }, [user?.id]);
 
   // Set up the callback for when recording is confirmed
   useEffect(() => {
-    const handleNewRecording = (blob: Blob, duration: number) => {
+    const handleNewRecording = async (blob: Blob, duration: number) => {
       console.log('🎵 [VOICE_RECORDER] Nouveau enregistrement reçu:', { duration, size: blob.size });
-      addNewRecording(blob, duration);
+      
+      try {
+        const result = await saveRecording(blob, duration);
+        if (result.success) {
+          toast({
+            title: "✅ Enregistrement sauvegardé !",
+            description: "Votre enregistrement a été sauvegardé et synchronisé."
+          });
+        } else {
+          throw new Error(result.message || 'Erreur de sauvegarde');
+        }
+      } catch (error) {
+        console.error('❌ [VOICE_RECORDER] Erreur sauvegarde:', error);
+        toast({
+          title: "Erreur de sauvegarde",
+          description: "Impossible de sauvegarder l'enregistrement",
+          variant: "destructive"
+        });
+      }
     };
     
     setRecordingConfirmedCallback(handleNewRecording);
-  }, [setRecordingConfirmedCallback, user?.id]);
+  }, [setRecordingConfirmedCallback, saveRecording, toast]);
 
-  const loadUserRecordings = () => {
-    const savedRecordings = localStorage.getItem(`dorry_recordings_${user?.id}`);
-    if (savedRecordings) {
-      try {
-        const parsed = JSON.parse(savedRecordings);
-        const recordingsWithDates = parsed.map((rec: any) => ({
-          ...rec,
-          date: new Date(rec.date)
-        }));
-        
-        // Filter recordings from the last 7 days and sort by date
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const filtered = recordingsWithDates.filter((rec: Recording) => new Date(rec.date) > sevenDaysAgo);
-        const sorted = filtered.sort((a: Recording, b: Recording) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
-        console.log('📂 [VOICE_RECORDER] Enregistrements chargés:', sorted.length);
-        setRecordings(sorted);
-      } catch (error) {
-        console.error('❌ [VOICE_RECORDER] Erreur lors du chargement:', error);
-      }
+  // Afficher les erreurs de chargement
+  useEffect(() => {
+    if (recordingsError) {
+      toast({
+        title: "Erreur de synchronisation",
+        description: recordingsError,
+        variant: "destructive"
+      });
     }
-  };
-
-  const saveUserRecordings = (recs: Recording[]) => {
-    if (user?.id) {
-      console.log('💾 [VOICE_RECORDER] Sauvegarde de', recs.length, 'enregistrements');
-      localStorage.setItem(`dorry_recordings_${user.id}`, JSON.stringify(recs));
-    }
-  };
-
-  const addNewRecording = (blob: Blob, duration: number) => {
-    if (!user?.id) {
-      console.error('❌ [VOICE_RECORDER] Pas d\'utilisateur connecté');
-      return;
-    }
-
-    const newRecording: Recording = {
-      id: Date.now().toString(),
-      name: '',
-      date: new Date(),
-      duration,
-      blob,
-      userId: user.id
-    };
-
-    console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id);
-
-    setRecordings(prev => {
-      // Add new recording at the beginning (most recent first)
-      const updated = [newRecording, ...prev];
-      
-      // Filter recordings from the last 7 days only
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      const filtered = updated.filter(rec => new Date(rec.date) > sevenDaysAgo);
-      
-      console.log('📝 [VOICE_RECORDER] Historique mis à jour:', filtered.length, 'enregistrements');
-      saveUserRecordings(filtered);
-      return filtered;
-    });
-  };
+  }, [recordingsError, toast]);
 
   // Simule l'animation des ondes vocales
   useEffect(() => {
@@ -199,7 +139,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const formatDateDisplay = (date: Date) => {
+  const formatDateDisplay = (dateString: string) => {
+    const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -207,23 +148,25 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  const formatTimeDisplay = (date: Date) => {
+  const formatTimeDisplay = (dateString: string) => {
+    const date = new Date(dateString);
     return date.toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  const getDefaultName = (date: Date) => {
-    return `Enregistrement du ${formatDateDisplay(date)}, ${formatTimeDisplay(date)}`;
+  const getDefaultName = (dateString: string) => {
+    const date = new Date(dateString);
+    return `Enregistrement du ${formatDateDisplay(dateString)}, ${formatTimeDisplay(dateString)}`;
   };
 
-  const handleStartEdit = (recording: Recording) => {
+  const handleStartEdit = (recording: any) => {
     setEditingId(recording.id);
-    setEditingName(recording.name || getDefaultName(recording.date));
+    setEditingName(recording.name || getDefaultName(recording.created_at));
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingId) return;
 
     const trimmedName = editingName.trim();
@@ -239,7 +182,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     // Check for duplicates
     const isDuplicate = recordings.some(rec => 
       rec.id !== editingId && 
-      (rec.name || getDefaultName(rec.date)).toLowerCase() === trimmedName.toLowerCase()
+      (rec.name || getDefaultName(rec.created_at)).toLowerCase() === trimmedName.toLowerCase()
     );
 
     if (isDuplicate) {
@@ -262,18 +205,25 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    const updatedRecordings = recordings.map(rec => 
-      rec.id === editingId ? { ...rec, name: trimmedName } : rec
-    );
-    setRecordings(updatedRecordings);
-    saveUserRecordings(updatedRecordings);
-    setEditingId(null);
-    setEditingName('');
-    
-    toast({
-      title: "✅ Nom mis à jour !",
-      description: "Le nom de l'enregistrement a été modifié avec succès"
-    });
+    try {
+      const result = await updateRecordingName(editingId, trimmedName);
+      if (result.success) {
+        setEditingId(null);
+        setEditingName('');
+        toast({
+          title: "✅ Nom mis à jour !",
+          description: "Le nom de l'enregistrement a été modifié avec succès"
+        });
+      } else {
+        throw new Error(result.message || 'Erreur lors du renommage');
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le nom",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCancelEdit = () => {
@@ -289,7 +239,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const handlePlay = (recording: Recording) => {
+  const handlePlay = (recording: any) => {
     if (playingId === recording.id) {
       // Stop current playback
       if (audioRef.current) {
@@ -300,60 +250,76 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    if (!recording.blob) {
+    try {
+      // Stop any current playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      const blob = getRecordingBlob(recording);
+      const audio = new Audio(URL.createObjectURL(blob));
+      audioRef.current = audio;
+      setPlayingId(recording.id);
+
+      audio.addEventListener('ended', () => {
+        setPlayingId(null);
+        audioRef.current = null;
+      });
+
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error);
+        setPlayingId(null);
+        toast({
+          title: "Erreur",
+          description: "Impossible de lire l'enregistrement",
+          variant: "destructive"
+        });
+      });
+    } catch (error) {
       toast({
         title: "Erreur",
         description: "Enregistrement non disponible",
         variant: "destructive"
       });
-      return;
     }
+  };
 
-    // Stop any current playback
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
+  const handleDelete = async (recordingId: string) => {
+    try {
+      const result = await deleteRecording(recordingId);
+      if (result.success) {
+        if (playingId === recordingId && audioRef.current) {
+          audioRef.current.pause();
+          setPlayingId(null);
+        }
 
-    const audio = new Audio(URL.createObjectURL(recording.blob));
-    audioRef.current = audio;
-    setPlayingId(recording.id);
-
-    audio.addEventListener('ended', () => {
-      setPlayingId(null);
-      audioRef.current = null;
-    });
-
-    audio.play().catch(error => {
-      console.error('Error playing audio:', error);
-      setPlayingId(null);
+        toast({
+          title: "Enregistrement supprimé",
+          description: "L'enregistrement a été supprimé avec succès"
+        });
+      } else {
+        throw new Error(result.message || 'Erreur lors de la suppression');
+      }
+    } catch (error) {
       toast({
         title: "Erreur",
-        description: "Impossible de lire l'enregistrement",
+        description: "Impossible de supprimer l'enregistrement",
         variant: "destructive"
       });
-    });
-  };
-
-  const handleDelete = (recordingId: string) => {
-    const updatedRecordings = recordings.filter(rec => rec.id !== recordingId);
-    setRecordings(updatedRecordings);
-    saveUserRecordings(updatedRecordings);
-    
-    if (playingId === recordingId && audioRef.current) {
-      audioRef.current.pause();
-      setPlayingId(null);
     }
-
-    toast({
-      title: "Enregistrement supprimé",
-      description: "L'enregistrement a été supprimé avec succès"
-    });
   };
 
-  const getDaysUntilExpiry = (date: Date) => {
+  const getDaysUntilExpiry = (dateString: string) => {
+    const date = new Date(dateString);
     const now = new Date();
     const diffTime = 7 * 24 * 60 * 60 * 1000 - (now.getTime() - date.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Determine what to display for the user greeting
@@ -582,14 +548,19 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                 <div className="w-full max-w-3xl mt-8">
                   <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
                     <h3 className="text-xl font-semibold text-white mb-4 text-center">
-                      Vos enregistrements des 7 derniers jours
+                      Vos enregistrements synchronisés
                     </h3>
                     
-                    {recordings.length === 0 ? (
+                    {isLoadingRecordings ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+                        <p className="text-slate-300 text-sm">Synchronisation en cours...</p>
+                      </div>
+                    ) : recordings.length === 0 ? (
                       <div className="text-center py-8">
                         <div className="text-4xl mb-4">🐟</div>
                         <p className="text-slate-300 text-sm">
-                          Ici, la mémoire, c'est 7 jours : assez pour ne rien rater, pas assez pour s'inquiéter !
+                          Aucun enregistrement pour le moment. Vos enregistrements seront synchronisés sur tous vos appareils !
                         </p>
                       </div>
                     ) : (
@@ -653,12 +624,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                   ) : (
                                     <div>
                                       <div className="font-medium text-white text-sm truncate">
-                                        {recording.name || getDefaultName(recording.date)}
+                                        {recording.name || getDefaultName(recording.created_at)}
                                       </div>
                                       <div className="text-xs text-slate-400 flex items-center justify-between">
-                                        <span>{formatDateDisplay(recording.date)}, {formatTimeDisplay(recording.date)}</span>
+                                        <span>
+                                          {formatDateDisplay(recording.created_at)}, {formatTimeDisplay(recording.created_at)} 
+                                          • {formatDuration(recording.duration)}
+                                        </span>
                                         <span className="text-orange-400">
-                                          Expire dans {getDaysUntilExpiry(recording.date)} jour(s)
+                                          Expire dans {getDaysUntilExpiry(recording.created_at)} jour(s)
                                         </span>
                                       </div>
                                     </div>
@@ -700,9 +674,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                         </AnimatePresence>
                         
                         <div className="text-center mt-6">
-                          <div className="text-3xl mb-2">🐟</div>
+                          <div className="text-3xl mb-2">🔄</div>
                           <p className="text-slate-400 text-xs">
-                            Vos enregistrements sont strictement confidentiels et automatiquement supprimés après 7 jours.<br/>
+                            Vos enregistrements sont synchronisés sur tous vos appareils et automatiquement supprimés après 7 jours.<br/>
                             Dorry ne partage rien sans votre accord.
                           </p>
                         </div>
