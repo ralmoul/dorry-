@@ -179,9 +179,6 @@ export const AdminPanel = () => {
         description: "L'utilisateur a été approuvé avec succès et peut maintenant se connecter.",
       });
       
-      // Actualiser immédiatement la page
-      window.location.reload();
-      
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
       toast({
@@ -225,9 +222,6 @@ export const AdminPanel = () => {
         description: "L'accès de l'utilisateur a été révoqué.",
         variant: "destructive"
       });
-      
-      // Actualiser immédiatement la page
-      window.location.reload();
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -278,9 +272,6 @@ export const AdminPanel = () => {
         title: "🗑️ Suppression complète",
         description: "L'utilisateur a été supprimé de l'authentification et des profils. L'email est maintenant disponible.",
       });
-      
-      // Actualiser immédiatement la page
-      window.location.reload();
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error during deletion:', error);
@@ -386,7 +377,7 @@ export const AdminPanel = () => {
                 </p>
               </div>
               <Button 
-                onClick={() => window.location.reload()}
+                onClick={loadUsers}
                 variant="outline"
                 size="sm"
                 className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
