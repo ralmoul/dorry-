@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { ConsentLogResponse } from '@/types/consent';
 
@@ -245,8 +244,8 @@ export const getAuditHistory = async (limit: number = 20, offset: number = 0): P
       consents_given: item.consents_given,
       consents_refused: item.consents_refused,
       compliance_score: item.compliance_score,
-      issues_found: Array.isArray(item.issues_found) ? item.issues_found : [],
-      recommendations: Array.isArray(item.recommendations) ? item.recommendations : [],
+      issues_found: Array.isArray(item.issues_found) ? item.issues_found.map(issue => String(issue)) : [],
+      recommendations: Array.isArray(item.recommendations) ? item.recommendations.map(rec => String(rec)) : [],
       audit_period_start: item.audit_period_start,
       audit_period_end: item.audit_period_end
     }));
