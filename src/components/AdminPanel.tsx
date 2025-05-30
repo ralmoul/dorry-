@@ -20,24 +20,21 @@ export const AdminPanel = () => {
 
   useEffect(() => {
     loadUsers();
-    // 1️⃣ ACTUALISATION AUTOMATIQUE - Setup subscription immédiate
-    setupRealtimeSubscription();
+    // Setup immediate realtime subscription
+    const cleanup = setupRealtimeSubscription();
     
-    return () => {
-      // Cleanup subscription when component unmounts
-      supabase.removeAllChannels();
-    };
+    return cleanup;
   }, []);
 
   const setupRealtimeSubscription = () => {
-    console.log('🔄 [ADMIN] Setting up IMMEDIATE realtime subscription for all profile changes');
+    console.log('📡 [ADMIN] Setting up IMMEDIATE realtime subscription for all profile changes');
     
     const channel = supabase
-      .channel('admin-profiles-realtime')
+      .channel('admin-profiles-realtime-immediate')
       .on(
         'postgres_changes',
         {
-          event: '*', // Écouter tous les événements
+          event: '*', // Écouter TOUS les événements (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'profiles'
         },
@@ -49,23 +46,33 @@ export const AdminPanel = () => {
       .subscribe((status) => {
         console.log('📡 [ADMIN] Subscription status:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('✅ [ADMIN] Real-time subscription active - new accounts will appear immediately');
+          console.log('✅ [ADMIN] Real-time subscription ACTIVE - all changes will appear immediately');
         }
       });
 
     return () => {
+      console.log('🔌 [ADMIN] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   };
 
   const handleRealtimeUpdate = (payload: any) => {
-    console.log('🔄 [ADMIN] Processing IMMEDIATE realtime update:', payload.eventType);
+    console.log('🔄 [ADMIN] Processing IMMEDIATE realtime update:', payload.eventType, payload);
     
     switch (payload.eventType) {
       case 'INSERT':
-        // 1️⃣ ACTUALISATION IMMÉDIATE - Nouvel utilisateur ajouté
+        // Nouvel utilisateur ajouté
         console.log('➕ [ADMIN] NEW USER - Adding to list immediately:', payload.new);
-        setUsers(prev => [payload.new, ...prev]);
+        setUsers(prev => {
+          const exists = prev.some(user => user.id === payload.new.id);
+          if (!exists) {
+            const newUsers = [payload.new, ...prev];
+            console.log('📊 [ADMIN] Users list updated - total:', newUsers.length);
+            return newUsers;
+          }
+          return prev;
+        });
+        
         toast({
           title: "✨ Nouvelle demande",
           description: `${payload.new.first_name} ${payload.new.last_name} vient de s'inscrire`,
@@ -75,25 +82,32 @@ export const AdminPanel = () => {
       case 'UPDATE':
         // Mise à jour du statut d'un utilisateur
         console.log('🔄 [ADMIN] USER UPDATE - Updating status immediately:', payload.new);
-        setUsers(prev => prev.map(user => 
-          user.id === payload.new.id ? payload.new : user
-        ));
-        const statusLabels = {
-          true: 'approuvé',
-          false: 'en attente'
-        };
+        setUsers(prev => {
+          const updated = prev.map(user => 
+            user.id === payload.new.id ? payload.new : user
+          );
+          console.log('📊 [ADMIN] User status updated in list');
+          return updated;
+        });
+        
+        const statusText = payload.new.is_approved ? 'approuvé' : 'désapprouvé';
         toast({
-          title: "Statut mis à jour",
-          description: `${payload.new.first_name} ${payload.new.last_name} est maintenant ${statusLabels[payload.new.is_approved ? 'true' : 'false' as keyof typeof statusLabels]}`,
+          title: "✅ Statut mis à jour",
+          description: `${payload.new.first_name} ${payload.new.last_name} est maintenant ${statusText}`,
         });
         break;
         
       case 'DELETE':
         // Suppression d'un utilisateur
         console.log('🗑️ [ADMIN] USER DELETE - Removing from list immediately:', payload.old);
-        setUsers(prev => prev.filter(user => user.id !== payload.old.id));
+        setUsers(prev => {
+          const filtered = prev.filter(user => user.id !== payload.old.id);
+          console.log('📊 [ADMIN] User removed from list - remaining:', filtered.length);
+          return filtered;
+        });
+        
         toast({
-          title: "Utilisateur supprimé",
+          title: "🗑️ Utilisateur supprimé",
           description: "L'utilisateur a été supprimé définitivement",
           variant: "destructive",
         });
@@ -158,13 +172,11 @@ export const AdminPanel = () => {
         return;
       }
       
+      console.log('✅ [ADMIN] Status updated successfully - realtime will handle UI update');
       setIsModalOpen(false);
-      console.log('✅ [ADMIN] Status updated successfully');
       
-      toast({
-        title: "Statut mis à jour",
-        description: `L'utilisateur a été ${newStatus ? 'approuvé' : 'désapprouvé'}.`,
-      });
+      // Ne pas mettre à jour manuellement - laisser le realtime s'en occuper
+      // La mise à jour sera automatique via handleRealtimeUpdate
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -198,8 +210,11 @@ export const AdminPanel = () => {
         return;
       }
       
+      console.log('✅ [ADMIN] User deleted successfully - realtime will handle UI update');
       setIsModalOpen(false);
-      console.log('✅ [ADMIN] User deleted successfully');
+      
+      // Ne pas mettre à jour manuellement - laisser le realtime s'en occuper
+      // La suppression sera automatique via handleRealtimeUpdate
       
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
@@ -247,10 +262,10 @@ export const AdminPanel = () => {
           <CardHeader>
             <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <Users className="h-8 w-8 text-bright-turquoise" />
-              Administration Dory - MISE À JOUR IMMÉDIATE
+              Administration Dory - ACTUALISATION IMMÉDIATE ⚡
             </CardTitle>
             <CardDescription>
-              📡 Actualisation automatique en temps réel • Nouvelles demandes visibles instantanément
+              📡 Synchronisation temps réel ACTIVE • Toutes les actions sont visibles instantanément
             </CardDescription>
           </CardHeader>
         </Card>
@@ -301,7 +316,7 @@ export const AdminPanel = () => {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
                 <p className="text-sm text-muted-foreground">
-                  ✅ Synchronisation temps réel ACTIVE • Nouvelles demandes apparaissent instantanément • {users.length} utilisateur(s)
+                  ⚡ SYNCHRONISATION IMMÉDIATE ACTIVE • Toutes vos actions sont reflétées instantanément • {users.length} utilisateur(s)
                 </p>
               </div>
               <Button 
@@ -326,7 +341,7 @@ export const AdminPanel = () => {
                 ⚡ Demandes en attente ({pendingUsers.length})
               </CardTitle>
               <CardDescription>
-                🚨 Comptes nécessitant une validation - APPARITION IMMÉDIATE
+                🚨 Comptes nécessitant une validation - MISE À JOUR IMMÉDIATE
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -494,7 +509,7 @@ export const AdminPanel = () => {
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
-                ✅ Synchronisation temps réel active - Les nouvelles demandes apparaîtront instantanément ici.
+                ⚡ Synchronisation immédiate active - Les nouvelles demandes et actions apparaîtront instantanément ici.
               </p>
             </CardContent>
           </Card>
