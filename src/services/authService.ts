@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -13,7 +14,27 @@ export const authService = {
 
       const cleanEmail = data.email.toLowerCase().trim();
       
-      // 1️⃣ - AUTHENTIFICATION SUPABASE D'ABORD
+      // 1️⃣ - VÉRIFIER D'ABORD SI L'UTILISATEUR EXISTE ET EST APPROUVÉ
+      console.log('🔍 [LOGIN] Checking if user exists and is approved...');
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', cleanEmail)
+        .single();
+      
+      if (profileError || !profile) {
+        console.log('❌ [LOGIN] User not found in profiles');
+        return { success: false, message: 'Identifiants incorrects.' };
+      }
+      
+      if (!profile.is_approved) {
+        console.log('❌ [LOGIN] User exists but not approved');
+        return { success: false, message: 'Votre compte n\'est pas approuvé.' };
+      }
+      
+      console.log('✅ [LOGIN] User exists and is approved, proceeding with auth...');
+      
+      // 2️⃣ - SEULEMENT MAINTENANT, AUTHENTIFIER VIA SUPABASE
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: data.password,
@@ -24,23 +45,7 @@ export const authService = {
         return { success: false, message: 'Identifiants incorrects.' };
       }
       
-      console.log('✅ [LOGIN] Supabase Auth successful for user:', authData.user.id);
-      
-      // 2️⃣ - VÉRIFICATION STRICTE DU STATUT APPROVED
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-      
-      if (profileError || !profile || !profile.is_approved) {
-        console.log('❌ [LOGIN] STRICT BLOCK - User not approved, signing out immediately');
-        // DÉCONNEXION IMMÉDIATE
-        await supabase.auth.signOut();
-        return { success: false, message: 'Votre compte n\'est pas approuvé.' };
-      }
-      
-      console.log('✅ [LOGIN] User is approved, allowing access');
+      console.log('✅ [LOGIN] Authentication successful for approved user');
       
       // 3️⃣ - Créer l'objet utilisateur final
       const user: User = {
