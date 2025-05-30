@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { AuthScreen } from '@/components/AuthScreen';
 
 const Login = () => {
   // États pour les champs du formulaire
@@ -74,7 +73,7 @@ const Login = () => {
   }, []);
   
   return (
-    <AuthScreen>
+    <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[#4649ee]/75 relative">
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">Dorry</div>
@@ -196,7 +195,7 @@ const Login = () => {
           </div>
         </form>
       </div>
-    </AuthScreen>
+    </div>
   );
 };
 
