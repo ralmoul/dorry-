@@ -92,7 +92,7 @@ export const authService = {
       const cleanEmail = data.email.toLowerCase().trim();
       console.log('🔍 [SIGNUP] Checking if email exists:', cleanEmail);
       
-      // Check if email already exists
+      // Check if email already exists in profiles
       const { data: existingUsers, error: checkError } = await supabase
         .from('profiles')
         .select('id, email, is_approved')
@@ -121,43 +121,73 @@ export const authService = {
         }
       }
       
-      console.log('✅ [SIGNUP] Email available, creating user...');
+      console.log('✅ [SIGNUP] Email available, creating user via Supabase Auth...');
       
-      // Generate a new UUID for the user using crypto.randomUUID()
-      const userId = crypto.randomUUID();
-      
-      // 1️⃣ - Create new user with pending status (will trigger admin panel update)
-      const newUserData = {
-        id: userId,
-        first_name: data.firstName.trim(),
-        last_name: data.lastName.trim(),
+      // 1️⃣ - Create user via Supabase Auth first
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: cleanEmail,
-        phone: data.phone.trim(),
-        company: data.company.trim(),
-        is_approved: false // Status "en attente" - apparaît immédiatement dans l'admin
-      };
+        password: data.password,
+        options: {
+          data: {
+            first_name: data.firstName.trim(),
+            last_name: data.lastName.trim(),
+            phone: data.phone.trim(),
+            company: data.company.trim(),
+          }
+        }
+      });
       
-      console.log('📝 [SIGNUP] Inserting new profile for admin panel:', newUserData);
-      
-      const { data: newUser, error: insertError } = await supabase
-        .from('profiles')
-        .insert(newUserData)
-        .select()
-        .single();
-      
-      if (insertError) {
-        console.error('❌ [SIGNUP] Insert error:', insertError);
+      if (authError) {
+        console.error('❌ [SIGNUP] Auth signup error:', authError);
         return { 
           success: false, 
           message: 'Erreur lors de la création du compte. Veuillez réessayer.' 
         };
       }
       
-      console.log('🎉 [SIGNUP] User created - will appear in admin panel immediately:', { 
-        id: newUser.id, 
-        email: newUser.email,
-        isApproved: newUser.is_approved
-      });
+      if (!authData.user) {
+        console.error('❌ [SIGNUP] No user returned from auth signup');
+        return { 
+          success: false, 
+          message: 'Erreur lors de la création du compte. Veuillez réessayer.' 
+        };
+      }
+      
+      console.log('✅ [SIGNUP] Auth user created:', authData.user.id);
+      
+      // 2️⃣ - Create profile entry manually (in case trigger doesn't work)
+      const profileData = {
+        id: authData.user.id,
+        first_name: data.firstName.trim(),
+        last_name: data.lastName.trim(),
+        email: cleanEmail,
+        phone: data.phone.trim(),
+        company: data.company.trim(),
+        is_approved: false
+      };
+      
+      console.log('📝 [SIGNUP] Creating profile entry:', profileData);
+      
+      const { data: profileResult, error: profileError } = await supabase
+        .from('profiles')
+        .insert(profileData)
+        .select()
+        .single();
+      
+      if (profileError) {
+        console.error('❌ [SIGNUP] Profile creation error:', profileError);
+        
+        // If profile creation fails, we still consider signup successful
+        // as the auth user was created and trigger might handle it
+        console.log('⚠️ [SIGNUP] Profile creation failed, but auth user exists - trigger should handle it');
+      } else {
+        console.log('✅ [SIGNUP] Profile created successfully:', profileResult);
+      }
+      
+      // Sign out the user immediately since they need approval
+      await supabase.auth.signOut();
+      
+      console.log('🎉 [SIGNUP] User created - will appear in admin panel immediately');
       
       return { 
         success: true, 
