@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         console.log('✅ [AUTH] Active Supabase session found:', session.user.id);
         // VÉRIFICATION STRICTE : L'utilisateur doit exister et être approuvé dans notre base
-        await checkUserStatusAndApprovalStrict(session.user.id);
+        await checkUserStatusAndApprovalStrict(session.user.id, session.user.email || '');
       } else {
         console.log('❌ [AUTH] No active Supabase session');
         setAuthState(prev => ({ ...prev, isLoading: false }));
@@ -49,10 +49,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const checkUserStatusAndApprovalStrict = async (userId: string) => {
+  const checkUserStatusAndApprovalStrict = async (userId: string, userEmail: string) => {
     try {
       console.log('🔍 [AUTH] STRICT USER CHECK - Must exist and be approved:', userId);
       
+      // 1️⃣ - D'abord vérifier via la vue sécurisée
+      const { data: approvalData, error: approvalError } = await supabase
+        .from('profiles_email_approval')
+        .select('*')
+        .eq('email', userEmail)
+        .single();
+      
+      if (approvalError || !approvalData || !approvalData.is_approved) {
+        console.error('❌ [AUTH] STRICT BLOCK - User not found or not approved via view:', approvalError);
+        forceLogoutImmediate();
+        return;
+      }
+      
+      // 2️⃣ - Ensuite récupérer le profil complet
       const { data: userProfile, error } = await supabase
         .from('profiles')
         .select('*')

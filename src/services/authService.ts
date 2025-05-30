@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -14,9 +15,9 @@ export const authService = {
       const cleanEmail = data.email.toLowerCase().trim();
       console.log('🔍 [LOGIN] STRICT CHECK - User must exist and be approved first:', cleanEmail);
       
-      // 1️⃣ - VÉRIFICATION STRICTE PRÉALABLE : L'utilisateur DOIT exister ET être approuvé
+      // 1️⃣ - VÉRIFICATION STRICTE PRÉALABLE via la vue sécurisée
       const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
+        .from('profiles_email_approval')
         .select('*')
         .eq('email', cleanEmail)
         .single();
@@ -26,11 +27,10 @@ export const authService = {
         return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
       }
       
-      const userProfile = profileData;
-      console.log('✅ [LOGIN] User found in database:', userProfile.email, 'Approved:', userProfile.is_approved);
+      console.log('✅ [LOGIN] User found in database:', profileData.email, 'Approved:', profileData.is_approved);
       
       // 2️⃣ - VÉRIFICATION DU STATUT D'APPROBATION - BLOCAGE IMMÉDIAT SI NON APPROUVÉ
-      if (!userProfile.is_approved) {
+      if (!profileData.is_approved) {
         console.log('❌ [LOGIN] STRICT BLOCK - User account not approved');
         return { 
           success: false, 
@@ -55,7 +55,7 @@ export const authService = {
       console.log('✅ [LOGIN] Supabase Auth successful for user:', authData.user.id);
       
       // 4️⃣ - SÉCURITÉ SUPPLÉMENTAIRE : Vérifier que l'ID Supabase correspond à notre base
-      if (authData.user.id !== userProfile.id) {
+      if (authData.user.id !== profileData.id) {
         console.error('❌ [LOGIN] CRITICAL - User ID mismatch between auth and profile');
         // Déconnecter immédiatement pour sécurité
         await supabase.auth.signOut();
@@ -64,16 +64,29 @@ export const authService = {
       
       console.log('🎉 [LOGIN] AUTHENTICATION SUCCESSFUL - All checks passed!');
       
-      // 5️⃣ - Créer l'objet utilisateur final
+      // 5️⃣ - Maintenant récupérer le profil complet depuis la table sécurisée
+      const { data: fullProfile, error: fullProfileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+      
+      if (fullProfileError || !fullProfile) {
+        console.error('❌ [LOGIN] Failed to get full profile');
+        await supabase.auth.signOut();
+        return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
+      }
+      
+      // 6️⃣ - Créer l'objet utilisateur final
       const user: User = {
-        id: userProfile.id,
-        firstName: userProfile.first_name,
-        lastName: userProfile.last_name,
-        email: userProfile.email,
-        phone: userProfile.phone,
-        company: userProfile.company,
-        isApproved: userProfile.is_approved,
-        createdAt: userProfile.created_at,
+        id: fullProfile.id,
+        firstName: fullProfile.first_name,
+        lastName: fullProfile.last_name,
+        email: fullProfile.email,
+        phone: fullProfile.phone,
+        company: fullProfile.company,
+        isApproved: fullProfile.is_approved,
+        createdAt: fullProfile.created_at,
       };
       
       return { success: true, user };
