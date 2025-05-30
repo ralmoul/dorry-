@@ -121,6 +121,22 @@ export const useVoiceRecordings = () => {
 
     try {
       console.log('💾 [VOICE_RECORDINGS] Ajout nouvel enregistrement...');
+      
+      // Créer l'enregistrement immédiatement dans l'UI
+      const tempRecording: Recording = {
+        id: `temp-${Date.now()}`,
+        name: '',
+        date: new Date(),
+        duration,
+        blob,
+        userId: user.id
+      };
+
+      // Ajouter immédiatement à l'état local
+      setRecordings(prev => [tempRecording, ...prev]);
+      console.log('✅ [VOICE_RECORDINGS] Enregistrement ajouté temporairement à l\'UI');
+
+      // Sauvegarder en arrière-plan
       const blobData = await blobToBase64(blob);
       
       const savedRecording = await recordingService.saveRecording({
@@ -129,19 +145,27 @@ export const useVoiceRecordings = () => {
         blob_type: blob.type
       });
 
-      const newRecording: Recording = {
-        id: savedRecording.id,
-        name: '',
-        date: new Date(savedRecording.created_at),
-        duration: savedRecording.duration,
-        blob,
-        userId: savedRecording.user_id
-      };
+      // Remplacer l'enregistrement temporaire par le vrai
+      setRecordings(prev => prev.map(rec => 
+        rec.id === tempRecording.id 
+          ? {
+              id: savedRecording.id,
+              name: '',
+              date: new Date(savedRecording.created_at),
+              duration: savedRecording.duration,
+              blob,
+              userId: savedRecording.user_id
+            }
+          : rec
+      ));
 
-      setRecordings(prev => [newRecording, ...prev]);
-      console.log('✅ [VOICE_RECORDINGS] Enregistrement ajouté');
+      console.log('✅ [VOICE_RECORDINGS] Enregistrement sauvegardé et mis à jour');
     } catch (error) {
       console.error('❌ [VOICE_RECORDINGS] Erreur lors de l\'ajout:', error);
+      
+      // Supprimer l'enregistrement temporaire en cas d'erreur
+      setRecordings(prev => prev.filter(rec => !rec.id.startsWith('temp-')));
+      
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder l'enregistrement",
