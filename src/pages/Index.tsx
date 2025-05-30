@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Settings as SettingsIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
 const Index = () => {
   const {
     user,
@@ -24,7 +22,6 @@ const Index = () => {
       hasUser: !!user,
       userApproved: user?.isApproved
     });
-
     if (!isLoading && (!isAuthenticated || !user || !user.isApproved)) {
       console.log('❌ [INDEX] User not authenticated or not approved, redirecting to login');
       navigate('/login');
@@ -33,24 +30,20 @@ const Index = () => {
 
   // Afficher un loader pendant la vérification d'authentification
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+    return <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto mb-4"></div>
           <p className="text-slate-300">Vérification de l'authentification...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Si pas authentifié, ne rien afficher (redirection en cours)
   if (!isAuthenticated || !user || !user.isApproved) {
     return null;
   }
-
   const handleLogout = async () => {
     if (isLoggingOut) return;
-
     setIsLoggingOut(true);
     try {
       await logout();
@@ -61,57 +54,41 @@ const Index = () => {
       setIsLoggingOut(false);
     }
   };
-
   const handleSettingsClick = () => {
     navigate('/settings');
   };
-
   const handleUpcomingFeaturesClick = () => {
     navigate('/upcoming-features');
   };
-
   const handleLogoClick = () => {
     navigate('/');
   };
-
   const capitalizeFirstLetter = (str: string) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-
-  return (
-    <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden">
+  return <div className="min-h-screen bg-slate-900 text-white relative overflow-hidden">
       {/* Fond violet avec dégradé optimisé */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
       
       {/* Particules animées réduites */}
       <div className="absolute inset-0 z-0">
-        {Array.from({ length: window.innerWidth > 768 ? 30 : 15 }).map((_, i) => (
-          <div 
-            key={i} 
-            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" 
-            style={{
-              width: `${Math.random() * 8 + 3}px`,
-              height: `${Math.random() * 8 + 3}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 20 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
-              filter: 'blur(1px)'
-            }} 
-          />
-        ))}
+        {Array.from({
+        length: window.innerWidth > 768 ? 30 : 15
+      }).map((_, i) => <div key={i} className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" style={{
+        width: `${Math.random() * 8 + 3}px`,
+        height: `${Math.random() * 8 + 3}px`,
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        animation: `float ${Math.random() * 20 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
+        filter: 'blur(1px)'
+      }} />)}
       </div>
 
       {/* Header */}
       <header className="relative z-10 flex justify-between items-center p-4 md:p-6">
         <div className="flex items-center space-x-3">
-          <img 
-            src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" 
-            alt="Dorry Logo" 
-            className="w-8 h-8 md:w-10 md:h-10 cursor-pointer hover:opacity-80 transition-opacity" 
-            onClick={handleLogoClick}
-            loading="lazy"
-          />
+          <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-8 h-8 md:w-10 md:h-10 cursor-pointer hover:opacity-80 transition-opacity" onClick={handleLogoClick} loading="lazy" />
         </div>
         
         <div className="flex items-center space-x-2">
@@ -133,9 +110,7 @@ const Index = () => {
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
             Bienvenue, {capitalizeFirstLetter(user.firstName)}
           </h2>
-          <p className="text-slate-300">
-            Prêt à enregistrer votre prochaine réunion ?
-          </p>
+          <p className="text-slate-300">Prêt à enregistrer votre prochain entretien ?</p>
         </div>
         
         <div className="max-w-4xl mx-auto">
@@ -160,8 +135,6 @@ const Index = () => {
           }
         }
       `}</style>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
