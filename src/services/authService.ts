@@ -29,7 +29,7 @@ export const authService = {
       // 2️⃣ - VÉRIFICATION STRICTE DU STATUT APPROVED
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('is_approved')
+        .select('*')
         .eq('id', authData.user.id)
         .single();
       
@@ -42,29 +42,16 @@ export const authService = {
       
       console.log('✅ [LOGIN] User is approved, allowing access');
       
-      // 3️⃣ - Récupérer le profil complet SEULEMENT si approuvé
-      const { data: fullProfile, error: fullProfileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-      
-      if (fullProfileError || !fullProfile) {
-        console.error('❌ [LOGIN] Failed to get full profile');
-        await supabase.auth.signOut();
-        return { success: false, message: 'Erreur lors de la récupération du profil.' };
-      }
-      
-      // 4️⃣ - Créer l'objet utilisateur final
+      // 3️⃣ - Créer l'objet utilisateur final
       const user: User = {
-        id: fullProfile.id,
-        firstName: fullProfile.first_name,
-        lastName: fullProfile.last_name,
-        email: fullProfile.email,
-        phone: fullProfile.phone,
-        company: fullProfile.company,
-        isApproved: fullProfile.is_approved,
-        createdAt: fullProfile.created_at,
+        id: profile.id,
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        email: profile.email,
+        phone: profile.phone,
+        company: profile.company,
+        isApproved: profile.is_approved,
+        createdAt: profile.created_at,
       };
       
       return { success: true, user };
