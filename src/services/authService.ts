@@ -13,6 +13,13 @@ export const authService = {
 
       if (error) {
         console.error('❌ [LOGIN] Supabase auth error:', error);
+        
+        // Gérer spécifiquement l'erreur de confirmation email
+        if (error.message.includes('Email not confirmed')) {
+          console.error('❌ [LOGIN] Email not confirmed - vérifiez les paramètres Supabase');
+          return { success: false };
+        }
+        
         return { success: false };
       }
 
@@ -32,7 +39,40 @@ export const authService = {
 
       if (profileError || !profile) {
         console.error('❌ [LOGIN] Profile not found:', profileError);
-        return { success: false };
+        console.log('🔍 [LOGIN] Trying to create profile from auth user data...');
+        
+        // Si le profil n'existe pas, le créer à partir des métadonnées utilisateur
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: authData.user.id,
+            first_name: authData.user.user_metadata?.first_name || 'Utilisateur',
+            last_name: authData.user.user_metadata?.last_name || '',
+            email: authData.user.email || '',
+            phone: authData.user.user_metadata?.phone || '',
+            company: authData.user.user_metadata?.company || '',
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('❌ [LOGIN] Failed to create profile:', createError);
+          return { success: false };
+        }
+
+        console.log('✅ [LOGIN] Profile created successfully');
+        const user = {
+          id: authData.user.id,
+          firstName: newProfile.first_name,
+          lastName: newProfile.last_name,
+          email: newProfile.email,
+          phone: newProfile.phone,
+          company: newProfile.company,
+          isApproved: true,
+          createdAt: newProfile.created_at,
+        };
+
+        return { success: true, user };
       }
 
       const user = {
@@ -42,7 +82,7 @@ export const authService = {
         email: profile.email,
         phone: profile.phone,
         company: profile.company,
-        isApproved: true, // Si l'utilisateur peut se connecter via Supabase, il est approuvé
+        isApproved: true,
         createdAt: profile.created_at,
       };
 

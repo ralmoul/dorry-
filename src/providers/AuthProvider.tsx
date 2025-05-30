@@ -20,8 +20,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('🔄 [AUTH] Auth state changed:', event);
       
       if (session?.user) {
+        console.log('👤 [AUTH] User session found, fetching profile...');
+        
         // Récupérer le profil utilisateur
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
@@ -45,9 +47,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isAuthenticated: true,
             isLoading: false,
           });
+        } else {
+          console.warn('⚠️ [AUTH] Profile not found for user, logging out...');
+          await supabase.auth.signOut();
         }
       } else {
-        console.log('❌ [AUTH] User logged out');
+        console.log('❌ [AUTH] No user session');
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -57,11 +62,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     // Vérifier la session actuelle
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ [AUTH] Error getting session:', error);
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+          return;
+        }
+        
+        if (!session) {
+          console.log('📭 [AUTH] No existing session found');
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+        }
+        // Si une session existe, elle sera gérée par onAuthStateChange
+      } catch (error) {
+        console.error('💥 [AUTH] Unexpected error checking session:', error);
         setAuthState(prev => ({ ...prev, isLoading: false }));
       }
-    });
+    };
+
+    checkSession();
 
     return () => subscription.unsubscribe();
   }, []);
