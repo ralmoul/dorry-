@@ -126,39 +126,22 @@ export const AdminPanel = () => {
     try {
       console.log(`✅ [ADMIN] Début de l'approbation pour l'utilisateur ${userId}`);
       
-      // Utiliser une requête RPC (Remote Procedure Call) pour bypasser les politiques RLS
-      const { data, error } = await supabase.rpc('approve_user_profile', {
+      // Utiliser la fonction RPC nouvellement créée
+      const { data, error } = await (supabase as any).rpc('approve_user_profile', {
         user_id: userId
       });
       
       if (error) {
         console.error('❌ [ADMIN] Erreur lors de l\'approbation via RPC:', error);
-        
-        // Essayer avec une mise à jour directe si RPC échoue
-        console.log('🔄 [ADMIN] Tentative de mise à jour directe...');
-        const { data: updateData, error: updateError } = await supabase
-          .from('profiles')
-          .update({ 
-            is_approved: true,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', userId)
-          .select();
-        
-        if (updateError) {
-          console.error('❌ [ADMIN] Erreur lors de la mise à jour directe:', updateError);
-          toast({
-            title: "Erreur",
-            description: `Erreur lors de l'approbation: ${updateError.message}`,
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        console.log('✅ [ADMIN] Mise à jour directe réussie:', updateData);
-      } else {
-        console.log('✅ [ADMIN] Approbation via RPC réussie:', data);
+        toast({
+          title: "Erreur",
+          description: `Erreur lors de l'approbation: ${error.message}`,
+          variant: "destructive"
+        });
+        return;
       }
+      
+      console.log('✅ [ADMIN] Approbation via RPC réussie:', data);
       
       // Mettre à jour l'état local immédiatement
       setUsers(prevUsers => 
@@ -178,7 +161,7 @@ export const AdminPanel = () => {
       setTimeout(() => {
         console.log('🔄 [ADMIN] Rechargement des données pour vérification...');
         loadUsers();
-      }, 2000);
+      }, 1000);
       
     } catch (error) {
       console.error('💥 [ADMIN] Erreur inattendue lors de l\'approbation:', error);
@@ -194,38 +177,22 @@ export const AdminPanel = () => {
     try {
       console.log(`❌ [ADMIN] Début du rejet pour l'utilisateur ${userId}`);
       
-      // Utiliser RPC pour le rejet aussi
-      const { data, error } = await supabase.rpc('reject_user_profile', {
+      // Utiliser la fonction RPC nouvellement créée
+      const { data, error } = await (supabase as any).rpc('reject_user_profile', {
         user_id: userId
       });
       
       if (error) {
         console.error('❌ [ADMIN] Erreur lors du rejet via RPC:', error);
-        
-        // Essayer avec une mise à jour directe si RPC échoue
-        const { data: updateData, error: updateError } = await supabase
-          .from('profiles')
-          .update({ 
-            is_approved: false,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', userId)
-          .select();
-        
-        if (updateError) {
-          console.error('❌ [ADMIN] Erreur lors du rejet:', updateError);
-          toast({
-            title: "Erreur",
-            description: `Erreur lors du rejet: ${updateError.message}`,
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        console.log('✅ [ADMIN] Rejet direct réussi:', updateData);
-      } else {
-        console.log('✅ [ADMIN] Rejet via RPC réussi:', data);
+        toast({
+          title: "Erreur",
+          description: `Erreur lors du rejet: ${error.message}`,
+          variant: "destructive"
+        });
+        return;
       }
+      
+      console.log('✅ [ADMIN] Rejet via RPC réussi:', data);
       
       // Mettre à jour l'état local
       setUsers(prevUsers => 
@@ -245,7 +212,7 @@ export const AdminPanel = () => {
       // Recharger les données
       setTimeout(() => {
         loadUsers();
-      }, 2000);
+      }, 1000);
       
     } catch (error) {
       console.error('💥 [ADMIN] Erreur inattendue lors du rejet:', error);

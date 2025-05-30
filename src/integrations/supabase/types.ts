@@ -122,9 +122,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_user_profile: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      reject_user_profile: {
+        Args: { user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
