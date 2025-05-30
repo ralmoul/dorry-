@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
-import { CleanupHistory } from './CleanupHistory';
 
 interface SettingsProps {
   onBack: () => void;
@@ -75,9 +74,6 @@ export const Settings = ({ onBack }: SettingsProps) => {
             )}
           </CardContent>
         </Card>
-
-        {/* Historique des nettoyages sécurisés */}
-        <CleanupHistory />
 
         {/* Actions */}
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
