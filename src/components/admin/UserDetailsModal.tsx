@@ -42,21 +42,28 @@ export const UserDetailsModal = ({
 }: UserDetailsModalProps) => {
   const [showRgpdDelete, setShowRgpdDelete] = useState(false);
 
-  if (!user) return null;
+  if (!user) {
+    console.log('⚠️ [DEBUG] UserDetailsModal appelée sans utilisateur');
+    return null;
+  }
 
   const isPending = !user.isApproved;
   const isApproved = user.isApproved;
 
+  console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.firstName, user.lastName, 'Approuvé:', isApproved);
+
   const handleRgpdDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🔴 [RGPD] Bouton cliqué pour utilisateur:', user.firstName, user.lastName);
-    console.log('🔴 [RGPD] Token admin présent:', !!adminSessionToken);
+    console.log('🔴 [DEBUG] RGPD clicked! Utilisateur:', user.firstName, user.lastName);
+    console.log('🔴 [DEBUG] Token admin présent:', !!adminSessionToken);
+    console.log('🔴 [DEBUG] Utilisateur approuvé:', isApproved);
+    console.log('🔴 [DEBUG] Ouverture modal RGPD...');
     setShowRgpdDelete(true);
   };
 
   const handleRgpdDeleteSuccess = () => {
-    console.log('✅ [RGPD] Suppression réussie, fermeture des modals');
+    console.log('✅ [DEBUG] Suppression RGPD réussie, fermeture des modals');
     setShowRgpdDelete(false);
     onClose();
     // Trigger refresh in parent component
@@ -210,7 +217,7 @@ export const UserDetailsModal = ({
                 Supprimer définitivement
               </Button>
 
-              {/* Bouton RGPD pour utilisateurs approuvés - maintenant toujours visible pour test */}
+              {/* Bouton RGPD pour utilisateurs approuvés avec debug renforcé */}
               {isApproved && (
                 <Button
                   onClick={handleRgpdDeleteClick}
@@ -222,18 +229,30 @@ export const UserDetailsModal = ({
                 </Button>
               )}
             </div>
+
+            {/* DEBUG: Informations de debug visibles */}
+            <div className="p-2 bg-yellow-500/10 rounded text-xs text-yellow-400 border border-yellow-500/30">
+              <p>DEBUG: User {user.firstName} {user.lastName} - Approuvé: {isApproved ? 'OUI' : 'NON'}</p>
+              <p>DEBUG: Token admin: {adminSessionToken ? 'PRÉSENT' : 'ABSENT'}</p>
+              <p>DEBUG: Modal RGPD ouverte: {showRgpdDelete ? 'OUI' : 'NON'}</p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Modal RGPD séparé */}
-      <RgpdDeleteModal
-        user={user}
-        isOpen={showRgpdDelete}
-        onClose={() => setShowRgpdDelete(false)}
-        onDeleted={handleRgpdDeleteSuccess}
-        adminSessionToken={adminSessionToken || ''}
-      />
+      {showRgpdDelete && (
+        <RgpdDeleteModal
+          user={user}
+          isOpen={showRgpdDelete}
+          onClose={() => {
+            console.log('🚪 [DEBUG] Fermeture modal RGPD');
+            setShowRgpdDelete(false);
+          }}
+          onDeleted={handleRgpdDeleteSuccess}
+          adminSessionToken={adminSessionToken || ''}
+        />
+      )}
     </>
   );
 };
