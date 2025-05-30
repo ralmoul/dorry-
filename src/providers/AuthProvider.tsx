@@ -195,8 +195,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    console.log('👋 [AUTH_PROVIDER] Déconnexion de l\'utilisateur');
-    await supabase.auth.signOut();
+    console.log('👋 [AUTH_PROVIDER] Début de la déconnexion utilisateur...');
+    try {
+      // Mettre à jour l'état immédiatement pour l'UI
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      
+      // Effectuer la déconnexion Supabase
+      await authService.logout();
+      
+      console.log('✅ [AUTH_PROVIDER] Déconnexion terminée');
+    } catch (error) {
+      console.error('❌ [AUTH_PROVIDER] Erreur lors de la déconnexion:', error);
+      // Même en cas d'erreur, on force la déconnexion côté client
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
   };
 
   console.log('📊 [AUTH_PROVIDER] État actuel du provider:', { 

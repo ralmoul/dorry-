@@ -19,11 +19,13 @@ const Index = () => {
 
     setIsLoggingOut(true);
     try {
+      console.log('🚪 [INDEX] Début de la déconnexion...');
       await logout();
-      navigate('/');
+      console.log('✅ [INDEX] Déconnexion réussie, redirection...');
+      // Forcer la redirection vers la page de connexion
+      window.location.href = '/login';
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
+      console.error('❌ [INDEX] Erreur lors de la déconnexion:', error);
       setIsLoggingOut(false);
     }
   };
@@ -87,7 +89,14 @@ const Index = () => {
           <Button variant="ghost" size="icon" onClick={handleSettingsClick} className="text-cyan-400 hover:bg-cyan-400/10">
             <SettingsIcon className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleLogout} disabled={isLoggingOut} className="text-red-400 hover:bg-red-400/10 disabled:opacity-50">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleLogout} 
+            disabled={isLoggingOut} 
+            className="text-red-400 hover:bg-red-400/10 disabled:opacity-50"
+            title="Se déconnecter"
+          >
             <LogOut className="w-5 h-5" />
           </Button>
         </div>

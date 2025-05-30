@@ -64,7 +64,12 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      console.log('👋 [AUTH_SERVICE] Logging out...');
+      console.log('👋 [AUTH_SERVICE] Début de la déconnexion...');
+      
+      // Effacer le localStorage avant la déconnexion
+      console.log('🧹 [AUTH_SERVICE] Nettoyage du localStorage...');
+      localStorage.clear();
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -72,7 +77,7 @@ export const authService = {
         throw new Error(error.message);
       }
       
-      console.log('✅ [AUTH_SERVICE] Logout successful');
+      console.log('✅ [AUTH_SERVICE] Déconnexion réussie');
     } catch (error) {
       console.error('💥 [AUTH_SERVICE] Logout failed:', error);
       throw error;
