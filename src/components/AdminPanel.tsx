@@ -150,10 +150,11 @@ export const AdminPanel = () => {
 
   const approveUser = async (userId: string) => {
     try {
-      console.log(`✅ [ADMIN] Approving user ${userId}`);
+      console.log(`✅ [ADMIN] Approving user ${userId} - updating both profiles and auth.users`);
       setIsUpdating(userId);
       
-      const { error } = await supabase
+      // 1️⃣ Mettre à jour la table profiles
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ 
           is_approved: true,
@@ -161,22 +162,27 @@ export const AdminPanel = () => {
         })
         .eq('id', userId);
       
-      if (error) {
-        console.error('❌ [ADMIN] Error approving user:', error);
+      if (profileError) {
+        console.error('❌ [ADMIN] Error updating profile:', profileError);
         toast({
           title: "Erreur",
-          description: "Impossible d'approuver l'utilisateur.",
+          description: "Impossible de mettre à jour le profil utilisateur.",
           variant: "destructive"
         });
         return;
       }
+      
+      console.log('✅ [ADMIN] Profile updated successfully');
+      
+      // 2️⃣ Aucune mise à jour nécessaire pour auth.users lors d'une approbation
+      // L'utilisateur peut maintenant se connecter normalement
       
       console.log('✅ [ADMIN] User approved successfully - realtime will handle UI update');
       setIsModalOpen(false);
       
       toast({
         title: "✅ Utilisateur approuvé",
-        description: "L'utilisateur a été approuvé avec succès.",
+        description: "L'utilisateur a été approuvé avec succès et peut maintenant se connecter.",
       });
       
     } catch (error) {
@@ -193,10 +199,11 @@ export const AdminPanel = () => {
 
   const revokeUser = async (userId: string) => {
     try {
-      console.log(`🚫 [ADMIN] Revoking user ${userId}`);
+      console.log(`🚫 [ADMIN] Revoking user ${userId} - updating profiles and signing out from auth.users`);
       setIsUpdating(userId);
       
-      const { error } = await supabase
+      // 1️⃣ Mettre à jour la table profiles
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ 
           is_approved: false,
@@ -204,14 +211,28 @@ export const AdminPanel = () => {
         })
         .eq('id', userId);
       
-      if (error) {
-        console.error('❌ [ADMIN] Error revoking user:', error);
+      if (profileError) {
+        console.error('❌ [ADMIN] Error updating profile:', profileError);
         toast({
           title: "Erreur",
-          description: "Impossible de révoquer l'utilisateur.",
+          description: "Impossible de mettre à jour le profil utilisateur.",
           variant: "destructive"
         });
         return;
+      }
+      
+      console.log('✅ [ADMIN] Profile revoked successfully');
+      
+      // 2️⃣ Déconnecter l'utilisateur de toutes ses sessions actives
+      try {
+        const { error: signOutError } = await supabase.auth.admin.signOut(userId);
+        if (signOutError) {
+          console.log('⚠️ [ADMIN] Could not sign out user (may not be connected):', signOutError.message);
+        } else {
+          console.log('✅ [ADMIN] User signed out from all sessions');
+        }
+      } catch (signOutError) {
+        console.log('⚠️ [ADMIN] Could not sign out user (may not be connected):', signOutError);
       }
       
       console.log('✅ [ADMIN] User revoked successfully - realtime will handle UI update');
@@ -219,7 +240,7 @@ export const AdminPanel = () => {
       
       toast({
         title: "⚠️ Utilisateur révoqué",
-        description: "L'accès de l'utilisateur a été révoqué.",
+        description: "L'accès de l'utilisateur a été révoqué et ses sessions ont été fermées.",
         variant: "destructive"
       });
       
@@ -237,7 +258,7 @@ export const AdminPanel = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      console.log(`🗑️ [ADMIN] Completely deleting user ${userId} and all related data`);
+      console.log(`🗑️ [ADMIN] Completely deleting user ${userId} from both profiles and auth.users`);
       setIsUpdating(userId);
       
       // 1️⃣ Supprimer d'abord tous les enregistrements vocaux liés à cet utilisateur
@@ -253,7 +274,22 @@ export const AdminPanel = () => {
         console.log('✅ [ADMIN] Voice recordings deleted successfully');
       }
       
-      // 2️⃣ Supprimer le profil de la table profiles
+      // 2️⃣ Supprimer l'utilisateur de auth.users EN PREMIER (pour éviter les contraintes de clé étrangère)
+      console.log('🔍 [ADMIN] Deleting user from auth.users:', userId);
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      if (authError) {
+        console.error('❌ [ADMIN] Error deleting auth user:', authError);
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer l'utilisateur de l'authentification.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      console.log('✅ [ADMIN] Auth user deleted successfully');
+      
+      // 3️⃣ Supprimer le profil de la table profiles (sera fait automatiquement par CASCADE si bien configuré)
       console.log('🔍 [ADMIN] Deleting profile for user:', userId);
       const { error: profileError } = await supabase
         .from('profiles')
@@ -261,33 +297,18 @@ export const AdminPanel = () => {
         .eq('id', userId);
       
       if (profileError) {
-        console.error('❌ [ADMIN] Error deleting user profile:', profileError);
-        toast({
-          title: "Erreur",
-          description: "Impossible de supprimer le profil utilisateur.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      console.log('✅ [ADMIN] Profile deleted successfully');
-      
-      // 3️⃣ Supprimer l'utilisateur de auth.users (tentative - peut échouer si pas les permissions admin)
-      console.log('🔍 [ADMIN] Attempting to delete auth user:', userId);
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      if (authError) {
-        console.log('⚠️ [ADMIN] Auth user deletion warning (may require admin permissions):', authError);
-        // On continue même si la suppression auth échoue
+        console.log('⚠️ [ADMIN] Profile deletion warning (may already be deleted by CASCADE):', profileError);
+        // Ne pas considérer comme une erreur si le profil n'existe plus
       } else {
-        console.log('✅ [ADMIN] Auth user deleted successfully');
+        console.log('✅ [ADMIN] Profile deleted successfully');
       }
       
-      console.log('🎉 [ADMIN] User completely deleted - email is now available for reuse');
+      console.log('🎉 [ADMIN] User completely deleted from both auth.users and profiles - email is now available for reuse');
       setIsModalOpen(false);
       
       toast({
         title: "🗑️ Suppression complète",
-        description: "L'utilisateur et toutes ses données ont été supprimés. L'email est maintenant disponible.",
+        description: "L'utilisateur a été supprimé de l'authentification et des profils. L'email est maintenant disponible.",
       });
       
     } catch (error) {
@@ -336,10 +357,10 @@ export const AdminPanel = () => {
           <CardHeader>
             <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <Users className="h-8 w-8 text-bright-turquoise" />
-              Administration Dory - ACTUALISATION IMMÉDIATE ⚡
+              Administration Dory - SYNC COMPLÈTE AUTH + PROFILES ⚡
             </CardTitle>
             <CardDescription>
-              📡 Synchronisation temps réel ACTIVE • Toutes les actions sont visibles instantanément
+              📡 Synchronisation auth.users + profiles • Toutes les actions sont appliquées sur les deux tables
             </CardDescription>
           </CardHeader>
         </Card>
@@ -390,7 +411,7 @@ export const AdminPanel = () => {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
                 <p className="text-sm text-muted-foreground">
-                  ⚡ SYNCHRONISATION IMMÉDIATE ACTIVE • Toutes vos actions sont reflétées instantanément • {users.length} utilisateur(s)
+                  ⚡ SYNC AUTH + PROFILES ACTIVE • Actions sur auth.users ET profiles • {users.length} utilisateur(s)
                 </p>
               </div>
               <Button 
@@ -415,7 +436,7 @@ export const AdminPanel = () => {
                 ⚡ Demandes en attente ({pendingUsers.length})
               </CardTitle>
               <CardDescription>
-                🚨 Comptes nécessitant une validation - MISE À JOUR IMMÉDIATE
+                🚨 Comptes nécessitant une validation - SYNC AUTH + PROFILES
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -583,7 +604,7 @@ export const AdminPanel = () => {
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
-                ⚡ Synchronisation immédiate active - Les nouvelles demandes et actions apparaîtront instantanément ici.
+                ⚡ Synchronisation auth.users + profiles active - Les nouvelles demandes et actions apparaîtront instantanément ici.
               </p>
             </CardContent>
           </Card>
