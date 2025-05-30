@@ -1,5 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft } from 'lucide-react';
 
 const Signup = () => {
   // États pour les champs du formulaire
@@ -10,6 +13,8 @@ const Signup = () => {
   const [company, setCompany] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rgpdConsent, setRgpdConsent] = useState(false);
+  const [termsConsent, setTermsConsent] = useState(false);
   
   // États pour la gestion des erreurs et du chargement
   const [firstNameError, setFirstNameError] = useState('');
@@ -18,6 +23,7 @@ const Signup = () => {
   const [phoneError, setPhoneError] = useState('');
   const [companyError, setCompanyError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [consentError, setConsentError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   // État pour les animations d'ondes vocales
@@ -28,6 +34,9 @@ const Signup = () => {
     score: 0,
     message: ''
   });
+
+  const { signup } = useAuth();
+  const { toast } = useToast();
   
   // Fonction de validation d'email
   const validateEmail = (email: string) => {
@@ -35,10 +44,10 @@ const Signup = () => {
     return re.test(email);
   };
   
-  // Fonction de validation de téléphone
+  // Fonction de validation de téléphone français
   const validatePhone = (phone: string) => {
-    // Validation simple pour l'exemple
-    return phone.length >= 10;
+    const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
+    return phoneRegex.test(phone.replace(/\s+/g, ''));
   };
   
   // Calcul de la force du mot de passe
@@ -49,20 +58,22 @@ const Signup = () => {
     
     let score = 0;
     
-    // Longueur
+    // Longueur minimum 8 caractères
     if (password.length >= 8) {
       score += 1;
     }
     
-    // Complexité
+    // Majuscules
     if (/[A-Z]/.test(password)) {
       score += 1;
     }
     
+    // Chiffres
     if (/[0-9]/.test(password)) {
       score += 1;
     }
     
+    // Caractères spéciaux
     if (/[^A-Za-z0-9]/.test(password)) {
       score += 1;
     }
@@ -101,54 +112,6 @@ const Signup = () => {
     
     return () => clearInterval(interval);
   }, []);
-
-  // Effet pour afficher les erreurs
-  useEffect(() => {
-    if (firstNameError) {
-      const errorElement = document.querySelector('.error-message[data-field="firstName"]');
-      if (errorElement) {
-        (errorElement as HTMLElement).style.display = 'block';
-      }
-    }
-    if (lastNameError) {
-      const errorElement = document.querySelector('.error-message[data-field="lastName"]');
-      if (errorElement) {
-        (errorElement as HTMLElement).style.display = 'block';
-      }
-    }
-    if (emailError) {
-      const errorElement = document.querySelector('.error-message[data-field="email"]');
-      if (errorElement) {
-        (errorElement as HTMLElement).style.display = 'block';
-      }
-    }
-    if (phoneError) {
-      const errorElement = document.querySelector('.error-message[data-field="phone"]');
-      if (errorElement) {
-        (errorElement as HTMLElement).style.display = 'block';
-      }
-    }
-    if (companyError) {
-      const errorElement = document.querySelector('.error-message[data-field="company"]');
-      if (errorElement) {
-        (errorElement as HTMLElement).style.display = 'block';
-      }
-    }
-    if (passwordError) {
-      const errorElement = document.querySelector('.error-message[data-field="password"]');
-      if (errorElement) {
-        (errorElement as HTMLElement).style.display = 'block';
-      }
-    }
-  }, [firstNameError, lastNameError, emailError, phoneError, companyError, passwordError]);
-
-  // Effet pour l'animation du spinner de chargement
-  useEffect(() => {
-    const spinner = document.querySelector('.loading-spinner');
-    if (spinner) {
-      (spinner as HTMLElement).style.display = isLoading ? 'inline-block' : 'none';
-    }
-  }, [isLoading]);
   
   // Gestion de la soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
@@ -161,46 +124,55 @@ const Signup = () => {
     setPhoneError('');
     setCompanyError('');
     setPasswordError('');
+    setConsentError('');
     
     // Validation des champs
     let isValid = true;
     
-    if (!firstName) {
-      setFirstNameError('Veuillez entrer votre prénom');
+    if (!firstName.trim()) {
+      setFirstNameError('Le prénom est obligatoire');
       isValid = false;
     }
     
-    if (!lastName) {
-      setLastNameError('Veuillez entrer votre nom');
+    if (!lastName.trim()) {
+      setLastNameError('Le nom est obligatoire');
       isValid = false;
     }
     
-    if (!email) {
-      setEmailError('Veuillez entrer votre email');
+    if (!email.trim()) {
+      setEmailError('L\'email est obligatoire');
       isValid = false;
     } else if (!validateEmail(email)) {
       setEmailError('Veuillez entrer une adresse email valide');
       isValid = false;
     }
     
-    if (!phone) {
-      setPhoneError('Veuillez entrer votre numéro de téléphone');
+    if (!phone.trim()) {
+      setPhoneError('Le numéro de téléphone est obligatoire');
       isValid = false;
     } else if (!validatePhone(phone)) {
-      setPhoneError('Veuillez entrer un numéro de téléphone valide');
+      setPhoneError('Veuillez entrer un numéro de téléphone français valide');
       isValid = false;
     }
     
-    if (!company) {
-      setCompanyError('Veuillez entrer le nom de votre entreprise');
+    if (!company.trim()) {
+      setCompanyError('Le nom de l\'entreprise est obligatoire');
       isValid = false;
     }
     
     if (!password) {
-      setPasswordError('Veuillez entrer un mot de passe');
+      setPasswordError('Le mot de passe est obligatoire');
       isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError('Le mot de passe doit contenir au moins 6 caractères');
+    } else if (password.length < 8) {
+      setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
+      isValid = false;
+    } else if (passwordStrength.score < 2) {
+      setPasswordError('Le mot de passe est trop faible. Utilisez majuscules, chiffres et caractères spéciaux');
+      isValid = false;
+    }
+
+    if (!rgpdConsent || !termsConsent) {
+      setConsentError('Vous devez accepter les conditions d\'utilisation et la politique de confidentialité');
       isValid = false;
     }
     
@@ -208,18 +180,64 @@ const Signup = () => {
       setIsLoading(true);
       
       try {
-        // Simulation d'appel API - à remplacer par votre logique d'inscription
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log('🚀 Tentative de création de compte pour:', email);
         
-        // Animation de confettis
-        createConfetti();
-        
-        // Redirection après inscription réussie
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
+        const result = await signup({
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+          company: company.trim(),
+          password
+        });
+
+        if (result.success) {
+          console.log('✅ Demande de création de compte envoyée avec succès');
+          
+          // Animation de confettis
+          createConfetti();
+          
+          toast({
+            title: "Demande envoyée !",
+            description: "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée.",
+          });
+
+          // Réinitialiser le formulaire
+          setFirstName('');
+          setLastName('');
+          setEmail('');
+          setPhone('');
+          setCompany('');
+          setPassword('');
+          setRgpdConsent(false);
+          setTermsConsent(false);
+          
+          // Rediriger vers la page de connexion après 3 secondes
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 3000);
+          
+        } else {
+          console.log('❌ Échec de la création de compte:', result.message);
+          
+          // Gestion sécurisée des erreurs
+          if (result.message?.includes('email')) {
+            setEmailError('Cette adresse email est déjà utilisée');
+          } else {
+            toast({
+              title: "Erreur",
+              description: "Une erreur est survenue lors de la création du compte. Veuillez réessayer.",
+              variant: "destructive"
+            });
+          }
+        }
       } catch (error) {
-        setEmailError('Cette adresse email est déjà utilisée');
+        console.error('💥 Erreur lors de la création du compte:', error);
+        toast({
+          title: "Erreur",
+          description: "Une erreur technique est survenue. Veuillez réessayer plus tard.",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
@@ -259,6 +277,10 @@ const Signup = () => {
         confetti.remove();
       }, animationDuration * 1000);
     }
+  };
+
+  const handleBackToHome = () => {
+    window.location.href = '/';
   };
   
   return (
@@ -521,7 +543,6 @@ const Signup = () => {
             font-size: 0.75rem;
             margin-top: 0.25rem;
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-            display: none;
           }
 
           @keyframes shake {
@@ -537,6 +558,67 @@ const Signup = () => {
             40%, 60% {
               transform: translateX(4px);
             }
+          }
+
+          .form-checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 0.75rem;
+          }
+
+          .form-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+          }
+
+          .checkbox-label {
+            position: relative;
+            padding-left: 2rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            user-select: none;
+            line-height: 1.4;
+          }
+
+          .checkbox-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.1rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            transition: all 0.3s ease;
+          }
+
+          .form-checkbox input:checked ~ .checkbox-label::before {
+            background: var(--primary-gradient);
+            border-color: transparent;
+          }
+
+          .checkbox-label::after {
+            content: '';
+            position: absolute;
+            left: 0.45rem;
+            top: 0.35rem;
+            width: 0.35rem;
+            height: 0.7rem;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+          }
+
+          .form-checkbox input:checked ~ .checkbox-label::after {
+            opacity: 1;
           }
 
           .btn {
@@ -602,7 +684,6 @@ const Signup = () => {
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
             margin-right: 0.5rem;
-            display: none;
           }
 
           @keyframes spin {
@@ -692,6 +773,22 @@ const Signup = () => {
             }
           }
 
+          .legal-links {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 1rem;
+          }
+
+          .legal-links a {
+            color: #00B8D4;
+            text-decoration: none;
+          }
+
+          .legal-links a:hover {
+            text-decoration: underline;
+          }
+
           @media (max-width: 768px) {
             .container {
               padding: 1rem;
@@ -727,6 +824,15 @@ const Signup = () => {
           ))}
         </div>
 
+        {/* Bouton retour en haut à gauche de la page */}
+        <button 
+          onClick={handleBackToHome} 
+          className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10 flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Accueil
+        </button>
+
         <div className="container">
           <div className="auth-card">
             <div className="auth-header">
@@ -756,7 +862,7 @@ const Signup = () => {
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                   />
-                  {firstNameError && <div className="error-message" data-field="firstName">{firstNameError}</div>}
+                  {firstNameError && <div className="error-message">{firstNameError}</div>}
                 </div>
 
                 <div className="form-group">
@@ -770,7 +876,7 @@ const Signup = () => {
                     onChange={(e) => setLastName(e.target.value)}
                     required
                   />
-                  {lastNameError && <div className="error-message" data-field="lastName">{lastNameError}</div>}
+                  {lastNameError && <div className="error-message">{lastNameError}</div>}
                 </div>
               </div>
 
@@ -802,7 +908,7 @@ const Signup = () => {
                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                   </svg>
                 </div>
-                {emailError && <div className="error-message" data-field="email">{emailError}</div>}
+                {emailError && <div className="error-message">{emailError}</div>}
               </div>
 
               <div className="form-group">
@@ -832,7 +938,7 @@ const Signup = () => {
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                   </svg>
                 </div>
-                {phoneError && <div className="error-message" data-field="phone">{phoneError}</div>}
+                {phoneError && <div className="error-message">{phoneError}</div>}
               </div>
 
               <div className="form-group">
@@ -859,14 +965,17 @@ const Signup = () => {
                     strokeLinecap="round" 
                     strokeLinejoin="round"
                   >
-                    <path d="M20 7h-7l-1-3H8L7 7H0v14h20V7z" />
+                    <path d="M8 2v4" />
+                    <path d="M16 2v4" />
+                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                    <path d="M3 10h18" />
                   </svg>
                 </div>
-                {companyError && <div className="error-message" data-field="company">{companyError}</div>}
+                {companyError && <div className="error-message">{companyError}</div>}
               </div>
 
               <div className="form-group">
-                <label htmlFor="password" className="form-label">Mot de passe * (min. 6 caractères)</label>
+                <label htmlFor="password" className="form-label">Mot de passe * (min. 8 caractères)</label>
                 <div className="input-container">
                   <input 
                     type={showPassword ? "text" : "password"} 
@@ -876,6 +985,7 @@ const Signup = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={8}
                   />
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -919,8 +1029,39 @@ const Signup = () => {
                   ></div>
                 </div>
                 <div className="password-strength-text">{passwordStrength.message}</div>
-                {passwordError && <div className="error-message" data-field="password">{passwordError}</div>}
+                {passwordError && <div className="error-message">{passwordError}</div>}
               </div>
+
+              {/* Consentements RGPD */}
+              <div className="form-checkbox">
+                <input 
+                  type="checkbox" 
+                  id="rgpdConsent"
+                  checked={rgpdConsent}
+                  onChange={(e) => setRgpdConsent(e.target.checked)}
+                  required
+                />
+                <label htmlFor="rgpdConsent" className="checkbox-label">
+                  J'accepte la collecte et le traitement de mes données personnelles conformément à la 
+                  <a href="/privacy-policy" target="_blank" rel="noopener noreferrer"> Politique de confidentialité</a>
+                </label>
+              </div>
+
+              <div className="form-checkbox">
+                <input 
+                  type="checkbox" 
+                  id="termsConsent"
+                  checked={termsConsent}
+                  onChange={(e) => setTermsConsent(e.target.checked)}
+                  required
+                />
+                <label htmlFor="termsConsent" className="checkbox-label">
+                  J'accepte les 
+                  <a href="/terms-of-service" target="_blank" rel="noopener noreferrer"> Conditions Générales d'Utilisation</a>
+                </label>
+              </div>
+
+              {consentError && <div className="error-message" style={{textAlign: 'center', marginBottom: '1rem'}}>{consentError}</div>}
 
               <button 
                 type="submit" 
@@ -936,6 +1077,12 @@ const Signup = () => {
                   <span className="btn-content">Demander l'accès</span>
                 )}
               </button>
+
+              <div className="legal-links">
+                En créant un compte, vous acceptez nos 
+                <a href="/terms-of-service" target="_blank" rel="noopener noreferrer"> CGU</a> et notre 
+                <a href="/privacy-policy" target="_blank" rel="noopener noreferrer"> Politique de confidentialité</a>
+              </div>
 
               <div className="auth-footer">
                 <p>Déjà un compte ? <a href="/login">Se connecter</a></p>

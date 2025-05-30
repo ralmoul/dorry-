@@ -1,93 +1,73 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-const Login = () => {
-  // États pour les champs du formulaire
+const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  
-  // États pour la gestion des erreurs et du chargement
   const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  // État pour les animations d'ondes vocales
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const [isWaveAnimating, setIsWaveAnimating] = useState(true);
 
-  const { login } = useAuth();
   const { toast } = useToast();
-  
-  // Fonction de validation d'email
+
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
-  
-  // Gestion de la soumission du formulaire
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Réinitialisation des erreurs
     setEmailError('');
-    setPasswordError('');
-    
-    // Validation des champs
-    let isValid = true;
     
     if (!email.trim()) {
       setEmailError('Veuillez entrer votre email');
-      isValid = false;
-    } else if (!validateEmail(email)) {
+      return;
+    }
+    
+    if (!validateEmail(email)) {
       setEmailError('Veuillez entrer une adresse email valide');
-      isValid = false;
+      return;
     }
-    
-    if (!password) {
-      setPasswordError('Veuillez entrer votre mot de passe');
-      isValid = false;
-    }
-    
-    if (isValid) {
-      setIsLoading(true);
-      
-      try {
-        console.log('🚀 Tentative de connexion pour:', email);
-        
-        const result = await login({
-          email: email.trim().toLowerCase(),
-          password,
-          rememberMe
-        });
 
-        if (result.success) {
-          console.log('✅ Connexion réussie, redirection...');
-          toast({
-            title: "Connexion réussie",
-            description: "Vous êtes maintenant connecté."
-          });
-          // Redirection vers la page principale
-          window.location.href = '/app';
-        } else {
-          console.log('❌ Échec de la connexion - message sécurisé affiché');
-          // Message d'erreur volontairement vague pour éviter le brute-force
-          setPasswordError('Email ou mot de passe incorrect');
-        }
-      } catch (error) {
-        console.error('💥 Erreur lors de la connexion:', error);
-        // Message d'erreur générique pour la sécurité
-        setPasswordError('Email ou mot de passe incorrect');
-      } finally {
-        setIsLoading(false);
+    setIsLoading(true);
+
+    try {
+      console.log('🔄 Demande de réinitialisation de mot de passe pour:', email);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        console.error('❌ Erreur lors de la réinitialisation:', error);
+        // Message générique pour la sécurité
+        toast({
+          title: "Email envoyé",
+          description: "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",
+        });
+      } else {
+        console.log('✅ Email de réinitialisation envoyé');
+        setIsEmailSent(true);
+        toast({
+          title: "Email envoyé",
+          description: "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",
+        });
       }
+    } catch (error) {
+      console.error('💥 Erreur lors de la réinitialisation:', error);
+      toast({
+        title: "Email envoyé",
+        description: "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  // Effet pour l'animation des ondes vocales
+
   useEffect(() => {
     const interval = setInterval(() => {
       setIsWaveAnimating(prev => !prev);
@@ -96,21 +76,16 @@ const Login = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleBackToHome = () => {
-    window.location.href = '/';
+  const handleBackToLogin = () => {
+    window.location.href = '/login';
   };
 
-  const handleForgotPassword = () => {
-    // Rediriger vers une vraie page de réinitialisation de mot de passe
-    window.location.href = '/forgot-password';
-  };
-  
   return (
     <>
       <style dangerouslySetInnerHTML={{
         __html: `
-          /* ... keep existing code (les mêmes styles CSS que pour signup) ... */
-
+          /* ... keep existing code (mêmes styles que login/signup) ... */
+          
           :root {
             --primary-gradient: linear-gradient(135deg, #00B8D4 0%, #6A11CB 100%);
             --secondary-gradient: linear-gradient(135deg, #00B8D4 0%, #3A1957 100%);
@@ -126,7 +101,7 @@ const Login = () => {
             --button-shadow: 0 10px 15px -3px rgba(0, 184, 212, 0.3), 0 4px 6px -4px rgba(106, 17, 203, 0.4);
           }
 
-          .login-body {
+          .forgot-body {
             font-family: 'Inter', sans-serif;
             background-color: var(--background-dark);
             color: var(--text-primary);
@@ -235,7 +210,7 @@ const Login = () => {
           }
 
           .auth-logo {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             background: var(--primary-gradient);
             -webkit-background-clip: text;
@@ -258,21 +233,6 @@ const Login = () => {
             color: var(--text-secondary);
             font-size: 1rem;
             margin-top: 0.5rem;
-          }
-
-          .auth-form {
-            animation: slideIn 0.5s ease-out;
-          }
-
-          @keyframes slideIn {
-            from {
-              opacity: 0;
-              transform: translateX(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
           }
 
           .form-group {
@@ -325,12 +285,6 @@ const Login = () => {
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-secondary);
-            cursor: pointer;
-            transition: color 0.3s ease;
-          }
-
-          .input-icon:hover {
-            color: var(--text-primary);
           }
 
           .error-message {
@@ -353,65 +307,6 @@ const Login = () => {
             40%, 60% {
               transform: translateX(4px);
             }
-          }
-
-          .form-checkbox {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-          }
-
-          .form-checkbox input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-          }
-
-          .checkbox-label {
-            position: relative;
-            padding-left: 2rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            user-select: none;
-          }
-
-          .checkbox-label::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 1.25rem;
-            height: 1.25rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            background-color: var(--input-bg);
-            transition: all 0.3s ease;
-          }
-
-          .form-checkbox input:checked ~ .checkbox-label::before {
-            background: var(--primary-gradient);
-            border-color: transparent;
-          }
-
-          .checkbox-label::after {
-            content: '';
-            position: absolute;
-            left: 0.45rem;
-            top: 0.25rem;
-            width: 0.35rem;
-            height: 0.7rem;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-          }
-
-          .form-checkbox input:checked ~ .checkbox-label::after {
-            opacity: 1;
           }
 
           .btn {
@@ -439,33 +334,9 @@ const Login = () => {
             box-shadow: 0 15px 25px -5px rgba(0, 184, 212, 0.4), 0 10px 10px -5px rgba(106, 17, 203, 0.5);
           }
 
-          .btn-primary:active {
-            transform: translateY(1px);
-          }
-
           .btn-block {
             display: block;
             width: 100%;
-          }
-
-          .btn-primary .btn-content {
-            position: relative;
-            z-index: 1;
-          }
-
-          .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s ease;
-          }
-
-          .btn-primary:hover::before {
-            left: 100%;
           }
 
           .loading-spinner {
@@ -543,21 +414,25 @@ const Login = () => {
             text-decoration: underline;
           }
 
-          .forgot-password {
+          .success-message {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
             text-align: center;
-            margin-top: 1rem;
           }
 
-          .forgot-password a {
+          .success-message h3 {
+            color: var(--success);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+          }
+
+          .success-message p {
             color: var(--text-secondary);
+            margin: 0;
             font-size: 0.875rem;
-            text-decoration: none;
-            transition: color 0.3s ease;
-          }
-
-          .forgot-password a:hover {
-            color: #00B8D4;
-            text-decoration: underline;
           }
 
           @media (max-width: 768px) {
@@ -573,7 +448,7 @@ const Login = () => {
         `
       }} />
       
-      <div className="login-body">
+      <div className="forgot-body">
         <div className="particles">
           {[...Array(6)].map((_, i) => (
             <div 
@@ -590,19 +465,18 @@ const Login = () => {
           ))}
         </div>
 
-        {/* Bouton retour en haut à gauche de la page */}
         <button 
-          onClick={handleBackToHome} 
+          onClick={handleBackToLogin} 
           className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10 flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Accueil
+          Retour à la connexion
         </button>
 
         <div className="container">
           <div className="auth-card">
             <div className="auth-header">
-              <div className="auth-logo">Dorry</div>
+              <div className="auth-logo">Mot de passe oublié</div>
               <div className="voice-waves">
                 {[...Array(5)].map((_, i) => (
                   <div 
@@ -612,123 +486,70 @@ const Login = () => {
                   />
                 ))}
               </div>
-              <p className="auth-subtitle">Votre assistante vocal intelligent vous attend</p>
+              <p className="auth-subtitle">Réinitialisez votre mot de passe en toute sécurité</p>
             </div>
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email</label>
-                <div className="input-container">
-                  <input 
-                    type="email" 
-                    id="email" 
-                    className={`form-input ${emailError ? 'error' : ''}`}
-                    placeholder="votre@email.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="input-icon" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
+            {isEmailSent ? (
+              <div className="success-message">
+                <h3>Email envoyé !</h3>
+                <p>Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation dans quelques minutes.</p>
+                <p style={{marginTop: '0.5rem'}}>Vérifiez également votre dossier spam.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">Adresse email</label>
+                  <div className="input-container">
+                    <input 
+                      type="email" 
+                      id="email" 
+                      className={`form-input ${emailError ? 'error' : ''}`}
+                      placeholder="votre@email.com" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoComplete="email"
+                    />
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className="input-icon" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <rect x="2" y="4" width="20" height="16" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                  </div>
+                  {emailError && <div className="error-message">{emailError}</div>}
                 </div>
-                {emailError && <div className="error-message">{emailError}</div>}
-              </div>
 
-              <div className="form-group">
-                <label htmlFor="password" className="form-label">Mot de passe</label>
-                <div className="input-container">
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    id="password" 
-                    className={`form-input ${passwordError ? 'error' : ''}`}
-                    placeholder="••••••••" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="input-icon" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <>
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                        <line x1="2" x2="22" y1="2" y2="22" />
-                      </>
-                    ) : (
-                      <>
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </>
-                    )}
-                  </svg>
-                </div>
-                {passwordError && <div className="error-message">{passwordError}</div>}
-              </div>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-block" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="loading-spinner"></span>
+                      <span>Envoi en cours...</span>
+                    </>
+                  ) : (
+                    'Envoyer le lien de réinitialisation'
+                  )}
+                </button>
+              </form>
+            )}
 
-              <div className="form-checkbox">
-                <input 
-                  type="checkbox" 
-                  id="rememberMe"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <label htmlFor="rememberMe" className="checkbox-label">
-                  Rester connecté (uniquement si vous acceptez les cookies de session)
-                </label>
-              </div>
-
-              <button 
-                type="submit" 
-                className="btn btn-primary btn-block" 
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <span className="loading-spinner"></span>
-                    <span>Connexion en cours...</span>
-                  </>
-                ) : (
-                  <span className="btn-content">Se connecter</span>
-                )}
-              </button>
-
-              <div className="forgot-password">
-                <a href="#" onClick={(e) => { e.preventDefault(); handleForgotPassword(); }}>
-                  Mot de passe oublié ?
-                </a>
-              </div>
-
-              <div className="auth-footer">
-                <p>Vous n'avez pas de compte ? <a href="/signup">Créer un compte</a></p>
-              </div>
-            </form>
+            <div className="auth-footer">
+              <p><a href="/login">Retour à la connexion</a></p>
+              <p><a href="/signup">Créer un compte</a></p>
+            </div>
           </div>
         </div>
       </div>
@@ -736,4 +557,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
