@@ -28,7 +28,7 @@ export const Footer = () => {
                     localStorage.removeItem('dorry_cookie_preferences');
                     window.location.reload();
                   }}
-                  className="block text-slate-300 hover:text-cyan-400 transition-colors bg-transparent border-none p-0 cursor-pointer text-sm md:text-base mx-auto md:mx-0"
+                  className="block text-slate-300 hover:text-cyan-400 transition-colors bg-transparent border-none p-0 cursor-pointer text-sm md:text-base text-center md:text-left w-full"
                 >
                   Gérer mes cookies
                 </button>
