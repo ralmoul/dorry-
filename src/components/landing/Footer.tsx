@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 export const Footer = () => {
@@ -21,17 +20,12 @@ export const Footer = () => {
                 <a href="/terms-of-service" className="block text-slate-300 hover:text-cyan-400 transition-colors">Conditions d'utilisation</a>
                 <a href="/legal-notice" className="block text-slate-300 hover:text-cyan-400 transition-colors">Mentions légales</a>
                 <a href="/cookie-policy" className="block text-slate-300 hover:text-cyan-400 transition-colors">Politique cookies</a>
-                <button 
-                  onClick={() => {
-                    // Réinitialiser le consentement pour rouvrir la bannière
-                    localStorage.removeItem('dorry_cookie_consent');
-                    localStorage.removeItem('dorry_cookie_preferences');
-                    window.location.reload();
-                  }}
-                  className="block text-slate-300 hover:text-cyan-400 transition-colors bg-transparent border-none p-0 cursor-pointer text-sm md:text-base text-center md:text-left w-full"
+                <a 
+                  href="/cookie-policy"
+                  className="block text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base text-center md:text-left w-full"
                 >
                   Gérer mes cookies
-                </button>
+                </a>
               </div>
             </div>
             <div className="text-center md:text-left">
