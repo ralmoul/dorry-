@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audit_reports: {
+        Row: {
+          audit_date: string
+          audit_period_end: string
+          audit_period_start: string
+          compliance_score: number
+          consents_given: number
+          consents_refused: number
+          created_at: string
+          generated_by: string | null
+          id: string
+          issues_found: Json
+          recommendations: Json
+          total_consents: number
+          updated_at: string
+        }
+        Insert: {
+          audit_date: string
+          audit_period_end: string
+          audit_period_start: string
+          compliance_score?: number
+          consents_given?: number
+          consents_refused?: number
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          issues_found?: Json
+          recommendations?: Json
+          total_consents?: number
+          updated_at?: string
+        }
+        Update: {
+          audit_date?: string
+          audit_period_end?: string
+          audit_period_start?: string
+          compliance_score?: number
+          consents_given?: number
+          consents_refused?: number
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          issues_found?: Json
+          recommendations?: Json
+          total_consents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       consent_logs: {
         Row: {
           consent_given: boolean
@@ -300,6 +348,22 @@ export type Database = {
       cleanup_expired_security_data: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_audit_history: {
+        Args: { limit_count?: number; offset_count?: number }
+        Returns: {
+          id: string
+          audit_date: string
+          total_consents: number
+          consents_given: number
+          consents_refused: number
+          compliance_score: number
+          issues_found: Json
+          recommendations: Json
+          audit_period_start: string
+          audit_period_end: string
+          created_at: string
+        }[]
       }
       get_cleanup_history: {
         Args: { limit_count?: number }

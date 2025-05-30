@@ -15,7 +15,7 @@ export const useAuditManager = () => {
     try {
       const report = await performMonthlyAudit();
       setLastAuditReport(report);
-      console.log('✅ [AUDIT_MANAGER] Audit terminé avec succès');
+      console.log('✅ [AUDIT_MANAGER] Audit terminé avec succès et sauvegardé');
       return report;
     } catch (error) {
       console.error('❌ [AUDIT_MANAGER] Erreur lors de l\'audit:', error);

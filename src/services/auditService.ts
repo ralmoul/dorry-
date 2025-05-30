@@ -11,6 +11,8 @@ export interface AuditReport {
   compliance_score: number;
   issues_found: string[];
   recommendations: string[];
+  audit_period_start: string;
+  audit_period_end: string;
 }
 
 export const performMonthlyAudit = async (): Promise<AuditReport> => {
@@ -19,13 +21,14 @@ export const performMonthlyAudit = async (): Promise<AuditReport> => {
   const auditDate = new Date().toISOString();
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  const auditPeriodStart = oneMonthAgo.toISOString();
 
   try {
     // Récupérer tous les logs de consentement du mois écoulé
     const { data: consentLogs, error } = await supabase
       .from('consent_logs')
       .select('*')
-      .gte('created_at', oneMonthAgo.toISOString())
+      .gte('created_at', auditPeriodStart)
       .lte('created_at', auditDate);
 
     if (error) {
@@ -55,8 +58,34 @@ export const performMonthlyAudit = async (): Promise<AuditReport> => {
       consents_refused: consentsRefused,
       compliance_score: complianceScore,
       issues_found: issues,
-      recommendations: recommendations
+      recommendations: recommendations,
+      audit_period_start: auditPeriodStart,
+      audit_period_end: auditDate
     };
+
+    // Sauvegarder le rapport en base de données
+    const { error: insertError } = await supabase
+      .from('audit_reports')
+      .insert({
+        id: auditReport.id,
+        audit_date: auditReport.audit_date,
+        total_consents: auditReport.total_consents,
+        consents_given: auditReport.consents_given,
+        consents_refused: auditReport.consents_refused,
+        compliance_score: auditReport.compliance_score,
+        issues_found: auditReport.issues_found,
+        recommendations: auditReport.recommendations,
+        audit_period_start: auditReport.audit_period_start,
+        audit_period_end: auditReport.audit_period_end,
+        generated_by: (await supabase.auth.getUser()).data.user?.id
+      });
+
+    if (insertError) {
+      console.error('❌ [AUDIT] Erreur lors de la sauvegarde:', insertError);
+      // On continue même si la sauvegarde échoue pour ne pas bloquer l'audit
+    } else {
+      console.log('✅ [AUDIT] Rapport sauvegardé en base de données');
+    }
 
     console.log('✅ [AUDIT] Audit mensuel terminé:', {
       totalConsents,
@@ -193,5 +222,24 @@ export const runConsentUnitTests = async (): Promise<boolean> => {
   } catch (error) {
     console.error('💥 [TEST] Erreur lors des tests unitaires:', error);
     return false;
+  }
+};
+
+export const getAuditHistory = async (limit: number = 20, offset: number = 0): Promise<AuditReport[]> => {
+  try {
+    const { data, error } = await supabase.rpc('get_audit_history', {
+      limit_count: limit,
+      offset_count: offset
+    });
+
+    if (error) {
+      console.error('❌ [AUDIT] Erreur lors de la récupération de l\'historique:', error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('💥 [AUDIT] Erreur critique lors de la récupération de l\'historique:', error);
+    throw error;
   }
 };
