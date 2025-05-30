@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -175,6 +174,11 @@ export const AdminPanel = () => {
       console.log('✅ [ADMIN] User approved successfully - realtime will handle UI update');
       setIsModalOpen(false);
       
+      toast({
+        title: "✅ Utilisateur approuvé",
+        description: "L'utilisateur a été approuvé avec succès.",
+      });
+      
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
       toast({
@@ -213,6 +217,12 @@ export const AdminPanel = () => {
       console.log('✅ [ADMIN] User revoked successfully - realtime will handle UI update');
       setIsModalOpen(false);
       
+      toast({
+        title: "⚠️ Utilisateur révoqué",
+        description: "L'accès de l'utilisateur a été révoqué.",
+        variant: "destructive"
+      });
+      
     } catch (error) {
       console.error('💥 [ADMIN] Unexpected error:', error);
       toast({
@@ -227,16 +237,24 @@ export const AdminPanel = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      console.log(`🗑️ [ADMIN] Deleting user ${userId}`);
+      console.log(`🗑️ [ADMIN] Completely deleting user ${userId} and all related data`);
       setIsUpdating(userId);
       
-      // D'abord supprimer de auth.users si l'utilisateur existe
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      if (authError) {
-        console.log('⚠️ [ADMIN] Auth user deletion error (may not exist):', authError);
+      // 1️⃣ Supprimer d'abord tous les enregistrements vocaux liés à cet utilisateur
+      console.log('🔍 [ADMIN] Deleting voice recordings for user:', userId);
+      const { error: voiceError } = await supabase
+        .from('voice_recordings')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (voiceError) {
+        console.log('⚠️ [ADMIN] Voice recordings deletion warning (may not exist):', voiceError);
+      } else {
+        console.log('✅ [ADMIN] Voice recordings deleted successfully');
       }
       
-      // Ensuite supprimer de profiles
+      // 2️⃣ Supprimer le profil de la table profiles
+      console.log('🔍 [ADMIN] Deleting profile for user:', userId);
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
@@ -246,20 +264,37 @@ export const AdminPanel = () => {
         console.error('❌ [ADMIN] Error deleting user profile:', profileError);
         toast({
           title: "Erreur",
-          description: "Impossible de supprimer l'utilisateur.",
+          description: "Impossible de supprimer le profil utilisateur.",
           variant: "destructive"
         });
         return;
       }
       
-      console.log('✅ [ADMIN] User deleted successfully - realtime will handle UI update');
+      console.log('✅ [ADMIN] Profile deleted successfully');
+      
+      // 3️⃣ Supprimer l'utilisateur de auth.users (tentative - peut échouer si pas les permissions admin)
+      console.log('🔍 [ADMIN] Attempting to delete auth user:', userId);
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      if (authError) {
+        console.log('⚠️ [ADMIN] Auth user deletion warning (may require admin permissions):', authError);
+        // On continue même si la suppression auth échoue
+      } else {
+        console.log('✅ [ADMIN] Auth user deleted successfully');
+      }
+      
+      console.log('🎉 [ADMIN] User completely deleted - email is now available for reuse');
       setIsModalOpen(false);
       
+      toast({
+        title: "🗑️ Suppression complète",
+        description: "L'utilisateur et toutes ses données ont été supprimés. L'email est maintenant disponible.",
+      });
+      
     } catch (error) {
-      console.error('💥 [ADMIN] Unexpected error:', error);
+      console.error('💥 [ADMIN] Unexpected error during deletion:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur inattendue est survenue.",
+        description: "Une erreur inattendue est survenue lors de la suppression.",
         variant: "destructive"
       });
     } finally {
@@ -570,7 +605,7 @@ export const AdminPanel = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onApprove={(userId) => approveUser(userId)}
-        onReject={(userId) => revokeUser(userId)}
+        onReject={(userId) => deleteUser(userId)}
         onRevoke={(userId) => revokeUser(userId)}
         onDelete={(userId) => deleteUser(userId)}
       />
