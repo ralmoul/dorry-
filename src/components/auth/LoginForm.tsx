@@ -30,18 +30,11 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     setIsLoading(true);
 
     try {
-      // Ajouter un timeout pour éviter le chargement infini
-      const loginPromise = login({
+      const success = await login({
         email,
         password,
         rememberMe
       });
-
-      const timeoutPromise = new Promise<boolean>((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout de connexion')), 15000)
-      );
-
-      const success = await Promise.race([loginPromise, timeoutPromise]);
 
       if (success) {
         console.log('✅ [LOGIN_FORM] Connexion réussie');
@@ -50,10 +43,8 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           description: "Vous êtes maintenant connecté."
         });
         
-        // Attendre un peu avant la redirection pour laisser le temps à l'état de se mettre à jour
-        setTimeout(() => {
-          navigate('/app');
-        }, 500);
+        // Redirection immédiate
+        navigate('/app');
       } else {
         console.log('❌ [LOGIN_FORM] Échec de la connexion');
         toast({
@@ -66,9 +57,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       console.error('💥 [LOGIN_FORM] Erreur lors de la connexion:', error);
       toast({
         title: "Erreur",
-        description: error instanceof Error && error.message === 'Timeout de connexion' 
-          ? "La connexion a pris trop de temps. Veuillez réessayer."
-          : "Une erreur est survenue lors de la connexion.",
+        description: "Une erreur est survenue lors de la connexion.",
         variant: "destructive"
       });
     } finally {

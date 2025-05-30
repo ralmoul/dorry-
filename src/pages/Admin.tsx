@@ -20,8 +20,8 @@ const Admin = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulation d'une vérification (pour éviter les attaques timing)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Vérification plus rapide (200ms au lieu de 500ms)
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
@@ -87,6 +87,7 @@ const Admin = () => {
                 placeholder="Entrez le mot de passe"
                 className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-11 text-white placeholder:text-gray-400"
                 autoComplete="current-password"
+                disabled={isLoading}
               />
             </div>
             <Button
@@ -94,7 +95,14 @@ const Admin = () => {
               disabled={isLoading || !password}
               className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-11"
             >
-              {isLoading ? 'Vérification...' : 'Accéder à l\'administration'}
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-dark-navy"></div>
+                  <span>Vérification...</span>
+                </div>
+              ) : (
+                'Accéder à l\'administration'
+              )}
             </Button>
           </form>
           <div className="mt-4 text-center">
