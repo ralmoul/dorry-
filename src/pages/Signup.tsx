@@ -38,8 +38,26 @@ const Signup = () => {
     }));
   };
 
+  // Fonction pour vérifier si le formulaire est valide
+  const isFormValid = () => {
+    const hasAllFields = formData.firstName.trim() && 
+                        formData.lastName.trim() && 
+                        formData.email.trim() && 
+                        formData.phone.trim() && 
+                        formData.company.trim() && 
+                        formData.password.trim();
+    
+    const hasValidEmail = validateEmail(formData.email);
+    const hasValidPassword = formData.password.length >= 12;
+    const hasConsents = acceptedTerms && acceptedPrivacy;
+    
+    return hasAllFields && hasValidEmail && hasValidPassword && hasConsents;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('🔄 Tentative de soumission du formulaire');
     
     setEmailError('');
     setPasswordError('');
@@ -63,9 +81,9 @@ const Signup = () => {
       isValid = false;
     }
     
-    // Validation du mot de passe renforcée
-    if (!passwordStrength?.isValid) {
-      setPasswordError('Le mot de passe ne respecte pas les critères de sécurité requis');
+    // Validation du mot de passe (minimum 12 caractères)
+    if (formData.password.length < 12) {
+      setPasswordError('Le mot de passe doit contenir au moins 12 caractères');
       isValid = false;
     }
     
@@ -502,6 +520,12 @@ const Signup = () => {
             box-shadow: 0 15px 25px -5px rgba(0, 184, 212, 0.4), 0 10px 10px -5px rgba(106, 17, 203, 0.5);
           }
 
+          .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+
           .btn-block {
             display: block;
             width: 100%;
@@ -798,7 +822,7 @@ const Signup = () => {
               <button 
                 type="submit" 
                 className="btn btn-primary btn-block" 
-                disabled={isLoading || !passwordStrength?.isValid || !acceptedTerms || !acceptedPrivacy}
+                disabled={isLoading || !isFormValid()}
               >
                 {isLoading ? (
                   <>
