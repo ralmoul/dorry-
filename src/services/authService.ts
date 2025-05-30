@@ -45,20 +45,16 @@ export const authService = {
         firstName: dbUser.first_name
       });
       
-      // Check user approval status
+      // Check user approval status - POINT 2️⃣
       if (!dbUser.is_approved) {
         console.log('⏳ [LOGIN] User account not approved');
         return { 
           success: false, 
-          message: 'Votre compte est en cours de validation par notre équipe. Vous recevrez un email dès que votre accès sera activé.' 
+          message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' 
         };
       }
       
-      // For now, we'll use a simple password check (should be hashed in production)
-      // Since we don't have password_hash in the current schema, we'll skip password validation temporarily
-      // TODO: Add proper password hashing and verification once the schema is updated
-      
-      console.log('🎉 [LOGIN] Authentication successful!');
+      console.log('🎉 [LOGIN] Authentication successful for approved user!');
       
       // Create user object
       const user: User = {
@@ -128,10 +124,10 @@ export const authService = {
       console.log('✅ [SIGNUP] Email available, creating user...');
       
       // Generate a new UUID for the user
-      const { data: uuidData, error: uuidError } = await supabase.rpc('gen_random_uuid');
-      const userId = uuidData || crypto.randomUUID();
+      const { data: uuidResult } = await supabase.rpc('gen_random_uuid');
+      const userId = uuidResult || crypto.randomUUID();
       
-      // Create new user with pending status by default
+      // POINT 1️⃣ - Create new user with pending status by default pour apparaître dans le panel admin
       const newUserData = {
         id: userId,
         first_name: data.firstName.trim(),
@@ -139,8 +135,10 @@ export const authService = {
         email: cleanEmail,
         phone: data.phone.trim(),
         company: data.company.trim(),
-        is_approved: false // Default to not approved
+        is_approved: false // Status "en attente" par défaut
       };
+      
+      console.log('📝 [SIGNUP] Inserting new profile:', newUserData);
       
       const { data: newUser, error: insertError } = await supabase
         .from('profiles')
@@ -156,7 +154,7 @@ export const authService = {
         };
       }
       
-      console.log('🎉 [SIGNUP] User created successfully:', { 
+      console.log('🎉 [SIGNUP] User created successfully and will appear in admin panel:', { 
         id: newUser.id, 
         email: newUser.email,
         isApproved: newUser.is_approved

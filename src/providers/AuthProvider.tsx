@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log('📊 [AUTH] Loaded user from storage:', user);
     
     if (user) {
-      // Vérifier le statut actuel de l'utilisateur dans Supabase
+      // POINT 2️⃣ - Vérifier le statut actuel de l'utilisateur dans Supabase
       checkUserStatus(user.id);
     } else {
       console.log('❌ [AUTH] No user found, setting unauthenticated state');
@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (currentUser && currentUser.id === updatedProfile.id) {
       console.log('🔄 [AUTH] Current user profile updated:', updatedProfile.is_approved);
       
+      // POINT 2️⃣ - Seuls les utilisateurs approuvés peuvent rester connectés
       if (updatedProfile.is_approved) {
         // Utilisateur approuvé, maintenir la session
         const updatedUser = {
@@ -78,8 +79,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         authStorage.saveUser(updatedUser, true);
         
       } else {
-        // Utilisateur désapprouvé, déconnecter
-        console.log('❌ [AUTH] User status changed to not approved');
+        // Utilisateur désapprouvé, déconnecter immédiatement
+        console.log('❌ [AUTH] User status changed to not approved - logging out');
         logout();
       }
     }
@@ -104,6 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const dbUser: DatabaseProfile = userProfile;
       console.log('📊 [AUTH] User status check result:', dbUser.is_approved);
       
+      // POINT 2️⃣ - Vérification stricte du statut approved
       if (dbUser.is_approved) {
         const user: User = {
           id: dbUser.id,
@@ -124,7 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         authStorage.saveUser(user, true);
       } else {
-        console.log('❌ [AUTH] User not approved');
+        console.log('❌ [AUTH] User not approved - access denied');
         logout();
       }
       
@@ -139,15 +141,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const result = await authService.login(data);
     
     if (result.success && result.user) {
-      console.log('✅ [AUTH] Login successful, updating state');
-      setAuthState({
-        user: result.user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      
-      authStorage.saveUser(result.user, data.rememberMe || false);
-      return { success: true };
+      // POINT 2️⃣ - Double vérification que l'utilisateur est approuvé
+      if (result.user.isApproved) {
+        console.log('✅ [AUTH] Login successful for approved user, updating state');
+        setAuthState({
+          user: result.user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        
+        authStorage.saveUser(result.user, data.rememberMe || false);
+        return { success: true };
+      } else {
+        console.log('❌ [AUTH] User not approved - blocking login');
+        return { success: false, message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' };
+      }
     }
     
     console.log('❌ [AUTH] Login failed:', result.message);
@@ -156,6 +164,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (data: SignupFormData): Promise<{ success: boolean; message?: string }> => {
     console.log('📝 [AUTH] Signup attempt for:', data.email);
+    // POINT 1️⃣ - L'enregistrement se fait dans authService.signup qui utilise la table profiles
     return await authService.signup(data);
   };
 
@@ -173,7 +182,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
     userId: authState.user?.id || 'none',
-    userFirstName: authState.user?.firstName || 'none'
+    userFirstName: authState.user?.firstName || 'none',
+    userApproved: authState.user?.isApproved || false
   });
 
   const contextValue: AuthContextType = {
