@@ -580,7 +580,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                                           onChange={(e) => setEditingName(e.target.value)}
                                           onKeyDown={handleKeyPress}
                                           maxLength={50}
-                                          className="bg-slate-600 border-slate-500 text-white text-sm h-10"
+                                          className="bg-slate-600 border-slate-500 text-white placeholder:text-white text-sm h-10"
                                           placeholder="Nom de l'enregistrement..."
                                           autoFocus
                                         />
