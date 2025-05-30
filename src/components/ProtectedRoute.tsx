@@ -21,7 +21,13 @@ export const ProtectedRoute = ({ children, requireApproval = false }: ProtectedR
     currentPath: location.pathname
   });
 
-  // Afficher un loading pendant la vérification
+  // Pour la page admin, pas de vérification d'authentification nécessaire
+  if (location.pathname === '/admin') {
+    console.log('✅ [PROTECTED_ROUTE] Page admin, accès direct autorisé');
+    return <>{children}</>;
+  }
+
+  // Afficher un loading pendant la vérification pour les autres pages
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-bg">
@@ -40,12 +46,6 @@ export const ProtectedRoute = ({ children, requireApproval = false }: ProtectedR
   if (!isAuthenticated) {
     console.log('❌ [PROTECTED_ROUTE] Non authentifié, redirection vers /login');
     return <Navigate to="/login" replace />;
-  }
-
-  // Pour la page admin, pas de vérification d'approbation nécessaire
-  if (location.pathname === '/admin') {
-    console.log('✅ [PROTECTED_ROUTE] Page admin, accès autorisé');
-    return <>{children}</>;
   }
   
   // Pour les autres pages, vérifier l'approbation si requise
