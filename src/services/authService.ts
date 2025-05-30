@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -105,18 +106,18 @@ export const authService = {
       }
       
       if (existingUsers && existingUsers.length > 0) {
-        console.error('❌ [SIGNUP] Email already exists');
+        console.log('❌ [SIGNUP] Email already exists');
         const existingUser = existingUsers[0];
         
         if (!existingUser.is_approved) {
           return { 
             success: false, 
-            message: 'Un compte avec cet email est déjà en cours de validation. Veuillez patienter.' 
+            message: 'Une demande de création de compte a déjà été faite avec cette adresse email et est en attente de validation. Veuillez patienter.' 
           };
         } else {
           return { 
             success: false, 
-            message: 'Un compte avec cet email existe déjà. Utilisez la fonction de connexion.' 
+            message: 'Cette adresse email est déjà enregistrée. Veuillez vous authentifier.' 
           };
         }
       }

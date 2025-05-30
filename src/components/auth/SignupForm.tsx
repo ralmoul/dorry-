@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,18 +23,16 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    signup
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { signup } = useAuth();
+  const { toast } = useToast();
+
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [field]: e.target.value
     }));
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -72,12 +71,13 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       setIsLoading(false);
       return;
     }
+
     try {
-      const success = await signup(formData);
-      if (success) {
+      const result = await signup(formData);
+      if (result.success) {
         toast({
           title: "Demande envoyée",
-          description: "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
+          description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
         });
         // Réinitialiser le formulaire
         setFormData({
@@ -95,7 +95,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       } else {
         toast({
           title: "Erreur",
-          description: "Cette adresse email est déjà utilisée ou une erreur est survenue.",
+          description: result.message || "Une erreur est survenue lors de la création du compte.",
           variant: "destructive"
         });
       }
