@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
@@ -23,10 +22,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       console.log('🔄 [AUTH_PROVIDER] Mise à jour de l\'état d\'authentification...');
 
-      if (session?.user) {
-        console.log('✅ [AUTH_PROVIDER] Session utilisateur trouvée:', session.user.id);
-        
-        try {
+      try {
+        if (session?.user) {
+          console.log('✅ [AUTH_PROVIDER] Session utilisateur trouvée:', session.user.id);
+          
           // Récupérer le profil utilisateur depuis la table profiles
           const { data: profile, error } = await supabase
             .from('profiles')
@@ -36,8 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
           if (error) {
             console.error('❌ [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
-            // Si le profil n'existe pas, on peut quand même authentifier l'utilisateur
-            // avec les données de session de base
+            // Utiliser les données de session de base si le profil n'existe pas
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -77,16 +75,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isAuthenticated: true,
             isLoading: false,
           });
-        } catch (error) {
-          console.error('💥 [AUTH_PROVIDER] Erreur inattendue:', error);
+        } else {
+          console.log('❌ [AUTH_PROVIDER] Aucune session utilisateur');
           setAuthState({
             user: null,
             isAuthenticated: false,
             isLoading: false,
           });
         }
-      } else {
-        console.log('❌ [AUTH_PROVIDER] Aucune session utilisateur');
+      } catch (error) {
+        console.error('💥 [AUTH_PROVIDER] Erreur inattendue:', error);
+        // S'assurer que le loading s'arrête même en cas d'erreur
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -105,7 +104,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (error) {
           console.error('❌ [AUTH_PROVIDER] Erreur session:', error);
           if (mounted) {
-            setAuthState(prev => ({ ...prev, isLoading: false }));
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
           }
           return;
         }
@@ -115,7 +118,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error('💥 [AUTH_PROVIDER] Erreur vérification:', error);
         if (mounted) {
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
         }
       }
     };
