@@ -41,6 +41,18 @@ export const AdminPanel = () => {
         setIsLoading(true);
       }
       
+      // Créer une session temporaire pour l'admin si nécessaire
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Créer une session anonyme pour permettre l'accès aux données
+        console.log('📝 [ADMIN] Création d\'une session temporaire pour l\'admin...');
+        const { error: signInError } = await supabase.auth.signInAnonymously();
+        if (signInError) {
+          console.error('❌ [ADMIN] Erreur création session anonyme:', signInError);
+        }
+      }
+      
       // Récupérer tous les profils depuis la table profiles
       const { data: profilesData, error } = await supabase
         .from('profiles')
@@ -51,7 +63,7 @@ export const AdminPanel = () => {
         console.error('❌ [ADMIN] Erreur lors du chargement des profils:', error);
         toast({
           title: "Erreur",
-          description: "Impossible de charger les utilisateurs.",
+          description: `Impossible de charger les utilisateurs: ${error.message}`,
           variant: "destructive"
         });
         return;
