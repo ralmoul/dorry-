@@ -1,3 +1,4 @@
+
 import { ReactNode, useState, useEffect } from 'react';
 import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 import { AuthState, SignupFormData, LoginFormData } from '@/types/auth';
@@ -28,21 +29,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           console.log('🔍 [AUTH_PROVIDER] Recherche du profil pour:', session.user.id);
           
-          // Ajouter un timeout pour éviter les blocages
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout')), 5000)
-          );
-          
-          const profilePromise = supabase
+          // Requête simple sans timeout pour éviter les problèmes
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .maybeSingle();
-
-          const { data: profile, error: profileError } = await Promise.race([
-            profilePromise,
-            timeoutPromise
-          ]) as any;
 
           console.log('📊 [AUTH_PROVIDER] Résultat de la requête profil:', { profile, profileError });
 
@@ -71,8 +63,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               isLoading: false,
             });
           } else {
-            // Si pas de profil trouvé ou timeout, créer un utilisateur temporaire
-            console.warn('⚠️ [AUTH_PROVIDER] Aucun profil trouvé ou timeout, création utilisateur temporaire');
+            // Si pas de profil trouvé, créer un utilisateur temporaire
+            console.warn('⚠️ [AUTH_PROVIDER] Aucun profil trouvé, création utilisateur temporaire');
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -95,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
           console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
           if (mounted) {
-            // En cas d'erreur ou timeout, authentifier quand même l'utilisateur
+            // En cas d'erreur, authentifier quand même l'utilisateur
             const user = {
               id: session.user.id,
               firstName: session.user.user_metadata?.first_name || '',
@@ -168,10 +160,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const result = await authService.login(data);
       console.log('🔐 [AUTH_PROVIDER] Résultat de la connexion:', result);
+      
+      if (!result.success && result.error) {
+        // Propager l'erreur avec le message spécifique
+        throw new Error(result.error);
+      }
+      
       return result.success;
     } catch (error) {
       console.error('❌ [AUTH_PROVIDER] Erreur de connexion:', error);
-      return false;
+      throw error; // Propager l'erreur pour que le composant puisse l'afficher
     }
   };
 

@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { SignupFormData, LoginFormData } from '@/types/auth';
 
@@ -32,7 +33,7 @@ export const authService = {
     }
   },
 
-  async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean }> {
+  async login(data: LoginFormData & { rememberMe?: boolean }): Promise<{ success: boolean; error?: string }> {
     try {
       console.log('🔐 [AUTH_SERVICE] Attempting login for:', data.email);
       
@@ -43,12 +44,27 @@ export const authService = {
 
       if (error) {
         console.error('❌ [AUTH_SERVICE] Login error:', error);
-        return { success: false };
+        
+        // Gérer spécifiquement l'erreur de confirmation d'email
+        if (error.message.includes('Email not confirmed')) {
+          return { 
+            success: false, 
+            error: 'Votre email n\'est pas encore confirmé. Veuillez vérifier votre boîte mail ou contacter l\'administrateur.' 
+          };
+        }
+        
+        return { 
+          success: false, 
+          error: 'Email ou mot de passe incorrect.' 
+        };
       }
 
       if (!authData.session) {
         console.error('❌ [AUTH_SERVICE] No session returned');
-        return { success: false };
+        return { 
+          success: false, 
+          error: 'Erreur de session. Veuillez réessayer.' 
+        };
       }
 
       console.log('✅ [AUTH_SERVICE] Login successful:', authData.user?.id);
@@ -57,7 +73,10 @@ export const authService = {
       return { success: true };
     } catch (error) {
       console.error('💥 [AUTH_SERVICE] Login failed:', error);
-      throw error;
+      return { 
+        success: false, 
+        error: 'Une erreur est survenue lors de la connexion.' 
+      };
     }
   },
 

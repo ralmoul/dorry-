@@ -30,13 +30,13 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     setIsLoading(true);
 
     try {
-      const success = await login({
+      const result = await login({
         email,
         password,
         rememberMe
       });
 
-      if (success) {
+      if (result) {
         console.log('✅ [LOGIN_FORM] Connexion réussie');
         toast({
           title: "Connexion réussie",
@@ -53,11 +53,15 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('💥 [LOGIN_FORM] Erreur lors de la connexion:', error);
+      
+      // Afficher le message d'erreur spécifique
+      const errorMessage = error?.message || "Une erreur est survenue lors de la connexion.";
+      
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la connexion.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
