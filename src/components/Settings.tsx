@@ -13,14 +13,9 @@ export const Settings = ({
     logout,
     isAuthenticated
   } = useAuth();
-  console.log('⚙️ [SETTINGS] État d\'authentification:', {
+  console.log('⚙️ [SETTINGS] Auth state:', {
     isAuthenticated,
-    user: user ? {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email
-    } : null
+    user
   });
   return <div className="min-h-screen gradient-bg p-6">
       {/* Header */}
@@ -64,36 +59,40 @@ export const Settings = ({
                   <p className="text-sm text-muted-foreground">Entreprise</p>
                   <p className="font-medium text-white">{user.company}</p>
                 </div>
-                <Separator className="my-4" />
                 <div>
-                  <p className="text-sm text-muted-foreground">ID Utilisateur</p>
-                  <p className="font-mono text-xs bg-background/50 p-2 rounded text-white break-all">
-                    {user.id}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Date de création</p>
-                  <p className="font-medium text-white">
-                    {new Date(user.createdAt).toLocaleDateString('fr-FR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Property ID</p>
+                  <p className="font-mono text-xs bg-background/50 p-2 rounded text-white">{user.id}</p>
                 </div>
               </> : <div className="text-center py-4">
                 <p className="text-muted-foreground">Aucune information utilisateur disponible</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Veuillez vous connecter pour voir vos informations
-                </p>
+                <p className="text-sm text-muted-foreground mt-2">Veuillez vous connecter pour voir vos informations</p>
               </div>}
           </CardContent>
         </Card>
 
+        {/* Configuration technique */}
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+          
+          
+        </Card>
+
         {/* Actions */}
-        
+        <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
+          <CardHeader>
+            <CardTitle className="text-bright-turquoise">Actions</CardTitle>
+            <CardDescription>Gérer votre session</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isAuthenticated ? <Button onClick={logout} variant="destructive" className="w-full">
+                Se déconnecter
+              </Button> : <div className="text-center">
+                <p className="text-muted-foreground mb-4">Vous n'êtes pas connecté</p>
+                <Button onClick={() => window.location.href = '/login'} className="w-full">
+                  Se connecter
+                </Button>
+              </div>}
+          </CardContent>
+        </Card>
       </div>
     </div>;
 };

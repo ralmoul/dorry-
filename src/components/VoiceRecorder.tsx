@@ -1,26 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X, RefreshCw } from 'lucide-react';
+import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
-import { useVoiceRecordings } from '@/hooks/useVoiceRecordings';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
 import { ConsentModal } from '@/components/ui/ConsentModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { sendAudioToWebhook } from '@/services/webhookService';
 
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
   onOpenUpcomingFeatures: () => void;
 }
 
+interface Recording {
+  id: string;
+  name: string;
+  date: Date;
+  duration: number;
+  blob?: Blob;
+  userId: string;
+}
+
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onOpenSettings,
   onOpenUpcomingFeatures
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const {
+    user,
+    isAuthenticated
+  } = useAuth();
   
   const {
     isRecording,
@@ -41,33 +51,117 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     setRecordingConfirmedCallback
   } = useAudioRecorder();
   
-  const {
-    recordings,
-    isLoading: recordingsLoading,
-    addRecording,
-    updateRecordingName,
-    deleteRecording
-  } = useVoiceRecordings();
-  
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
+  const [recordings, setRecordings] = useState<Recording[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [resendingId, setResendingId] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
   
+  // Load recordings from localStorage on component mount
+  useEffect(() => {
+    if (user?.id) {
+      loadUserRecordings();
+    }
+  }, [user?.id]);
+
+  // Clean up expired recordings (older than 7 days) and filter by last 7 days
+  useEffect(() => {
+    const cleanupAndFilterRecordings = () => {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      setRecordings(prev => {
+        // Filter recordings from the last 7 days (not just 7 recordings)
+        const filtered = prev.filter(rec => new Date(rec.date) > sevenDaysAgo);
+        // Sort by date (most recent first)
+        const sorted = filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        if (sorted.length !== prev.length) {
+          saveUserRecordings(sorted);
+        }
+        return sorted;
+      });
+    };
+
+    if (user?.id) {
+      cleanupAndFilterRecordings();
+      const interval = setInterval(cleanupAndFilterRecordings, 60 * 60 * 1000); // Check every hour
+      return () => clearInterval(interval);
+    }
+  }, [user?.id]);
+
   // Set up the callback for when recording is confirmed
   useEffect(() => {
     const handleNewRecording = (blob: Blob, duration: number) => {
       console.log('🎵 [VOICE_RECORDER] Nouveau enregistrement reçu:', { duration, size: blob.size });
-      addRecording(blob, duration);
+      addNewRecording(blob, duration);
     };
     
     setRecordingConfirmedCallback(handleNewRecording);
-  }, [setRecordingConfirmedCallback, addRecording]);
+  }, [setRecordingConfirmedCallback, user?.id]);
+
+  const loadUserRecordings = () => {
+    const savedRecordings = localStorage.getItem(`dorry_recordings_${user?.id}`);
+    if (savedRecordings) {
+      try {
+        const parsed = JSON.parse(savedRecordings);
+        const recordingsWithDates = parsed.map((rec: any) => ({
+          ...rec,
+          date: new Date(rec.date)
+        }));
+        
+        // Filter recordings from the last 7 days and sort by date
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const filtered = recordingsWithDates.filter((rec: Recording) => new Date(rec.date) > sevenDaysAgo);
+        const sorted = filtered.sort((a: Recording, b: Recording) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        console.log('📂 [VOICE_RECORDER] Enregistrements chargés:', sorted.length);
+        setRecordings(sorted);
+      } catch (error) {
+        console.error('❌ [VOICE_RECORDER] Erreur lors du chargement:', error);
+      }
+    }
+  };
+
+  const saveUserRecordings = (recs: Recording[]) => {
+    if (user?.id) {
+      console.log('💾 [VOICE_RECORDER] Sauvegarde de', recs.length, 'enregistrements');
+      localStorage.setItem(`dorry_recordings_${user.id}`, JSON.stringify(recs));
+    }
+  };
+
+  const addNewRecording = (blob: Blob, duration: number) => {
+    if (!user?.id) {
+      console.error('❌ [VOICE_RECORDER] Pas d\'utilisateur connecté');
+      return;
+    }
+
+    const newRecording: Recording = {
+      id: Date.now().toString(),
+      name: '',
+      date: new Date(),
+      duration,
+      blob,
+      userId: user.id
+    };
+
+    console.log('✅ [VOICE_RECORDER] Ajout nouvel enregistrement:', newRecording.id);
+
+    setRecordings(prev => {
+      // Add new recording at the beginning (most recent first)
+      const updated = [newRecording, ...prev];
+      
+      // Filter recordings from the last 7 days only
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const filtered = updated.filter(rec => new Date(rec.date) > sevenDaysAgo);
+      
+      console.log('📝 [VOICE_RECORDER] Historique mis à jour:', filtered.length, 'enregistrements');
+      saveUserRecordings(filtered);
+      return filtered;
+    });
+  };
 
   // Simule l'animation des ondes vocales
   useEffect(() => {
@@ -124,12 +218,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     return `Enregistrement du ${formatDateDisplay(date)}, ${formatTimeDisplay(date)}`;
   };
 
-  const handleStartEdit = (recording: any) => {
+  const handleStartEdit = (recording: Recording) => {
     setEditingId(recording.id);
     setEditingName(recording.name || getDefaultName(recording.date));
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = () => {
     if (!editingId) return;
 
     const trimmedName = editingName.trim();
@@ -142,6 +236,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
+    // Check for duplicates
     const isDuplicate = recordings.some(rec => 
       rec.id !== editingId && 
       (rec.name || getDefaultName(rec.date)).toLowerCase() === trimmedName.toLowerCase()
@@ -156,6 +251,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
+    // Check for special characters
     const hasSpecialChars = /[<>:"/\\|?*]/.test(trimmedName);
     if (hasSpecialChars) {
       toast({
@@ -166,7 +262,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    await updateRecordingName(editingId, trimmedName);
+    const updatedRecordings = recordings.map(rec => 
+      rec.id === editingId ? { ...rec, name: trimmedName } : rec
+    );
+    setRecordings(updatedRecordings);
+    saveUserRecordings(updatedRecordings);
     setEditingId(null);
     setEditingName('');
     
@@ -189,8 +289,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   };
 
-  const handlePlay = (recording: any) => {
+  const handlePlay = (recording: Recording) => {
     if (playingId === recording.id) {
+      // Stop current playback
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -208,6 +309,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
+    // Stop any current playback
     if (audioRef.current) {
       audioRef.current.pause();
     }
@@ -232,67 +334,20 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     });
   };
 
-  const handleDelete = async (recordingId: string) => {
+  const handleDelete = (recordingId: string) => {
+    const updatedRecordings = recordings.filter(rec => rec.id !== recordingId);
+    setRecordings(updatedRecordings);
+    saveUserRecordings(updatedRecordings);
+    
     if (playingId === recordingId && audioRef.current) {
       audioRef.current.pause();
       setPlayingId(null);
     }
 
-    await deleteRecording(recordingId);
-  };
-
-  const handleResend = async (recording: any) => {
-    console.log('🔄 [VOICE_RECORDER] Tentative de renvoi pour:', recording.id);
-    
-    if (!recording.blob) {
-      console.error('❌ [VOICE_RECORDER] Pas de blob disponible');
-      toast({
-        title: "Erreur",
-        description: "Enregistrement non disponible pour le renvoi.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const isValidBlob = recording.blob instanceof Blob 
-      && recording.blob.constructor.name === 'Blob'
-      && recording.blob.size > 0;
-
-    if (!isValidBlob) {
-      console.error('❌ [VOICE_RECORDER] Blob invalide détecté');
-      toast({
-        title: "Erreur",
-        description: "L'enregistrement n'est pas valide pour le renvoi. Veuillez créer un nouvel enregistrement.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    console.log('✅ [VOICE_RECORDER] Blob validé, procédure de renvoi...');
-    setResendingId(recording.id);
-    
-    try {
-      console.log('🚀 [VOICE_RECORDER] Envoi vers sendAudioToWebhook...');
-      const result = await sendAudioToWebhook(recording.blob, user);
-      
-      console.log('✅ [VOICE_RECORDER] Renvoi réussi:', result);
-      
-      toast({
-        title: "Enregistrement renvoyé",
-        description: "L'enregistrement a été renvoyé avec succès vers l'IA",
-      });
-    } catch (error) {
-      console.error('❌ [VOICE_RECORDER] Erreur lors du renvoi:', error);
-      const errorMessage = error instanceof Error ? error.message : "Impossible de renvoyer l'enregistrement.";
-      
-      toast({
-        title: "Erreur de renvoi",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setResendingId(null);
-    }
+    toast({
+      title: "Enregistrement supprimé",
+      description: "L'enregistrement a été supprimé avec succès"
+    });
   };
 
   const getDaysUntilExpiry = (date: Date) => {
@@ -523,28 +578,22 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   </div>
                 </div>
 
-                {/* Historique des enregistrements - Version mobile optimisée */}
-                <div className="w-full max-w-4xl mt-6 sm:mt-8">
-                  <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-slate-700/50 shadow-2xl">
-                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6 text-center">
+                {/* Historique des enregistrements */}
+                <div className="w-full max-w-3xl mt-8">
+                  <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
+                    <h3 className="text-xl font-semibold text-white mb-4 text-center">
                       Vos enregistrements des 7 derniers jours
-                      {recordingsLoading && (
-                        <span className="ml-2 text-sm text-slate-400">(Chargement...)</span>
-                      )}
                     </h3>
                     
                     {recordings.length === 0 ? (
-                      <div className="text-center py-6 sm:py-8">
-                        <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🐟</div>
-                        <p className="text-slate-300 text-sm sm:text-base px-2">
-                          {recordingsLoading 
-                            ? "Chargement de vos enregistrements..."
-                            : "Ici, la mémoire, c'est 7 jours : assez pour ne rien rater, pas assez pour s'inquiéter !"
-                          }
+                      <div className="text-center py-8">
+                        <div className="text-4xl mb-4">🐟</div>
+                        <p className="text-slate-300 text-sm">
+                          Ici, la mémoire, c'est 7 jours : assez pour ne rien rater, pas assez pour s'inquiéter !
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-2 sm:space-y-3">
+                      <div className="space-y-3">
                         <AnimatePresence>
                           {recordings.map((recording) => (
                             <motion.div
@@ -552,119 +601,97 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -20 }}
-                              className="bg-slate-700/60 rounded-xl p-3 sm:p-4 border border-slate-600/50 backdrop-blur-sm"
+                              className="bg-slate-700/50 rounded-lg p-4 border border-slate-600/50"
                             >
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                {/* Section principale avec play button et contenu */}
-                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  {/* Play button */}
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handlePlay(recording)}
-                                    className={`flex-shrink-0 w-10 h-10 sm:w-8 sm:h-8 ${
-                                      playingId === recording.id 
-                                        ? 'text-orange-400 hover:bg-orange-400/10' 
-                                        : 'text-cyan-400 hover:bg-cyan-400/10'
-                                    }`}
-                                  >
-                                    <Play className="w-5 h-5 sm:w-4 sm:h-4" />
-                                  </Button>
+                              <div className="flex items-center justify-between gap-3">
+                                {/* Play button */}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handlePlay(recording)}
+                                  className={`flex-shrink-0 w-8 h-8 ${
+                                    playingId === recording.id 
+                                      ? 'text-orange-400 hover:bg-orange-400/10' 
+                                      : 'text-cyan-400 hover:bg-cyan-400/10'
+                                  }`}
+                                >
+                                  <Play className="w-4 h-4" />
+                                </Button>
 
-                                  {/* Contenu principal */}
-                                  <div className="flex-1 min-w-0">
-                                    {editingId === recording.id ? (
-                                      <div className="flex flex-col gap-2">
-                                        <Input
-                                          value={editingName}
-                                          onChange={(e) => setEditingName(e.target.value)}
-                                          onKeyDown={handleKeyPress}
-                                          maxLength={50}
-                                          className="bg-slate-600 border-slate-500 text-white placeholder:text-white text-sm h-10"
-                                          placeholder="Nom de l'enregistrement..."
-                                          autoFocus
-                                        />
-                                        <div className="flex gap-2 justify-end">
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={handleSaveEdit}
-                                            className="text-green-400 hover:bg-green-400/10 w-8 h-8"
-                                          >
-                                            <Check className="w-4 h-4" />
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={handleCancelEdit}
-                                            className="text-red-400 hover:bg-red-400/10 w-8 h-8"
-                                          >
-                                            <X className="w-4 h-4" />
-                                          </Button>
-                                        </div>
+                                {/* Name and date */}
+                                <div className="flex-1 min-w-0">
+                                  {editingId === recording.id ? (
+                                    <div className="flex items-center gap-2">
+                                      <Input
+                                        value={editingName}
+                                        onChange={(e) => setEditingName(e.target.value)}
+                                        onKeyDown={handleKeyPress}
+                                        maxLength={50}
+                                        className="bg-slate-600 border-slate-500 text-white text-sm"
+                                        placeholder="Nom de l'enregistrement..."
+                                        autoFocus
+                                      />
+                                      <div className="flex gap-1 flex-shrink-0">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={handleSaveEdit}
+                                          className="text-green-400 hover:bg-green-400/10 w-8 h-8"
+                                        >
+                                          <Check className="w-3 h-3" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={handleCancelEdit}
+                                          className="text-red-400 hover:bg-red-400/10 w-8 h-8"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </Button>
                                       </div>
-                                    ) : (
-                                      <div className="space-y-1">
-                                        <div className="font-medium text-white text-sm sm:text-base leading-tight">
-                                          {recording.name || getDefaultName(recording.date)}
-                                        </div>
-                                        <div className="text-xs text-slate-400 space-y-1">
-                                          <div className="flex justify-between items-center">
-                                            <span>{formatDateDisplay(recording.date)}, {formatTimeDisplay(recording.date)}</span>
-                                          </div>
-                                          <div className="text-orange-400 font-medium">
-                                            Expire dans {getDaysUntilExpiry(recording.date)} jour(s)
-                                          </div>
-                                        </div>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <div className="font-medium text-white text-sm truncate">
+                                        {recording.name || getDefaultName(recording.date)}
                                       </div>
-                                    )}
-                                  </div>
+                                      <div className="text-xs text-slate-400 flex items-center justify-between">
+                                        <span>{formatDateDisplay(recording.date)}, {formatTimeDisplay(recording.date)}</span>
+                                        <span className="text-orange-400">
+                                          Expire dans {getDaysUntilExpiry(recording.date)} jour(s)
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* Action buttons */}
                                 {editingId !== recording.id && (
-                                  <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
-                                    {/* Bouton de renvoi - seulement visible si le blob existe */}
-                                    {recording.blob && (
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleResend(recording)}
-                                        disabled={resendingId === recording.id}
-                                        className="text-cyan-400 hover:bg-cyan-400/10 w-9 h-9 sm:w-8 sm:h-8 disabled:opacity-50"
-                                        title="Renvoyer vers l'IA"
-                                      >
-                                        {resendingId === recording.id ? (
-                                          <RefreshCw className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                          <Send className="w-4 h-4" />
-                                        )}
-                                      </Button>
-                                    )}
+                                  <div className="flex gap-1 flex-shrink-0">
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => handleStartEdit(recording)}
-                                      className="text-slate-400 hover:bg-slate-600 hover:text-white w-9 h-9 sm:w-8 sm:h-8"
+                                      className="text-slate-400 hover:bg-slate-600 hover:text-white w-8 h-8"
                                       title="Renommer"
                                     >
-                                      <Edit3 className="w-4 h-4" />
+                                      <Edit3 className="w-3 h-3" />
                                     </Button>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => handleDelete(recording.id)}
-                                      className="text-red-400 hover:bg-red-400/10 w-9 h-9 sm:w-8 sm:h-8"
+                                      className="text-red-400 hover:bg-red-400/10 w-8 h-8"
                                       title="Supprimer"
                                     >
-                                      <Trash2 className="w-4 h-4" />
+                                      <Trash2 className="w-3 h-3" />
                                     </Button>
                                   </div>
                                 )}
                               </div>
                               
                               {editingId === recording.id && (
-                                <div className="mt-2 text-xs text-slate-400 text-right">
+                                <div className="mt-2 text-xs text-slate-400">
                                   {editingName.length}/50 caractères
                                 </div>
                               )}
@@ -672,10 +699,10 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                           ))}
                         </AnimatePresence>
                         
-                        <div className="text-center mt-4 sm:mt-6 pt-4 border-t border-slate-600/30">
-                          <div className="text-2xl sm:text-3xl mb-2">🐟</div>
-                          <p className="text-slate-400 text-xs sm:text-sm px-2 leading-relaxed">
-                            Vos enregistrements sont synchronisés sur tous vos appareils et automatiquement supprimés après 7 jours.<br/>
+                        <div className="text-center mt-6">
+                          <div className="text-3xl mb-2">🐟</div>
+                          <p className="text-slate-400 text-xs">
+                            Vos enregistrements sont strictement confidentiels et automatiquement supprimés après 7 jours.<br/>
                             Dorry ne partage rien sans votre accord.
                           </p>
                         </div>

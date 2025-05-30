@@ -121,9 +121,8 @@ export const useAudioRecorder = () => {
     setShowConfirmation(false);
     setIsProcessing(true);
 
-    // IMPORTANT: Ajouter à l'historique AVANT l'envoi pour que ça apparaisse immédiatement
+    // Add to history before sending
     if (onRecordingConfirmed) {
-      console.log('💾 [AUDIO_RECORDER] Ajout à l\'historique AVANT envoi...');
       onRecordingConfirmed(recordingBlob, recordingTime);
     }
     

@@ -16,7 +16,6 @@ export type Database = {
           email: string
           first_name: string
           id: string
-          is_approved: boolean
           last_name: string
           phone: string
           updated_at: string
@@ -27,8 +26,44 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          last_name: string
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          company: string
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          is_approved: boolean
+          last_name: string
+          password_hash: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
           is_approved?: boolean
           last_name: string
+          password_hash: string
           phone: string
           updated_at?: string
         }
@@ -40,41 +75,9 @@ export type Database = {
           id?: string
           is_approved?: boolean
           last_name?: string
+          password_hash?: string
           phone?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      voice_recordings: {
-        Row: {
-          blob_data: string
-          blob_type: string
-          created_at: string
-          duration: number
-          id: string
-          name: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          blob_data: string
-          blob_type: string
-          created_at?: string
-          duration: number
-          id?: string
-          name?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          blob_data?: string
-          blob_type?: string
-          created_at?: string
-          duration?: number
-          id?: string
-          name?: string | null
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -83,18 +86,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      approve_user_profile: {
-        Args: { user_id: string }
-        Returns: undefined
-      }
-      is_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
-      reject_user_profile: {
-        Args: { user_id: string }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

@@ -1,11 +1,8 @@
 
 import { LoginForm } from '@/components/auth/LoginForm';
-import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const navigate = useNavigate();
-
-  return <LoginForm onSwitchToSignup={() => navigate('/signup')} />;
+  return <LoginForm onSwitchToSignup={() => window.location.href = '/signup'} />;
 };
 
 export default Login;
