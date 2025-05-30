@@ -14,7 +14,7 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const ADMIN_PASSWORD = 'admin123'; // Mot de passe simple pour l'admin
+  const ADMIN_PASSWORD = 'TBv$nq7A#9sDSTt'; // Nouveau mot de passe sécurisé
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +69,7 @@ const Admin = () => {
             Administration
           </CardTitle>
           <CardDescription className="text-white text-sm sm:text-base">
-            Accès réglementé - Mot de passe : admin123
+            Accès sécurisé - Authentification requise
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
@@ -84,7 +84,7 @@ const Admin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="admin123"
+                placeholder="Entrez le mot de passe"
                 className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-11 text-white placeholder:text-gray-400"
                 autoComplete="current-password"
               />
@@ -97,11 +97,6 @@ const Admin = () => {
               {isLoading ? 'Vérification...' : 'Accéder à l\'administration'}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-white">
-              Mot de passe : admin123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
