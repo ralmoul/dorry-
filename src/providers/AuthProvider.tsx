@@ -13,38 +13,78 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH_PROVIDER] Initialisation simplifiée...');
+    console.log('🚀 [AUTH_PROVIDER] Initialisation...');
     
     let mounted = true;
 
-    // Fonction simplifiée pour mettre à jour l'état d'authentification
-    const updateAuthState = (session: any) => {
+    // Fonction pour mettre à jour l'état d'authentification
+    const updateAuthState = async (session: any) => {
       if (!mounted) return;
 
-      console.log('🔄 [AUTH_PROVIDER] Mise à jour simplifiée de l\'état...');
+      console.log('🔄 [AUTH_PROVIDER] Mise à jour de l\'état d\'authentification...');
 
       if (session?.user) {
         console.log('✅ [AUTH_PROVIDER] Session utilisateur trouvée:', session.user.id);
         
-        // Créer un utilisateur directement depuis les métadonnées de session
-        const user = {
-          id: session.user.id,
-          firstName: session.user.user_metadata?.first_name || '',
-          lastName: session.user.user_metadata?.last_name || '',
-          email: session.user.email || '',
-          phone: session.user.user_metadata?.phone || '',
-          company: session.user.user_metadata?.company || '',
-          isApproved: true, // On assume que l'utilisateur est approuvé pour simplifier
-          createdAt: session.user.created_at || new Date().toISOString(),
-        };
+        try {
+          // Récupérer le profil utilisateur depuis la table profiles
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        console.log('✅ [AUTH_PROVIDER] Utilisateur authentifié:', user.firstName);
-        
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+          if (error) {
+            console.error('❌ [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
+            // Si le profil n'existe pas, on peut quand même authentifier l'utilisateur
+            // avec les données de session de base
+            const user = {
+              id: session.user.id,
+              firstName: session.user.user_metadata?.first_name || '',
+              lastName: session.user.user_metadata?.last_name || '',
+              email: session.user.email || '',
+              phone: session.user.user_metadata?.phone || '',
+              company: session.user.user_metadata?.company || '',
+              isApproved: true, // Par défaut approuvé si pas de profil
+              createdAt: session.user.created_at || new Date().toISOString(),
+            };
+
+            setAuthState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+            return;
+          }
+
+          console.log('✅ [AUTH_PROVIDER] Profil utilisateur récupéré:', profile);
+          
+          const user = {
+            id: profile.id,
+            firstName: profile.first_name,
+            lastName: profile.last_name,
+            email: profile.email,
+            phone: profile.phone,
+            company: profile.company,
+            isApproved: profile.is_approved,
+            createdAt: profile.created_at,
+          };
+
+          console.log('✅ [AUTH_PROVIDER] Utilisateur authentifié:', user.firstName, 'Approuvé:', user.isApproved);
+          
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          console.error('💥 [AUTH_PROVIDER] Erreur inattendue:', error);
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
       } else {
         console.log('❌ [AUTH_PROVIDER] Aucune session utilisateur');
         setAuthState({
@@ -71,7 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         
         console.log('🔍 [AUTH_PROVIDER] Session trouvée:', !!session);
-        updateAuthState(session);
+        await updateAuthState(session);
       } catch (error) {
         console.error('💥 [AUTH_PROVIDER] Erreur vérification:', error);
         if (mounted) {
@@ -81,9 +121,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 [AUTH_PROVIDER] Changement auth:', event);
-      updateAuthState(session);
+      await updateAuthState(session);
     });
 
     checkInitialSession();
@@ -141,7 +181,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: authState.isAuthenticated, 
     isLoading: authState.isLoading,
     userId: authState.user?.id || 'aucun',
-    userFirstName: authState.user?.firstName || 'aucun'
+    userFirstName: authState.user?.firstName || 'aucun',
+    isApproved: authState.user?.isApproved || false
   });
 
   const contextValue: AuthContextType = {
