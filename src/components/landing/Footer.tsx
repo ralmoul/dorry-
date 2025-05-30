@@ -1,9 +1,17 @@
+
 import React from 'react';
+
 export const Footer = () => {
-  return <footer className="bg-slate-900 py-12 md:py-16">
+  return (
+    <footer className="bg-slate-900 py-12 md:py-16">
       <div className="container mx-auto px-4 md:px-8">
         {/* Note de conformité RGPD */}
-        
+        <div className="mb-8 p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-lg text-center">
+          <p className="text-cyan-400 font-medium text-sm md:text-base">
+            🔒 Vos données, votre choix : Dorry.app est 100% conforme RGPD. 
+            Données vocales supprimées après 7 jours, consentement explicite journalisé, sécurité garantie.
+          </p>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-12 md:mb-16">
           <div className="flex-1 min-w-64 text-center md:text-left">
@@ -21,7 +29,10 @@ export const Footer = () => {
                 <a href="/terms-of-service" className="block text-slate-300 hover:text-cyan-400 transition-colors">Conditions d'utilisation</a>
                 <a href="/legal-notice" className="block text-slate-300 hover:text-cyan-400 transition-colors">Mentions légales</a>
                 <a href="/cookie-policy" className="block text-slate-300 hover:text-cyan-400 transition-colors">Politique cookies</a>
-                <a href="/cookie-policy" className="block text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base text-center md:text-left w-full">
+                <a 
+                  href="/cookie-policy"
+                  className="block text-slate-300 hover:text-cyan-400 transition-colors text-sm md:text-base text-center md:text-left w-full"
+                >
                   Gérer mes cookies
                 </a>
               </div>
@@ -46,5 +57,6 @@ export const Footer = () => {
           <div className="flex space-x-4"></div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
