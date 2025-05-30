@@ -126,13 +126,25 @@ export const AdminPanel = () => {
     try {
       console.log(`✅ [ADMIN] Approbation de l'utilisateur ${userId}`);
       
+      // Mettre à jour l'état local immédiatement pour un feedback visuel
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, is_approved: true } : user
+      ));
+      
       const { error } = await supabase
         .from('profiles')
-        .update({ is_approved: true })
+        .update({ 
+          is_approved: true,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', userId);
       
       if (error) {
         console.error('❌ [ADMIN] Erreur lors de l\'approbation:', error);
+        // Revenir à l'état précédent en cas d'erreur
+        setUsers(users.map(user => 
+          user.id === userId ? { ...user, is_approved: false } : user
+        ));
         toast({
           title: "Erreur",
           description: "Impossible d'approuver l'utilisateur.",
@@ -141,19 +153,24 @@ export const AdminPanel = () => {
         return;
       }
       
-      // Mettre à jour l'état local
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: true } : user
-      ));
-      
       toast({
         title: "Utilisateur approuvé",
         description: "L'utilisateur peut maintenant accéder à l'application.",
       });
       
       console.log('✅ [ADMIN] Utilisateur approuvé avec succès');
+      
+      // Recharger les données pour s'assurer de la cohérence
+      setTimeout(() => {
+        loadUsers();
+      }, 500);
+      
     } catch (error) {
       console.error('💥 [ADMIN] Erreur lors de l\'approbation:', error);
+      // Revenir à l'état précédent en cas d'erreur
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, is_approved: false } : user
+      ));
       toast({
         title: "Erreur",
         description: "Une erreur est survenue.",
@@ -166,13 +183,25 @@ export const AdminPanel = () => {
     try {
       console.log(`❌ [ADMIN] Rejet de l'utilisateur ${userId}`);
       
+      // Mettre à jour l'état local immédiatement pour un feedback visuel
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, is_approved: false } : user
+      ));
+      
       const { error } = await supabase
         .from('profiles')
-        .update({ is_approved: false })
+        .update({ 
+          is_approved: false,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', userId);
       
       if (error) {
         console.error('❌ [ADMIN] Erreur lors du rejet:', error);
+        // Revenir à l'état précédent en cas d'erreur
+        setUsers(users.map(user => 
+          user.id === userId ? { ...user, is_approved: true } : user
+        ));
         toast({
           title: "Erreur",
           description: "Impossible de rejeter l'utilisateur.",
@@ -181,11 +210,6 @@ export const AdminPanel = () => {
         return;
       }
       
-      // Mettre à jour l'état local
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, is_approved: false } : user
-      ));
-      
       toast({
         title: "Utilisateur rejeté",
         description: "L'accès de l'utilisateur a été refusé.",
@@ -193,8 +217,18 @@ export const AdminPanel = () => {
       });
       
       console.log('❌ [ADMIN] Utilisateur rejeté avec succès');
+      
+      // Recharger les données pour s'assurer de la cohérence
+      setTimeout(() => {
+        loadUsers();
+      }, 500);
+      
     } catch (error) {
       console.error('💥 [ADMIN] Erreur lors du rejet:', error);
+      // Revenir à l'état précédent en cas d'erreur
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, is_approved: true } : user
+      ));
       toast({
         title: "Erreur",
         description: "Une erreur est survenue.",
