@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -14,21 +15,45 @@ export const authService = {
       const cleanEmail = data.email.toLowerCase().trim();
       console.log('🔍 [LOGIN] Checking if user exists in our database first:', cleanEmail);
       
-      // 1️⃣ - NOUVELLE ÉTAPE : Vérifier d'abord que l'utilisateur existe dans notre base de données
+      // 1️⃣ - VÉRIFICATION STRICTE : L'utilisateur doit exister dans notre base ET être approuvé
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('email', cleanEmail)
-        .single();
+        .eq('email', cleanEmail);
       
-      if (profileError || !profileData) {
-        console.error('❌ [LOGIN] User does not exist in our database:', profileError?.message);
+      // Vérifier s'il y a une erreur dans la requête
+      if (profileError) {
+        console.error('❌ [LOGIN] Database error:', profileError?.message);
+        return { success: false, message: 'Erreur de connexion' };
+      }
+      
+      // Vérifier si l'utilisateur existe (aucun résultat trouvé)
+      if (!profileData || profileData.length === 0) {
+        console.error('❌ [LOGIN] User does not exist in our database');
         return { success: false, message: 'Email ou mot de passe incorrect' };
       }
       
-      console.log('✅ [LOGIN] User found in database, proceeding with Supabase Auth');
+      // Vérifier s'il y a plusieurs utilisateurs avec le même email (ne devrait pas arriver)
+      if (profileData.length > 1) {
+        console.error('❌ [LOGIN] Multiple users found with same email');
+        return { success: false, message: 'Erreur de connexion' };
+      }
       
-      // 2️⃣ - Maintenant essayer l'authentification Supabase
+      const userProfile = profileData[0];
+      console.log('✅ [LOGIN] User found in database:', userProfile.email, 'Approved:', userProfile.is_approved);
+      
+      // 2️⃣ - VÉRIFICATION DU STATUT D'APPROBATION AVANT L'AUTHENTIFICATION
+      if (!userProfile.is_approved) {
+        console.log('❌ [LOGIN] BLOCKED - User account not approved');
+        return { 
+          success: false, 
+          message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' 
+        };
+      }
+      
+      console.log('✅ [LOGIN] User is approved, proceeding with Supabase Auth');
+      
+      // 3️⃣ - MAINTENANT essayer l'authentification Supabase avec le mot de passe
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: data.password,
@@ -41,43 +66,25 @@ export const authService = {
       
       console.log('✅ [LOGIN] Supabase Auth successful for user:', authData.user.id);
       
-      // 3️⃣ - Vérifier que l'ID correspond (sécurité supplémentaire)
-      if (authData.user.id !== profileData.id) {
+      // 4️⃣ - Vérifier que l'ID correspond (sécurité supplémentaire)
+      if (authData.user.id !== userProfile.id) {
         console.error('❌ [LOGIN] User ID mismatch between auth and profile');
         await supabase.auth.signOut();
         return { success: false, message: 'Erreur d\'authentification' };
-      }
-      
-      const dbUser: DatabaseProfile = profileData;
-      console.log('📊 [LOGIN] Profile verified:', { 
-        id: dbUser.id, 
-        email: dbUser.email, 
-        isApproved: dbUser.is_approved,
-        firstName: dbUser.first_name
-      });
-      
-      // 4️⃣ - BLOCAGE STRICT - Vérification obligatoire du statut d'approbation
-      if (!dbUser.is_approved) {
-        console.log('❌ [LOGIN] BLOCKED - User account not approved');
-        await supabase.auth.signOut();
-        return { 
-          success: false, 
-          message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' 
-        };
       }
       
       console.log('🎉 [LOGIN] Authentication successful for approved user!');
       
       // 5️⃣ - Créer l'objet utilisateur pour l'application
       const user: User = {
-        id: dbUser.id,
-        firstName: dbUser.first_name,
-        lastName: dbUser.last_name,
-        email: dbUser.email,
-        phone: dbUser.phone,
-        company: dbUser.company,
-        isApproved: dbUser.is_approved,
-        createdAt: dbUser.created_at,
+        id: userProfile.id,
+        firstName: userProfile.first_name,
+        lastName: userProfile.last_name,
+        email: userProfile.email,
+        phone: userProfile.phone,
+        company: userProfile.company,
+        isApproved: userProfile.is_approved,
+        createdAt: userProfile.created_at,
       };
       
       return { success: true, user };
