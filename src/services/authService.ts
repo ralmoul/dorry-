@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -13,45 +12,35 @@ export const authService = {
       }
 
       const cleanEmail = data.email.toLowerCase().trim();
-      console.log('🔍 [LOGIN] STRICT CHECK - User must exist in our database first:', cleanEmail);
+      console.log('🔍 [LOGIN] STRICT CHECK - User must exist and be approved first:', cleanEmail);
       
-      // 1️⃣ - VÉRIFICATION STRICTE ABSOLUE : L'utilisateur DOIT exister dans notre base
+      // 1️⃣ - VÉRIFICATION STRICTE PRÉALABLE : L'utilisateur DOIT exister ET être approuvé
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('email', cleanEmail);
+        .eq('email', cleanEmail)
+        .single();
       
-      if (profileError) {
-        console.error('❌ [LOGIN] Database error:', profileError?.message);
-        return { success: false, message: 'Email ou mot de passe incorrect' };
-      }
-      
-      // BLOCAGE TOTAL - Si l'utilisateur n'existe pas dans notre base, REFUS
-      if (!profileData || profileData.length === 0) {
+      if (profileError || !profileData) {
         console.error('❌ [LOGIN] STRICT BLOCK - User does not exist in our database');
-        return { success: false, message: 'Email ou mot de passe incorrect' };
+        return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
       }
       
-      if (profileData.length > 1) {
-        console.error('❌ [LOGIN] Multiple users found with same email');
-        return { success: false, message: 'Erreur de connexion' };
-      }
-      
-      const userProfile = profileData[0];
+      const userProfile = profileData;
       console.log('✅ [LOGIN] User found in database:', userProfile.email, 'Approved:', userProfile.is_approved);
       
-      // 2️⃣ - VÉRIFICATION DU STATUT D'APPROBATION
+      // 2️⃣ - VÉRIFICATION DU STATUT D'APPROBATION - BLOCAGE IMMÉDIAT SI NON APPROUVÉ
       if (!userProfile.is_approved) {
-        console.log('❌ [LOGIN] BLOCKED - User account not approved');
+        console.log('❌ [LOGIN] STRICT BLOCK - User account not approved');
         return { 
           success: false, 
-          message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' 
+          message: 'Votre compte n\'est pas validé ou inexistant.' 
         };
       }
       
       console.log('✅ [LOGIN] User is approved, now attempting Supabase Auth');
       
-      // 3️⃣ - MAINTENANT seulement, essayer l'authentification Supabase
+      // 3️⃣ - SEULEMENT MAINTENANT, essayer l'authentification Supabase
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: data.password,
@@ -60,7 +49,7 @@ export const authService = {
       // Si l'authentification Supabase échoue, c'est que le mot de passe est incorrect
       if (authError || !authData.user) {
         console.error('❌ [LOGIN] Supabase Auth failed:', authError?.message);
-        return { success: false, message: 'Email ou mot de passe incorrect' };
+        return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
       }
       
       console.log('✅ [LOGIN] Supabase Auth successful for user:', authData.user.id);
@@ -70,7 +59,7 @@ export const authService = {
         console.error('❌ [LOGIN] CRITICAL - User ID mismatch between auth and profile');
         // Déconnecter immédiatement pour sécurité
         await supabase.auth.signOut();
-        return { success: false, message: 'Erreur d\'authentification' };
+        return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
       }
       
       console.log('🎉 [LOGIN] AUTHENTICATION SUCCESSFUL - All checks passed!');
@@ -91,7 +80,7 @@ export const authService = {
       
     } catch (error) {
       console.error('💥 [LOGIN] Unexpected error:', error);
-      return { success: false, message: 'Une erreur inattendue est survenue' };
+      return { success: false, message: 'Votre compte n\'est pas validé ou inexistant.' };
     }
   },
 
