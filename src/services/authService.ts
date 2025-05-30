@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { SignupFormData, LoginFormData } from '@/types/auth';
 
@@ -50,27 +49,6 @@ export const authService = {
       if (!authData.session) {
         console.error('❌ [AUTH_SERVICE] No session returned');
         return { success: false };
-      }
-
-      // Vérifier si l'utilisateur est approuvé
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('is_approved')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (profileError) {
-        console.error('❌ [AUTH_SERVICE] Error checking approval status:', profileError);
-        // Déconnecter l'utilisateur
-        await supabase.auth.signOut();
-        return { success: false };
-      }
-
-      if (!profile.is_approved) {
-        console.log('❌ [AUTH_SERVICE] User not approved');
-        // Déconnecter l'utilisateur non approuvé
-        await supabase.auth.signOut();
-        throw new Error('Votre compte n\'est pas encore approuvé par un administrateur.');
       }
 
       console.log('✅ [AUTH_SERVICE] Login successful:', authData.user?.id);
