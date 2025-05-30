@@ -81,7 +81,13 @@ export const mfaService = {
         return null;
       }
 
-      return data;
+      if (!data) return null;
+
+      // Correction du type pour mfa_method
+      return {
+        ...data,
+        mfa_method: data.mfa_method as 'totp' | 'email' | 'sms'
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération des paramètres MFA:', error);
       return null;

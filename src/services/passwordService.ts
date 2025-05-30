@@ -1,121 +1,113 @@
 
-import { toast } from '@/hooks/use-toast';
-
+// Service pour la gestion sécurisée des mots de passe
 export interface PasswordStrength {
   score: number; // 0-5
-  feedback: string[];
   isValid: boolean;
   hasMinLength: boolean;
   hasUppercase: boolean;
   hasLowercase: boolean;
   hasNumbers: boolean;
   hasSpecialChars: boolean;
+  feedback: string[];
 }
 
 export const passwordService = {
-  // Vérifier la force du mot de passe
+  // Vérifier la force d'un mot de passe selon les critères ANSSI
   checkPasswordStrength(password: string): PasswordStrength {
+    const minLength = 12;
     const feedback: string[] = [];
-    let score = 0;
-
-    // Vérifications de base
-    const hasMinLength = password.length >= 12;
+    
+    // Critères de base
+    const hasMinLength = password.length >= minLength;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumbers = /\d/.test(password);
-    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
+    const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    
     // Calcul du score
+    let score = 0;
     if (hasMinLength) score++;
     if (hasUppercase) score++;
     if (hasLowercase) score++;
     if (hasNumbers) score++;
     if (hasSpecialChars) score++;
-
-    // Bonus pour longueur supplémentaire
-    if (password.length >= 16) score++;
-
-    // Feedback détaillé
+    
+    // Bonus pour longueur exceptionnelle
+    if (password.length >= 20) score++;
+    
+    // Feedback utilisateur
     if (!hasMinLength) feedback.push('Au moins 12 caractères requis');
-    if (!hasUppercase) feedback.push('Au moins une majuscule requise');
-    if (!hasLowercase) feedback.push('Au moins une minuscule requise');
-    if (!hasNumbers) feedback.push('Au moins un chiffre requis');
-    if (!hasSpecialChars) feedback.push('Au moins un caractère spécial requis');
-
-    // Vérifications avancées
+    if (!hasUppercase) feedback.push('Au moins une majuscule');
+    if (!hasLowercase) feedback.push('Au moins une minuscule');
+    if (!hasNumbers) feedback.push('Au moins un chiffre');
+    if (!hasSpecialChars) feedback.push('Au moins un caractère spécial');
+    
+    // Vérifications supplémentaires de sécurité
     if (this.hasCommonPatterns(password)) {
-      feedback.push('Évitez les motifs courants (123, abc, etc.)');
+      feedback.push('Évitez les motifs courants (123, abc, qwerty)');
       score = Math.max(0, score - 1);
     }
-
-    if (this.hasRepeatedChars(password)) {
-      feedback.push('Évitez les caractères répétés');
-      score = Math.max(0, score - 1);
-    }
-
+    
     const isValid = hasMinLength && hasUppercase && hasLowercase && hasNumbers && hasSpecialChars;
-
+    
     return {
-      score,
-      feedback,
+      score: Math.min(5, score),
       isValid,
       hasMinLength,
       hasUppercase,
       hasLowercase,
       hasNumbers,
-      hasSpecialChars
+      hasSpecialChars,
+      feedback
     };
   },
 
-  // Vérifier les motifs courants
+  // Détecter des motifs courants faibles
   hasCommonPatterns(password: string): boolean {
     const commonPatterns = [
-      /123456/,
-      /abcdef/,
-      /qwerty/,
+      /123+/,
+      /abc+/i,
+      /qwerty/i,
+      /azerty/i,
       /password/i,
       /admin/i,
-      /login/i
+      /(.)\1{3,}/, // 4+ caractères identiques consécutifs
     ];
+    
     return commonPatterns.some(pattern => pattern.test(password));
   },
 
-  // Vérifier les caractères répétés
-  hasRepeatedChars(password: string): boolean {
-    return /(.)\1{2,}/.test(password); // 3+ caractères identiques consécutifs
-  },
-
-  // Vérifier contre les mots de passe compromis (simulation)
+  // Vérifier si un mot de passe est dans les listes "pwned" (simulation)
   async checkPwnedPassword(password: string): Promise<boolean> {
     try {
-      // En production, utilisez l'API HaveIBeenPwned
-      // Pour la démo, on simule la vérification
+      // Simulation de vérification contre HaveIBeenPwned API
+      // En production, utilisez l'API HaveIBeenPwned avec hash SHA-1
+      
+      // Hash simple pour la démo (NE PAS utiliser en production)
+      const simpleHash = this.simpleHash(password.toLowerCase());
+      
+      // Simulation - quelques mots de passe courants "compromis"
       const commonPasswords = [
-        'password123',
-        'admin123',
-        'qwerty123',
-        '123456789',
-        'password1',
-        'azerty123'
+        'password', '123456', 'admin', 'qwerty', 'azerty',
+        'password123', 'admin123', '12345678'
       ];
       
-      const isPwned = commonPasswords.some(common => 
-        password.toLowerCase().includes(common.toLowerCase())
-      );
-
-      if (isPwned) {
-        toast({
-          title: "Mot de passe compromis",
-          description: "Ce mot de passe a été trouvé dans des fuites de données. Choisissez-en un autre.",
-          variant: "destructive"
-        });
-      }
-
-      return isPwned;
+      return commonPasswords.includes(password.toLowerCase());
     } catch (error) {
       console.error('Erreur lors de la vérification pwned:', error);
-      return false;
+      return false; // En cas d'erreur, on n'bloque pas l'utilisateur
     }
+  },
+
+  // Hash simple pour la simulation (NE PAS utiliser en production)
+  simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(16);
   },
 
   // Générer un mot de passe sécurisé
@@ -123,20 +115,20 @@ export const passwordService = {
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
-    const special = '!@#$%^&*(),.?":{}|<>';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
     
-    const all = uppercase + lowercase + numbers + special;
+    const allChars = uppercase + lowercase + numbers + symbols;
     let password = '';
     
-    // Assurer qu'on a au moins un caractère de chaque type
+    // Garantir au moins un caractère de chaque type
     password += uppercase[Math.floor(Math.random() * uppercase.length)];
     password += lowercase[Math.floor(Math.random() * lowercase.length)];
     password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += special[Math.floor(Math.random() * special.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
     
     // Compléter avec des caractères aléatoires
     for (let i = 4; i < length; i++) {
-      password += all[Math.floor(Math.random() * all.length)];
+      password += allChars[Math.floor(Math.random() * allChars.length)];
     }
     
     // Mélanger le mot de passe
