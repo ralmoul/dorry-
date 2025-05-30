@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -345,12 +346,12 @@ export const AdminPanel = () => {
         {/* Tabs pour organiser l'interface */}
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-lg border-bright-turquoise/20 h-auto p-1">
-            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3">
+            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3 h-8 sm:h-auto">
               <Users className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden xs:inline">Utilisateurs</span>
               <span className="xs:hidden">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3">
+            <TabsTrigger value="audit" className="flex items-center gap-1 text-xs sm:text-sm p-2 sm:p-3 h-8 sm:h-auto">
               <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden xs:inline">Audit RGPD</span>
               <span className="xs:hidden">RGPD</span>
@@ -412,10 +413,11 @@ export const AdminPanel = () => {
                     onClick={loadUsers}
                     variant="outline"
                     size="sm"
-                    className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 sm:h-auto"
+                    className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 sm:h-9 px-2 sm:px-3 py-1 sm:py-2"
                   >
                     <RefreshCw className="w-3 h-3 mr-1" />
-                    Actualiser
+                    <span className="hidden sm:inline">Actualiser</span>
+                    <span className="sm:hidden">Sync</span>
                   </Button>
                 </div>
               </CardContent>
@@ -456,7 +458,7 @@ export const AdminPanel = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => openUserDetails(user)}
-                              className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 px-1"
+                              className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-6 px-1 py-0 min-w-0"
                             >
                               <Eye className="h-3 w-3" />
                             </Button>
@@ -465,7 +467,7 @@ export const AdminPanel = () => {
                               variant="outline"
                               onClick={() => approveUser(user.id)}
                               disabled={isUpdating === user.id}
-                              className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20 text-xs h-7 px-1"
+                              className="bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20 text-xs h-6 px-1 py-0 min-w-0"
                             >
                               <Check className="h-3 w-3" />
                             </Button>
@@ -474,7 +476,7 @@ export const AdminPanel = () => {
                               variant="outline"
                               onClick={() => deleteUser(user.id)}
                               disabled={isUpdating === user.id}
-                              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs h-7 px-1"
+                              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs h-6 px-1 py-0 min-w-0"
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
@@ -599,7 +601,7 @@ export const AdminPanel = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => openUserDetails(user)}
-                              className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-7 px-1"
+                              className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20 text-xs h-6 px-1 py-0 min-w-0"
                             >
                               <Eye className="h-3 w-3" />
                             </Button>
@@ -608,7 +610,7 @@ export const AdminPanel = () => {
                               variant="outline"
                               onClick={() => revokeUser(user.id)}
                               disabled={isUpdating === user.id}
-                              className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 text-xs h-7 px-1"
+                              className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 text-xs h-6 px-1 py-0 min-w-0"
                             >
                               <X className="h-3 w-3" />
                             </Button>
@@ -617,7 +619,7 @@ export const AdminPanel = () => {
                               variant="outline"
                               onClick={() => deleteUser(user.id)}
                               disabled={isUpdating === user.id}
-                              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs h-7 px-1"
+                              className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 text-xs h-6 px-1 py-0 min-w-0"
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
