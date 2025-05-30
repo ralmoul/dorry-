@@ -93,19 +93,19 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           onSwitchToLogin();
         }, 2000);
       } else {
-        toast({
-          title: "Erreur",
-          description: result.message || "Une erreur est survenue lors de la création du compte.",
-          variant: "destructive"
-        });
+        // Afficher uniquement les erreurs de validation ou d'email déjà existant
+        // Ne pas afficher les erreurs techniques internes
+        if (result.message && !result.message.includes('profil utilisateur')) {
+          toast({
+            title: "Erreur",
+            description: result.message,
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la création du compte:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur technique est survenue. Veuillez réessayer.",
-        variant: "destructive"
-      });
+      // Ne pas afficher le toast d'erreur générique
     }
     setIsLoading(false);
   };
