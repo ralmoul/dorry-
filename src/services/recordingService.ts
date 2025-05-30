@@ -25,8 +25,12 @@ export const recordingService = {
       throw new Error('Utilisateur non connecté');
     }
     
+    console.log('👤 [RECORDING_SERVICE] Utilisateur connecté:', user.id);
+    
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    console.log('📅 [RECORDING_SERVICE] Recherche depuis:', sevenDaysAgo.toISOString());
     
     const { data, error } = await supabase
       .from('voice_recordings')
@@ -37,10 +41,12 @@ export const recordingService = {
     
     if (error) {
       console.error('❌ [RECORDING_SERVICE] Erreur lors de la récupération:', error);
+      console.error('❌ [RECORDING_SERVICE] Détails de l\'erreur:', JSON.stringify(error, null, 2));
       throw error;
     }
     
     console.log('✅ [RECORDING_SERVICE] Enregistrements récupérés:', data?.length || 0);
+    console.log('📊 [RECORDING_SERVICE] Données récupérées:', data);
     return data || [];
   },
 
@@ -57,9 +63,18 @@ export const recordingService = {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
-      console.error('❌ [RECORDING_SERVICE] Utilisateur non connecté:', userError);
+      console.error('❌ [RECORDING_SERVICE] Utilisateur non connecté pour la sauvegarde:', userError);
       throw new Error('Utilisateur non connecté');
     }
+    
+    console.log('👤 [RECORDING_SERVICE] Sauvegarde pour utilisateur:', user.id);
+    console.log('📝 [RECORDING_SERVICE] Données à sauvegarder:', {
+      name: recording.name || null,
+      duration: recording.duration,
+      blob_size: recording.blob_data.length,
+      blob_type: recording.blob_type,
+      user_id: user.id,
+    });
     
     const { data, error } = await supabase
       .from('voice_recordings')
@@ -75,10 +90,19 @@ export const recordingService = {
     
     if (error) {
       console.error('❌ [RECORDING_SERVICE] Erreur lors de la sauvegarde:', error);
+      console.error('❌ [RECORDING_SERVICE] Détails de l\'erreur:', JSON.stringify(error, null, 2));
+      console.error('❌ [RECORDING_SERVICE] Données tentées:', {
+        name: recording.name || null,
+        duration: recording.duration,
+        blob_data_length: recording.blob_data.length,
+        blob_type: recording.blob_type,
+        user_id: user.id,
+      });
       throw error;
     }
     
-    console.log('✅ [RECORDING_SERVICE] Enregistrement sauvegardé:', data.id);
+    console.log('✅ [RECORDING_SERVICE] Enregistrement sauvegardé avec succès:', data.id);
+    console.log('📊 [RECORDING_SERVICE] Données sauvegardées:', data);
     return data;
   },
 

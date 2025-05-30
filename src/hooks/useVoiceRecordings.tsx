@@ -66,12 +66,17 @@ export const useVoiceRecordings = () => {
 
   // Charger les enregistrements depuis Supabase
   const loadRecordings = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log('📂 [VOICE_RECORDINGS] Pas d\'utilisateur connecté, pas de chargement');
+      return;
+    }
 
     setIsLoading(true);
     try {
-      console.log('📂 [VOICE_RECORDINGS] Chargement des enregistrements...');
+      console.log('📂 [VOICE_RECORDINGS] Chargement des enregistrements pour utilisateur:', user.id);
       const voiceRecordings = await recordingService.getUserRecordings();
+      
+      console.log('📊 [VOICE_RECORDINGS] Enregistrements récupérés de Supabase:', voiceRecordings.length);
       
       const recordingsWithBlobs = voiceRecordings.map((rec: VoiceRecording): Recording => {
         const recording: Recording = {
@@ -85,6 +90,7 @@ export const useVoiceRecordings = () => {
         if (rec.blob_data && rec.blob_type) {
           try {
             recording.blob = base64ToBlob(rec.blob_data, rec.blob_type);
+            console.log('✅ [VOICE_RECORDINGS] Blob reconstitué pour:', rec.id);
           } catch (error) {
             console.error('❌ [VOICE_RECORDINGS] Échec reconstitution blob pour', rec.id, ':', error);
           }
@@ -94,7 +100,7 @@ export const useVoiceRecordings = () => {
       });
       
       setRecordings(recordingsWithBlobs);
-      console.log('✅ [VOICE_RECORDINGS] Enregistrements chargés:', recordingsWithBlobs.length);
+      console.log('✅ [VOICE_RECORDINGS] Enregistrements chargés et mis en état:', recordingsWithBlobs.length);
     } catch (error) {
       console.error('❌ [VOICE_RECORDINGS] Erreur lors du chargement:', error);
       toast({
@@ -110,21 +116,28 @@ export const useVoiceRecordings = () => {
   // Ajouter un nouvel enregistrement
   const addRecording = useCallback(async (blob: Blob, duration: number) => {
     if (!user?.id) {
-      console.error('❌ [VOICE_RECORDINGS] Pas d\'utilisateur connecté');
+      console.error('❌ [VOICE_RECORDINGS] Pas d\'utilisateur connecté pour l\'ajout');
       return;
     }
 
     if (!blob || !(blob instanceof Blob) || blob.size === 0) {
-      console.error('❌ [VOICE_RECORDINGS] Blob invalide');
+      console.error('❌ [VOICE_RECORDINGS] Blob invalide pour l\'ajout');
       return;
     }
 
     try {
-      console.log('💾 [VOICE_RECORDINGS] Ajout nouvel enregistrement...');
+      console.log('💾 [VOICE_RECORDINGS] Début ajout nouvel enregistrement...');
+      console.log('📊 [VOICE_RECORDINGS] Blob à sauvegarder:', {
+        size: blob.size,
+        type: blob.type,
+        duration: duration,
+        userId: user.id
+      });
       
-      // Créer l'enregistrement immédiatement dans l'UI
+      // Créer l'enregistrement immédiatement dans l'UI avec un ID temporaire
+      const tempId = `temp-${Date.now()}`;
       const tempRecording: Recording = {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         name: '',
         date: new Date(),
         duration,
@@ -132,39 +145,55 @@ export const useVoiceRecordings = () => {
         userId: user.id
       };
 
-      // Ajouter immédiatement à l'état local
-      setRecordings(prev => [tempRecording, ...prev]);
-      console.log('✅ [VOICE_RECORDINGS] Enregistrement ajouté temporairement à l\'UI');
+      // Ajouter immédiatement à l'état local pour feedback utilisateur
+      setRecordings(prev => {
+        console.log('📝 [VOICE_RECORDINGS] Ajout temporaire à l\'état (avant:', prev.length, 'après:', prev.length + 1, ')');
+        return [tempRecording, ...prev];
+      });
 
-      // Sauvegarder en arrière-plan
+      // Convertir le blob en base64 pour Supabase
+      console.log('🔄 [VOICE_RECORDINGS] Conversion blob vers base64...');
       const blobData = await blobToBase64(blob);
+      console.log('✅ [VOICE_RECORDINGS] Conversion terminée, taille base64:', blobData.length);
       
+      // Sauvegarder en arrière-plan dans Supabase
+      console.log('☁️ [VOICE_RECORDINGS] Début sauvegarde Supabase...');
       const savedRecording = await recordingService.saveRecording({
         duration,
         blob_data: blobData,
         blob_type: blob.type
       });
 
-      // Remplacer l'enregistrement temporaire par le vrai
-      setRecordings(prev => prev.map(rec => 
-        rec.id === tempRecording.id 
-          ? {
-              id: savedRecording.id,
-              name: '',
-              date: new Date(savedRecording.created_at),
-              duration: savedRecording.duration,
-              blob,
-              userId: savedRecording.user_id
-            }
-          : rec
-      ));
+      console.log('✅ [VOICE_RECORDINGS] Sauvegarde Supabase réussie:', savedRecording.id);
 
-      console.log('✅ [VOICE_RECORDINGS] Enregistrement sauvegardé et mis à jour');
+      // Remplacer l'enregistrement temporaire par le vrai
+      setRecordings(prev => {
+        const updated = prev.map(rec => 
+          rec.id === tempId 
+            ? {
+                id: savedRecording.id,
+                name: '',
+                date: new Date(savedRecording.created_at),
+                duration: savedRecording.duration,
+                blob,
+                userId: savedRecording.user_id
+              }
+            : rec
+        );
+        console.log('🔄 [VOICE_RECORDINGS] Remplacement enregistrement temporaire par le réel');
+        return updated;
+      });
+
+      console.log('🎉 [VOICE_RECORDINGS] Processus d\'ajout terminé avec succès');
     } catch (error) {
       console.error('❌ [VOICE_RECORDINGS] Erreur lors de l\'ajout:', error);
       
       // Supprimer l'enregistrement temporaire en cas d'erreur
-      setRecordings(prev => prev.filter(rec => !rec.id.startsWith('temp-')));
+      setRecordings(prev => {
+        const filtered = prev.filter(rec => !rec.id.startsWith('temp-'));
+        console.log('🧹 [VOICE_RECORDINGS] Nettoyage des enregistrements temporaires après erreur');
+        return filtered;
+      });
       
       toast({
         title: "Erreur",
@@ -215,9 +244,11 @@ export const useVoiceRecordings = () => {
 
   // Charger les enregistrements au montage et quand l'utilisateur change
   useEffect(() => {
+    console.log('🔄 [VOICE_RECORDINGS] Effect déclenché, utilisateur:', user?.id || 'aucun');
     if (user?.id) {
       loadRecordings();
     } else {
+      console.log('🧹 [VOICE_RECORDINGS] Nettoyage des enregistrements (pas d\'utilisateur)');
       setRecordings([]);
     }
   }, [user?.id, loadRecordings]);
