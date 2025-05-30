@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,7 +88,7 @@ export const AdminPanel = () => {
         email: profile.email,
         phone: profile.phone,
         company: profile.company,
-        is_approved: profile.is_approved || false, // Utiliser la valeur réelle de la DB
+        is_approved: profile.is_approved || false,
         created_at: profile.created_at,
       })) || [];
       
