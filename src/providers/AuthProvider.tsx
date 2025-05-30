@@ -16,20 +16,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log('🚀 [AUTH] AuthProvider initializing...');
     
-    const user = authStorage.loadUser();
-    console.log('📊 [AUTH] Loaded user from storage:', user);
-    
-    if (user) {
-      // 2️⃣ - BLOCAGE STRICT - Vérifier immédiatement le statut dans Supabase
-      checkUserStatusStrict(user.id);
-    } else {
-      console.log('❌ [AUTH] No user found, setting unauthenticated state');
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-    }
+    // 1️⃣ - Vérifier la session Supabase Auth active
+    checkSupabaseSession();
 
-    // Setup realtime subscription pour déconnexion automatique si statut change
+    // 2️⃣ - Setup realtime subscription pour déconnexion automatique si statut change
     setupRealtimeSubscription();
   }, []);
+
+  const checkSupabaseSession = async () => {
+    try {
+      console.log('🔍 [AUTH] Checking Supabase session...');
+      
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('❌ [AUTH] Error getting session:', error);
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+      
+      if (session?.user) {
+        console.log('✅ [AUTH] Active Supabase session found:', session.user.id);
+        await checkUserStatusStrict(session.user.id);
+      } else {
+        console.log('❌ [AUTH] No active Supabase session');
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+      }
+    } catch (error) {
+      console.error('💥 [AUTH] Error checking session:', error);
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+    }
+  };
 
   const setupRealtimeSubscription = () => {
     console.log('📡 [AUTH] Setting up realtime subscription for profile status changes');
@@ -141,21 +158,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const result = await authService.login(data);
     
     if (result.success && result.user) {
-      // 2️⃣ - BLOCAGE STRICT - Double vérification que l'utilisateur est approuvé
-      if (result.user.isApproved) {
-        console.log('✅ [AUTH] Login successful for approved user, updating state');
-        setAuthState({
-          user: result.user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        
-        authStorage.saveUser(result.user, data.rememberMe || false);
-        return { success: true };
-      } else {
-        console.log('❌ [AUTH] STRICT BLOCK - User not approved, blocking login');
-        return { success: false, message: 'Votre compte est en attente de validation par notre équipe. Merci de patienter.' };
-      }
+      console.log('✅ [AUTH] Login successful for approved user, updating state');
+      setAuthState({
+        user: result.user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      
+      authStorage.saveUser(result.user, data.rememberMe || false);
+      return { success: true };
     }
     
     console.log('❌ [AUTH] Login failed:', result.message);
@@ -164,12 +175,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (data: SignupFormData): Promise<{ success: boolean; message?: string }> => {
     console.log('📝 [AUTH] Signup attempt for:', data.email);
-    // 1️⃣ - La création se fait dans authService.signup (apparition immédiate dans l'admin)
     return await authService.signup(data);
   };
 
-  const forceLogout = () => {
+  const forceLogout = async () => {
     console.log('👋 [AUTH] FORCE LOGOUT - Clearing user session');
+    // Déconnecter de Supabase Auth
+    await supabase.auth.signOut();
     setAuthState({
       user: null,
       isAuthenticated: false,
@@ -178,9 +190,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     authStorage.clearUser();
   };
 
-  const logout = () => {
+  const logout = async () => {
     console.log('👋 [AUTH] User logout');
-    forceLogout();
+    await forceLogout();
   };
 
   console.log('📊 [AUTH] Current provider state:', { 
