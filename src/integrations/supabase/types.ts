@@ -45,45 +45,6 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          company: string
-          created_at: string
-          email: string
-          first_name: string
-          id: string
-          is_approved: boolean
-          last_name: string
-          password_hash: string
-          phone: string
-          updated_at: string
-        }
-        Insert: {
-          company: string
-          created_at?: string
-          email: string
-          first_name: string
-          id?: string
-          is_approved?: boolean
-          last_name: string
-          password_hash: string
-          phone: string
-          updated_at?: string
-        }
-        Update: {
-          company?: string
-          created_at?: string
-          email?: string
-          first_name?: string
-          id?: string
-          is_approved?: boolean
-          last_name?: string
-          password_hash?: string
-          phone?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       voice_recordings: {
         Row: {
           blob_data: string

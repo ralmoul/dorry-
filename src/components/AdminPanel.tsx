@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,39 +30,18 @@ export const AdminPanel = () => {
 
   useEffect(() => {
     loadUsers();
-    
-    // Écouter les changements en temps réel dans la table profiles
-    const channel = supabase
-      .channel('profiles-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles'
-        },
-        (payload) => {
-          console.log('🔄 [ADMIN] Changement détecté dans profiles:', payload);
-          loadUsers(); // Recharger les données automatiquement
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const loadUsers = async (showRefreshToast = false) => {
     try {
-      console.log('🔍 [ADMIN] Chargement des utilisateurs depuis Supabase...');
+      console.log('🔍 [ADMIN] Chargement des utilisateurs depuis la table profiles...');
       if (showRefreshToast) {
         setIsRefreshing(true);
       } else {
         setIsLoading(true);
       }
       
-      // Récupérer les utilisateurs depuis la table profiles avec une requête admin
+      // Récupérer tous les profils depuis la table profiles
       const { data: profilesData, error } = await supabase
         .from('profiles')
         .select('*')
@@ -77,36 +57,20 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('✅ [ADMIN] Profils chargés depuis Supabase:', profilesData?.length || 0);
-      console.log('📊 [ADMIN] Données des profils:', profilesData);
+      console.log('✅ [ADMIN] Profils chargés:', profilesData?.length || 0);
       
-      // Transformer les données pour correspondre à l'interface attendue
-      const transformedUsers = profilesData?.map(profile => ({
-        id: profile.id,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        email: profile.email,
-        phone: profile.phone,
-        company: profile.company,
-        is_approved: profile.is_approved || false,
-        created_at: profile.created_at,
-      })) || [];
-      
-      setUsers(transformedUsers);
-      console.log('📊 [ADMIN] Utilisateurs transformés:', transformedUsers.length);
+      // Les données sont déjà dans le bon format
+      setUsers(profilesData || []);
       
       if (showRefreshToast) {
         toast({
           title: "Actualisation réussie",
-          description: `${transformedUsers.length} utilisateur(s) trouvé(s)`,
+          description: `${profilesData?.length || 0} utilisateur(s) trouvé(s)`,
         });
       }
       
-      if (transformedUsers.length === 0) {
-        console.log('⚠️ [ADMIN] Aucun utilisateur trouvé dans la base de données');
-      }
     } catch (error) {
-      console.error('💥 [ADMIN] Erreur inattendue lors du chargement:', error);
+      console.error('💥 [ADMIN] Erreur inattendue:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors du chargement.",
@@ -124,15 +88,14 @@ export const AdminPanel = () => {
 
   const approveUser = async (userId: string) => {
     try {
-      console.log(`✅ [ADMIN] Début de l'approbation pour l'utilisateur ${userId}`);
+      console.log(`✅ [ADMIN] Approbation de l'utilisateur ${userId}`);
       
-      // Utiliser la fonction RPC nouvellement créée
-      const { data, error } = await (supabase as any).rpc('approve_user_profile', {
+      const { error } = await supabase.rpc('approve_user_profile', {
         user_id: userId
       });
       
       if (error) {
-        console.error('❌ [ADMIN] Erreur lors de l\'approbation via RPC:', error);
+        console.error('❌ [ADMIN] Erreur lors de l\'approbation:', error);
         toast({
           title: "Erreur",
           description: `Erreur lors de l'approbation: ${error.message}`,
@@ -141,9 +104,7 @@ export const AdminPanel = () => {
         return;
       }
       
-      console.log('✅ [ADMIN] Approbation via RPC réussie:', data);
-      
-      // Mettre à jour l'état local immédiatement
+      // Mettre à jour l'état local
       setUsers(prevUsers => 
         prevUsers.map(user => 
           user.id === userId ? { ...user, is_approved: true } : user
@@ -155,16 +116,8 @@ export const AdminPanel = () => {
         description: "L'utilisateur peut maintenant accéder à l'application.",
       });
       
-      console.log('✅ [ADMIN] Processus d\'approbation terminé avec succès');
-      
-      // Recharger les données après un délai
-      setTimeout(() => {
-        console.log('🔄 [ADMIN] Rechargement des données pour vérification...');
-        loadUsers();
-      }, 1000);
-      
     } catch (error) {
-      console.error('💥 [ADMIN] Erreur inattendue lors de l\'approbation:', error);
+      console.error('💥 [ADMIN] Erreur lors de l\'approbation:', error);
       toast({
         title: "Erreur",
         description: "Une erreur inattendue est survenue.",
@@ -175,15 +128,14 @@ export const AdminPanel = () => {
 
   const rejectUser = async (userId: string) => {
     try {
-      console.log(`❌ [ADMIN] Début du rejet pour l'utilisateur ${userId}`);
+      console.log(`❌ [ADMIN] Rejet de l'utilisateur ${userId}`);
       
-      // Utiliser la fonction RPC nouvellement créée
-      const { data, error } = await (supabase as any).rpc('reject_user_profile', {
+      const { error } = await supabase.rpc('reject_user_profile', {
         user_id: userId
       });
       
       if (error) {
-        console.error('❌ [ADMIN] Erreur lors du rejet via RPC:', error);
+        console.error('❌ [ADMIN] Erreur lors du rejet:', error);
         toast({
           title: "Erreur",
           description: `Erreur lors du rejet: ${error.message}`,
@@ -191,8 +143,6 @@ export const AdminPanel = () => {
         });
         return;
       }
-      
-      console.log('✅ [ADMIN] Rejet via RPC réussi:', data);
       
       // Mettre à jour l'état local
       setUsers(prevUsers => 
@@ -207,15 +157,8 @@ export const AdminPanel = () => {
         variant: "destructive",
       });
       
-      console.log('✅ [ADMIN] Processus de rejet terminé avec succès');
-      
-      // Recharger les données
-      setTimeout(() => {
-        loadUsers();
-      }, 1000);
-      
     } catch (error) {
-      console.error('💥 [ADMIN] Erreur inattendue lors du rejet:', error);
+      console.error('💥 [ADMIN] Erreur lors du rejet:', error);
       toast({
         title: "Erreur",
         description: "Une erreur inattendue est survenue.",
@@ -228,7 +171,6 @@ export const AdminPanel = () => {
     try {
       console.log(`🗑️ [ADMIN] Suppression de l'utilisateur ${userId}`);
       
-      // Supprimer l'utilisateur de la table profiles
       const { error } = await supabase
         .from('profiles')
         .delete()
@@ -254,7 +196,6 @@ export const AdminPanel = () => {
         variant: "destructive",
       });
       
-      console.log('✅ [ADMIN] Utilisateur supprimé avec succès');
     } catch (error) {
       console.error('💥 [ADMIN] Erreur lors de la suppression:', error);
       toast({
@@ -279,8 +220,8 @@ export const AdminPanel = () => {
         <div className="max-w-6xl mx-auto space-y-6">
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-pulse-ai mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold mb-2 font-sharp">Chargement...</h3>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-bright-turquoise to-electric-blue animate-pulse mx-auto mb-4"></div>
+              <h3 className="text-lg font-semibold mb-2">Chargement...</h3>
               <p className="text-muted-foreground">
                 Chargement des utilisateurs depuis Supabase.
               </p>
@@ -301,7 +242,7 @@ export const AdminPanel = () => {
               Administration Dory
             </CardTitle>
             <CardDescription>
-              Gérez les utilisateurs enregistrés via l'authentification Supabase
+              Gérez les utilisateurs enregistrés via Supabase
             </CardDescription>
           </CardHeader>
         </Card>
@@ -312,7 +253,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">En attente</p>
-                  <p className="text-2xl font-semibold text-orange-500 font-sharp">{pendingUsers.length}</p>
+                  <p className="text-2xl font-semibold text-orange-500">{pendingUsers.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-orange-500/60" />
               </div>
@@ -324,7 +265,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Approuvés</p>
-                  <p className="text-2xl font-semibold text-green-500 font-sharp">{approvedUsers.length}</p>
+                  <p className="text-2xl font-semibold text-green-500">{approvedUsers.length}</p>
                 </div>
                 <UserCheck className="h-8 w-8 text-green-500/60" />
               </div>
@@ -336,7 +277,7 @@ export const AdminPanel = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total</p>
-                  <p className="text-2xl font-semibold font-sharp">{users.length}</p>
+                  <p className="text-2xl font-semibold">{users.length}</p>
                 </div>
                 <Users className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -344,12 +285,11 @@ export const AdminPanel = () => {
           </Card>
         </div>
 
-        {/* Refresh button */}
         <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
               <p className="text-sm text-muted-foreground">
-                Supabase Profiles: {users.length} utilisateur(s) enregistré(s) | Dernière actualisation: {new Date().toLocaleTimeString('fr-FR')}
+                Table Profiles: {users.length} utilisateur(s) | Dernière actualisation: {new Date().toLocaleTimeString('fr-FR')}
               </p>
               <Button 
                 onClick={handleRefresh}
@@ -368,9 +308,9 @@ export const AdminPanel = () => {
         {pendingUsers.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-orange-500/20">
             <CardHeader>
-              <CardTitle className="text-xl text-orange-500 flex items-center gap-2 font-sharp">
+              <CardTitle className="text-xl text-orange-500 flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Utilisateurs en attente de validation ({pendingUsers.length})
+                Utilisateurs en attente ({pendingUsers.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -389,7 +329,7 @@ export const AdminPanel = () => {
                 <TableBody>
                   {pendingUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium font-sharp">
+                      <TableCell className="font-medium">
                         {user.first_name} {user.last_name}
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -450,7 +390,7 @@ export const AdminPanel = () => {
         {approvedUsers.length > 0 && (
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardHeader>
-              <CardTitle className="text-xl text-green-500 flex items-center gap-2 font-sharp">
+              <CardTitle className="text-xl text-green-500 flex items-center gap-2">
                 <UserCheck className="h-5 w-5" />
                 Utilisateurs approuvés ({approvedUsers.length})
               </CardTitle>
@@ -471,7 +411,7 @@ export const AdminPanel = () => {
                 <TableBody>
                   {approvedUsers.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium font-sharp">
+                      <TableCell className="font-medium">
                         {user.first_name} {user.last_name}
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
@@ -525,7 +465,7 @@ export const AdminPanel = () => {
           <Card className="bg-card/50 backdrop-blur-lg border-bright-turquoise/20">
             <CardContent className="p-12 text-center">
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2 font-sharp">Aucun utilisateur</h3>
+              <h3 className="text-lg font-semibold mb-2">Aucun utilisateur</h3>
               <p className="text-muted-foreground">
                 Aucun utilisateur n'est encore enregistré dans le système.
               </p>
