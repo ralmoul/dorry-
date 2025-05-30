@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User, SignupFormData, LoginFormData, DatabaseProfile } from '@/types/auth';
 
@@ -116,7 +117,7 @@ export const authService = {
         } else {
           return { 
             success: false, 
-            message: 'Cette adresse email est déjà enregistrée. Veuillez vous authentifier.' 
+            message: 'Une demande de création de compte a déjà été faite avec cette adresse email.' 
           };
         }
       }
