@@ -15,11 +15,10 @@ export const cleanupHistoryService = {
   // Récupérer l'historique des nettoyages
   async getCleanupHistory(limit: number = 50): Promise<CleanupHistoryEntry[]> {
     try {
-      const { data, error } = await supabase
-        .from('cleanup_history')
-        .select('*')
-        .order('execution_date', { ascending: false })
-        .limit(limit);
+      // Utiliser la fonction RPC pour accéder à cleanup_history
+      const { data, error } = await supabase.rpc('get_cleanup_history', { 
+        limit_count: limit 
+      });
 
       if (error) {
         console.error('Erreur lors de la récupération de l\'historique:', error);
@@ -36,21 +35,21 @@ export const cleanupHistoryService = {
   // Déclencher un nettoyage manuel
   async triggerManualCleanup(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch('/functions/v1/security-cleanup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabase.supabaseKey}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('security-cleanup', {
+        body: {
           source: 'manual',
           triggered_by: 'admin_panel'
-        })
+        }
       });
 
-      const result = await response.json();
+      if (error) {
+        return {
+          success: false,
+          message: error.message || 'Erreur lors du nettoyage manuel'
+        };
+      }
       
-      if (response.ok) {
+      if (data?.success) {
         return {
           success: true,
           message: 'Nettoyage manuel exécuté avec succès'
@@ -58,7 +57,7 @@ export const cleanupHistoryService = {
       } else {
         return {
           success: false,
-          message: result.error || 'Erreur lors du nettoyage manuel'
+          message: data?.error || 'Erreur lors du nettoyage manuel'
         };
       }
     } catch (error) {
