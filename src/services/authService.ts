@@ -123,9 +123,8 @@ export const authService = {
       
       console.log('✅ [SIGNUP] Email available, creating user...');
       
-      // Generate a new UUID for the user
-      const { data: uuidResult } = await supabase.rpc('gen_random_uuid');
-      const userId = uuidResult || crypto.randomUUID();
+      // Generate a new UUID for the user using crypto.randomUUID()
+      const userId = crypto.randomUUID();
       
       // POINT 1️⃣ - Create new user with pending status by default pour apparaître dans le panel admin
       const newUserData = {
@@ -142,7 +141,7 @@ export const authService = {
       
       const { data: newUser, error: insertError } = await supabase
         .from('profiles')
-        .insert([newUserData])
+        .insert(newUserData)
         .select()
         .single();
       
