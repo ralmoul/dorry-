@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserCheck, Trash2, Eye } from 'lucide-react';
+import { Users, UserCheck, Trash2, Eye, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { UserDetailsModal } from './admin/UserDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,16 +25,42 @@ export const AdminPanel = () => {
   const [selectedUser, setSelectedUser] = useState<PendingUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadUsers();
+    
+    // Écouter les changements en temps réel dans la table profiles
+    const channel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          console.log('🔄 [ADMIN] Changement détecté dans profiles:', payload);
+          loadUsers(); // Recharger les données automatiquement
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = async (showRefreshToast = false) => {
     try {
       console.log('🔍 [ADMIN] Chargement des utilisateurs depuis Supabase...');
-      setIsLoading(true);
+      if (showRefreshToast) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
       
       // Récupérer les utilisateurs depuis la table profiles
       const { data: profilesData, error } = await supabase
@@ -53,6 +79,7 @@ export const AdminPanel = () => {
       }
       
       console.log('✅ [ADMIN] Profils chargés depuis Supabase:', profilesData?.length || 0);
+      console.log('📊 [ADMIN] Données des profils:', profilesData);
       
       // Transformer les données pour correspondre à l'interface attendue
       const transformedUsers = profilesData?.map(profile => ({
@@ -69,6 +96,13 @@ export const AdminPanel = () => {
       setUsers(transformedUsers);
       console.log('📊 [ADMIN] Utilisateurs transformés:', transformedUsers.length);
       
+      if (showRefreshToast) {
+        toast({
+          title: "Actualisation réussie",
+          description: `${transformedUsers.length} utilisateur(s) trouvé(s)`,
+        });
+      }
+      
       if (transformedUsers.length === 0) {
         console.log('⚠️ [ADMIN] Aucun utilisateur trouvé dans la base de données');
       }
@@ -81,7 +115,12 @@ export const AdminPanel = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    loadUsers(true);
   };
 
   const deleteUser = async (userId: string) => {
@@ -194,14 +233,16 @@ export const AdminPanel = () => {
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
               <p className="text-sm text-muted-foreground">
-                Supabase Profiles: {users.length} utilisateur(s) enregistré(s)
+                Supabase Profiles: {users.length} utilisateur(s) enregistré(s) | Dernière actualisation: {new Date().toLocaleTimeString('fr-FR')}
               </p>
               <Button 
-                onClick={loadUsers}
+                onClick={handleRefresh}
+                disabled={isRefreshing}
                 variant="outline"
                 className="bg-bright-turquoise/10 border-bright-turquoise/30 text-bright-turquoise hover:bg-bright-turquoise/20"
               >
-                Actualiser
+                <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Actualisation...' : 'Actualiser'}
               </Button>
             </div>
           </CardContent>
@@ -275,6 +316,13 @@ export const AdminPanel = () => {
               <p className="text-muted-foreground">
                 Aucun utilisateur n'est encore enregistré dans le système.
               </p>
+              <Button
+                onClick={handleRefresh}
+                className="mt-4 bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Actualiser maintenant
+              </Button>
             </CardContent>
           </Card>
         )}
