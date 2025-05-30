@@ -37,13 +37,16 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       });
 
       if (success) {
-        console.log('✅ [LOGIN_FORM] Connexion réussie, redirection...');
+        console.log('✅ [LOGIN_FORM] Connexion réussie');
         toast({
           title: "Connexion réussie",
           description: "Vous êtes maintenant connecté."
         });
-        // Redirection automatique via ProtectedRoute
-        navigate('/app');
+        
+        // Attendre un peu pour que l'état d'auth se mette à jour
+        setTimeout(() => {
+          navigate('/app');
+        }, 100);
       } else {
         console.log('❌ [LOGIN_FORM] Échec de la connexion');
         toast({
@@ -70,7 +73,6 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center gradient-bg p-4 bg-[4649eebf] bg-[#4649ee]/75 relative">
-      {/* Bouton retour en haut à gauche de la page */}
       <Button 
         variant="ghost" 
         size="sm" 

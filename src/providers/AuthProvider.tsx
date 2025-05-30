@@ -13,14 +13,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log('🚀 [AUTH_PROVIDER] Initialisation avec Supabase...');
+    console.log('🚀 [AUTH_PROVIDER] Initialisation...');
     
-    // Écouter les changements d'état d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 [AUTH_PROVIDER] Changement d\'état auth:', event, 'Session:', !!session);
-      
+    let mounted = true;
+
+    // Fonction pour mettre à jour l'état d'authentification
+    const updateAuthState = async (session: any) => {
+      if (!mounted) return;
+
       if (session?.user) {
-        console.log('👤 [AUTH_PROVIDER] Session utilisateur trouvée, récupération du profil...');
+        console.log('👤 [AUTH_PROVIDER] Session utilisateur trouvée:', session.user.id);
         
         try {
           // Récupérer le profil utilisateur
@@ -29,6 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .select('*')
             .eq('id', session.user.id)
             .single();
+
+          if (!mounted) return;
 
           if (profile && !profileError) {
             const user = {
@@ -51,8 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 isLoading: false,
               });
             } else {
-              console.warn('⚠️ [AUTH_PROVIDER] Utilisateur non approuvé, déconnexion...');
-              await supabase.auth.signOut();
+              console.warn('⚠️ [AUTH_PROVIDER] Utilisateur non approuvé');
               setAuthState({
                 user: null,
                 isAuthenticated: false,
@@ -60,9 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               });
             }
           } else {
-            console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé, déconnexion...');
-            console.error('Profile error:', profileError);
-            await supabase.auth.signOut();
+            console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé:', profileError);
             setAuthState({
               user: null,
               isAuthenticated: false,
@@ -71,12 +72,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (error) {
           console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
-          await supabase.auth.signOut();
-          setAuthState({
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
+          if (mounted) {
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+          }
         }
       } else {
         console.log('❌ [AUTH_PROVIDER] Aucune session utilisateur');
@@ -86,40 +88,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isLoading: false,
         });
       }
-    });
+    };
 
-    // Vérifier la session actuelle
-    const checkSession = async () => {
+    // Vérifier la session actuelle au démarrage
+    const checkInitialSession = async () => {
       try {
-        console.log('🔍 [AUTH_PROVIDER] Vérification de la session existante...');
+        console.log('🔍 [AUTH_PROVIDER] Vérification de la session initiale...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('❌ [AUTH_PROVIDER] Erreur lors de la récupération de la session:', error);
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          if (mounted) {
+            setAuthState(prev => ({ ...prev, isLoading: false }));
+          }
           return;
         }
         
-        if (!session) {
-          console.log('📭 [AUTH_PROVIDER] Aucune session existante trouvée');
-          setAuthState(prev => ({ ...prev, isLoading: false }));
-        }
-        // Si une session existe, elle sera gérée par onAuthStateChange
+        await updateAuthState(session);
       } catch (error) {
         console.error('💥 [AUTH_PROVIDER] Erreur inattendue lors de la vérification:', error);
-        setAuthState(prev => ({ ...prev, isLoading: false }));
+        if (mounted) {
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+        }
       }
     };
 
-    checkSession();
+    // Écouter les changements d'état d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 [AUTH_PROVIDER] Changement d\'état auth:', event);
+      await updateAuthState(session);
+    });
 
-    return () => subscription.unsubscribe();
+    checkInitialSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (data: LoginFormData & { rememberMe?: boolean }): Promise<boolean> => {
     console.log('🔐 [AUTH_PROVIDER] Tentative de connexion pour:', data.email);
     try {
       const result = await authService.login(data);
+      console.log('🔐 [AUTH_PROVIDER] Résultat de la connexion:', result);
       return result.success;
     } catch (error) {
       console.error('❌ [AUTH_PROVIDER] Erreur de connexion:', error);
