@@ -43,15 +43,13 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           description: "Vous êtes maintenant connecté."
         });
         
-        // Attendre un peu pour que l'état d'auth se mette à jour
-        setTimeout(() => {
-          navigate('/app');
-        }, 100);
+        // Redirection immédiate vers /app
+        navigate('/app');
       } else {
         console.log('❌ [LOGIN_FORM] Échec de la connexion');
         toast({
           title: "Erreur de connexion",
-          description: "Email ou mot de passe incorrect, ou compte non approuvé.",
+          description: "Email ou mot de passe incorrect.",
           variant: "destructive"
         });
       }

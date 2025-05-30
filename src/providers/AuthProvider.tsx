@@ -21,54 +21,95 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const updateAuthState = async (session: any) => {
       if (!mounted) return;
 
+      console.log('🔄 [AUTH_PROVIDER] Mise à jour de l\'état d\'authentification...');
+
       if (session?.user) {
         console.log('👤 [AUTH_PROVIDER] Session utilisateur trouvée:', session.user.id);
         
         try {
-          // Récupérer le profil utilisateur
+          // Récupérer le profil utilisateur avec plus de logs
+          console.log('🔍 [AUTH_PROVIDER] Recherche du profil pour:', session.user.id);
+          
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
 
+          console.log('📊 [AUTH_PROVIDER] Résultat de la requête profil:', { profile, profileError });
+
           if (!mounted) return;
 
           if (profile && !profileError) {
             const user = {
               id: session.user.id,
-              firstName: profile.first_name,
-              lastName: profile.last_name,
-              email: profile.email,
-              phone: profile.phone,
-              company: profile.company,
-              isApproved: profile.is_approved,
+              firstName: profile.first_name || '',
+              lastName: profile.last_name || '',
+              email: profile.email || session.user.email,
+              phone: profile.phone || '',
+              company: profile.company || '',
+              isApproved: profile.is_approved || false,
               createdAt: profile.created_at,
             };
 
-            console.log('✅ [AUTH_PROVIDER] Utilisateur authentifié:', user.firstName, 'Approuvé:', user.isApproved);
+            console.log('✅ [AUTH_PROVIDER] Profil utilisateur récupéré:', {
+              firstName: user.firstName,
+              isApproved: user.isApproved
+            });
             
-            if (user.isApproved) {
+            // Toujours authentifier l'utilisateur, même s'il n'est pas approuvé
+            // L'approbation sera gérée dans les routes protégées
+            setAuthState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé, création automatique...');
+            
+            // Créer automatiquement le profil si il n'existe pas
+            const newProfile = {
+              id: session.user.id,
+              first_name: session.user.user_metadata?.first_name || '',
+              last_name: session.user.user_metadata?.last_name || '',
+              email: session.user.email,
+              phone: session.user.user_metadata?.phone || '',
+              company: session.user.user_metadata?.company || '',
+              is_approved: false
+            };
+
+            const { data: createdProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert([newProfile])
+              .select()
+              .single();
+
+            if (createdProfile && !createError) {
+              console.log('✅ [AUTH_PROVIDER] Profil créé automatiquement');
+              const user = {
+                id: session.user.id,
+                firstName: createdProfile.first_name || '',
+                lastName: createdProfile.last_name || '',
+                email: createdProfile.email || session.user.email,
+                phone: createdProfile.phone || '',
+                company: createdProfile.company || '',
+                isApproved: createdProfile.is_approved || false,
+                createdAt: createdProfile.created_at,
+              };
+
               setAuthState({
                 user,
                 isAuthenticated: true,
                 isLoading: false,
               });
             } else {
-              console.warn('⚠️ [AUTH_PROVIDER] Utilisateur non approuvé');
+              console.error('❌ [AUTH_PROVIDER] Erreur création profil:', createError);
               setAuthState({
                 user: null,
                 isAuthenticated: false,
                 isLoading: false,
               });
             }
-          } else {
-            console.warn('⚠️ [AUTH_PROVIDER] Profil non trouvé:', profileError);
-            setAuthState({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-            });
           }
         } catch (error) {
           console.error('💥 [AUTH_PROVIDER] Erreur lors de la récupération du profil:', error);
@@ -104,6 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
         
+        console.log('🔍 [AUTH_PROVIDER] Session initiale trouvée:', !!session);
         await updateAuthState(session);
       } catch (error) {
         console.error('💥 [AUTH_PROVIDER] Erreur inattendue lors de la vérification:', error);
