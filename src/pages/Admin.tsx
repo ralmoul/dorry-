@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -120,17 +119,7 @@ const Admin = () => {
 
   const openUserDetails = (user: AdminUserProfile) => {
     console.log('🔍 [DEBUG] Ouverture détails utilisateur:', user.first_name, user.last_name);
-    const transformedUser = {
-      id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      email: user.email,
-      phone: user.phone,
-      company: user.company,
-      isApproved: user.is_approved,
-      createdAt: user.created_at
-    };
-    setSelectedUser(transformedUser);
+    setSelectedUser(user);
     setIsModalOpen(true);
   };
 

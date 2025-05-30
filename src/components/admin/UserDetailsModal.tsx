@@ -6,21 +6,10 @@ import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Tra
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { RgpdDeleteModal } from './RgpdDeleteModal';
-
-interface PendingUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
-  isApproved: boolean;
-  createdAt: string;
-  password?: string;
-}
+import { AdminUserProfile } from '@/services/adminService';
 
 interface UserDetailsModalProps {
-  user: PendingUser | null;
+  user: AdminUserProfile | null;
   isOpen: boolean;
   onClose: () => void;
   onApprove?: (userId: string) => void;
@@ -47,15 +36,15 @@ export const UserDetailsModal = ({
     return null;
   }
 
-  const isPending = !user.isApproved;
-  const isApproved = user.isApproved;
+  const isPending = !user.is_approved;
+  const isApproved = user.is_approved;
 
-  console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.firstName, user.lastName, 'Approuvé:', isApproved);
+  console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.first_name, user.last_name, 'Approuvé:', isApproved);
 
   const handleRgpdDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🔴 [DEBUG] RGPD clicked! Utilisateur:', user.firstName, user.lastName);
+    console.log('🔴 [DEBUG] RGPD clicked! Utilisateur:', user.first_name, user.last_name);
     console.log('🔴 [DEBUG] Token admin présent:', !!adminSessionToken);
     console.log('🔴 [DEBUG] Utilisateur approuvé:', isApproved);
     console.log('🔴 [DEBUG] Ouverture modal RGPD...');
@@ -70,6 +59,18 @@ export const UserDetailsModal = ({
     if (onDelete) {
       onDelete(user.id);
     }
+  };
+
+  // Transform AdminUserProfile to PendingUser format for RgpdDeleteModal
+  const transformedUser = {
+    id: user.id,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    email: user.email,
+    phone: user.phone,
+    company: user.company,
+    isApproved: user.is_approved,
+    createdAt: user.created_at
   };
 
   return (
@@ -114,11 +115,11 @@ export const UserDetailsModal = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-muted-foreground">Prénom</label>
-                    <p className="font-medium text-sharp">{user.firstName}</p>
+                    <p className="font-medium text-sharp">{user.first_name}</p>
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Nom</label>
-                    <p className="font-medium text-sharp">{user.lastName}</p>
+                    <p className="font-medium text-sharp">{user.last_name}</p>
                   </div>
                 </div>
                 
@@ -159,7 +160,7 @@ export const UserDetailsModal = ({
                   <div>
                     <label className="text-sm text-muted-foreground">Date de création</label>
                     <p className="font-medium text-sharp">
-                      {new Date(user.createdAt).toLocaleDateString('fr-FR', {
+                      {new Date(user.created_at).toLocaleDateString('fr-FR', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -232,7 +233,7 @@ export const UserDetailsModal = ({
 
             {/* DEBUG: Informations de debug visibles */}
             <div className="p-2 bg-yellow-500/10 rounded text-xs text-yellow-400 border border-yellow-500/30">
-              <p>DEBUG: User {user.firstName} {user.lastName} - Approuvé: {isApproved ? 'OUI' : 'NON'}</p>
+              <p>DEBUG: User {user.first_name} {user.last_name} - Approuvé: {isApproved ? 'OUI' : 'NON'}</p>
               <p>DEBUG: Token admin: {adminSessionToken ? 'PRÉSENT' : 'ABSENT'}</p>
               <p>DEBUG: Modal RGPD ouverte: {showRgpdDelete ? 'OUI' : 'NON'}</p>
             </div>
@@ -243,7 +244,7 @@ export const UserDetailsModal = ({
       {/* Modal RGPD séparé */}
       {showRgpdDelete && (
         <RgpdDeleteModal
-          user={user}
+          user={transformedUser}
           isOpen={showRgpdDelete}
           onClose={() => {
             console.log('🚪 [DEBUG] Fermeture modal RGPD');
