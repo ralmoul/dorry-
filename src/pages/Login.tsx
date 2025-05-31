@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -118,8 +119,6 @@ const Login = () => {
     <>
       <style dangerouslySetInnerHTML={{
         __html: `
-          /* les mêmes styles CSS que pour signup */
-
           :root {
             --primary-gradient: linear-gradient(135deg, #00B8D4 0%, #6A11CB 100%);
             --secondary-gradient: linear-gradient(135deg, #00B8D4 0%, #3A1957 100%);
