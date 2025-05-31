@@ -118,7 +118,7 @@ const Login = () => {
     <>
       <style dangerouslySetInnerHTML={{
         __html: `
-          /* ... keep existing code (les mêmes styles CSS que pour signup) ... */
+          /* les mêmes styles CSS que pour signup */
 
           :root {
             --primary-gradient: linear-gradient(135deg, #00B8D4 0%, #6A11CB 100%);
@@ -569,17 +569,6 @@ const Login = () => {
             text-decoration: underline;
           }
 
-          .security-notice {
-            background-color: rgba(16, 185, 129, 0.05);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 8px;
-            padding: 0.75rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-align: center;
-          }
-
           @media (max-width: 768px) {
             .container {
               padding: 1rem;
@@ -633,10 +622,6 @@ const Login = () => {
                 ))}
               </div>
               <p className="auth-subtitle">Connexion sécurisée à votre compte</p>
-            </div>
-
-            <div className="security-notice">
-              🔒 Connexion sécurisée avec protection anti-brute force et journalisation des tentatives
             </div>
 
             <form className="auth-form" onSubmit={handleSubmit}>
