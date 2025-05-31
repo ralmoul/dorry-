@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -541,13 +540,13 @@ const Login = () => {
           }
 
           .auth-footer a {
-            color: #FFFFFF;
+            color: #FFFFFF !important;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
           }
 
           .auth-footer a:hover {
-            color: #00B8D4;
+            opacity: 0.8;
             text-decoration: underline;
           }
 
@@ -557,14 +556,14 @@ const Login = () => {
           }
 
           .forgot-password a {
-            color: #FFFFFF;
+            color: #FFFFFF !important;
             font-size: 0.875rem;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
           }
 
           .forgot-password a:hover {
-            color: #00B8D4;
+            opacity: 0.8;
             text-decoration: underline;
           }
 
