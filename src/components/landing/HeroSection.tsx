@@ -42,7 +42,7 @@ export const HeroSection = () => {
             </h1>
             
             {/* Image positionnée après le titre sur mobile uniquement - ROBOT DORRY RESTAURÉ */}
-            <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
+            <div className="flex md:hidden justify-center items-center relative mb-6">
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                   <img 
@@ -73,7 +73,7 @@ export const HeroSection = () => {
           </div>
           
           {/* Image pour desktop uniquement - ROBOT DORRY RESTAURÉ */}
-          <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{ animationDelay: '0.5s' }}>
+          <div className="hidden md:flex flex-1 justify-center items-center relative order-2">
             <div className="relative">
               <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
                 <img 
