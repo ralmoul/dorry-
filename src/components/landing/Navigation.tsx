@@ -2,6 +2,7 @@
 import React from 'react';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 interface NavigationProps {
   isNavScrolled: boolean;
@@ -23,9 +24,9 @@ export const Navigation = ({ isNavScrolled, isMobileMenuOpen, setIsMobileMenuOpe
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 py-3 md:py-4 transition-all duration-500 backdrop-blur-md ${isNavScrolled ? 'bg-slate-900/90 shadow-lg' : ''}`}>
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
-        <div className="flex items-center">
+        <Link to="/" className="flex items-center">
           <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" className="w-8 h-8 md:w-10 md:h-10" />
-        </div>
+        </Link>
         
         {/* Mobile menu button */}
         <button className="md:hidden p-2 text-cyan-400" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
