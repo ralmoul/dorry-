@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from './button';
 import { useNavigate } from 'react-router-dom';
@@ -77,11 +78,13 @@ export const ConfettiButton = ({
     setIsAnimating(true);
     createConfetti();
     
-    if (href) {
-      navigate(href);
-    }
-    
-    onClick?.();
+    // Petit délai pour permettre à l'animation de démarrer avant la navigation
+    setTimeout(() => {
+      if (href) {
+        navigate(href);
+      }
+      onClick?.();
+    }, 100);
     
     setTimeout(() => setIsAnimating(false), 1000);
   };
