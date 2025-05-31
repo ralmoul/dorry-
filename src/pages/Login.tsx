@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { enhancedAuthService } from '@/services/enhancedAuthService';
 
 const Login = () => {
   // États pour les champs du formulaire
@@ -86,10 +84,11 @@ const Login = () => {
         } else {
           console.log('❌ Échec de la connexion:', result.message);
           
-          if (result.isBlocked) {
+          // Vérifier si le message indique un blocage
+          if (result.message && result.message.includes('bloqué')) {
             toast({
               title: "Compte bloqué",
-              description: result.message || "Trop de tentatives de connexion. Réessayez plus tard.",
+              description: result.message,
               variant: "destructive"
             });
           } else {
