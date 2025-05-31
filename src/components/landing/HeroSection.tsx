@@ -56,7 +56,7 @@ export const HeroSection = () => {
               </div>
             </div>
             
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.7s' }}>
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0">
               Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
             </p>
             <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0 animate-fadeInUp" style={{ animationDelay: '0.9s' }}>
