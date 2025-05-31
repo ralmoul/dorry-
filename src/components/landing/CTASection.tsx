@@ -1,6 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
+import { Link } from 'react-router-dom';
 
 export const CTASection = () => {
   const badges = [{
@@ -72,9 +73,11 @@ export const CTASection = () => {
         <div className="animate-fadeInUp" style={{
           animationDelay: '0.4s'
         }}>
-          <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl text-lg sm:text-xl font-bold hover:shadow-2xl transform hover:scale-105 transition-all">
-            Demander l'accès
-          </ConfettiButton>
+          <Link to="/contact">
+            <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
+              Demander l'accès
+            </ConfettiButton>
+          </Link>
         </div>
         
         {/* Badges */}
