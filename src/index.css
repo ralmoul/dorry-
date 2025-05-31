@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -70,6 +69,25 @@
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
+    /* Éviter le flash au chargement */
+    background-color: #0F172A !important;
+    min-height: 100vh;
+  }
+
+  /* Optimisation critique : éviter le flash */
+  html {
+    background-color: #0F172A !important;
+  }
+
+  #root {
+    background-color: #0F172A !important;
+    min-height: 100vh;
+  }
+
+  /* Masquer le contenu critique une fois React chargé */
+  [data-react-loaded] .critical-nav,
+  [data-react-loaded] .critical-hero {
+    display: none !important;
   }
 
   /* Force la couleur blanche sur tous les éléments */

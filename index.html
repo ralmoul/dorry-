@@ -20,16 +20,353 @@
     <!-- Favicon -->
     <link rel="icon" href="/lovable-uploads/c47fc180-9a90-46e9-b011-63cc36cd9469.png" type="image/png">
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Préchargement des ressources critiques -->
+    <link rel="preload" href="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" as="image" type="image/png">
+    <link rel="preload" href="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" as="image" type="image/png">
+    
+    <!-- Google Fonts avec préchargement -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap"></noscript>
+    
+    <!-- CSS critique inline pour éviter le flash -->
+    <style>
+      /* Reset et base critiques */
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      html {
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -moz-tab-size: 4;
+        tab-size: 4;
+        font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+        line-height: inherit;
+        background-color: #0F172A;
+        color: #FAFAFA;
+        margin: 0;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+      
+      #root {
+        min-height: 100vh;
+        background-color: #0F172A;
+      }
+      
+      /* Structure critique de la navigation */
+      .critical-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 50;
+        padding: 12px 0;
+        background-color: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      
+      .critical-nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      .critical-logo {
+        width: 32px;
+        height: 32px;
+      }
+      
+      @media (min-width: 768px) {
+        .critical-logo {
+          width: 40px;
+          height: 40px;
+        }
+      }
+      
+      /* Structure critique du hero */
+      .critical-hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        padding-top: 80px;
+        padding-bottom: 16px;
+        background: linear-gradient(135deg, #0F172A 0%, rgba(106, 17, 203, 0.3) 50%, #0F172A 100%);
+      }
+      
+      @media (min-width: 768px) {
+        .critical-hero {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+      }
+      
+      .critical-hero-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+        position: relative;
+        z-index: 10;
+      }
+      
+      @media (min-width: 768px) {
+        .critical-hero-container {
+          padding: 0 32px;
+        }
+      }
+      
+      .critical-hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+      }
+      
+      @media (min-width: 768px) {
+        .critical-hero-content {
+          flex-direction: row;
+          justify-content: space-between;
+          gap: 64px;
+        }
+      }
+      
+      .critical-text-content {
+        flex: 1;
+        max-width: 512px;
+        text-align: center;
+        order: 1;
+      }
+      
+      @media (min-width: 768px) {
+        .critical-text-content {
+          text-align: left;
+          order: 1;
+        }
+      }
+      
+      .critical-title {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        line-height: 1.2;
+        background: linear-gradient(to right, #FFFFFF, #22D3EE, #3B82F6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-family: 'Montserrat', sans-serif;
+      }
+      
+      @media (min-width: 640px) {
+        .critical-title {
+          font-size: 2.25rem;
+          line-height: 2.5rem;
+        }
+      }
+      
+      @media (min-width: 768px) {
+        .critical-title {
+          font-size: 3.75rem;
+          line-height: 1;
+          margin-bottom: 32px;
+        }
+      }
+      
+      .critical-description {
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: #CBD5E1;
+        margin-bottom: 24px;
+        padding: 0 8px;
+      }
+      
+      @media (min-width: 640px) {
+        .critical-description {
+          font-size: 1.125rem;
+          line-height: 1.75rem;
+        }
+      }
+      
+      @media (min-width: 768px) {
+        .critical-description {
+          font-size: 1.25rem;
+          line-height: 1.75rem;
+          margin-bottom: 32px;
+          padding: 0;
+        }
+      }
+      
+      .critical-cta {
+        display: inline-block;
+        background: linear-gradient(to right, #22D3EE, #3B82F6);
+        color: #0F172A;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 32px;
+      }
+      
+      @media (min-width: 640px) {
+        .critical-cta {
+          padding: 16px 32px;
+          font-size: 1.125rem;
+          line-height: 1.75rem;
+        }
+      }
+      
+      @media (min-width: 768px) {
+        .critical-cta {
+          margin-bottom: 0;
+        }
+      }
+      
+      .critical-cta:hover {
+        transform: scale(1.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      
+      .critical-image-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        order: 2;
+        margin-bottom: 24px;
+      }
+      
+      @media (min-width: 768px) {
+        .critical-image-container {
+          display: none;
+        }
+      }
+      
+      .critical-image-desktop {
+        display: none;
+      }
+      
+      @media (min-width: 768px) {
+        .critical-image-desktop {
+          display: flex;
+          flex: 1;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          order: 2;
+        }
+      }
+      
+      .critical-image {
+        width: 256px;
+        height: 256px;
+        object-fit: contain;
+      }
+      
+      @media (min-width: 640px) {
+        .critical-image {
+          width: 320px;
+          height: 320px;
+        }
+      }
+      
+      @media (min-width: 768px) {
+        .critical-image {
+          width: 384px;
+          height: 384px;
+        }
+      }
+      
+      /* Loading state caché par défaut */
+      .loading-skeleton {
+        display: none;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Structure critique visible immédiatement -->
+      <nav class="critical-nav">
+        <div class="critical-nav-container">
+          <img src="/lovable-uploads/1ea529ec-4385-4e6a-b22b-75cc2778cfcd.png" alt="Dorry Logo" class="critical-logo">
+        </div>
+      </nav>
+      
+      <section class="critical-hero">
+        <div class="critical-hero-container">
+          <div class="critical-hero-content">
+            <div class="critical-text-content">
+              <h1 class="critical-title">
+                Dorry, l'assistante IA qui révolutionne vos réunions
+              </h1>
+              <p class="critical-description">
+                Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
+              </p>
+              <a href="/support" class="critical-cta">
+                Demander l'accès
+              </a>
+            </div>
+            
+            <div class="critical-image-container">
+              <img 
+                src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
+                alt="Dorry AI Assistant" 
+                class="critical-image"
+              />
+            </div>
+            
+            <div class="critical-image-desktop">
+              <img 
+                src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
+                alt="Dorry AI Assistant" 
+                class="critical-image"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Script pour masquer le contenu critique une fois React chargé -->
+    <script>
+      // Masquer le contenu critique une fois que React a pris le relais
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const criticalElements = document.querySelectorAll('.critical-nav, .critical-hero');
+          criticalElements.forEach(el => {
+            if (el && document.querySelector('[data-react-loaded]')) {
+              el.style.display = 'none';
+            }
+          });
+        }, 100);
+      });
+    </script>
   </body>
 </html>

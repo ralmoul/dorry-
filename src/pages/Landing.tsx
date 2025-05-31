@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLandingAnimations } from '@/hooks/useLandingAnimations';
 import { Navigation } from '@/components/landing/Navigation';
 import { HeroSection } from '@/components/landing/HeroSection';
@@ -20,6 +20,23 @@ const Landing = () => {
     setActiveFeature,
     handleMouseMove
   } = useLandingAnimations();
+
+  useEffect(() => {
+    // Marquer que React est chargé pour permettre la transition
+    document.documentElement.setAttribute('data-react-loaded', 'true');
+    
+    // Masquer le contenu critique après un court délai pour permettre le rendu React
+    const timer = setTimeout(() => {
+      const criticalElements = document.querySelectorAll('.critical-nav, .critical-hero');
+      criticalElements.forEach(el => {
+        if (el) {
+          el.style.display = 'none';
+        }
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white" onMouseMove={handleMouseMove}>
