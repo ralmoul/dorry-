@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,9 +20,17 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Redirection automatique si déjà connecté
+  useEffect(() => {
+    if (isAuthenticated && user?.isApproved) {
+      console.log('✅ [LOGIN_FORM] User already authenticated, redirecting to app');
+      navigate('/app');
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,19 +45,18 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       });
 
       if (result.success) {
-        console.log('✅ Connexion réussie, redirection...');
+        console.log('✅ Connexion réussie, redirection vers /app...');
         toast({
           title: "Connexion réussie",
           description: "Vous êtes maintenant connecté."
         });
-        // Navigation React Router au lieu de window.location.href
+        // Navigation automatique vers l'application
         navigate('/app');
       } else {
         console.log('❌ Échec de la connexion:', result.message);
-        // Afficher le message d'erreur exact retourné par le service
         toast({
           title: "Erreur de connexion",
-          description: result.message || "Une erreur est survenue lors de la connexion.",
+          description: result.message || "Email ou mot de passe incorrect",
           variant: "destructive"
         });
       }
@@ -57,7 +64,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       console.error('💥 Erreur lors de la connexion:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de la connexion.",
+        description: "Email ou mot de passe incorrect",
         variant: "destructive"
       });
     } finally {
@@ -77,6 +84,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
         size="sm" 
         onClick={handleBackToHome} 
         className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10"
+        disabled={isLoading}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Accueil
@@ -101,6 +109,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
+                disabled={isLoading}
                 className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise h-10 sm:h-11 text-white placeholder:text-gray-400" 
               />
             </div>
@@ -113,12 +122,14 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                   required 
+                  disabled={isLoading}
                   className="bg-background/50 border-bright-turquoise/30 focus:border-bright-turquoise pr-10 h-10 sm:h-11 text-white placeholder:text-gray-400" 
                 />
                 <button 
                   type="button" 
                   onClick={() => setShowPassword(!showPassword)} 
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-bright-turquoise text-white"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -129,6 +140,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
                 id="rememberMe" 
                 checked={rememberMe} 
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)} 
+                disabled={isLoading}
                 className="border-bright-turquoise/50 data-[state=checked]:bg-bright-turquoise data-[state=checked]:border-bright-turquoise" 
               />
               <Label htmlFor="rememberMe" className="text-xs sm:text-sm text-white">
@@ -140,7 +152,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
               disabled={isLoading} 
               className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base"
             >
-              {isLoading ? 'Connexion...' : 'Se connecter'}
+              {isLoading ? 'Connexion en cours...' : 'Se connecter'}
             </Button>
           </form>
           <div className="mt-3 sm:mt-4 text-center">
@@ -148,6 +160,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
               type="button" 
               onClick={onSwitchToSignup} 
               className="text-bright-turquoise hover:text-bright-turquoise/80 text-xs sm:text-sm"
+              disabled={isLoading}
             >
               Créer un compte
             </button>

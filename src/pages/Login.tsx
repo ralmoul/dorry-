@@ -21,9 +21,17 @@ const Login = () => {
   // État pour les animations d'ondes vocales
   const [isWaveAnimating, setIsWaveAnimating] = useState(true);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Redirection automatique si déjà connecté
+  useEffect(() => {
+    if (isAuthenticated && user?.isApproved) {
+      console.log('✅ [LOGIN] User already authenticated, redirecting to app');
+      navigate('/app');
+    }
+  }, [isAuthenticated, user, navigate]);
   
   // Fonction de validation d'email
   const validateEmail = (email: string) => {
@@ -61,22 +69,22 @@ const Login = () => {
       try {
         console.log('🚀 Tentative de connexion sécurisée pour:', email);
         
-        const result = await enhancedAuthService.secureLogin({
+        const result = await login({
           email: email.trim().toLowerCase(),
           password,
           rememberMe
         });
 
         if (result.success) {
-          console.log('✅ Connexion réussie, redirection...');
+          console.log('✅ Connexion réussie, redirection vers /app...');
           toast({
             title: "Connexion réussie",
             description: "Vous êtes maintenant connecté."
           });
-          // Navigation React Router au lieu de window.location.href
+          // Navigation automatique vers l'application
           navigate('/app');
         } else {
-          console.log('❌ Échec de la connexion - message sécurisé affiché');
+          console.log('❌ Échec de la connexion:', result.message);
           
           if (result.isBlocked) {
             toast({
@@ -85,14 +93,13 @@ const Login = () => {
               variant: "destructive"
             });
           } else {
-            // Message d'erreur sécurisé
-            setPasswordError(result.message || 'Identifiants incorrects');
+            // Message d'erreur pour identifiants incorrects
+            setPasswordError('Email ou mot de passe incorrect');
           }
         }
       } catch (error) {
         console.error('💥 Erreur lors de la connexion:', error);
-        // Message d'erreur générique pour la sécurité
-        setPasswordError('Identifiants incorrects');
+        setPasswordError('Email ou mot de passe incorrect');
       } finally {
         setIsLoading(false);
       }
@@ -641,6 +648,7 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
+                    disabled={isLoading}
                   />
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -673,6 +681,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
+                    disabled={isLoading}
                   />
                   {showPassword ? (
                     <EyeOff 
@@ -695,6 +704,7 @@ const Login = () => {
                   id="rememberMe"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isLoading}
                 />
                 <label htmlFor="rememberMe" className="checkbox-label">
                   Rester connecté (max 24h, nécessite cookies de session)
@@ -721,15 +731,16 @@ const Login = () => {
                   type="button"
                   onClick={handleForgotPassword}
                   className="text-white hover:opacity-80 text-sm transition-opacity"
+                  disabled={isLoading}
                 >
                   Mot de passe oublié ?
                 </button>
               </div>
 
               <div className="auth-footer">
-                <p>Vous n'avez pas de compte ? <button type="button" onClick={handleGoToSignup} className="text-white hover:opacity-80 transition-opacity">Créer un compte</button></p>
+                <p>Vous n'avez pas de compte ? <button type="button" onClick={handleGoToSignup} className="text-white hover:opacity-80 transition-opacity" disabled={isLoading}>Créer un compte</button></p>
                 <p style={{marginTop: '0.5rem', fontSize: '0.75rem'}}>
-                  <button type="button" onClick={() => navigate('/privacy-policy')} className="text-white hover:opacity-80 transition-opacity">Politique de confidentialité</button>
+                  <button type="button" onClick={() => navigate('/privacy-policy')} className="text-white hover:opacity-80 transition-opacity" disabled={isLoading}>Politique de confidentialité</button>
                 </p>
               </div>
             </form>
