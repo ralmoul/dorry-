@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,8 +42,8 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           title: "Connexion réussie",
           description: "Vous êtes maintenant connecté."
         });
-        // Redirection vers la page principale
-        window.location.href = '/app';
+        // Navigation React Router au lieu de window.location.href
+        navigate('/app');
       } else {
         console.log('❌ Échec de la connexion:', result.message);
         // Afficher le message d'erreur exact retourné par le service
@@ -64,7 +66,7 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   };
 
   const handleBackToHome = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (

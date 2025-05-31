@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,6 +13,7 @@ const ForgotPassword = () => {
   const [isWaveAnimating, setIsWaveAnimating] = useState(true);
 
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,7 +79,15 @@ const ForgotPassword = () => {
   }, []);
 
   const handleBackToLogin = () => {
-    window.location.href = '/login';
+    navigate('/login');
+  };
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
+  const handleGoToSignup = () => {
+    navigate('/signup');
   };
 
   return (
@@ -463,7 +474,7 @@ const ForgotPassword = () => {
         </div>
 
         <button 
-          onClick={handleBackToLogin} 
+          onClick={handleBackToHome} 
           className="absolute top-6 left-6 text-white hover:text-white/80 hover:bg-white/10 z-10 flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -544,8 +555,8 @@ const ForgotPassword = () => {
             )}
 
             <div className="auth-footer">
-              <p><a href="/login">Retour à la connexion</a></p>
-              <p><a href="/signup">Créer un compte</a></p>
+              <p><button type="button" onClick={handleBackToLogin} className="text-white hover:opacity-80 transition-opacity">Retour à la connexion</button></p>
+              <p><button type="button" onClick={handleGoToSignup} className="text-white hover:opacity-80 transition-opacity">Créer un compte</button></p>
             </div>
           </div>
         </div>

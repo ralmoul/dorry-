@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { enhancedAuthService } from '@/services/enhancedAuthService';
 
@@ -21,6 +23,7 @@ const Login = () => {
 
   const { login } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Fonction de validation d'email
   const validateEmail = (email: string) => {
@@ -70,8 +73,8 @@ const Login = () => {
             title: "Connexion réussie",
             description: "Vous êtes maintenant connecté."
           });
-          // Redirection vers la page principale
-          window.location.href = '/app';
+          // Navigation React Router au lieu de window.location.href
+          navigate('/app');
         } else {
           console.log('❌ Échec de la connexion - message sécurisé affiché');
           
@@ -106,12 +109,15 @@ const Login = () => {
   }, []);
 
   const handleBackToHome = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   const handleForgotPassword = () => {
-    // Rediriger vers une vraie page de réinitialisation de mot de passe
-    window.location.href = '/forgot-password';
+    navigate('/forgot-password');
+  };
+
+  const handleGoToSignup = () => {
+    navigate('/signup');
   };
   
   return (
@@ -711,15 +717,19 @@ const Login = () => {
               </button>
 
               <div className="forgot-password">
-                <a href="#" onClick={(e) => { e.preventDefault(); handleForgotPassword(); }}>
+                <button 
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-white hover:opacity-80 text-sm transition-opacity"
+                >
                   Mot de passe oublié ?
-                </a>
+                </button>
               </div>
 
               <div className="auth-footer">
-                <p>Vous n'avez pas de compte ? <a href="/signup">Créer un compte</a></p>
+                <p>Vous n'avez pas de compte ? <button type="button" onClick={handleGoToSignup} className="text-white hover:opacity-80 transition-opacity">Créer un compte</button></p>
                 <p style={{marginTop: '0.5rem', fontSize: '0.75rem'}}>
-                  <a href="/privacy-policy">Politique de confidentialité</a>
+                  <button type="button" onClick={() => navigate('/privacy-policy')} className="text-white hover:opacity-80 transition-opacity">Politique de confidentialité</button>
                 </p>
               </div>
             </form>

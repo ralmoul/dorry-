@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { enhancedAuthService } from '@/services/enhancedAuthService';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
@@ -25,6 +27,7 @@ const Signup = () => {
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
 
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -124,9 +127,9 @@ const Signup = () => {
           setAcceptedTerms(false);
           setAcceptedPrivacy(false);
           
-          // Redirection vers login après 3 secondes
+          // Navigation React Router au lieu de window.location.href
           setTimeout(() => {
-            window.location.href = '/login';
+            navigate('/login');
           }, 3000);
         } else {
           console.log('❌ Échec de l\'inscription:', result.message);
@@ -162,7 +165,19 @@ const Signup = () => {
   }, []);
 
   const handleBackToHome = () => {
-    window.location.href = '/';
+    navigate('/');
+  };
+
+  const handleGoToLogin = () => {
+    navigate('/login');
+  };
+
+  const handleGoToPrivacyPolicy = () => {
+    navigate('/privacy-policy');
+  };
+
+  const handleGoToTerms = () => {
+    navigate('/terms-of-service');
   };
 
   return (
@@ -800,7 +815,7 @@ const Signup = () => {
                     required
                   />
                   <label htmlFor="acceptTerms" className="checkbox-label">
-                    J'accepte les <a href="/terms-of-service" target="_blank">Conditions Générales d'Utilisation</a> *
+                    J'accepte les <button type="button" onClick={handleGoToTerms} className="text-white hover:opacity-80 transition-opacity underline">Conditions Générales d'Utilisation</button> *
                   </label>
                 </div>
                 
@@ -813,7 +828,7 @@ const Signup = () => {
                     required
                   />
                   <label htmlFor="acceptPrivacy" className="checkbox-label">
-                    J'accepte la <a href="/privacy-policy" target="_blank">Politique de Confidentialité</a> et le traitement de mes données personnelles *
+                    J'accepte la <button type="button" onClick={handleGoToPrivacyPolicy} className="text-white hover:opacity-80 transition-opacity underline">Politique de Confidentialité</button> et le traitement de mes données personnelles *
                   </label>
                 </div>
               </div>
@@ -834,9 +849,9 @@ const Signup = () => {
               </button>
 
               <div className="auth-footer">
-                <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+                <p>Déjà un compte ? <button type="button" onClick={handleGoToLogin} className="text-white hover:opacity-80 transition-opacity">Se connecter</button></p>
                 <p style={{marginTop: '0.5rem', fontSize: '0.75rem'}}>
-                  <a href="/privacy-policy">Politique de confidentialité</a> • <a href="/terms-of-service">CGU</a>
+                  <button type="button" onClick={handleGoToPrivacyPolicy} className="text-white hover:opacity-80 transition-opacity">Politique de confidentialité</button> • <button type="button" onClick={handleGoToTerms} className="text-white hover:opacity-80 transition-opacity">CGU</button>
                 </p>
               </div>
             </form>

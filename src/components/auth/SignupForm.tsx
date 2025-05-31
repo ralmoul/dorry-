@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -88,7 +90,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           company: '',
           password: ''
         });
-        // Rediriger vers la page de connexion après 2 secondes
+        // Navigation React Router au lieu de window.location.href
         setTimeout(() => {
           onSwitchToLogin();
         }, 2000);
@@ -111,7 +113,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   };
 
   const handleBackToHome = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (
