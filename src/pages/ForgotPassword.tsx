@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
@@ -84,8 +83,6 @@ const ForgotPassword = () => {
     <>
       <style dangerouslySetInnerHTML={{
         __html: `
-          /* ... keep existing code (mêmes styles que login/signup) ... */
-          
           :root {
             --primary-gradient: linear-gradient(135deg, #00B8D4 0%, #6A11CB 100%);
             --secondary-gradient: linear-gradient(135deg, #00B8D4 0%, #3A1957 100%);
@@ -404,13 +401,13 @@ const ForgotPassword = () => {
           }
 
           .auth-footer a {
-            color: #FFFFFF;
+            color: #FFFFFF !important;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
           }
 
           .auth-footer a:hover {
-            color: #00B8D4;
+            opacity: 0.8;
             text-decoration: underline;
           }
 
