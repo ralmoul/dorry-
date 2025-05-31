@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 
 interface Particle {
   id: number;
@@ -12,26 +12,32 @@ interface Particle {
 export const FloatingParticles = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
 
-  useEffect(() => {
-    const generateParticles = () => {
-      const newParticles: Particle[] = [];
-      for (let i = 0; i < 15; i++) {
-        newParticles.push({
-          id: i,
-          x: Math.random() * 100,
-          delay: Math.random() * 5,
-          size: Math.random() * 3 + 1,
-          duration: Math.random() * 10 + 15
-        });
-      }
-      setParticles(newParticles);
-    };
+  // Optimisation : réduire le nombre de particules sur mobile pour les performances
+  const particleCount = useMemo(() => {
+    return window.innerWidth > 768 ? 12 : 6; // Réduit de 15/6 à 12/6
+  }, []);
 
+  const generateParticles = useCallback(() => {
+    const newParticles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      newParticles.push({
+        id: i,
+        x: Math.random() * 100,
+        delay: Math.random() * 5,
+        size: Math.random() * 2 + 1, // Taille légèrement réduite
+        duration: Math.random() * 8 + 12 // Durée légèrement réduite
+      });
+    }
+    setParticles(newParticles);
+  }, [particleCount]);
+
+  useEffect(() => {
     generateParticles();
-    const interval = setInterval(generateParticles, 5000);
+    // Optimisation : interval moins fréquent
+    const interval = setInterval(generateParticles, 8000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [generateParticles]);
 
   return (
     <div className="floating-particles">
@@ -45,6 +51,7 @@ export const FloatingParticles = () => {
             animationDuration: `${particle.duration}s`,
             width: `${particle.size}px`,
             height: `${particle.size}px`,
+            willChange: 'transform, opacity', // Optimisation GPU
           }}
         />
       ))}

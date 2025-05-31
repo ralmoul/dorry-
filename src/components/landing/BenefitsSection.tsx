@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Clock, Shield, Sparkles, TrendingUp } from 'lucide-react';
 
 export const BenefitsSection = () => {
@@ -34,21 +34,27 @@ export const BenefitsSection = () => {
     }
   ];
 
+  // Optimisation : particules réduites
+  const particleCount = useMemo(() => {
+    return window.innerWidth > 768 ? 8 : 4; // Réduit de 10/5 à 8/4
+  }, []);
+
   return (
     <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-transparent to-slate-900/50"></div>
-        {Array.from({ length: window.innerWidth > 768 ? 10 : 5 }).map((_, i) => (
+        {Array.from({ length: particleCount }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
             style={{
-              width: `${Math.random() * 20 + 10}px`,
-              height: `${Math.random() * 20 + 10}px`,
+              width: `${Math.random() * 18 + 8}px`, // Taille légèrement réduite
+              height: `${Math.random() * 18 + 8}px`,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 30 + 20}s ease-in-out infinite ${Math.random() * 5}s`,
-              filter: 'blur(3px)'
+              animation: `float ${Math.random() * 25 + 15}s ease-in-out infinite ${Math.random() * 4}s`, // Durée optimisée
+              filter: 'blur(2px)',
+              willChange: 'transform'
             }}
           />
         ))}
@@ -69,7 +75,10 @@ export const BenefitsSection = () => {
             <div
               key={index}
               className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp"
-              style={{ animationDelay: `${benefit.delay}s` }}
+              style={{ 
+                animationDelay: `${benefit.delay}s`,
+                willChange: 'transform'
+              }}
             >
               <div className={`text-transparent bg-clip-text bg-gradient-to-r ${benefit.color} mb-4 md:mb-6`}>
                 {benefit.icon}

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,6 +66,10 @@
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
     color: rgb(250 250 250) !important;
+    /* Optimisations de performance */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 
   /* Force la couleur blanche sur tous les éléments */
@@ -285,6 +290,10 @@
     background: rgba(0, 212, 170, 0.6);
     border-radius: 50%;
     animation: float-particle 15s linear infinite;
+    /* Optimisations GPU */
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .voice-wave {
@@ -293,6 +302,7 @@
     border-radius: 2px;
     animation: voice-wave 1.5s ease-in-out infinite;
     transform-origin: bottom;
+    will-change: transform;
   }
 
   .navbar-blur {
@@ -304,6 +314,7 @@
   .hero-3d {
     transform-style: preserve-3d;
     transition: transform 0.3s ease;
+    will-change: transform;
   }
 
   .stats-counter {
@@ -325,6 +336,7 @@
   .wave-bar {
     animation: wave 1.2s ease-in-out infinite;
     animation-delay: calc(var(--i) * 0.1s);
+    will-change: transform;
   }
 
   /* Effet de flou pour les éléments en arrière-plan */
@@ -344,6 +356,7 @@
   /* Effet de transition pour les boutons */
   .btn-transition {
     transition: all 0.3s ease;
+    will-change: transform, box-shadow;
   }
 
   .btn-transition:hover {
@@ -351,17 +364,19 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   }
 
-  /* Animation des particules */
+  /* Animation des particules optimisée */
   .particle {
     position: absolute;
     border-radius: 50%;
     background: linear-gradient(to right, var(--bright-turquoise), var(--electric-blue));
     opacity: 0.2;
     pointer-events: none;
+    will-change: transform, opacity;
+    transform: translateZ(0);
   }
 }
 
-/* Animation de pulsation pour le bouton micro */
+/* Optimisations des animations pour de meilleures performances */
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(0, 184, 212, 0.7);
@@ -375,14 +390,20 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(1deg); }
-  66% { transform: translateY(-5px) rotate(-1deg); }
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) translateZ(0); 
+  }
+  33% { 
+    transform: translateY(-8px) rotate(1deg) translateZ(0); 
+  }
+  66% { 
+    transform: translateY(-4px) rotate(-1deg) translateZ(0); 
+  }
 }
 
 @keyframes float-particle {
   0% {
-    transform: translateY(100vh) rotate(0deg);
+    transform: translateY(100vh) rotate(0deg) translateZ(0);
     opacity: 0;
   }
   10% {
@@ -392,37 +413,37 @@
     opacity: 1;
   }
   100% {
-    transform: translateY(-100px) rotate(360deg);
+    transform: translateY(-100px) rotate(360deg) translateZ(0);
     opacity: 0;
   }
 }
 
 @keyframes voice-wave {
   0%, 100% { 
-    transform: scaleY(0.5);
+    transform: scaleY(0.5) translateZ(0);
     opacity: 0.7;
   }
   50% { 
-    transform: scaleY(1.5);
+    transform: scaleY(1.5) translateZ(0);
     opacity: 1;
   }
 }
 
 @keyframes pulse-ai {
   0%, 100% { 
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
     opacity: 1;
   }
   50% { 
-    transform: scale(1.1);
+    transform: scale(1.1) translateZ(0);
     opacity: 0.8;
   }
 }
 
 @keyframes wave {
-  0% { transform: scaleY(1); }
-  50% { transform: scaleY(1.5); }
-  100% { transform: scaleY(1); }
+  0% { transform: scaleY(1) translateZ(0); }
+  50% { transform: scaleY(1.5) translateZ(0); }
+  100% { transform: scaleY(1) translateZ(0); }
 }
 
 @keyframes glow {
@@ -443,39 +464,39 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(30px) translateZ(0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
   }
 }
 
 @keyframes slideInFromLeft {
   from {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateX(-50px) translateZ(0);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) translateZ(0);
   }
 }
 
 @keyframes slideInFromRight {
   from {
     opacity: 0;
-    transform: translateX(50px);
+    transform: translateX(50px) translateZ(0);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) translateZ(0);
   }
 }
 
 @keyframes confetti {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+  0% { transform: translateY(0) rotate(0deg) translateZ(0); opacity: 1; }
+  100% { transform: translateY(-100px) rotate(720deg) translateZ(0); opacity: 0; }
 }
 
 .animate-typewriter {
@@ -511,6 +532,30 @@
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+/* Optimisations pour réduire la complexité sur mobile */
+@media (max-width: 768px) {
+  .particle {
+    animation-duration: 20s !important; /* Plus lent sur mobile */
+  }
+  
+  /* Réduction des effets sur mobile pour économiser la batterie */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-typewriter,
+    .animate-fade-in-up,
+    .animate-slide-in-left,
+    .animate-slide-in-right,
+    .animate-pulse-ai,
+    .animate-wave,
+    .animate-glow {
+      animation: none;
+    }
+    
+    .particle {
+      display: none;
+    }
+  }
 }
 
 /* Responsive animations */

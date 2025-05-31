@@ -1,27 +1,33 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { TypewriterText } from '@/components/ui/TypewriterText';
 import { ConfettiButton } from '@/components/ui/ConfettiButton';
 
 export const HeroSection = () => {
+  // Optimisation : calcul des particules memoized
+  const particleCount = useMemo(() => {
+    return window.innerWidth > 768 ? 25 : 12; // Réduit légèrement
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-0 pb-4 md:pb-0">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 opacity-80"></div>
       
-      {/* Particules animées réduites pour mobile */}
+      {/* Particules animées optimisées */}
       <div className="absolute inset-0 z-0">
-        {Array.from({ length: window.innerWidth > 768 ? 30 : 15 }).map((_, i) => (
+        {Array.from({ length: particleCount }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20"
             style={{
-              width: `${Math.random() * 8 + 3}px`,
-              height: `${Math.random() * 8 + 3}px`,
+              width: `${Math.random() * 6 + 2}px`, // Taille réduite
+              height: `${Math.random() * 6 + 2}px`,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 20 + 15}s ease-in-out infinite ${Math.random() * 5}s`,
-              filter: 'blur(1px)'
+              animation: `float ${Math.random() * 18 + 12}s ease-in-out infinite ${Math.random() * 4}s`, // Durée optimisée
+              filter: 'blur(1px)',
+              willChange: 'transform', // Optimisation GPU
             }}
           />
         ))}
@@ -35,7 +41,7 @@ export const HeroSection = () => {
               <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos réunions" className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" />
             </h1>
             
-            {/* Image positioned after title on mobile only */}
+            {/* Image positioned after title on mobile only - avec lazy loading */}
             <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
@@ -67,7 +73,7 @@ export const HeroSection = () => {
             </div>
           </div>
           
-          {/* Image for desktop only - hidden on mobile */}
+          {/* Image for desktop only - hidden on mobile - avec lazy loading */}
           <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{ animationDelay: '0.5s' }}>
             <div className="relative">
               <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
@@ -81,12 +87,15 @@ export const HeroSection = () => {
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
               
-              {/* Cercles concentriques animés - réduits sur mobile */}
+              {/* Cercles concentriques animés - optimisés */}
               {Array.from({ length: 2 }).map((_, i) => (
                 <div
                   key={i}
                   className="absolute inset-0 rounded-full border border-cyan-400/30"
-                  style={{ animation: `ripple 3s ease-out infinite ${i * 0.5}s` }}
+                  style={{ 
+                    animation: `ripple 3s ease-out infinite ${i * 0.5}s`,
+                    willChange: 'transform, opacity'
+                  }}
                 ></div>
               ))}
             </div>
