@@ -30,7 +30,7 @@ const Landing = () => {
       const criticalElements = document.querySelectorAll('.critical-nav, .critical-hero');
       criticalElements.forEach(el => {
         if (el) {
-          el.style.display = 'none';
+          (el as HTMLElement).style.display = 'none';
         }
       });
     }, 50);

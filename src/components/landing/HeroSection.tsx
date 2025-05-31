@@ -41,12 +41,16 @@ export const HeroSection = () => {
               <TypewriterText text="Dorry, l'assistante IA qui révolutionne vos réunions" className="block bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent" />
             </h1>
             
-            {/* Image positioned after title on mobile only - les images critiques sont déjà dans index.html */}
+            {/* Image positionnée après le titre sur mobile uniquement - ROBOT DORRY RESTAURÉ */}
             <div className="flex md:hidden justify-center items-center relative mb-6 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
               <div className="relative">
                 <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
-                  {/* Image critique déjà dans index.html, on évite la duplication */}
-                  <div className="w-full h-full bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full"></div>
+                  <img 
+                    src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
+                    alt="Dorry AI Assistant" 
+                    className="w-full h-full object-contain"
+                    loading="eager"
+                  />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
               </div>
@@ -68,12 +72,16 @@ export const HeroSection = () => {
             </div>
           </div>
           
-          {/* Image for desktop only - hidden on mobile - placeholder pour éviter layout shift */}
+          {/* Image pour desktop uniquement - ROBOT DORRY RESTAURÉ */}
           <div className="hidden md:flex flex-1 justify-center items-center relative order-2 animate-fadeInRight" style={{ animationDelay: '0.5s' }}>
             <div className="relative">
               <div className="hero-image w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center transform-gpu transition-transform duration-300 overflow-hidden">
-                {/* Placeholder pour éviter layout shift, l'image réelle est dans index.html */}
-                <div className="w-full h-full bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full"></div>
+                <img 
+                  src="/lovable-uploads/769b9b8e-e57b-4e05-85eb-d7dfc432dd29.png" 
+                  alt="Dorry AI Assistant" 
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full animate-pulse"></div>
               

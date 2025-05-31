@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,6 +58,13 @@
     @apply border-border;
   }
 
+  /* Optimisation critique : éviter le flash au chargement */
+  html {
+    background-color: #0F172A !important;
+    /* Amélioration : transition instantanée */
+    transition: none !important;
+  }
+
   body {
     @apply bg-dark-navy text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
@@ -69,30 +77,33 @@
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
-    /* Éviter le flash au chargement */
+    /* Éviter le flash au chargement - CRITIQUE */
     background-color: #0F172A !important;
     min-height: 100vh;
-  }
-
-  /* Optimisation critique : éviter le flash */
-  html {
-    background-color: #0F172A !important;
+    /* Transition instantanée */
+    transition: none !important;
   }
 
   #root {
     background-color: #0F172A !important;
     min-height: 100vh;
+    /* Transition instantanée */
+    transition: none !important;
   }
 
-  /* Masquer le contenu critique une fois React chargé */
+  /* Masquer le contenu critique une fois React chargé - AMÉLIORÉ */
   [data-react-loaded] .critical-nav,
   [data-react-loaded] .critical-hero {
     display: none !important;
+    /* Transition ultra-rapide */
+    transition: opacity 0.1s ease !important;
   }
 
-  /* Force la couleur blanche sur tous les éléments */
+  /* Force la couleur blanche sur tous les éléments - OPTIMISÉ */
   *, *::before, *::after {
     color: inherit !important;
+    /* Pas de transition sur le texte pour éviter le flash */
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
   }
 
   /* Amélioration du rendu des polices pour les pages sombres */
@@ -154,6 +165,23 @@
 
   .text-foreground-force {
     color: rgb(250 250 250) !important;
+  }
+
+  /* OPTIMISATION CRITIQUE : Amélioration du chargement instantané */
+  .critical-nav,
+  .critical-hero {
+    /* Affichage immédiat sans transition */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Optimisation des images pour un chargement instantané */
+  img[loading="eager"] {
+    /* Force le chargement immédiat */
+    content-visibility: visible !important;
+    contain-intrinsic-size: auto !important;
   }
 
   /* Mobile-specific text improvements pour TOUS les appareils */
@@ -219,6 +247,8 @@
     }
   }
 }
+
+/* ... keep existing code (all @layer components and keyframes) */
 
 @layer components {
   .gradient-bg {
@@ -394,7 +424,7 @@
   }
 }
 
-/* Optimisations des animations pour de meilleures performances */
+/* Optimisations des animations pour de meilleures performances - AMÉLIORÉES */
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(0, 184, 212, 0.7);
