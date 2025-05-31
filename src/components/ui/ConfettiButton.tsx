@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Button } from './button';
-import { useNavigate } from 'react-router-dom';
 
 interface ConfettiButtonProps {
   children: React.ReactNode;
@@ -21,7 +20,6 @@ export const ConfettiButton = ({
   href
 }: ConfettiButtonProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const navigate = useNavigate();
 
   const createConfetti = () => {
     const button = document.activeElement as HTMLElement;
@@ -78,10 +76,10 @@ export const ConfettiButton = ({
     setIsAnimating(true);
     createConfetti();
     
-    // Petit délai pour permettre à l'animation de démarrer avant la navigation
+    // Navigation directe vers la page
     setTimeout(() => {
       if (href) {
-        navigate(href);
+        window.location.href = href;
       }
       onClick?.();
     }, 100);
