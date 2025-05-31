@@ -59,7 +59,7 @@ export const HeroSection = () => {
             <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-6 md:mb-8 px-2 md:px-0">
               Captez chaque moment, analysez en profondeur, et obtenez des comptes rendus précis sans lever le petit doigt.
             </p>
-            <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0 animate-fadeInUp" style={{ animationDelay: '0.9s' }}>
+            <div className="flex flex-col items-center md:justify-start mb-8 md:mb-0">
               <ConfettiButton href="/support" className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all mb-8 md:mb-0">
                 Demander l'accès
               </ConfettiButton>
