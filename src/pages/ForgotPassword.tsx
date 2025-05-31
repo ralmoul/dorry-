@@ -404,13 +404,13 @@ const ForgotPassword = () => {
           }
 
           .auth-footer a {
-            color: #00B8D4;
+            color: #FFFFFF;
             text-decoration: none;
             transition: color 0.3s ease;
           }
 
           .auth-footer a:hover {
-            color: #6A11CB;
+            color: #00B8D4;
             text-decoration: underline;
           }
 
