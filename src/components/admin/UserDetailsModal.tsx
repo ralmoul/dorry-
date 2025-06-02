@@ -41,6 +41,7 @@ export const UserDetailsModal = ({
 
   console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.first_name, user.last_name, 'Approuvé:', isApproved, 'En attente:', isPending);
   console.log('🔍 [DEBUG] Début rendu des actions - isPending:', isPending, 'isApproved:', isApproved);
+  console.log('🎯 [DEBUG] Rendu section actions - isPending:', isPending, 'isApproved:', isApproved);
 
   const handleRgpdDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -184,12 +185,9 @@ export const UserDetailsModal = ({
 
             {/* Actions optimisées mobile */}
             <div className="flex flex-col gap-2 sm:gap-3 pt-4 border-t border-bright-turquoise/20">
-              {console.log('🎯 [DEBUG] Rendu section actions - isPending:', isPending, 'isApproved:', isApproved)}
-              
               {/* Actions pour utilisateurs en attente */}
               {isPending && (
                 <>
-                  {console.log('🟡 [DEBUG] Affichage boutons utilisateur en attente')}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Button
                       onClick={() => onApprove?.(user.id)}
@@ -213,7 +211,6 @@ export const UserDetailsModal = ({
               {/* Actions pour utilisateurs approuvés */}
               {isApproved && (
                 <>
-                  {console.log('🟢 [DEBUG] Affichage boutons utilisateur approuvé')}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Button
                       onClick={() => onRevoke?.(user.id)}
@@ -236,7 +233,6 @@ export const UserDetailsModal = ({
               )}
               
               {/* Bouton suppression définitive - TOUJOURS AFFICHÉ */}
-              {console.log('🔴 [DEBUG] Affichage bouton suppression définitive')}
               <Button
                 onClick={() => onDelete?.(user.id)}
                 variant="outline"
