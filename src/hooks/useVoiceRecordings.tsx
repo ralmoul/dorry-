@@ -212,15 +212,35 @@ export const useVoiceRecordings = () => {
 
   const getRecordingBlob = (recording: VoiceRecording): Blob => {
     try {
+      console.log('🎵 [RECORDINGS] Converting recording to blob:', {
+        id: recording.id,
+        blobType: recording.blob_type,
+        dataLength: recording.blob_data?.length || 0
+      });
+      
+      if (!recording.blob_data) {
+        throw new Error('Pas de données audio disponibles');
+      }
+      
+      // Decode base64 to binary
       const binaryString = atob(recording.blob_data);
       const bytes = new Uint8Array(binaryString.length);
+      
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
-      return new Blob([bytes], { type: recording.blob_type });
+      
+      const blob = new Blob([bytes], { type: recording.blob_type || 'audio/webm' });
+      
+      console.log('✅ [RECORDINGS] Blob created successfully:', {
+        size: blob.size,
+        type: blob.type
+      });
+      
+      return blob;
     } catch (error) {
       console.error('❌ [RECORDINGS] Error converting recording to blob:', error);
-      throw new Error('Impossible de lire l\'enregistrement');
+      throw new Error('Impossible de lire l\'enregistrement: ' + (error instanceof Error ? error.message : 'Erreur inconnue'));
     }
   };
 
