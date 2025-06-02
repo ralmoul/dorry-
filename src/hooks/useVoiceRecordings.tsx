@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -187,26 +186,64 @@ export const useVoiceRecordings = () => {
   const deleteRecording = async (
     recordingId: string
   ): Promise<{ success: boolean; message?: string }> => {
+    if (!user) {
+      console.error('❌ [RECORDINGS] No user authenticated for deletion');
+      return { success: false, message: 'Utilisateur non connecté' };
+    }
+
     try {
-      console.log('🗑️ [RECORDINGS] Deleting recording:', recordingId);
+      console.log('🗑️ [RECORDINGS] Attempting to delete recording:', {
+        recordingId,
+        userId: user.id
+      });
       
+      // Vérifier d'abord que l'enregistrement existe et appartient à l'utilisateur
+      const { data: existingRecording, error: checkError } = await supabase
+        .from('voice_recordings')
+        .select('id, user_id')
+        .eq('id', recordingId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (checkError) {
+        console.error('❌ [RECORDINGS] Error checking recording existence:', checkError);
+        return { success: false, message: 'Enregistrement introuvable' };
+      }
+
+      if (!existingRecording) {
+        console.error('❌ [RECORDINGS] Recording not found or not owned by user');
+        return { success: false, message: 'Enregistrement introuvable ou non autorisé' };
+      }
+
+      console.log('✅ [RECORDINGS] Recording found, proceeding with deletion');
+
+      // Procéder à la suppression
       const { error: deleteError } = await supabase
         .from('voice_recordings')
         .delete()
         .eq('id', recordingId)
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
 
       if (deleteError) {
-        console.error('❌ [RECORDINGS] Error deleting recording:', deleteError);
-        return { success: false, message: 'Erreur lors de la suppression' };
+        console.error('❌ [RECORDINGS] Supabase deletion error:', {
+          error: deleteError,
+          code: deleteError.code,
+          message: deleteError.message,
+          details: deleteError.details
+        });
+        return { success: false, message: `Erreur lors de la suppression: ${deleteError.message}` };
       }
 
-      console.log('✅ [RECORDINGS] Recording deleted successfully');
+      console.log('✅ [RECORDINGS] Recording deleted successfully from database');
+      
+      // Mettre à jour l'état local immédiatement pour une meilleure UX
+      setRecordings(prev => prev.filter(recording => recording.id !== recordingId));
+      
       return { success: true, message: 'Enregistrement supprimé avec succès' };
       
     } catch (error) {
-      console.error('💥 [RECORDINGS] Unexpected error:', error);
-      return { success: false, message: 'Une erreur inattendue est survenue' };
+      console.error('💥 [RECORDINGS] Unexpected error during deletion:', error);
+      return { success: false, message: 'Une erreur inattendue est survenue lors de la suppression' };
     }
   };
 
