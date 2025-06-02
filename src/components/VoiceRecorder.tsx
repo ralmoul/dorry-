@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,10 +57,10 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
   const { toast } = useToast();
   const { 
-    hasConsent, 
     showConsentModal, 
     requestConsent, 
-    closeConsentModal 
+    giveConsent, 
+    refuseConsent 
   } = useConsentManager();
 
   const {
@@ -78,26 +79,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   } = useVoiceRecordings();
 
   const {
+    isRecording: isRecordingActive,
+    recordingTime,
     startRecording,
-    stopRecording,
-    recordingDuration,
-    isRecordingActive
-  } = useAudioRecorder({
-    onRecordingComplete: (blob, duration) => {
-      setRecordingToSave({ blob, duration });
-      setShowRecordingConfirmation(true);
-      setIsRecording(false);
-    },
-    onError: (error) => {
-      console.error('Recording error:', error);
-      toast({
-        title: "Erreur d'enregistrement",
-        description: error,
-        variant: "destructive"
-      });
-      setIsRecording(false);
-    }
-  });
+    stopRecording
+  } = useAudioRecorder();
 
   useEffect(() => {
     return () => {
@@ -112,11 +98,6 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   }, []);
 
   const handleStartRecording = async () => {
-    if (!hasConsent) {
-      requestConsent();
-      return;
-    }
-
     try {
       await startRecording();
       setIsRecording(true);
@@ -366,13 +347,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             <div className="flex items-center space-x-2 text-bright-turquoise">
               <Clock className="w-4 h-4" />
               <span className="text-lg font-mono">
-                {formatDuration(recordingDuration)}
+                {formatDuration(recordingTime)}
               </span>
             </div>
           )}
 
           {/* AI Visualization */}
-          <AIVisualizer isActive={isRecording} />
+          <AIVisualizer 
+            isRecording={isRecording}
+            onRecordingToggle={() => {}}
+            isProcessing={false}
+          />
         </CardContent>
       </Card>
 
@@ -526,15 +511,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       {/* Modals */}
       <ConsentModal
         isOpen={showConsentModal}
-        onAccept={() => {
-          closeConsentModal();
-          handleStartRecording();
-        }}
-        onDecline={closeConsentModal}
+        onConsent={giveConsent}
+        onCancel={refuseConsent}
       />
 
       <RecordingConfirmation
-        isOpen={showRecordingConfirmation}
+        open={showRecordingConfirmation}
         onSave={handleSaveRecording}
         onDiscard={handleDiscardRecording}
         duration={recordingToSave?.duration || 0}
@@ -557,7 +539,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+        </AlertDialogFooter>
+      </AlertDialogContent>
       </AlertDialog>
     </div>
   );
