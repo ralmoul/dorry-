@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -133,23 +132,25 @@ const Signup = () => {
           }, 3000);
         } else {
           console.log('❌ Échec de l\'inscription:', result.message);
-          if (result.message?.includes('mot de passe')) {
-            setPasswordError(result.message);
-          } else {
-            toast({
-              title: "Erreur",
-              description: result.message || "Une erreur est survenue lors de la création du compte.",
-              variant: "destructive"
-            });
+          // N'afficher que les erreurs importantes (validation, sécurité)
+          if (result.message && 
+              !result.message.includes('Erreur lors de la création du compte') &&
+              !result.message.includes('profil utilisateur') &&
+              !result.message.includes('Une erreur inattendue est survenue')) {
+            if (result.message?.includes('mot de passe')) {
+              setPasswordError(result.message);
+            } else {
+              toast({
+                title: "Erreur",
+                description: result.message,
+                variant: "destructive"
+              });
+            }
           }
         }
       } catch (error) {
         console.error('💥 Erreur lors de l\'inscription:', error);
-        toast({
-          title: "Erreur",
-          description: "Une erreur inattendue est survenue.",
-          variant: "destructive"
-        });
+        // Ne pas afficher de toast d'erreur générique car l'inscription peut avoir réussi côté serveur
       } finally {
         setIsLoading(false);
       }

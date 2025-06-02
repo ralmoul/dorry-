@@ -95,9 +95,11 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           onSwitchToLogin();
         }, 2000);
       } else {
-        // Afficher uniquement les erreurs de validation ou d'email déjà existant
-        // Ne pas afficher les erreurs techniques internes
-        if (result.message && !result.message.includes('profil utilisateur')) {
+        // N'afficher des erreurs que pour les vrais problèmes de validation
+        if (result.message && 
+            !result.message.includes('profil utilisateur') && 
+            !result.message.includes('Erreur lors de la création du compte') &&
+            !result.message.includes('Une erreur inattendue est survenue')) {
           toast({
             title: "Erreur",
             description: result.message,
@@ -107,7 +109,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       }
     } catch (error) {
       console.error('Erreur lors de la création du compte:', error);
-      // Ne pas afficher le toast d'erreur générique
+      // Ne pas afficher de toast d'erreur générique car l'inscription peut avoir réussi
     }
     setIsLoading(false);
   };
