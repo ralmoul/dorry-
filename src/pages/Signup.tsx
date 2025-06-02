@@ -59,7 +59,7 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🔄 Tentative de soumission du formulaire');
+    console.log('🔄 [SIGNUP] Tentative de soumission du formulaire');
     
     setEmailError('');
     setPasswordError('');
@@ -103,23 +103,20 @@ const Signup = () => {
       setIsLoading(true);
       
       try {
-        console.log('🚀 Données envoyées:', formData);
+        console.log('🚀 [SIGNUP] Données envoyées:', formData);
         
         const result = await enhancedAuthService.secureSignup(formData);
         
-        // LOG DÉTAILLÉ DE LA RÉPONSE
-        console.log('📋 Réponse complète:', result);
-        console.log('📋 result.success:', result.success);
-        console.log('📋 Type de result.success:', typeof result.success);
-        console.log('📋 result.message:', result.message);
+        console.log('📋 [SIGNUP] Réponse complète:', result);
+        console.log('📋 [SIGNUP] result.success:', result.success);
+        console.log('📋 [SIGNUP] result.message:', result.message);
         
-        // FORCER LE SUCCÈS TEMPORAIREMENT POUR TESTER
-        if (result.success || result.message?.includes('envoyée') || result.message?.includes('succès')) {
-          console.log('✅ Traité comme succès');
+        if (result.success) {
+          console.log('✅ [SIGNUP] Traité comme succès');
           
           toast({
             title: "✅ Demande envoyée avec succès !",
-            description: "Votre demande de création de compte a été envoyée.",
+            description: result.message || "Votre demande de création de compte a été envoyée.",
             duration: 5000,
           });
           
@@ -135,12 +132,13 @@ const Signup = () => {
           setAcceptedTerms(false);
           setAcceptedPrivacy(false);
           
+          // Redirection vers la page d'accueil après 2 secondes
           setTimeout(() => {
-            navigate('/login');
-          }, 3000);
+            navigate('/');
+          }, 2000);
           
         } else {
-          console.log('❌ Traité comme échec:', result);
+          console.log('❌ [SIGNUP] Traité comme échec:', result);
           toast({
             title: "Erreur",
             description: result.message || "Erreur inconnue",
@@ -148,7 +146,7 @@ const Signup = () => {
           });
         }
       } catch (error) {
-        console.error('💥 Erreur:', error);
+        console.error('💥 [SIGNUP] Erreur:', error);
         toast({
           title: "Erreur",
           description: "Erreur de connexion",

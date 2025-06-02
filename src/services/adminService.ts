@@ -71,27 +71,19 @@ export const adminService = {
 
   async deleteUser(userId: string): Promise<void> {
     try {
-      // Supprimer le profil de la table profiles
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
+      console.log('🗑️ [ADMIN] Début suppression utilisateur:', userId);
+      
+      // Appeler la fonction Edge pour supprimer complètement l'utilisateur
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId }
+      });
 
       if (error) {
-        console.error('❌ [ADMIN] Erreur suppression profil:', error);
+        console.error('❌ [ADMIN] Erreur suppression via Edge Function:', error);
         throw error;
       }
 
-      // Journaliser la suppression
-      await supabase
-        .from('security_audit_logs')
-        .insert({
-          user_id: null,
-          event_type: 'admin_user_deleted',
-          details: { deleted_user_id: userId }
-        });
-
-      console.log('✅ [ADMIN] Utilisateur supprimé:', userId);
+      console.log('✅ [ADMIN] Utilisateur supprimé complètement:', data);
     } catch (error) {
       console.error('💥 [ADMIN] Erreur critique suppression:', error);
       throw error;

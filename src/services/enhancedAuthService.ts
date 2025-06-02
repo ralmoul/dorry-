@@ -188,22 +188,22 @@ export const enhancedAuthService = {
       const clientIP = await securityService.getClientIP();
       const userAgent = navigator.userAgent;
 
-      // 3️⃣ Vérifier d'abord si l'utilisateur existe déjà dans notre système
+      // 3️⃣ Vérifier d'abord si l'utilisateur existe dans profiles
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id, email, is_approved')
         .eq('email', cleanEmail)
-        .single();
+        .maybeSingle();
 
       if (existingProfile) {
-        console.log('📧 [SECURE_SIGNUP] Utilisateur déjà dans le système:', existingProfile);
+        console.log('📧 [SECURE_SIGNUP] Utilisateur déjà dans profiles:', existingProfile);
         return { 
           success: true, 
           message: 'Votre demande d\'accès a été envoyée avec succès ! Votre email doit être vérifié et votre compte approuvé avant de pouvoir vous connecter.' 
         };
       }
 
-      // 4️⃣ Procéder à l'inscription normale
+      // 4️⃣ Procéder à l'inscription
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: cleanEmail,
         password: data.password,
@@ -218,29 +218,52 @@ export const enhancedAuthService = {
       });
 
       if (authError) {
-        console.error('Erreur Supabase Auth:', authError);
+        console.error('❌ [SECURE_SIGNUP] Erreur Supabase Auth:', authError);
         
-        // Gérer spécifiquement l'erreur "utilisateur déjà enregistré"
+        // Si utilisateur existe dans auth mais pas dans profiles, on nettoie
         if (authError.message === 'User already registered' || authError.code === 'user_already_exists') {
-          // Vérifier encore une fois si le profil existe maintenant
-          const { data: profileCheck } = await supabase
-            .from('profiles')
-            .select('id, email')
-            .eq('email', cleanEmail)
-            .single();
+          console.log('🧹 [SECURE_SIGNUP] Utilisateur existe dans auth mais pas dans profiles - situation anormale');
+          
+          // Essayer de récupérer l'utilisateur depuis auth
+          try {
+            const { data: authUser } = await supabase.auth.signInWithPassword({
+              email: cleanEmail,
+              password: data.password,
+            });
             
-          if (profileCheck) {
-            return { 
-              success: true, 
-              message: 'Votre demande d\'accès a été envoyée avec succès ! Votre email doit être vérifié et votre compte approuvé avant de pouvoir vous connecter.' 
-            };
-          } else {
-            // L'utilisateur existe dans auth.users mais pas dans profiles - situation d'erreur
-            return { 
-              success: false, 
-              message: 'Une erreur est survenue. Veuillez contacter le support.' 
-            };
+            if (authUser.user) {
+              // Créer le profil manquant
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: authUser.user.id,
+                  first_name: data.firstName.trim(),
+                  last_name: data.lastName.trim(),
+                  email: cleanEmail,
+                  phone: data.phone.trim(),
+                  company: data.company.trim(),
+                  is_approved: false
+                });
+
+              // Déconnecter immédiatement
+              await supabase.auth.signOut();
+
+              if (!profileError) {
+                console.log('✅ [SECURE_SIGNUP] Profil créé pour utilisateur auth existant');
+                return { 
+                  success: true, 
+                  message: 'Votre demande d\'accès a été envoyée avec succès ! Votre email doit être vérifié et votre compte approuvé avant de pouvoir vous connecter.' 
+                };
+              }
+            }
+          } catch (cleanupError) {
+            console.error('❌ [SECURE_SIGNUP] Erreur lors du nettoyage:', cleanupError);
           }
+          
+          return { 
+            success: false, 
+            message: 'Une erreur est survenue. Veuillez contacter le support.' 
+          };
         }
         
         return { success: false, message: 'Erreur lors de la création du compte' };
@@ -264,15 +287,16 @@ export const enhancedAuthService = {
         });
 
       if (profileError) {
-        console.error('Erreur lors de la création du profil:', profileError);
+        console.error('❌ [SECURE_SIGNUP] Erreur lors de la création du profil:', profileError);
+        // Supprimer l'utilisateur auth si le profil n'a pas pu être créé
         await supabase.auth.admin.deleteUser(authData.user.id);
         return { success: false, message: 'Erreur lors de la création du profil utilisateur' };
       }
 
-      // 6️⃣ Journaliser l'inscription (maintenant que l'utilisateur existe)
+      // 6️⃣ Journaliser l'inscription
       await securityService.logSecurityEvent({
-        user_id: authData.user.id, // Maintenant on a un vrai UUID
-        event_type: 'account_locked', // En attente d'approbation
+        user_id: authData.user.id,
+        event_type: 'user_signup',
         ip_address: clientIP,
         user_agent: userAgent,
         details: { 
@@ -284,6 +308,8 @@ export const enhancedAuthService = {
 
       // 7️⃣ Déconnecter immédiatement (compte en attente)
       await supabase.auth.signOut();
+      
+      console.log('✅ [SECURE_SIGNUP] Inscription réussie pour:', cleanEmail);
       
       return { 
         success: true, 
