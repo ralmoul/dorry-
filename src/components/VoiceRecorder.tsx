@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X } from 'lucide-react';
+import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X, ChevronDown } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useVoiceRecordings } from '@/hooks/useVoiceRecordings';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+
 interface VoiceRecorderProps {
   onOpenSettings: () => void;
   onOpenUpcomingFeatures: () => void;
 }
+
 export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   onOpenSettings,
   onOpenUpcomingFeatures
@@ -50,10 +52,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     deleteRecording,
     getRecordingBlob
   } = useVoiceRecordings();
+  
   const [waveform, setWaveform] = useState<number[]>(Array(20).fill(5));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [showAllRecordings, setShowAllRecordings] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const waveformRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -120,6 +124,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isRecording, isPaused]);
+
   const handleMicClick = () => {
     if (isRecording) {
       stopRecording();
@@ -127,6 +132,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       startRecording();
     }
   };
+
   const handlePauseResumeClick = () => {
     if (isPaused) {
       resumeRecording();
@@ -134,6 +140,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       pauseRecording();
     }
   };
+
   const formatDateDisplay = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', {
@@ -142,6 +149,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       year: 'numeric'
     });
   };
+
   const formatTimeDisplay = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('fr-FR', {
@@ -149,14 +157,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       minute: '2-digit'
     });
   };
+
   const getDefaultName = (dateString: string) => {
     const date = new Date(dateString);
     return `Enregistrement du ${formatDateDisplay(dateString)}, ${formatTimeDisplay(dateString)}`;
   };
+
   const handleStartEdit = (recording: any) => {
     setEditingId(recording.id);
     setEditingName(recording.name || getDefaultName(recording.created_at));
   };
+
   const handleSaveEdit = async () => {
     if (!editingId) return;
     const trimmedName = editingName.trim();
@@ -210,10 +221,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       });
     }
   };
+
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditingName('');
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSaveEdit();
@@ -221,6 +234,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       handleCancelEdit();
     }
   };
+
   const handlePlay = (recording: any) => {
     if (playingId === recording.id) {
       // Stop current playback
@@ -261,6 +275,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       });
     }
   };
+
   const handleDelete = async (recordingId: string) => {
     try {
       const result = await deleteRecording(recordingId);
@@ -284,12 +299,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       });
     }
   };
+
   const getDaysUntilExpiry = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = 7 * 24 * 60 * 60 * 1000 - (now.getTime() - date.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
+
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -303,6 +320,18 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
     return 'Bonjour, Utilisateur';
   };
+
+  // Détermine quels enregistrements afficher
+  const getDisplayedRecordings = () => {
+    if (showAllRecordings || recordings.length <= 5) {
+      return recordings;
+    }
+    return recordings.slice(0, 5);
+  };
+
+  const displayedRecordings = getDisplayedRecordings();
+  const hasMoreRecordings = recordings.length > 5;
+
   return <>
       {/* Modal de consentement RGPD */}
       <ConsentModal isOpen={showConsentModal} onConsentGiven={handleConsentGiven} onConsentRefused={handleConsentRefused} />
@@ -505,7 +534,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                         </p>
                       </div> : <div className="space-y-3">
                         <AnimatePresence>
-                          {recordings.map(recording => <motion.div key={recording.id} initial={{
+                          {displayedRecordings.map(recording => <motion.div key={recording.id} initial={{
                       opacity: 0,
                       y: 20
                     }} animate={{
@@ -566,8 +595,21 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                             </motion.div>)}
                         </AnimatePresence>
                         
+                        {/* Bouton "Voir plus" si il y a plus de 5 enregistrements */}
+                        {hasMoreRecordings && !showAllRecordings && (
+                          <div className="text-center mt-4">
+                            <Button
+                              variant="ghost"
+                              onClick={() => setShowAllRecordings(true)}
+                              className="text-cyan-400 hover:bg-cyan-400/10"
+                            >
+                              <ChevronDown className="w-4 h-4 mr-2" />
+                              Voir plus ({recordings.length - 5} autres)
+                            </Button>
+                          </div>
+                        )}
+                        
                         <div className="text-center mt-6">
-                          
                           <p className="text-slate-400 text-xs">
                             Vos enregistrements sont synchronisés sur tous vos appareils et automatiquement supprimés après 7 jours.<br />
                             Dorry ne partage rien sans votre accord.
