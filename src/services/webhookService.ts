@@ -43,7 +43,7 @@ export const sendToWebhook = async (data: WebhookData): Promise<boolean> => {
 
     console.log('📦 FormData créé avec les champs:', Array.from(formData.keys()));
 
-    const response = await fetch('https://hook.eu2.make.com/w6l4q86t46q78n8nfpwaxe3w1bi78wvi', {
+    const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       body: formData,
     });
