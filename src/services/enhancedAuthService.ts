@@ -188,7 +188,22 @@ export const enhancedAuthService = {
       const clientIP = await securityService.getClientIP();
       const userAgent = navigator.userAgent;
 
-      // 3️⃣ Procéder à l'inscription normale
+      // 3️⃣ Vérifier d'abord si l'utilisateur existe déjà dans notre système
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id, email, is_approved')
+        .eq('email', cleanEmail)
+        .single();
+
+      if (existingProfile) {
+        console.log('📧 [SECURE_SIGNUP] Utilisateur déjà dans le système:', existingProfile);
+        return { 
+          success: true, 
+          message: 'Votre demande d\'accès a été envoyée avec succès ! Votre email doit être vérifié et votre compte approuvé avant de pouvoir vous connecter.' 
+        };
+      }
+
+      // 4️⃣ Procéder à l'inscription normale
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: cleanEmail,
         password: data.password,
@@ -207,10 +222,25 @@ export const enhancedAuthService = {
         
         // Gérer spécifiquement l'erreur "utilisateur déjà enregistré"
         if (authError.message === 'User already registered' || authError.code === 'user_already_exists') {
-          return { 
-            success: true, 
-            message: 'Un compte existe déjà avec cet email. Votre demande a été envoyée avec succès !' 
-          };
+          // Vérifier encore une fois si le profil existe maintenant
+          const { data: profileCheck } = await supabase
+            .from('profiles')
+            .select('id, email')
+            .eq('email', cleanEmail)
+            .single();
+            
+          if (profileCheck) {
+            return { 
+              success: true, 
+              message: 'Votre demande d\'accès a été envoyée avec succès ! Votre email doit être vérifié et votre compte approuvé avant de pouvoir vous connecter.' 
+            };
+          } else {
+            // L'utilisateur existe dans auth.users mais pas dans profiles - situation d'erreur
+            return { 
+              success: false, 
+              message: 'Une erreur est survenue. Veuillez contacter le support.' 
+            };
+          }
         }
         
         return { success: false, message: 'Erreur lors de la création du compte' };
@@ -220,7 +250,7 @@ export const enhancedAuthService = {
         return { success: false, message: 'Erreur lors de la création du compte' };
       }
 
-      // 4️⃣ Créer le profil
+      // 5️⃣ Créer le profil
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -239,7 +269,7 @@ export const enhancedAuthService = {
         return { success: false, message: 'Erreur lors de la création du profil utilisateur' };
       }
 
-      // 5️⃣ Journaliser l'inscription (maintenant que l'utilisateur existe)
+      // 6️⃣ Journaliser l'inscription (maintenant que l'utilisateur existe)
       await securityService.logSecurityEvent({
         user_id: authData.user.id, // Maintenant on a un vrai UUID
         event_type: 'account_locked', // En attente d'approbation
@@ -252,7 +282,7 @@ export const enhancedAuthService = {
         }
       });
 
-      // 6️⃣ Déconnecter immédiatement (compte en attente)
+      // 7️⃣ Déconnecter immédiatement (compte en attente)
       await supabase.auth.signOut();
       
       return { 
