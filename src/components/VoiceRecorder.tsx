@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X, ChevronDown } from 'lucide-react';
+import { Mic, Pause, Play, Send, Edit3, Trash2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { useVoiceRecordings } from '@/hooks/useVoiceRecordings';
 import { RecordingConfirmation } from '@/components/ui/RecordingConfirmation';
@@ -595,17 +596,28 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                             </motion.div>)}
                         </AnimatePresence>
                         
-                        {/* Bouton "Voir plus" si il y a plus de 5 enregistrements */}
-                        {hasMoreRecordings && !showAllRecordings && (
+                        {/* Boutons "Voir plus" et "Voir moins" */}
+                        {hasMoreRecordings && (
                           <div className="text-center mt-4">
-                            <Button
-                              variant="ghost"
-                              onClick={() => setShowAllRecordings(true)}
-                              className="text-cyan-400 hover:bg-cyan-400/10"
-                            >
-                              <ChevronDown className="w-4 h-4 mr-2" />
-                              Voir plus ({recordings.length - 5} autres)
-                            </Button>
+                            {!showAllRecordings ? (
+                              <Button
+                                variant="ghost"
+                                onClick={() => setShowAllRecordings(true)}
+                                className="text-cyan-400 hover:bg-cyan-400/10"
+                              >
+                                <ChevronDown className="w-4 h-4 mr-2" />
+                                Voir plus ({recordings.length - 5} autres)
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                onClick={() => setShowAllRecordings(false)}
+                                className="text-cyan-400 hover:bg-cyan-400/10"
+                              >
+                                <ChevronUp className="w-4 h-4 mr-2" />
+                                Voir moins
+                              </Button>
+                            )}
                           </div>
                         )}
                         
