@@ -10,7 +10,7 @@ export const validateUser = (user: User | null): void => {
 };
 
 export const validateWebhookUrl = (): void => {
-  if (WEBHOOK_URL !== 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2') {
+  if (WEBHOOK_URL !== 'https://ralmoul.app.n8n.cloud/webhook-test/11980a15-4394-40a7-a207-915d7cd9bdd1') {
     console.error('❌ [WEBHOOK] ERREUR CRITIQUE: URL incorrecte!');
     throw new Error('URL webhook incorrecte');
   }
