@@ -106,9 +106,10 @@ const Signup = () => {
         console.log('🚀 Tentative d\'inscription sécurisée pour:', formData.email);
         
         const result = await enhancedAuthService.secureSignup(formData);
+        console.log('📋 Résultat de l\'inscription:', result);
 
         if (result.success) {
-          console.log('✅ Inscription réussie');
+          console.log('✅ Inscription réussie - affichage du toast de succès');
           toast({
             title: "Demande envoyée avec succès",
             description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
@@ -126,17 +127,15 @@ const Signup = () => {
           setAcceptedTerms(false);
           setAcceptedPrivacy(false);
           
-          // Navigation React Router au lieu de window.location.href
+          // Navigation React Router avec délai pour que l'utilisateur voie le message
           setTimeout(() => {
             navigate('/login');
           }, 3000);
         } else {
           console.log('❌ Échec de l\'inscription:', result.message);
-          // N'afficher que les erreurs importantes (validation, sécurité)
-          if (result.message && 
-              !result.message.includes('Erreur lors de la création du compte') &&
-              !result.message.includes('profil utilisateur') &&
-              !result.message.includes('Une erreur inattendue est survenue')) {
+          
+          // Afficher l'erreur appropriée
+          if (result.message) {
             if (result.message?.includes('mot de passe')) {
               setPasswordError(result.message);
             } else {
@@ -146,11 +145,21 @@ const Signup = () => {
                 variant: "destructive"
               });
             }
+          } else {
+            toast({
+              title: "Erreur",
+              description: "Une erreur est survenue lors de la création du compte.",
+              variant: "destructive"
+            });
           }
         }
       } catch (error) {
         console.error('💥 Erreur lors de l\'inscription:', error);
-        // Ne pas afficher de toast d'erreur générique car l'inscription peut avoir réussi côté serveur
+        toast({
+          title: "Erreur",
+          description: "Une erreur inattendue est survenue.",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }

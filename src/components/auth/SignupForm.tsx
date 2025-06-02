@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -76,11 +75,15 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
 
     try {
       const result = await signup(formData);
+      console.log('Résultat de l\'inscription:', result);
+      
       if (result.success) {
+        console.log('✅ Inscription réussie - affichage du toast de succès');
         toast({
-          title: "Demande envoyée",
+          title: "Demande envoyée avec succès",
           description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
         });
+        
         // Réinitialiser le formulaire
         setFormData({
           firstName: '',
@@ -90,26 +93,35 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           company: '',
           password: ''
         });
-        // Navigation React Router au lieu de window.location.href
+        
+        // Navigation avec délai pour que l'utilisateur voie le message
         setTimeout(() => {
           onSwitchToLogin();
         }, 2000);
       } else {
-        // N'afficher des erreurs que pour les vrais problèmes de validation
-        if (result.message && 
-            !result.message.includes('profil utilisateur') && 
-            !result.message.includes('Erreur lors de la création du compte') &&
-            !result.message.includes('Une erreur inattendue est survenue')) {
+        console.log('❌ Échec de l\'inscription:', result.message);
+        // Afficher seulement les vraies erreurs de validation
+        if (result.message) {
           toast({
             title: "Erreur",
             description: result.message,
             variant: "destructive"
           });
+        } else {
+          toast({
+            title: "Erreur",
+            description: "Une erreur est survenue lors de la création du compte.",
+            variant: "destructive"
+          });
         }
       }
     } catch (error) {
-      console.error('Erreur lors de la création du compte:', error);
-      // Ne pas afficher de toast d'erreur générique car l'inscription peut avoir réussi
+      console.error('💥 Erreur lors de la création du compte:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue est survenue.",
+        variant: "destructive"
+      });
     }
     setIsLoading(false);
   };
