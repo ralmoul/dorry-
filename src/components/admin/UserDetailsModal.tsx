@@ -1,4 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Trash2 } from 'lucide-react';
@@ -39,6 +40,7 @@ export const UserDetailsModal = ({
   const isApproved = user.is_approved;
 
   console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.first_name, user.last_name, 'Approuvé:', isApproved, 'En attente:', isPending);
+  console.log('🔍 [DEBUG] Début rendu des actions - isPending:', isPending, 'isApproved:', isApproved);
 
   const handleRgpdDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,6 +83,9 @@ export const UserDetailsModal = ({
               <User className="h-5 w-5 sm:h-6 sm:w-6 text-bright-turquoise flex-shrink-0" />
               <span className="break-words">Détails de l'utilisateur</span>
             </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Informations détaillées et actions disponibles pour cet utilisateur
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
@@ -179,50 +184,59 @@ export const UserDetailsModal = ({
 
             {/* Actions optimisées mobile */}
             <div className="flex flex-col gap-2 sm:gap-3 pt-4 border-t border-bright-turquoise/20">
+              {console.log('🎯 [DEBUG] Rendu section actions - isPending:', isPending, 'isApproved:', isApproved)}
+              
               {/* Actions pour utilisateurs en attente */}
               {isPending && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Button
-                    onClick={() => onApprove?.(user.id)}
-                    className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 h-10 sm:h-auto text-sm order-1"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Approuver
-                  </Button>
-                  <Button
-                    onClick={() => onReject?.(user.id)}
-                    variant="outline"
-                    className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 h-10 sm:h-auto text-sm order-2"
-                  >
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Rejeter
-                  </Button>
-                </div>
+                <>
+                  {console.log('🟡 [DEBUG] Affichage boutons utilisateur en attente')}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => onApprove?.(user.id)}
+                      className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 h-10 sm:h-auto text-sm order-1"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approuver
+                    </Button>
+                    <Button
+                      onClick={() => onReject?.(user.id)}
+                      variant="outline"
+                      className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 h-10 sm:h-auto text-sm order-2"
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Rejeter
+                    </Button>
+                  </div>
+                </>
               )}
               
               {/* Actions pour utilisateurs approuvés */}
               {isApproved && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Button
-                    onClick={() => onRevoke?.(user.id)}
-                    variant="outline"
-                    className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 h-10 sm:h-auto text-sm order-1"
-                  >
-                    Révoquer l'accès
-                  </Button>
-                  <Button
-                    onClick={handleRgpdDeleteClick}
-                    variant="outline"
-                    className="bg-red-600/20 border-red-600/40 text-red-300 hover:bg-red-600/30 font-semibold h-10 sm:h-auto text-sm order-2"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">RGPD - Droit à l'effacement</span>
-                    <span className="sm:hidden">Suppression RGPD</span>
-                  </Button>
-                </div>
+                <>
+                  {console.log('🟢 [DEBUG] Affichage boutons utilisateur approuvé')}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => onRevoke?.(user.id)}
+                      variant="outline"
+                      className="bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 h-10 sm:h-auto text-sm order-1"
+                    >
+                      Révoquer l'accès
+                    </Button>
+                    <Button
+                      onClick={handleRgpdDeleteClick}
+                      variant="outline"
+                      className="bg-red-600/20 border-red-600/40 text-red-300 hover:bg-red-600/30 font-semibold h-10 sm:h-auto text-sm order-2"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">RGPD - Droit à l'effacement</span>
+                      <span className="sm:hidden">Suppression RGPD</span>
+                    </Button>
+                  </div>
+                </>
               )}
               
               {/* Bouton suppression définitive - TOUJOURS AFFICHÉ */}
+              {console.log('🔴 [DEBUG] Affichage bouton suppression définitive')}
               <Button
                 onClick={() => onDelete?.(user.id)}
                 variant="outline"
