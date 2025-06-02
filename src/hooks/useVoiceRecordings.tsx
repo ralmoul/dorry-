@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -5,13 +6,9 @@ import { VoiceRecording } from '@/types/auth';
 
 export const useVoiceRecordings = () => {
   const [recordings, setRecordings] = useState<VoiceRecording[]>([]);
-  const [displayedRecordings, setDisplayedRecordings] = useState<VoiceRecording[]>([]);
-  const [showAll, setShowAll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
-
-  const INITIAL_DISPLAY_COUNT = 5;
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -19,7 +16,6 @@ export const useVoiceRecordings = () => {
       setupRealtimeSubscription();
     } else {
       setRecordings([]);
-      setDisplayedRecordings([]);
       setIsLoading(false);
     }
     
@@ -27,15 +23,6 @@ export const useVoiceRecordings = () => {
       supabase.removeAllChannels();
     };
   }, [isAuthenticated, user]);
-
-  // Update displayed recordings when recordings or showAll changes
-  useEffect(() => {
-    if (showAll) {
-      setDisplayedRecordings(recordings);
-    } else {
-      setDisplayedRecordings(recordings.slice(0, INITIAL_DISPLAY_COUNT));
-    }
-  }, [recordings, showAll]);
 
   const setupRealtimeSubscription = () => {
     if (!user) return;
@@ -114,10 +101,6 @@ export const useVoiceRecordings = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const toggleShowAll = () => {
-    setShowAll(!showAll);
   };
 
   const saveRecording = async (
@@ -241,6 +224,7 @@ export const useVoiceRecordings = () => {
     }
   };
 
+  // Cleanup old recordings (older than 7 days)
   const cleanupOldRecordings = async () => {
     if (!user) return;
     
@@ -268,15 +252,9 @@ export const useVoiceRecordings = () => {
   };
 
   return {
-    recordings: displayedRecordings,
-    allRecordings: recordings,
+    recordings,
     isLoading,
     error,
-    showAll,
-    hasMore: recordings.length > INITIAL_DISPLAY_COUNT,
-    totalCount: recordings.length,
-    displayedCount: displayedRecordings.length,
-    toggleShowAll,
     saveRecording,
     updateRecordingName,
     deleteRecording,
