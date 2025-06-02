@@ -7,6 +7,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Fonction pour nettoyer l'adresse IP
+function cleanIPAddress(ipHeader: string | null): string {
+  if (!ipHeader) return 'unknown';
+  
+  // Prendre seulement la première IP si plusieurs sont présentes
+  const firstIP = ipHeader.split(',')[0].trim();
+  
+  // Vérifier que c'est une IP valide (basique)
+  const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (ipRegex.test(firstIP)) {
+    return firstIP;
+  }
+  
+  return 'unknown';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -112,17 +128,18 @@ serve(async (req) => {
       login_attempts: loginAttempts?.length || 0
     })
 
-    // 3️⃣ Obtenir les informations de l'admin qui effectue la suppression
-    const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+    // 3️⃣ Obtenir les informations de l'admin qui effectue la suppression - CORRIGÉ
+    const rawClientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+    const clientIP = cleanIPAddress(rawClientIP)
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
-    console.log('🔄 [RGPD-DELETE] Starting transactional deletion...')
+    console.log('🔄 [RGPD-DELETE] Starting transactional deletion with clean IP:', clientIP)
 
     // 4️⃣ SUPPRESSION TRANSACTIONNELLE - Tout ou rien
     const { error: deleteError } = await supabaseAdmin.rpc('rgpd_delete_user_complete', {
       target_user_id: userId,
       target_user_email: userProfile.email,
-      admin_ip: clientIP,
+      admin_ip: clientIP === 'unknown' ? null : clientIP,
       admin_user_agent: userAgent,
       export_json: exportedData
     })

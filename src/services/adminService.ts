@@ -53,16 +53,69 @@ export const adminService = {
 
   async rejectUser(userId: string): Promise<void> {
     try {
-      const { error } = await supabase.rpc('reject_user_profile', {
-        user_id: userId
-      });
+      console.log('🚫 [ADMIN] Début rejet et suppression complète utilisateur:', userId);
+      
+      // D'abord récupérer les infos utilisateur pour avoir l'email
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', userId)
+        .single();
 
-      if (error) {
-        console.error('❌ [ADMIN] Erreur rejet:', error);
-        throw error;
+      if (profileError || !userProfile) {
+        console.error('❌ [ADMIN] Utilisateur introuvable pour rejet:', profileError);
+        throw new Error('Utilisateur introuvable');
       }
 
-      console.log('✅ [ADMIN] Utilisateur rejeté:', userId);
+      // Supprimer toutes les données de l'utilisateur rejeté
+      const deletionPromises = [
+        // Supprimer les enregistrements vocaux
+        supabase.from('voice_recordings').delete().eq('user_id', userId),
+        
+        // Supprimer les logs de consentement
+        supabase.from('consent_logs').delete().eq('user_id', userId),
+        
+        // Supprimer les sessions
+        supabase.from('user_sessions').delete().eq('user_id', userId),
+        
+        // Supprimer les paramètres MFA
+        supabase.from('user_mfa_settings').delete().eq('user_id', userId),
+        
+        // Supprimer les codes OTP
+        supabase.from('otp_codes').delete().eq('user_id', userId),
+        
+        // Supprimer les tentatives de connexion par email
+        supabase.from('login_attempts').delete().eq('email', userProfile.email),
+        
+        // Supprimer le profil
+        supabase.from('profiles').delete().eq('id', userId)
+      ];
+
+      // Exécuter toutes les suppressions
+      const results = await Promise.allSettled(deletionPromises);
+      
+      // Vérifier s'il y a eu des erreurs
+      const failures = results.filter(result => result.status === 'rejected');
+      if (failures.length > 0) {
+        console.error('⚠️ [ADMIN] Certaines suppressions ont échoué:', failures);
+        // Continuer quand même car certaines suppressions ont pu réussir
+      }
+
+      // Journaliser la suppression
+      await supabase.from('security_audit_logs').insert({
+        user_id: null, // L'utilisateur n'existe plus
+        event_type: 'user_rejected_and_deleted',
+        details: {
+          rejected_user_id: userId,
+          rejected_user_email: userProfile.email,
+          reason: 'admin_rejection',
+          data_deleted: true
+        },
+        ip_address: null,
+        user_agent: null
+      });
+
+      console.log('✅ [ADMIN] Utilisateur rejeté et données supprimées:', userId);
     } catch (error) {
       console.error('💥 [ADMIN] Erreur critique rejet:', error);
       throw error;
