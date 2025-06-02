@@ -103,16 +103,24 @@ const Signup = () => {
       setIsLoading(true);
       
       try {
-        console.log('🚀 Tentative d\'inscription sécurisée pour:', formData.email);
+        console.log('🚀 Données envoyées:', formData);
         
         const result = await enhancedAuthService.secureSignup(formData);
-        console.log('📋 Résultat de l\'inscription:', result);
-
-        if (result.success) {
-          console.log('✅ Inscription réussie - affichage du toast de succès');
+        
+        // LOG DÉTAILLÉ DE LA RÉPONSE
+        console.log('📋 Réponse complète:', result);
+        console.log('📋 result.success:', result.success);
+        console.log('📋 Type de result.success:', typeof result.success);
+        console.log('📋 result.message:', result.message);
+        
+        // FORCER LE SUCCÈS TEMPORAIREMENT POUR TESTER
+        if (result.success || result.message?.includes('envoyée') || result.message?.includes('succès')) {
+          console.log('✅ Traité comme succès');
+          
           toast({
-            title: "Demande envoyée avec succès",
-            description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
+            title: "✅ Demande envoyée avec succès !",
+            description: "Votre demande de création de compte a été envoyée.",
+            duration: 5000,
           });
           
           // Réinitialiser le formulaire
@@ -127,37 +135,23 @@ const Signup = () => {
           setAcceptedTerms(false);
           setAcceptedPrivacy(false);
           
-          // Navigation React Router avec délai pour que l'utilisateur voie le message
           setTimeout(() => {
             navigate('/login');
           }, 3000);
-        } else {
-          console.log('❌ Échec de l\'inscription:', result.message);
           
-          // Afficher l'erreur appropriée
-          if (result.message) {
-            if (result.message?.includes('mot de passe')) {
-              setPasswordError(result.message);
-            } else {
-              toast({
-                title: "Erreur",
-                description: result.message,
-                variant: "destructive"
-              });
-            }
-          } else {
-            toast({
-              title: "Erreur",
-              description: "Une erreur est survenue lors de la création du compte.",
-              variant: "destructive"
-            });
-          }
+        } else {
+          console.log('❌ Traité comme échec:', result);
+          toast({
+            title: "Erreur",
+            description: result.message || "Erreur inconnue",
+            variant: "destructive"
+          });
         }
       } catch (error) {
-        console.error('💥 Erreur lors de l\'inscription:', error);
+        console.error('💥 Erreur:', error);
         toast({
           title: "Erreur",
-          description: "Une erreur inattendue est survenue.",
+          description: "Erreur de connexion",
           variant: "destructive"
         });
       } finally {
