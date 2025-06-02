@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +38,7 @@ export const UserDetailsModal = ({
   const isPending = !user.is_approved;
   const isApproved = user.is_approved;
 
-  console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.first_name, user.last_name, 'Approuvé:', isApproved);
+  console.log('🎨 [DEBUG] UserDetailsModal rendu pour:', user.first_name, user.last_name, 'Approuvé:', isApproved, 'En attente:', isPending);
 
   const handleRgpdDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -180,6 +179,7 @@ export const UserDetailsModal = ({
 
             {/* Actions optimisées mobile */}
             <div className="flex flex-col gap-2 sm:gap-3 pt-4 border-t border-bright-turquoise/20">
+              {/* Actions pour utilisateurs en attente */}
               {isPending && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
@@ -200,6 +200,7 @@ export const UserDetailsModal = ({
                 </div>
               )}
               
+              {/* Actions pour utilisateurs approuvés */}
               {isApproved && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
@@ -221,11 +222,13 @@ export const UserDetailsModal = ({
                 </div>
               )}
               
+              {/* Bouton suppression définitive - TOUJOURS AFFICHÉ */}
               <Button
                 onClick={() => onDelete?.(user.id)}
                 variant="outline"
                 className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 h-10 sm:h-auto text-sm w-full"
               >
+                <Trash2 className="h-4 w-4 mr-2" />
                 Supprimer définitivement
               </Button>
             </div>
