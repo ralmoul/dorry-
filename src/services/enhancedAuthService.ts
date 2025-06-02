@@ -29,7 +29,7 @@ export const enhancedAuthService = {
       
       if (isBlocked) {
         await securityService.logSecurityEvent({
-          user_id: 'unknown',
+          user_id: null, // Utiliser null au lieu de 'unknown'
           event_type: 'login_blocked',
           ip_address: clientIP,
           user_agent: userAgent,
@@ -53,7 +53,7 @@ export const enhancedAuthService = {
       if (profileError || !profile) {
         await securityService.recordFailedLogin(cleanEmail, clientIP, userAgent);
         await securityService.logSecurityEvent({
-          user_id: 'unknown',
+          user_id: null, // Utiliser null au lieu de 'unknown'
           event_type: 'login_failed',
           ip_address: clientIP,
           user_agent: userAgent,
@@ -203,14 +203,8 @@ export const enhancedAuthService = {
       });
 
       if (authError) {
-        await securityService.logSecurityEvent({
-          user_id: 'unknown',
-          event_type: 'suspicious_activity',
-          ip_address: clientIP,
-          user_agent: userAgent,
-          details: { email: cleanEmail, error: authError.message }
-        });
-        
+        // Ne pas logger d'événement de sécurité pour les erreurs d'inscription normales
+        console.error('Erreur Supabase Auth:', authError);
         return { success: false, message: 'Erreur lors de la création du compte' };
       }
 
@@ -237,9 +231,9 @@ export const enhancedAuthService = {
         return { success: false, message: 'Erreur lors de la création du profil utilisateur' };
       }
 
-      // 5️⃣ Journaliser l'inscription
+      // 5️⃣ Journaliser l'inscription (maintenant que l'utilisateur existe)
       await securityService.logSecurityEvent({
-        user_id: authData.user.id,
+        user_id: authData.user.id, // Maintenant on a un vrai UUID
         event_type: 'account_locked', // En attente d'approbation
         ip_address: clientIP,
         user_agent: userAgent,
