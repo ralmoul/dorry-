@@ -42,7 +42,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={false}>
       <DialogContent className="w-[90vw] max-w-lg mx-auto bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-cyan-400/30 text-white rounded-2xl">
         <DialogHeader className="text-center space-y-4">
           <div className="flex justify-center">
