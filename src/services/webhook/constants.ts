@@ -1,5 +1,5 @@
 
-export const WEBHOOK_URL = 'https://n8n-4m8i.onrender.com/webhook/d4e8f563-b641-484a-8e40-8ef6564362f2';
+export const WEBHOOK_URL = 'https://ralmoul.app.n8n.cloud/webhook-test/11980a15-4394-40a7-a207-915d7cd9bdd1';
 
 export const AUDIO_LIMITS = {
   MAX_SIZE: 25 * 1024 * 1024, // 25MB
