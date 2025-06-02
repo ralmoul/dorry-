@@ -203,8 +203,16 @@ export const enhancedAuthService = {
       });
 
       if (authError) {
-        // Ne pas logger d'événement de sécurité pour les erreurs d'inscription normales
         console.error('Erreur Supabase Auth:', authError);
+        
+        // Gérer spécifiquement l'erreur "utilisateur déjà enregistré"
+        if (authError.message === 'User already registered' || authError.code === 'user_already_exists') {
+          return { 
+            success: true, 
+            message: 'Un compte existe déjà avec cet email. Votre demande a été envoyée avec succès !' 
+          };
+        }
+        
         return { success: false, message: 'Erreur lors de la création du compte' };
       }
 
