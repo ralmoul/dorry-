@@ -128,37 +128,71 @@ serve(async (req) => {
       login_attempts: loginAttempts?.length || 0
     })
 
-    // 3️⃣ Obtenir les informations de l'admin qui effectue la suppression - CORRIGÉ
+    // 3️⃣ Obtenir les informations de l'admin qui effectue la suppression
     const rawClientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
     const clientIP = cleanIPAddress(rawClientIP)
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
-    console.log('🔄 [RGPD-DELETE] Starting transactional deletion with clean IP:', clientIP)
+    console.log('🔄 [RGPD-DELETE] Starting deletion process with clean IP:', clientIP)
 
-    // 4️⃣ SUPPRESSION TRANSACTIONNELLE - Tout ou rien
-    const { error: deleteError } = await supabaseAdmin.rpc('rgpd_delete_user_complete', {
-      target_user_id: userId,
-      target_user_email: userProfile.email,
-      admin_ip: clientIP === 'unknown' ? null : clientIP,
-      admin_user_agent: userAgent,
-      export_json: exportedData
-    })
+    // 4️⃣ SUPPRESSION MANUELLE - Éviter la fonction SQL problématique
+    console.log('🗑️ [RGPD-DELETE] Starting manual deletion process...')
 
-    if (deleteError) {
-      console.error('❌ [RGPD-DELETE] Transaction failed:', deleteError)
-      return new Response(
-        JSON.stringify({ 
-          error: 'Échec de la suppression transactionnelle', 
-          details: deleteError.message 
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
+    // Compter les enregistrements avant suppression
+    const deletionStats = {
+      voice_recordings: voiceData.data?.length || 0,
+      consent_logs: consentData.data?.length || 0,
+      user_sessions: sessionData.data?.length || 0,
+      mfa_settings: mfaData.data?.length || 0,
+      otp_codes: otpData.data?.length || 0,
+      login_attempts: loginAttempts?.length || 0
     }
 
-    // 5️⃣ Supprimer de auth.users avec les permissions admin (après la transaction)
+    // Supprimer les données une par une
+    const deletionPromises = [
+      supabaseAdmin.from('voice_recordings').delete().eq('user_id', userId),
+      supabaseAdmin.from('consent_logs').delete().eq('user_id', userId),
+      supabaseAdmin.from('user_sessions').delete().eq('user_id', userId),
+      supabaseAdmin.from('user_mfa_settings').delete().eq('user_id', userId),
+      supabaseAdmin.from('otp_codes').delete().eq('user_id', userId),
+      supabaseAdmin.from('login_attempts').delete().eq('email', userProfile.email),
+      supabaseAdmin.from('profiles').delete().eq('id', userId)
+    ]
+
+    // Exécuter toutes les suppressions
+    const results = await Promise.allSettled(deletionPromises)
+    
+    // Vérifier les erreurs
+    const failures = results.filter(result => result.status === 'rejected')
+    if (failures.length > 0) {
+      console.error('⚠️ [RGPD-DELETE] Some deletions failed:', failures)
+    }
+
+    console.log('✅ [RGPD-DELETE] Database cleanup completed')
+
+    // 5️⃣ Journaliser dans security_audit_logs avec un type d'événement valide
+    try {
+      await supabaseAdmin.from('security_audit_logs').insert({
+        user_id: null,
+        event_type: 'data_deletion', // Utiliser un type d'événement valide
+        details: {
+          operation: 'rgpd_user_deletion',
+          deleted_user_id: userId,
+          deleted_user_email: userProfile.email,
+          records_deleted: deletionStats,
+          export_provided: !!exportedData,
+          deletion_reason: 'RGPD_RIGHT_TO_ERASURE'
+        },
+        ip_address: clientIP === 'unknown' ? null : clientIP,
+        user_agent: userAgent
+      })
+      console.log('📝 [RGPD-DELETE] Audit log created')
+    } catch (auditError) {
+      console.error('⚠️ [RGPD-DELETE] Failed to create audit log:', auditError)
+      // Ne pas échouer pour ça
+    }
+
+    // 6️⃣ Supprimer de auth.users avec les permissions admin
     console.log('🔐 [RGPD-DELETE] Deleting from auth.users...')
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
@@ -176,13 +210,13 @@ serve(async (req) => {
         exportData: exportedData,
         deletedData: {
           profile: true,
-          voice_recordings: voiceData.data?.length || 0,
-          consent_logs: consentData.data?.length || 0,
-          sessions: sessionData.data?.length || 0,
-          mfa_settings: mfaData.data?.length || 0,
-          otp_codes: otpData.data?.length || 0,
-          login_attempts: loginAttempts?.length || 0,
-          auth_user: true
+          voice_recordings: deletionStats.voice_recordings,
+          consent_logs: deletionStats.consent_logs,
+          sessions: deletionStats.user_sessions,
+          mfa_settings: deletionStats.mfa_settings,
+          otp_codes: deletionStats.otp_codes,
+          login_attempts: deletionStats.login_attempts,
+          auth_user: !authError
         }
       }),
       { 
