@@ -23,6 +23,7 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { signup } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -79,9 +80,13 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
       
       if (result.success) {
         console.log('✅ Inscription réussie - affichage du toast de succès');
+        setIsSuccess(true);
+        setIsLoading(false);
+        
         toast({
-          title: "Demande envoyée avec succès",
-          description: result.message || "Votre demande de création de compte a été envoyée. Vous recevrez une confirmation une fois approuvée."
+          title: "✅ Demande envoyée !",
+          description: "Redirection en cours vers la page de connexion...",
+          duration: 4000
         });
         
         // Réinitialiser le formulaire
@@ -94,10 +99,10 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
           password: ''
         });
         
-        // Navigation avec délai pour que l'utilisateur voie le message
+        // Redirection après 3 secondes
         setTimeout(() => {
           onSwitchToLogin();
-        }, 2000);
+        }, 3000);
       } else {
         console.log('❌ Échec de l\'inscription:', result.message);
         // Afficher seulement les vraies erreurs de validation
@@ -182,8 +187,12 @@ export const SignupForm = ({ onSwitchToLogin }: SignupFormProps) => {
                 </button>
               </div>
             </div>
-            <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80 text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base">
-              {isLoading ? 'Envoi...' : "Demander l'accès"}
+            <Button 
+              type="submit" 
+              disabled={isLoading || isSuccess} 
+              className={`w-full ${isSuccess ? 'bg-green-600 hover:bg-green-600' : 'bg-gradient-to-r from-bright-turquoise to-electric-blue hover:from-bright-turquoise/80 hover:to-electric-blue/80'} text-dark-navy font-semibold h-10 sm:h-11 text-sm sm:text-base`}
+            >
+              {isLoading ? 'Envoi...' : isSuccess ? '✅ Demande envoyée ! Redirection...' : "Demander l'accès"}
             </Button>
           </form>
           <div className="mt-3 sm:mt-4 text-center">
