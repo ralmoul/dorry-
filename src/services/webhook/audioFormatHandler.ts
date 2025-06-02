@@ -81,23 +81,3 @@ export const createFileName = (platform: string, propertyId: string, extension: 
   
   return fileName;
 };
-
-export const createBackupDownload = (audioBlob: Blob, platform: string, propertyId: string) => {
-  try {
-    const { extension } = determineAudioFormat(audioBlob);
-    const fileName = createFileName(platform, propertyId, extension);
-    
-    const url = URL.createObjectURL(audioBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    console.log('💾 [WEBHOOK] Sauvegarde locale créée:', fileName);
-  } catch (error) {
-    console.error('❌ [WEBHOOK] Erreur lors de la sauvegarde locale:', error);
-  }
-};

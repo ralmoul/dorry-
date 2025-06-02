@@ -2,7 +2,7 @@
 import { User } from '@/types/auth';
 import { WEBHOOK_URL, AUDIO_LIMITS } from './webhook/constants';
 import { detectPlatform, getApplicationId } from './webhook/platformDetection';
-import { processAudioBlob, createFileName, createBackupDownload } from './webhook/audioFormatHandler';
+import { processAudioBlob, createFileName } from './webhook/audioFormatHandler';
 import { validateUser, validateWebhookUrl, validateAudioFile } from './webhook/validation';
 import { buildFormData } from './webhook/formDataBuilder';
 
@@ -211,8 +211,8 @@ export const sendAudioToWebhook = async (audioBlob: Blob, user: User | null) => 
       }
     }
 
-    // Sauvegarder localement en cas d'échec
-    createBackupDownload(audioBlob, platformInfo.platform, propertyId);
+    // Note: Removed automatic backup download - only log the error
+    console.log('💾 [WEBHOOK] Échec de transmission - pas de sauvegarde automatique');
 
     throw new Error(errorMessage);
   } finally {
