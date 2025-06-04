@@ -41,10 +41,12 @@ export const UserDetailsModal = ({
   const handleRgpdDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('🗑️ [ADMIN] RGPD Delete button clicked for user:', user.id);
     setShowRgpdDelete(true);
   };
 
   const handleRgpdDeleteSuccess = () => {
+    console.log('✅ [ADMIN] RGPD Delete successful');
     setShowRgpdDelete(false);
     onClose();
     if (onDelete) {
@@ -67,8 +69,8 @@ export const UserDetailsModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-md sm:max-w-2xl w-[95%] sm:w-full mx-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 max-h-[90vh] flex flex-col">
-          <DialogHeader className="flex-shrink-0 pb-4">
+        <DialogContent className="max-w-md sm:max-w-2xl w-[95%] sm:w-full mx-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0 pb-4 border-b border-bright-turquoise/10">
             <DialogTitle className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <User className="h-5 w-5 sm:h-6 sm:w-6 text-bright-turquoise flex-shrink-0" />
               <span className="truncate">Détails utilisateur</span>
@@ -78,7 +80,8 @@ export const UserDetailsModal = ({
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto space-y-4">
+          {/* Zone scrollable */}
+          <div className="flex-1 overflow-y-auto space-y-4 py-2 px-1">
             {/* Statut */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -179,14 +182,20 @@ export const UserDetailsModal = ({
             {isPending && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button
-                  onClick={() => onApprove?.(user.id)}
+                  onClick={() => {
+                    console.log('✅ [ADMIN] Approve button clicked for user:', user.id);
+                    onApprove?.(user.id);
+                  }}
                   className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 h-9 text-sm"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Approuver
                 </Button>
                 <Button
-                  onClick={() => onReject?.(user.id)}
+                  onClick={() => {
+                    console.log('❌ [ADMIN] Reject button clicked for user:', user.id);
+                    onReject?.(user.id);
+                  }}
                   variant="outline"
                   className="bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 h-9 text-sm"
                 >
