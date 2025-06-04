@@ -69,8 +69,8 @@ export const UserDetailsModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-md sm:max-w-2xl w-[95%] sm:w-full mx-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader className="flex-shrink-0 pb-4 border-b border-bright-turquoise/10">
+        <DialogContent className="max-w-md sm:max-w-2xl w-[95%] sm:w-full mx-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 max-h-[90vh]">
+          <DialogHeader className="pb-4 border-b border-bright-turquoise/10">
             <DialogTitle className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <User className="h-5 w-5 sm:h-6 sm:w-6 text-bright-turquoise flex-shrink-0" />
               <span className="truncate">Détails utilisateur</span>
@@ -80,8 +80,8 @@ export const UserDetailsModal = ({
             </DialogDescription>
           </DialogHeader>
           
-          {/* Zone scrollable */}
-          <div className="flex-1 overflow-y-auto space-y-4 py-2 px-1">
+          {/* Zone de contenu avec scroll interne */}
+          <div className="max-h-[calc(90vh-200px)] overflow-y-auto space-y-4 py-2">
             {/* Statut */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export const UserDetailsModal = ({
           </div>
 
           {/* Actions - Fixed at bottom */}
-          <div className="flex-shrink-0 pt-4 border-t border-bright-turquoise/20 space-y-2">
+          <div className="pt-4 border-t border-bright-turquoise/20 space-y-2">
             {/* Actions pour utilisateurs en attente */}
             {isPending && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
