@@ -69,7 +69,7 @@ export const UserDetailsModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-md sm:max-w-2xl w-[95%] sm:w-full mx-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 max-h-[90vh]">
+        <DialogContent className="max-w-md sm:max-w-2xl w-[95%] sm:w-full mx-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20">
           <DialogHeader className="pb-4 border-b border-bright-turquoise/10">
             <DialogTitle className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <User className="h-5 w-5 sm:h-6 sm:w-6 text-bright-turquoise flex-shrink-0" />
@@ -80,8 +80,8 @@ export const UserDetailsModal = ({
             </DialogDescription>
           </DialogHeader>
           
-          {/* Zone de contenu avec scroll interne */}
-          <div className="max-h-[calc(90vh-200px)] overflow-y-auto space-y-4 py-2">
+          {/* Zone de contenu avec scroll interne si nécessaire */}
+          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
             {/* Statut */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export const UserDetailsModal = ({
             </Card>
           </div>
 
-          {/* Actions - Fixed at bottom */}
+          {/* Actions */}
           <div className="pt-4 border-t border-bright-turquoise/20 space-y-2">
             {/* Actions pour utilisateurs en attente */}
             {isPending && (
