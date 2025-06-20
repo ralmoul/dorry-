@@ -67,14 +67,37 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* OVERLAY DE FOND COMPLET */}
+      {/* OVERLAY DE FOND AVEC POSITION FIXED ABSOLUE */}
       <div 
-        className="fixed inset-0 z-[999999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 999999,
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px'
+        }}
         onClick={onClose}
       >
-        {/* MODAL CONTENT - CENTRE PARFAITEMENT */}
+        {/* MODAL CONTENT - CENTRE PARFAITEMENT AVEC STYLE INLINE */}
         <div 
-          className="relative w-full max-w-2xl max-h-[90vh] bg-slate-800/95 border-2 border-cyan-400/30 rounded-xl shadow-2xl overflow-y-auto"
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '672px', // max-w-2xl
+            maxHeight: '90vh',
+            backgroundColor: 'rgba(30, 41, 59, 0.95)', // slate-800/95
+            border: '2px solid rgba(34, 211, 238, 0.3)', // border-cyan-400/30
+            borderRadius: '12px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            overflowY: 'auto'
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Bouton fermeture */}
