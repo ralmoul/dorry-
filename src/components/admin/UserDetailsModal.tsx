@@ -67,33 +67,32 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* OVERLAY DE FOND AVEC POSITION FIXED ABSOLUE */}
+      {/* OVERLAY AVEC CENTRAGE ABSOLU */}
       <div 
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          top: '0px',
+          left: '0px',
+          width: '100vw',
+          height: '100vh',
           zIndex: 999999,
           backgroundColor: 'rgba(0, 0, 0, 0.9)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '16px'
+          backdropFilter: 'blur(8px)'
         }}
         onClick={onClose}
       >
-        {/* MODAL CONTENT - CENTRE PARFAITEMENT AVEC STYLE INLINE */}
+        {/* MODAL CENTRE ABSOLU */}
         <div 
           style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '672px', // max-w-2xl
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90%',
+            maxWidth: '672px',
             maxHeight: '90vh',
-            backgroundColor: 'rgba(30, 41, 59, 0.95)', // slate-800/95
-            border: '2px solid rgba(34, 211, 238, 0.3)', // border-cyan-400/30
+            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+            border: '2px solid rgba(34, 211, 238, 0.3)',
             borderRadius: '12px',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             overflowY: 'auto'
