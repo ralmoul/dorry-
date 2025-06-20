@@ -68,9 +68,7 @@ export const UserDetailsModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent 
-          className="max-w-2xl w-[95vw] max-h-[85vh] overflow-y-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 !fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !z-[9999]"
-        >
+        <DialogContent className="max-w-2xl w-[95vw] max-h-[85vh] overflow-y-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20">
           <DialogHeader className="pb-4 border-b border-bright-turquoise/10">
             <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <User className="h-6 w-6 text-bright-turquoise" />
