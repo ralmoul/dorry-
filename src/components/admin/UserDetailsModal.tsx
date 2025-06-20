@@ -1,5 +1,6 @@
 
 
+
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +71,7 @@ export const UserDetailsModal = ({
   return (
     <>
       <AlertDialog open={isOpen} onOpenChange={onClose}>
-        <AlertDialogContent className="max-w-2xl w-[95vw] bg-card/95 backdrop-blur-lg border-bright-turquoise/20">
+        <AlertDialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20">
           <AlertDialogHeader className="pb-4 border-b border-bright-turquoise/10">
             <AlertDialogTitle className="text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <User className="h-6 w-6 text-bright-turquoise" />
@@ -81,7 +82,7 @@ export const UserDetailsModal = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
+          <div className="space-y-4 py-2">
             {/* Statut */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -261,4 +262,5 @@ export const UserDetailsModal = ({
     </>
   );
 };
+
 
