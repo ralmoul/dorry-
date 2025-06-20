@@ -1,4 +1,5 @@
 
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Trash2 } from 'lucide-react';
@@ -67,20 +68,54 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* Modal overlay - centré dans le viewport visible */}
+      {/* Modal avec positionnement forcé au centre de l'écran visible */}
       <div 
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+        className="fixed bg-black/90 backdrop-blur-sm"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+        }}
         onClick={onClose}
       >
-        {/* Modal content - empêche la fermeture au clic */}
+        {/* Contenu du modal - centré dans le viewport */}
         <div 
-          className="relative bg-card/95 backdrop-blur-lg border border-bright-turquoise/20 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          style={{
+            position: 'relative',
+            maxWidth: '672px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(34, 211, 238, 0.2)',
+            borderRadius: '8px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
+          {/* Bouton de fermeture */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10"
+            style={{
+              position: 'absolute',
+              right: '16px',
+              top: '16px',
+              zIndex: 10,
+              background: 'none',
+              border: 'none',
+              color: 'rgba(156, 163, 175, 1)',
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: '4px',
+            }}
           >
             <XCircle className="h-4 w-4" />
             <span className="sr-only">Close</span>
@@ -279,3 +314,4 @@ export const UserDetailsModal = ({
     </>
   );
 };
+
