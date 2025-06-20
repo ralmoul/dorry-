@@ -1,5 +1,3 @@
-
-
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Trash2 } from 'lucide-react';
@@ -68,14 +66,13 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* OVERLAY MODAL - FORCE ABSOLUTE POSITIONING */}
+      {/* OVERLAY MODAL - CENTRÉ SUR LE VIEWPORT VISIBLE */}
       <div 
         style={{
           position: 'fixed',
-          top: '0px',
-          left: '0px',
-          right: '0px',
-          bottom: '0px',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           width: '100vw',
           height: '100vh',
           zIndex: 999999,
@@ -89,11 +86,14 @@ export const UserDetailsModal = ({
         }}
         onClick={onClose}
       >
-        {/* CONTENU MODAL - CENTRE FORCE */}
+        {/* CONTENU MODAL - CENTRÉ DANS LE VIEWPORT */}
         <div 
           style={{
-            position: 'relative',
-            width: '100%',
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '90vw',
             maxWidth: '700px',
             maxHeight: '85vh',
             backgroundColor: 'rgba(15, 23, 42, 0.98)',
@@ -101,7 +101,7 @@ export const UserDetailsModal = ({
             borderRadius: '12px',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             overflowY: 'auto',
-            margin: 'auto'
+            zIndex: 1000000
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -318,4 +318,3 @@ export const UserDetailsModal = ({
     </>
   );
 };
-
