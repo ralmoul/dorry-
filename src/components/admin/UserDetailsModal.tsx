@@ -1,3 +1,4 @@
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Trash2 } from 'lucide-react';
@@ -66,55 +67,20 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* OVERLAY MODAL - FIXE AU CENTRE DU VIEWPORT */}
+      {/* OVERLAY MODAL - CENTRÉ ABSOLUMENT DANS LE VIEWPORT */}
       <div 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 999999,
-          backgroundColor: 'rgba(0, 0, 0, 0.9)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
-        }}
+        className="fixed inset-0 z-[999999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
         onClick={onClose}
       >
-        {/* CONTENU MODAL - CENTRÉ AUTOMATIQUEMENT PAR FLEXBOX */}
+        {/* CONTENU MODAL - CENTRÉ */}
         <div 
-          style={{
-            width: '90vw',
-            maxWidth: '700px',
-            maxHeight: '85vh',
-            backgroundColor: 'rgba(15, 23, 42, 0.98)',
-            border: '2px solid rgba(34, 211, 238, 0.3)',
-            borderRadius: '12px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            overflowY: 'auto',
-            position: 'relative'
-          }}
+          className="w-full max-w-2xl max-h-[90vh] bg-slate-900/95 border-2 border-cyan-400/30 rounded-xl shadow-2xl overflow-y-auto relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Bouton fermeture */}
           <button
             onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              zIndex: 10,
-              backgroundColor: 'transparent',
-              border: 'none',
-              color: 'rgba(156, 163, 175, 1)',
-              cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '6px',
-              fontSize: '16px'
-            }}
+            className="absolute top-4 right-4 z-10 text-gray-400 hover:text-white transition-colors p-2"
           >
             <XCircle className="h-5 w-5" />
           </button>
