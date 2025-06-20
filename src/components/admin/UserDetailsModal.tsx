@@ -68,57 +68,61 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* Modal avec positionnement forcé au centre de l'écran visible */}
+      {/* OVERLAY MODAL - FORCE ABSOLUTE POSITIONING */}
       <div 
-        className="fixed bg-black/90 backdrop-blur-sm"
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 99999,
+          top: '0px',
+          left: '0px',
+          right: '0px',
+          bottom: '0px',
+          width: '100vw',
+          height: '100vh',
+          zIndex: 999999,
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '16px',
+          padding: '20px',
+          overflow: 'auto'
         }}
         onClick={onClose}
       >
-        {/* Contenu du modal - centré dans le viewport */}
+        {/* CONTENU MODAL - CENTRE FORCE */}
         <div 
           style={{
             position: 'relative',
-            maxWidth: '672px',
             width: '100%',
-            maxHeight: '90vh',
+            maxWidth: '700px',
+            maxHeight: '85vh',
+            backgroundColor: 'rgba(15, 23, 42, 0.98)',
+            border: '2px solid rgba(34, 211, 238, 0.3)',
+            borderRadius: '12px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             overflowY: 'auto',
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            backdropFilter: 'blur(16px)',
-            border: '1px solid rgba(34, 211, 238, 0.2)',
-            borderRadius: '8px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            margin: 'auto'
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Bouton de fermeture */}
+          {/* Bouton fermeture */}
           <button
             onClick={onClose}
             style={{
               position: 'absolute',
-              right: '16px',
               top: '16px',
+              right: '16px',
               zIndex: 10,
-              background: 'none',
+              backgroundColor: 'transparent',
               border: 'none',
               color: 'rgba(156, 163, 175, 1)',
               cursor: 'pointer',
-              padding: '4px',
-              borderRadius: '4px',
+              padding: '8px',
+              borderRadius: '6px',
+              fontSize: '16px'
             }}
           >
-            <XCircle className="h-4 w-4" />
-            <span className="sr-only">Close</span>
+            <XCircle className="h-5 w-5" />
           </button>
 
           <div className="p-6">
