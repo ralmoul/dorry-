@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Trash2 } from 'lucide-react';
@@ -68,17 +68,17 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20 z-50">
-          <DialogHeader className="pb-4 border-b border-bright-turquoise/10">
-            <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
+      <AlertDialog open={isOpen} onOpenChange={onClose}>
+        <AlertDialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto bg-card/95 backdrop-blur-lg border-bright-turquoise/20">
+          <AlertDialogHeader className="pb-4 border-b border-bright-turquoise/10">
+            <AlertDialogTitle className="text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
               <User className="h-6 w-6 text-bright-turquoise" />
               Détails utilisateur
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground">
               Informations et actions disponibles
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           
           <div className="space-y-4 py-2">
             {/* Statut */}
@@ -234,9 +234,18 @@ export const UserDetailsModal = ({
               <Trash2 className="h-4 w-4 mr-2" />
               Supprimer définitivement
             </Button>
+
+            {/* Bouton pour fermer */}
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="w-full"
+            >
+              Fermer
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Modal RGPD séparé */}
       {showRgpdDelete && (
