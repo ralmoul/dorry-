@@ -66,13 +66,12 @@ export const UserDetailsModal = ({
 
   return (
     <>
-      {/* OVERLAY MODAL - CENTRÉ SUR LE VIEWPORT VISIBLE */}
+      {/* OVERLAY MODAL - FIXE AU CENTRE DU VIEWPORT */}
       <div 
         style={{
           position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          top: 0,
+          left: 0,
           width: '100vw',
           height: '100vh',
           zIndex: 999999,
@@ -81,18 +80,13 @@ export const UserDetailsModal = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px',
-          overflow: 'auto'
+          padding: '20px'
         }}
         onClick={onClose}
       >
-        {/* CONTENU MODAL - CENTRÉ DANS LE VIEWPORT */}
+        {/* CONTENU MODAL - CENTRÉ AUTOMATIQUEMENT PAR FLEXBOX */}
         <div 
           style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
             width: '90vw',
             maxWidth: '700px',
             maxHeight: '85vh',
@@ -101,7 +95,7 @@ export const UserDetailsModal = ({
             borderRadius: '12px',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             overflowY: 'auto',
-            zIndex: 1000000
+            position: 'relative'
           }}
           onClick={(e) => e.stopPropagation()}
         >
