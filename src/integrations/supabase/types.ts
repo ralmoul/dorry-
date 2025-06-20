@@ -153,6 +153,30 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations_v2: {
+        Row: {
+          created_at: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           blocked_until: string | null
@@ -188,6 +212,47 @@ export type Database = {
           user_agent?: string | null
         }
         Relationships: []
+      }
+      messages_v2: {
+        Row: {
+          audio_data: string | null
+          content: string | null
+          conversation_id: string | null
+          created_at: string | null
+          duration: string | null
+          id: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          audio_data?: string | null
+          content?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          duration?: string | null
+          id?: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          audio_data?: string | null
+          content?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          duration?: string | null
+          id?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_v2_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_v2"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       otp_codes: {
         Row: {
@@ -258,6 +323,122 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_v2: {
+        Row: {
+          analytics_consent: boolean | null
+          company: string | null
+          created_at: string | null
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          marketing_consent: boolean | null
+          phone: string | null
+          plan_type: string | null
+          plan_updated_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          analytics_consent?: boolean | null
+          company?: string | null
+          created_at?: string | null
+          email: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          marketing_consent?: boolean | null
+          phone?: string | null
+          plan_type?: string | null
+          plan_updated_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          analytics_consent?: boolean | null
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          marketing_consent?: boolean | null
+          phone?: string | null
+          plan_type?: string | null
+          plan_updated_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      recordings: {
+        Row: {
+          audio_url: string | null
+          created_at: string | null
+          duration: number | null
+          id: string
+          title: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          title: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          title?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recordings_v2: {
+        Row: {
+          conversation_id: string | null
+          created_at: string | null
+          duration: number | null
+          file_url: string | null
+          id: string
+          title: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string | null
+          duration?: number | null
+          file_url?: string | null
+          id?: string
+          title: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string | null
+          duration?: number | null
+          file_url?: string | null
+          id?: string
+          title?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recordings_v2_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations_v2"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_logs: {
         Row: {
           created_at: string | null
@@ -327,6 +508,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          analytics_consent: boolean | null
+          company: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          marketing_consent: boolean | null
+          phone: string | null
+          plan_expires_at: string | null
+          selected_plan: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          analytics_consent?: boolean | null
+          company?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          marketing_consent?: boolean | null
+          phone?: string | null
+          plan_expires_at?: string | null
+          selected_plan?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          analytics_consent?: boolean | null
+          company?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          marketing_consent?: boolean | null
+          phone?: string | null
+          plan_expires_at?: string | null
+          selected_plan?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           created_at: string | null
@@ -363,6 +586,701 @@ export type Database = {
           session_token?: string
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_stats_v2: {
+        Row: {
+          id: string
+          messages_count: number | null
+          recordings_count: number | null
+          seconds_used: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          messages_count?: number | null
+          recordings_count?: number | null
+          seconds_used?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          messages_count?: number | null
+          recordings_count?: number | null
+          seconds_used?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_stats_v2_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users_v2"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users_v2: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          plan: string | null
+          profile_photo: string | null
+          stats: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          plan?: string | null
+          profile_photo?: string | null
+          stats?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          plan?: string | null
+          profile_photo?: string | null
+          stats?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v2_activity_logs: {
+        Row: {
+          action: string
+          country_code: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string | null
+          success: boolean | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          country_code?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          country_code?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_calendar_events: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          description: string | null
+          detected_entities: Json | null
+          end_time: string | null
+          external_event_id: string | null
+          id: string
+          location: string | null
+          provider: string | null
+          recording_id: string | null
+          start_time: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          detected_entities?: Json | null
+          end_time?: string | null
+          external_event_id?: string | null
+          id?: string
+          location?: string | null
+          provider?: string | null
+          recording_id?: string | null
+          start_time: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          detected_entities?: Json | null
+          end_time?: string | null
+          external_event_id?: string | null
+          id?: string
+          location?: string | null
+          provider?: string | null
+          recording_id?: string | null
+          start_time?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_calendar_events_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "v2_recordings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_calendar_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_calendar_integrations: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          provider: string
+          provider_email: string | null
+          provider_user_id: string | null
+          refresh_token: string | null
+          scope: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          provider: string
+          provider_email?: string | null
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          provider?: string
+          provider_email?: string | null
+          provider_user_id?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_calendar_integrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_daily_analytics: {
+        Row: {
+          active_minutes: number | null
+          created_at: string | null
+          date: string
+          id: string
+          recordings_count: number | null
+          session_duration: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active_minutes?: number | null
+          created_at?: string | null
+          date: string
+          id?: string
+          recordings_count?: number | null
+          session_duration?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active_minutes?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          recordings_count?: number | null
+          session_duration?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_daily_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_gdpr_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          processed_at: string | null
+          processed_by: string | null
+          reason: string | null
+          request_type: string
+          response_data: Json | null
+          specific_data: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          request_type: string
+          response_data?: Json | null
+          specific_data?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          request_type?: string
+          response_data?: Json | null
+          specific_data?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_gdpr_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          priority: string | null
+          read_at: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          priority?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          priority?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_recordings: {
+        Row: {
+          ai_analysis: Json | null
+          consent_for_analysis: boolean | null
+          created_at: string | null
+          device_info: Json | null
+          duration: number
+          entities: Json | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          is_archived: boolean | null
+          is_deleted: boolean | null
+          keywords: string[] | null
+          quality_score: number | null
+          recorded_ip: unknown | null
+          summary: string | null
+          transcript: string | null
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          consent_for_analysis?: boolean | null
+          created_at?: string | null
+          device_info?: Json | null
+          duration: number
+          entities?: Json | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_deleted?: boolean | null
+          keywords?: string[] | null
+          quality_score?: number | null
+          recorded_ip?: unknown | null
+          summary?: string | null
+          transcript?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          consent_for_analysis?: boolean | null
+          created_at?: string | null
+          device_info?: Json | null
+          duration?: number
+          entities?: Json | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_deleted?: boolean | null
+          keywords?: string[] | null
+          quality_score?: number | null
+          recorded_ip?: unknown | null
+          summary?: string | null
+          transcript?: string | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_recordings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          next_billing_date: string | null
+          plan: string
+          plan_name: string
+          quota_limit: number
+          started_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          next_billing_date?: string | null
+          plan: string
+          plan_name: string
+          quota_limit: number
+          started_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          next_billing_date?: string | null
+          plan?: string
+          plan_name?: string
+          quota_limit?: number
+          started_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_user_sessions: {
+        Row: {
+          country_code: string | null
+          created_at: string | null
+          device_fingerprint: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          last_activity: string | null
+          session_token: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string | null
+          device_fingerprint?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_user_stats: {
+        Row: {
+          created_at: string | null
+          current_month: number
+          current_year: number
+          id: string
+          last_activity: string | null
+          last_reset: string | null
+          recordings_count: number | null
+          seconds_used: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_month: number
+          current_year: number
+          id?: string
+          last_activity?: string | null
+          last_reset?: string | null
+          recordings_count?: number | null
+          seconds_used?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_month?: number
+          current_year?: number
+          id?: string
+          last_activity?: string | null
+          last_reset?: string | null
+          recordings_count?: number | null
+          seconds_used?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_user_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v2_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_users: {
+        Row: {
+          account_status: string | null
+          calendar_connections: Json | null
+          cookies_consent: boolean | null
+          country_code: string | null
+          created_at: string | null
+          data_processing_consent: boolean | null
+          email: string
+          email_verified: boolean | null
+          gdpr_consent_date: string | null
+          id: string
+          last_activity: string | null
+          last_login: string | null
+          marketing_consent: boolean | null
+          nom: string
+          password_hash: string
+          plan: string | null
+          prenom: string
+          quota_limit: number | null
+          quota_used: number | null
+          registration_ip: unknown | null
+          sync_date: string | null
+          synced_from_site: string | null
+          telephone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_status?: string | null
+          calendar_connections?: Json | null
+          cookies_consent?: boolean | null
+          country_code?: string | null
+          created_at?: string | null
+          data_processing_consent?: boolean | null
+          email: string
+          email_verified?: boolean | null
+          gdpr_consent_date?: string | null
+          id?: string
+          last_activity?: string | null
+          last_login?: string | null
+          marketing_consent?: boolean | null
+          nom: string
+          password_hash: string
+          plan?: string | null
+          prenom: string
+          quota_limit?: number | null
+          quota_used?: number | null
+          registration_ip?: unknown | null
+          sync_date?: string | null
+          synced_from_site?: string | null
+          telephone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_status?: string | null
+          calendar_connections?: Json | null
+          cookies_consent?: boolean | null
+          country_code?: string | null
+          created_at?: string | null
+          data_processing_consent?: boolean | null
+          email?: string
+          email_verified?: boolean | null
+          gdpr_consent_date?: string | null
+          id?: string
+          last_activity?: string | null
+          last_login?: string | null
+          marketing_consent?: boolean | null
+          nom?: string
+          password_hash?: string
+          plan?: string | null
+          prenom?: string
+          quota_limit?: number | null
+          quota_used?: number | null
+          registration_ip?: unknown | null
+          sync_date?: string | null
+          synced_from_site?: string | null
+          telephone?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
