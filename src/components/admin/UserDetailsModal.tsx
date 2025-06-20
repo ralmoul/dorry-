@@ -1,5 +1,4 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Building, Calendar, CheckCircle, Clock, XCircle, Trash2 } from 'lucide-react';
@@ -31,7 +30,7 @@ export const UserDetailsModal = ({
 }: UserDetailsModalProps) => {
   const [showRgpdDelete, setShowRgpdDelete] = useState(false);
 
-  if (!user) {
+  if (!user || !isOpen) {
     return null;
   }
 
@@ -66,20 +65,18 @@ export const UserDetailsModal = ({
     createdAt: user.created_at
   };
 
-  if (!isOpen) return null;
-
   return (
     <>
-      {/* Modal positionné par rapport au viewport visible */}
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ position: 'fixed' }}>
-        {/* Backdrop */}
+      {/* Modal overlay - centré dans le viewport visible */}
+      <div 
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        {/* Modal content - empêche la fermeture au clic */}
         <div 
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
-          onClick={onClose}
-        />
-        
-        {/* Modal content - centré dans le viewport visible */}
-        <div className="relative bg-card/95 backdrop-blur-lg border border-bright-turquoise/20 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          className="relative bg-card/95 backdrop-blur-lg border border-bright-turquoise/20 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Close button */}
           <button
             onClick={onClose}
@@ -90,15 +87,16 @@ export const UserDetailsModal = ({
           </button>
 
           <div className="p-6">
-            <DialogHeader className="pb-4 border-b border-bright-turquoise/10">
-              <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
+            {/* Header avec titre */}
+            <div className="pb-4 border-b border-bright-turquoise/10">
+              <h2 className="text-xl font-semibold bg-gradient-to-r from-bright-turquoise to-electric-blue bg-clip-text text-transparent flex items-center gap-2">
                 <User className="h-6 w-6 text-bright-turquoise" />
                 Détails utilisateur
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
                 Informations et actions disponibles
-              </DialogDescription>
-            </DialogHeader>
+              </p>
+            </div>
             
             <div className="space-y-4 py-2">
               {/* Statut */}
