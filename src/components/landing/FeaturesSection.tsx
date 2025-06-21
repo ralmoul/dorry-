@@ -1,7 +1,6 @@
 
 import React, { useRef } from 'react';
 import { Mic, Brain, Search, FileText } from 'lucide-react';
-import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 
 interface FeaturesSectionProps {
   activeFeature: number;
@@ -9,6 +8,8 @@ interface FeaturesSectionProps {
 }
 
 export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSectionProps) => {
+  const featuresRef = useRef(null);
+
   const features = [
     {
       title: "Parlez, Dorry écoute",
@@ -40,22 +41,37 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
   ];
 
   return (
-    <section className="bg-slate-900 relative overflow-hidden">
-      <ContainerScroll
-        titleComponent={
-          <>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Fonctionnalités qui font la différence
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
-              Découvrez comment Dorry simplifie votre quotidien professionnel
-            </p>
-          </>
-        }
-      >
-        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16 w-full h-full p-4">
+    <section className="py-16 md:py-32 bg-slate-900 relative overflow-hidden" ref={featuresRef}>
+      <div className="absolute inset-0 z-0">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+            style={{
+              width: `${Math.random() * 20 + 10}px`,
+              height: `${Math.random() * 20 + 10}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animation: `float ${Math.random() * 20 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+              filter: 'blur(3px)'
+            }}
+          />
+        ))}
+      </div>
+      
+      <div className="container mx-auto px-4 md:px-8 relative z-10">
+        <div className="text-center mb-12 md:mb-16 animate-fadeIn">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Fonctionnalités qui font la différence
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
+            Découvrez comment Dorry simplifie votre quotidien professionnel
+          </p>
+        </div>
+        
+        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
           {/* Feature Showcase - Left Side */}
-          <div className="flex-1 order-2 md:order-1">
+          <div className="flex-1 order-2 md:order-1 animate-fadeInLeft" style={{ animationDelay: '0.3s' }}>
             <div className="relative aspect-square max-w-md mx-auto">
               {/* Feature Icons with Animation */}
               {featureIcons.map((item, index) => (
@@ -73,11 +89,24 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
                   </div>
                 </div>
               ))}
+              
+              {/* Connecting lines */}
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left"
+                  style={{
+                    transform: `rotate(${i * 90}deg)`,
+                    opacity: activeFeature === i ? 1 : 0.3,
+                    transition: 'opacity 0.5s ease'
+                  }}
+                ></div>
+              ))}
             </div>
           </div>
           
           {/* Feature Details - Right Side */}
-          <div className="flex-1 order-1 md:order-2">
+          <div className="flex-1 order-1 md:order-2 animate-fadeInRight" style={{ animationDelay: '0.3s' }}>
             <div className="bg-slate-800/30 rounded-xl p-8 border border-slate-700/50 shadow-lg">
               {features.map((feature, index) => (
                 <div
@@ -112,7 +141,7 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
             </div>
           </div>
         </div>
-      </ContainerScroll>
+      </div>
     </section>
   );
 };

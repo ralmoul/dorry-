@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useLandingAnimations } from '@/hooks/useLandingAnimations';
 import { Navigation } from '@/components/landing/Navigation';
@@ -49,13 +50,51 @@ const Landing = () => {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Section Concrètement à quoi sert Dorry - Avec nouveau scroll */}
-      <AboutSection />
-
-      {/* Workflow Steps */}
+      {/* Section Concrètement à quoi sert Dorry - Workflow complet */}
       <section className="py-8 md:py-16 lg:py-32 bg-slate-800 relative overflow-hidden">
+        {/* Arrière-plan décoratif */}
+        <div className="absolute inset-0 z-0">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+              style={{
+                width: `${Math.random() * 15 + 5}px`,
+                height: `${Math.random() * 15 + 5}px`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+                filter: 'blur(2px)'
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Lignes de connexion animées */}
+        <div
+          className="absolute inset-0 z-0 opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
+            backgroundSize: '50px 50px',
+            backgroundPosition: '0 0, 25px 25px',
+            animation: 'connectionMove 60s linear infinite'
+          }}
+        ></div>
+        
         <div className="container mx-auto px-4 md:px-8 relative z-10">
-          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-8 md:mb-10">
+          <div className="text-center mb-8 md:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 lg:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent animate-fadeIn">
+              Concrètement à quoi sert Dorry ?
+            </h2>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+              L'assistant IA qui transforme tes échanges en synthèse claire et actionnable
+            </p>
+          </div>
+          
+          <AboutSection />
+          
+          {/* Titre de la section workflow */}
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-8 md:mb-10 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
             Comment ça marche ?
           </h3>
           
@@ -65,13 +104,13 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Fonctionnalités Section - Avec nouveau scroll */}
+      {/* Fonctionnalités Section */}
       <FeaturesSection 
         activeFeature={activeFeature}
         setActiveFeature={setActiveFeature}
       />
 
-      {/* Pourquoi choisir Dorry - Avec nouveau scroll */}
+      {/* Pourquoi choisir Dorry */}
       <BenefitsSection />
 
       {/* CTA Section */}
@@ -80,7 +119,6 @@ const Landing = () => {
       {/* Footer */}
       <Footer />
 
-      
       <style>
         {`
         .nav-link {

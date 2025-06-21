@@ -1,7 +1,6 @@
 
 import React, { useMemo } from 'react';
 import { Clock, Shield, Sparkles, TrendingUp } from 'lucide-react';
-import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 
 export const BenefitsSection = () => {
   const benefits = [
@@ -35,25 +34,51 @@ export const BenefitsSection = () => {
     }
   ];
 
+  // Optimisation : particules réduites
+  const particleCount = useMemo(() => {
+    return window.innerWidth > 768 ? 8 : 4; // Réduit de 10/5 à 8/4
+  }, []);
+
   return (
-    <section className="bg-slate-800 relative overflow-hidden">
-      <ContainerScroll
-        titleComponent={
-          <>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Pourquoi choisir Dorry ?
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
-              Des avantages concrets pour votre productivité
-            </p>
-          </>
-        }
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full h-full p-4">
+    <section className="py-16 md:py-32 bg-slate-800 relative overflow-hidden">
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-transparent to-slate-900/50"></div>
+        {Array.from({ length: particleCount }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+            style={{
+              width: `${Math.random() * 18 + 8}px`, // Taille légèrement réduite
+              height: `${Math.random() * 18 + 8}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animation: `float ${Math.random() * 25 + 15}s ease-in-out infinite ${Math.random() * 4}s`, // Durée optimisée
+              filter: 'blur(2px)',
+              willChange: 'transform'
+            }}
+          />
+        ))}
+      </div>
+      
+      <div className="container mx-auto px-4 md:px-8 relative z-10">
+        <div className="text-center mb-12 md:mb-16 animate-fadeIn">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Pourquoi choisir Dorry ?
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
+            Des avantages concrets pour votre productivité
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12 md:mb-16">
           {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl"
+              className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp"
+              style={{ 
+                animationDelay: `${benefit.delay}s`,
+                willChange: 'transform'
+              }}
             >
               <div className={`text-transparent bg-clip-text bg-gradient-to-r ${benefit.color} mb-4 md:mb-6`}>
                 {benefit.icon}
@@ -65,7 +90,7 @@ export const BenefitsSection = () => {
             </div>
           ))}
         </div>
-      </ContainerScroll>
+      </div>
     </section>
   );
 };
