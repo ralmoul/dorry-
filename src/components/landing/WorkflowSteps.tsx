@@ -85,7 +85,7 @@ export const WorkflowSteps = () => {
   return (
     <div ref={sectionRef} className="max-w-4xl mx-auto relative">
       {/* Ligne verticale de connexion - masquée sur très petit écran */}
-      <div className="absolute top-0 bottom-0 left-6 md:left-8 lg:left-10 w-0.5 bg-gradient-to-b from-cyan-400 to-blue-500 z-0 hidden sm:block"></div>
+      <div className="absolute top-0 bottom-0 left-6 md:left-8 lg:left-10 w-0.5 bg-gradient-to-b from-orange-400 to-yellow-500 z-0 hidden sm:block"></div>
       
       {/* Étapes du workflow */}
       {steps.map((step, index) => (
@@ -96,15 +96,15 @@ export const WorkflowSteps = () => {
           }`}
         >
           <div className="absolute left-0 top-0 w-12 md:w-16 lg:w-20 h-12 md:h-16 lg:h-20 flex items-center justify-center z-10">
-            <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-slate-900 shadow-lg">
+            <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 flex items-center justify-center text-slate-900 shadow-lg">
               {step.icon}
             </div>
           </div>
-          <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-slate-700/50 shadow-lg">
-            <h4 className="text-lg md:text-xl font-semibold text-white mb-2">
+          <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-orange-300/20 shadow-lg">
+            <h4 className="text-lg md:text-xl font-semibold bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent mb-2">
               {step.title}
             </h4>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+            <p className="text-orange-100/90 text-sm md:text-base leading-relaxed">
               {step.description}
             </p>
           </div>

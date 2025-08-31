@@ -6,16 +6,16 @@ import { Link } from 'react-router-dom';
 export const CTASection = () => {
   const badges = [{
     text: "IA avancée",
-    color: "from-cyan-400 to-blue-500"
+    color: "from-orange-400 to-yellow-500"
   }, {
     text: "Sécurisé",
-    color: "from-blue-500 to-purple-500"
+    color: "from-yellow-500 to-amber-500"
   }, {
     text: "Confidentiel",
-    color: "from-purple-500 to-blue-500"
+    color: "from-amber-500 to-orange-400"
   }, {
     text: "Rapide",
-    color: "from-blue-500 to-cyan-400"
+    color: "from-orange-400 to-yellow-500"
   }];
 
   // Optimisation : particules réduites
@@ -24,13 +24,13 @@ export const CTASection = () => {
   }, []);
 
   return (
-    <section className="py-16 md:py-32 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 relative overflow-hidden">
+    <section className="py-16 md:py-32 bg-gradient-to-br from-orange-400/10 to-yellow-500/10 relative overflow-hidden">
       {/* Particules animées optimisées */}
       <div className="absolute inset-0 z-0">
         {Array.from({ length: particleCount }).map((_, i) => (
           <div 
             key={i} 
-            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20" 
+            className="absolute rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 opacity-20" 
             style={{
               width: `${Math.random() * 5 + 2}px`, // Taille réduite
               height: `${Math.random() * 5 + 2}px`,
@@ -53,18 +53,18 @@ export const CTASection = () => {
           }}></path>
           <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#22d3ee" />
-              <stop offset="100%" stopColor="#3b82f6" />
+              <stop offset="0%" stopColor="#fb923c" />
+              <stop offset="100%" stopColor="#eab308" />
             </linearGradient>
           </defs>
         </svg>
       </div>
       
       <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-8 max-w-4xl mx-auto animate-fadeIn">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 md:mb-8 max-w-4xl mx-auto animate-fadeIn bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent">
           Rejoignez la nouvelle génération d'accompagnateurs augmentés par l'IA !
         </h2>
-        <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{
+        <p className="text-base sm:text-lg md:text-xl text-orange-100/90 mb-8 md:mb-12 max-w-2xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{
           animationDelay: '0.2s'
         }}>
           L'esprit libre, le suivi assuré. Essayez dès maintenant et faites la différence.
@@ -74,8 +74,8 @@ export const CTASection = () => {
           animationDelay: '0.4s'
         }}>
           <Link to="/contact">
-            <ConfettiButton className="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
-              Demander l'accès
+            <ConfettiButton className="bg-gradient-to-r from-orange-500 to-yellow-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:shadow-xl transform hover:scale-105 transition-all">
+              Commencer gratuitement
             </ConfettiButton>
           </Link>
         </div>

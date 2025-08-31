@@ -25,7 +25,7 @@ const Login = () => {
 
   // Redirection automatique si déjà connecté
   useEffect(() => {
-    if (isAuthenticated && user?.isApproved) {
+    if (isAuthenticated && user) {
       console.log('✅ [LOGIN] User already authenticated, redirecting to app');
       navigate('/app');
     }

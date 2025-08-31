@@ -34,10 +34,10 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
   ];
 
   const featureIcons = [
-    { icon: <Mic className="w-full h-full" />, position: 'top-0 left-0', color: 'from-cyan-400 to-blue-500' },
-    { icon: <Brain className="w-full h-full" />, position: 'top-0 right-0', color: 'from-blue-500 to-purple-500' },
-    { icon: <Search className="w-full h-full" />, position: 'bottom-0 left-0', color: 'from-purple-500 to-cyan-400' },
-    { icon: <FileText className="w-full h-full" />, position: 'bottom-0 right-0', color: 'from-cyan-400 to-blue-500' }
+    { icon: <Mic className="w-full h-full" />, position: 'top-0 left-0', color: 'from-orange-400 to-yellow-500' },
+    { icon: <Brain className="w-full h-full" />, position: 'top-0 right-0', color: 'from-yellow-500 to-amber-500' },
+    { icon: <Search className="w-full h-full" />, position: 'bottom-0 left-0', color: 'from-amber-500 to-orange-400' },
+    { icon: <FileText className="w-full h-full" />, position: 'bottom-0 right-0', color: 'from-orange-400 to-yellow-500' }
   ];
 
   return (
@@ -46,7 +46,7 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
         {Array.from({ length: 15 }).map((_, i) => (
           <div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+            className="absolute rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 opacity-10"
             style={{
               width: `${Math.random() * 20 + 10}px`,
               height: `${Math.random() * 20 + 10}px`,
@@ -61,10 +61,10 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
       
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="text-center mb-12 md:mb-16 animate-fadeIn">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent">
             Fonctionnalités qui font la différence
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
+          <p className="text-base sm:text-lg md:text-xl text-orange-100/90 max-w-3xl mx-auto px-2 md:px-0">
             Découvrez comment Dorry simplifie votre quotidien professionnel
           </p>
         </div>
@@ -94,7 +94,7 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 origin-left"
+                  className="absolute top-1/2 left-1/2 w-1/3 h-0.5 bg-gradient-to-r from-orange-400 to-yellow-500 origin-left"
                   style={{
                     transform: `rotate(${i * 90}deg)`,
                     opacity: activeFeature === i ? 1 : 0.3,
@@ -115,14 +115,14 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
                   style={{ display: activeFeature === index ? 'block' : 'none' }}
                 >
                   <div className="flex items-center mb-4">
-                    <div className="text-cyan-400 mr-4">
+                    <div className="text-orange-400 mr-4">
                       {feature.icon}
                     </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                    <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-yellow-400">
                       {feature.title}
                     </h3>
                   </div>
-                  <p className="text-lg text-slate-300 leading-relaxed">
+                  <p className="text-lg text-orange-100/90 leading-relaxed">
                     {feature.description}
                   </p>
                   
@@ -131,7 +131,7 @@ export const FeaturesSection = ({ activeFeature, setActiveFeature }: FeaturesSec
                     {Array.from({ length: 4 }).map((_, i) => (
                       <button
                         key={i}
-                        className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-cyan-400 w-6' : 'bg-slate-600'}`}
+                        className={`w-3 h-3 rounded-full transition-all duration-300 ${activeFeature === i ? 'bg-orange-400 w-6' : 'bg-slate-600'}`}
                         onClick={() => setActiveFeature(i)}
                       ></button>
                     ))}

@@ -40,20 +40,19 @@ const Signup = () => {
     }));
   };
 
-  // Fonction pour vérifier si le formulaire est valide
+  // Fonction pour vérifier si le formulaire est valide (entreprise optionnelle)
   const isFormValid = () => {
-    const hasAllFields = formData.firstName.trim() && 
-                        formData.lastName.trim() && 
-                        formData.email.trim() && 
-                        formData.phone.trim() && 
-                        formData.company.trim() && 
-                        formData.password.trim();
+    const hasRequiredFields = formData.firstName.trim() && 
+                             formData.lastName.trim() && 
+                             formData.email.trim() && 
+                             formData.phone.trim() && 
+                             formData.password.trim();
     
     const hasValidEmail = validateEmail(formData.email);
     const hasValidPassword = formData.password.length >= 12;
     const hasConsents = acceptedTerms && acceptedPrivacy;
     
-    return hasAllFields && hasValidEmail && hasValidPassword && hasConsents;
+    return hasRequiredFields && hasValidEmail && hasValidPassword && hasConsents;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,12 +65,12 @@ const Signup = () => {
     
     let isValid = true;
     
-    // Validation des champs requis
+    // Validation des champs requis (entreprise optionnelle)
     if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || 
-        !formData.phone.trim() || !formData.company.trim() || !formData.password.trim()) {
+        !formData.phone.trim() || !formData.password.trim()) {
       toast({
         title: "Erreur",
-        description: "Tous les champs sont obligatoires.",
+        description: "Tous les champs marqués d'un * sont obligatoires.",
         variant: "destructive"
       });
       return;
@@ -115,8 +114,8 @@ const Signup = () => {
           console.log('✅ [SIGNUP] Traité comme succès');
           
           toast({
-            title: "✅ Demande envoyée avec succès !",
-            description: result.message || "Votre demande de création de compte a été envoyée.",
+            title: "✅ Compte créé avec succès !",
+            description: result.message || "Votre compte a été créé avec succès.",
             duration: 5000,
           });
           
@@ -132,9 +131,9 @@ const Signup = () => {
           setAcceptedTerms(false);
           setAcceptedPrivacy(false);
           
-          // Redirection vers la page d'accueil après 2 secondes
+          // Redirection vers la page de connexion après 2 secondes
           setTimeout(() => {
-            navigate('/');
+            navigate('/login');
           }, 2000);
           
         } else {
@@ -758,15 +757,14 @@ const Signup = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="company" className="form-label">Entreprise *</label>
+                <label htmlFor="company" className="form-label">Entreprise</label>
                 <input 
                   type="text" 
                   id="company" 
                   className="form-input"
-                  placeholder="Nom de votre entreprise" 
+                  placeholder="Nom de votre entreprise (optionnel)" 
                   value={formData.company}
                   onChange={handleInputChange('company')}
-                  required
                   autoComplete="organization"
                 />
               </div>
@@ -846,7 +844,7 @@ const Signup = () => {
                     <span>Envoi en cours...</span>
                   </>
                 ) : (
-                  "Demander l'accès"
+                  "Créer mon compte"
                 )}
               </button>
 

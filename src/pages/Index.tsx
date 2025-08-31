@@ -25,12 +25,12 @@ const Index = () => {
     });
     
     if (!isLoading) {
-      if (!isAuthenticated || !user || !user.isApproved) {
-        console.log('❌ [INDEX] User not authenticated or not approved, redirecting to login');
+      if (!isAuthenticated || !user) {
+        console.log('❌ [INDEX] User not authenticated, redirecting to login');
         navigate('/login', { replace: true });
         return;
       }
-      console.log('✅ [INDEX] User is authenticated and approved');
+      console.log('✅ [INDEX] User is authenticated');
     }
   }, [isLoading, isAuthenticated, user, navigate]);
 
@@ -47,7 +47,7 @@ const Index = () => {
   }
 
   // Si pas authentifié, ne rien afficher (redirection en cours)
-  if (!isAuthenticated || !user || !user.isApproved) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 

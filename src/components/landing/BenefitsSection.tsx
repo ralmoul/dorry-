@@ -9,28 +9,28 @@ export const BenefitsSection = () => {
       title: "Gagnez un temps précieux",
       description: "Plus besoin de rédiger ou de mémoriser chaque échange. Concentrez-vous sur l'humain, Dorry s'occupe du reste.",
       delay: 0.1,
-      color: "from-cyan-400 to-blue-500"
+      color: "from-orange-400 to-yellow-500"
     },
     {
       icon: <Shield className="w-10 h-10 md:w-12 md:h-12" />,
       title: "Fiabilité sans faille",
       description: "Finis les oublis de compte rendu, même après une journée chargée.",
       delay: 0.2,
-      color: "from-blue-500 to-purple-500"
+      color: "from-yellow-500 to-amber-500"
     },
     {
       icon: <Sparkles className="w-10 h-10 md:w-12 md:h-12" />,
       title: "Analyse IA intelligente",
       description: "Dorry reste connectée et attentive, même quand l'humain décroche. Chaque détail important est capturé.",
       delay: 0.3,
-      color: "from-purple-500 to-blue-500"
+      color: "from-amber-500 to-orange-400"
     },
     {
       icon: <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />,
       title: "Évolutif & innovant",
       description: "Des mises à jour régulières : Scoring automatique, recommandations intelligentes, messages WhatsApp personnalisés.",
       delay: 0.4,
-      color: "from-blue-500 to-cyan-400"
+      color: "from-orange-400 to-yellow-500"
     }
   ];
 
@@ -46,7 +46,7 @@ export const BenefitsSection = () => {
         {Array.from({ length: particleCount }).map((_, i) => (
           <div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+            className="absolute rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 opacity-10"
             style={{
               width: `${Math.random() * 18 + 8}px`, // Taille légèrement réduite
               height: `${Math.random() * 18 + 8}px`,
@@ -62,10 +62,10 @@ export const BenefitsSection = () => {
       
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="text-center mb-12 md:mb-16 animate-fadeIn">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent">
             Pourquoi choisir Dorry ?
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0">
+          <p className="text-base sm:text-lg md:text-xl text-orange-100/90 max-w-3xl mx-auto px-2 md:px-0">
             Des avantages concrets pour votre productivité
           </p>
         </div>
@@ -74,7 +74,7 @@ export const BenefitsSection = () => {
           {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp"
+              className="p-6 md:p-8 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-orange-300/20 shadow-lg transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-xl animate-fadeInUp"
               style={{ 
                 animationDelay: `${benefit.delay}s`,
                 willChange: 'transform'
@@ -86,7 +86,7 @@ export const BenefitsSection = () => {
               <h3 className={`text-xl md:text-2xl font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r ${benefit.color}`}>
                 {benefit.title}
               </h3>
-              <p className="text-slate-300">{benefit.description}</p>
+              <p className="text-orange-100/90">{benefit.description}</p>
             </div>
           ))}
         </div>

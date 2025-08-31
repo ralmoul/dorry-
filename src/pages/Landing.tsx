@@ -57,7 +57,7 @@ const Landing = () => {
           {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
-              className="absolute rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 opacity-10"
+              className="absolute rounded-full bg-gradient-to-r from-orange-400 to-yellow-500 opacity-10"
               style={{
                 width: `${Math.random() * 15 + 5}px`,
                 height: `${Math.random() * 15 + 5}px`,
@@ -74,7 +74,7 @@ const Landing = () => {
         <div
           className="absolute inset-0 z-0 opacity-20"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, rgba(251, 146, 60, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(234, 179, 8, 0.1) 1px, transparent 1px)',
             backgroundSize: '50px 50px',
             backgroundPosition: '0 0, 25px 25px',
             animation: 'connectionMove 60s linear infinite'
@@ -83,10 +83,10 @@ const Landing = () => {
         
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="text-center mb-8 md:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 lg:mb-6 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent animate-fadeIn">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 lg:mb-6 bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent animate-fadeIn">
               Concrètement à quoi sert Dorry ?
             </h2>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-300 max-w-3xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-orange-100/90 max-w-3xl mx-auto px-2 md:px-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
               L'assistant IA qui transforme tes échanges en synthèse claire et actionnable
             </p>
           </div>
@@ -94,7 +94,7 @@ const Landing = () => {
           <AboutSection />
           
           {/* Titre de la section workflow */}
-          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-8 md:mb-10 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-center bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent mb-8 md:mb-10 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
             Comment ça marche ?
           </h3>
           
