@@ -195,11 +195,12 @@ export const enhancedAuthService = {
 
       const cleanEmail = data.email.toLowerCase().trim();
 
-      // 2️⃣ Création simple du compte
+      // 2️⃣ Création simple du compte (avec confirmation email désactivée)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: cleanEmail,
         password: data.password,
         options: {
+          emailRedirectTo: undefined, // Pas de redirection email
           data: {
             first_name: data.firstName.trim(),
             last_name: data.lastName.trim(),
