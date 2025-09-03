@@ -210,13 +210,22 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
       if (response.ok) {
         const data = await response.json();
         
-        // Ajouter la réponse de l'assistant
-        const assistantMessage = {
-          id: Date.now() + 1,
-          type: 'assistant',
-          content: data.response || data.message || data.reply || `Bonjour ! Je suis Dorry, votre assistant IA. Comment puis-je vous aider aujourd'hui ?`,
-        };
-        setMessages(prev => [...prev, assistantMessage]);
+        // Ignorer les messages "workflow started" et autres trucs inutiles
+        if (data.response && !data.response.includes('Workflow was started') && !data.response.includes('workflow')) {
+          const assistantMessage = {
+            id: Date.now() + 1,
+            type: 'assistant',
+            content: data.response,
+          };
+          setMessages(prev => [...prev, assistantMessage]);
+        } else if (data.message && !data.message.includes('Workflow was started') && !data.message.includes('workflow')) {
+          const assistantMessage = {
+            id: Date.now() + 1,
+            type: 'assistant',
+            content: data.message,
+          };
+          setMessages(prev => [...prev, assistantMessage]);
+        }
       } else {
         throw new Error('Erreur webhook');
       }
@@ -305,7 +314,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto p-4 space-y-6">
               {messages.map((message) => (
-                <div key={message.id} className={`flex gap-4 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div key={message.id} className="flex gap-4 py-4">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                     {message.type === 'user' ? (
                       <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
@@ -317,14 +326,8 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
                       </div>
                     )}
                   </div>
-                  <div className={`flex-1 ${message.type === 'user' ? 'text-right' : ''}`}>
-                    <div className={`inline-block p-3 rounded-lg max-w-[80%] ${
-                      message.type === 'user' 
-                        ? 'bg-blue-600 text-white ml-auto' 
-                        : 'bg-[#2a2a2a] text-white border border-[#404040]'
-                    }`}>
-                      <p className="leading-relaxed">{message.content}</p>
-                    </div>
+                  <div className="flex-1">
+                    <p className="text-white leading-relaxed">{message.content}</p>
                   </div>
                 </div>
               ))}
