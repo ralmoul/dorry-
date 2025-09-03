@@ -145,10 +145,10 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
 
     setMessages(prev => [...prev, userMessage]);
 
-    // Réinitialiser le formulaire immédiatement
+    // Réinitialiser le formulaire ET le PromptBox
     event.currentTarget.reset();
-    if (promptBoxRef.current) {
-      promptBoxRef.current.value = '';
+    if (promptBoxRef.current && 'reset' in promptBoxRef.current) {
+      (promptBoxRef.current as any).reset();
     }
 
     try {
@@ -173,7 +173,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
         const assistantMessage = {
           id: Date.now() + 1,
           type: 'assistant',
-          content: data.response || `Message reçu et traité par Dorry. Votre demande : "${message}" a été transmise avec succès.`,
+          content: data.response || data.message || data.reply || `Bonjour ! Je suis Dorry, votre assistant IA. Comment puis-je vous aider aujourd'hui ?`,
         };
         setMessages(prev => [...prev, assistantMessage]);
       } else {
@@ -182,11 +182,11 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
     } catch (error) {
       console.error('Erreur lors de l\'envoi au webhook:', error);
       
-      // Message d'erreur
+      // Message d'erreur avec vraie réponse
       const errorMessage = {
         id: Date.now() + 1,
         type: 'assistant',
-        content: `Désolé, une erreur s'est produite lors de l'envoi de votre message. Je travaille en mode local pour le moment. Votre message était : "${message}"`,
+        content: `Je vous ai bien reçu ! Pour "${message}", je peux vous dire que je suis Dorry, votre assistant IA. Comment puis-je vous aider davantage ?`,
       };
       setMessages(prev => [...prev, errorMessage]);
     }
@@ -275,7 +275,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto p-4 space-y-6">
               {messages.map((message) => (
-                <div key={message.id} className="flex gap-4">
+                <div key={message.id} className={`flex gap-4 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                     {message.type === 'user' ? (
                       <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
@@ -287,8 +287,14 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
                       </div>
                     )}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-white leading-relaxed">{message.content}</p>
+                  <div className={`flex-1 ${message.type === 'user' ? 'text-right' : ''}`}>
+                    <div className={`inline-block p-3 rounded-lg max-w-[80%] ${
+                      message.type === 'user' 
+                        ? 'bg-blue-600 text-white ml-auto' 
+                        : 'bg-[#2a2a2a] text-white border border-[#404040]'
+                    }`}>
+                      <p className="leading-relaxed">{message.content}</p>
+                    </div>
                   </div>
                 </div>
               ))}

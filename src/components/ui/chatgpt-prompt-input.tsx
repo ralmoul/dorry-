@@ -51,7 +51,20 @@ export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
     const [selectedTool, setSelectedTool] = React.useState<string | null>(null);
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [isImageDialogOpen, setIsImageDialogOpen] = React.useState(false);
-    React.useImperativeHandle(ref, () => internalTextareaRef.current!, []);
+    
+    // Expose reset function via ref
+    React.useImperativeHandle(ref, () => ({
+      ...internalTextareaRef.current!,
+      reset: () => {
+        setValue("");
+        setImagePreview(null);
+        setSelectedTool(null);
+        if (internalTextareaRef.current) {
+          internalTextareaRef.current.style.height = "auto";
+        }
+      }
+    }), []);
+    
     React.useLayoutEffect(() => { const textarea = internalTextareaRef.current; if (textarea) { textarea.style.height = "auto"; const newHeight = Math.min(textarea.scrollHeight, 200); textarea.style.height = `${newHeight}px`; } }, [value]);
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => { setValue(e.target.value); if (props.onChange) props.onChange(e); };
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
