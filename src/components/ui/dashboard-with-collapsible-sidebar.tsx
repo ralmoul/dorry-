@@ -166,8 +166,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
 
   const models = [
     { id: 'dorry-pro', name: 'Dorry Pro', description: 'Modèle le plus avancé' },
-    { id: 'dorry-creative', name: 'Dorry Creative', description: 'Optimisé pour la créativité' },
-    { id: 'dorry-analyst', name: 'Dorry Analyst', description: 'Spécialisé en analyse' },
+    { id: 'dorry-compte-rendu', name: 'Dorry Compte rendu', description: 'Spécialisé en compte rendu' },
   ];
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
