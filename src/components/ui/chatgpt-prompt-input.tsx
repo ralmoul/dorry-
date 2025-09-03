@@ -62,72 +62,31 @@ export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
     const ActiveToolIcon = activeTool?.icon;
 
     return (
-      <div className={cn("flex flex-col rounded-[28px] p-2 shadow-sm transition-colors bg-slate-800/50 border border-orange-500/20 backdrop-blur-sm cursor-text", className)}>
+      <div className={cn("flex flex-col rounded-3xl border border-gray-200 bg-white shadow-sm transition-colors hover:shadow-md cursor-text", className)}>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*"/>
         
-        {imagePreview && ( <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}> <div className="relative mb-1 w-fit rounded-[1rem] px-1 pt-1"> <button type="button" className="transition-transform" onClick={() => setIsImageDialogOpen(true)}> <img src={imagePreview} alt="Image preview" className="h-14.5 w-14.5 rounded-[1rem]" /> </button> <button onClick={handleRemoveImage} className="absolute right-2 top-2 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-slate-700/50 text-orange-300 transition-colors hover:bg-orange-500/20" aria-label="Remove image"> <XIcon className="h-4 w-4" /> </button> </div> <DialogContent> <img src={imagePreview} alt="Full size preview" className="w-full max-h-[95vh] object-contain rounded-[24px]" /> </DialogContent> </Dialog> )}
+        {imagePreview && ( <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}> <div className="relative mb-1 w-fit rounded-[1rem] px-1 pt-1"> <button type="button" className="transition-transform" onClick={() => setIsImageDialogOpen(true)}> <img src={imagePreview} alt="Image preview" className="h-14.5 w-14.5 rounded-[1rem]" /> </button> <button onClick={handleRemoveImage} className="absolute right-2 top-2 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-white/80 text-gray-600 transition-colors hover:bg-gray-100" aria-label="Remove image"> <XIcon className="h-4 w-4" /> </button> </div> <DialogContent> <img src={imagePreview} alt="Full size preview" className="w-full max-h-[95vh] object-contain rounded-[24px]" /> </DialogContent> </Dialog> )}
         
-        <textarea ref={internalTextareaRef} rows={1} value={value} onChange={handleInputChange} placeholder="Tapez votre message..." className="custom-scrollbar w-full resize-none border-0 bg-transparent p-3 text-orange-100 placeholder:text-orange-300/50 focus:ring-0 focus-visible:outline-none min-h-12" {...props} />
+        <textarea ref={internalTextareaRef} rows={1} value={value} onChange={handleInputChange} placeholder="Message Dorry..." className="custom-scrollbar w-full resize-none border-0 bg-transparent p-4 text-gray-900 placeholder:text-gray-500 focus:ring-0 focus-visible:outline-none min-h-12" {...props} />
         
-        <div className="mt-0.5 p-1 pt-0">
-          <TooltipProvider delayDuration={100}>
+        <div className="px-3 pb-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Tooltip> <TooltipTrigger asChild><button type="button" onClick={handlePlusClick} className="flex h-8 w-8 items-center justify-center rounded-full text-orange-300 transition-colors hover:bg-orange-500/20 focus-visible:outline-none"><PlusIcon className="h-6 w-6" /><span className="sr-only">Attach image</span></button></TooltipTrigger> <TooltipContent side="top" showArrow={true}><p>Joindre une image</p></TooltipContent> </Tooltip>
-              
-              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <PopoverTrigger asChild>
-                      <button type="button" className="flex h-8 items-center gap-2 rounded-full p-2 text-sm text-orange-300 transition-colors hover:bg-orange-500/20 focus-visible:outline-none focus-visible:ring-ring">
-                        <Settings2Icon className="h-4 w-4" />
-                        {!selectedTool && 'Outils'}
-                      </button>
-                    </PopoverTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" showArrow={true}><p>Explorer les outils</p></TooltipContent>
-                </Tooltip>
-                <PopoverContent side="top" align="start">
-                  <div className="flex flex-col gap-1">
-                    {toolsList.map(tool => ( <button key={tool.id} onClick={() => { setSelectedTool(tool.id); setIsPopoverOpen(false); }} className="flex w-full items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-orange-500/20"> <tool.icon className="h-4 w-4" /> <span>{tool.name}</span> {tool.extra && <span className="ml-auto text-xs text-orange-300/70">{tool.extra}</span>} </button> ))}
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              {activeTool && (
-                <>
-                  <div className="h-4 w-px bg-orange-500/30" />
-                  <button onClick={() => setSelectedTool(null)} className="flex h-8 items-center gap-2 rounded-full px-2 text-sm hover:bg-orange-500/20 cursor-pointer text-orange-300 transition-colors flex-row items-center justify-center">
-                    {ActiveToolIcon && <ActiveToolIcon className="h-4 w-4" />}
-                    {activeTool.shortName}
-                    <XIcon className="h-4 w-4" />
-                  </button>
-                </>
-              )}
-
-              {/* MODIFIED: Right-aligned buttons container */}
-              <div className="ml-auto flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button type="button" className="flex h-8 w-8 items-center justify-center rounded-full text-orange-300 transition-colors hover:bg-orange-500/20 focus-visible:outline-none">
-                      <MicIcon className="h-5 w-5" />
-                      <span className="sr-only">Enregistrer la voix</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" showArrow={true}><p>Enregistrer la voix</p></TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button type="submit" disabled={!hasValue} className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none bg-gradient-to-r from-orange-500 to-yellow-500 text-black hover:from-orange-600 hover:to-yellow-600 disabled:from-orange-500/40 disabled:to-yellow-500/40">
-                      <SendIcon className="h-6 w-6 text-bold" />
-                      <span className="sr-only">Envoyer le message</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" showArrow={true}><p>Envoyer</p></TooltipContent>
-                </Tooltip>
-              </div>
+              <button type="button" onClick={handlePlusClick} className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 focus-visible:outline-none">
+                <PlusIcon className="h-5 w-5" />
+                <span className="sr-only">Joindre un fichier</span>
+              </button>
             </div>
-          </TooltipProvider>
+
+            <button 
+              type="submit" 
+              disabled={!hasValue} 
+              className="flex h-8 w-8 items-center justify-center rounded-full text-white bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            >
+              <SendIcon className="h-4 w-4" />
+              <span className="sr-only">Envoyer le message</span>
+            </button>
+          </div>
         </div>
       </div>
     );
