@@ -47,6 +47,7 @@ export const DorryDashboard = () => {
 
 const Sidebar = ({ user, navigate, logout, isOpen, onToggle }: any) => {
   const [selected, setSelected] = useState("new-conversation");
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const handleNewConversation = () => {
     setSelected("new-conversation");
@@ -88,8 +89,11 @@ const Sidebar = ({ user, navigate, logout, isOpen, onToggle }: any) => {
       </div>
 
       {/* Footer avec compte utilisateur */}
-      <div className="border-t border-[#404040] p-3">
-        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer transition-colors">
+      <div className="border-t border-[#404040] p-3 relative">
+        <div 
+          className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] cursor-pointer transition-colors"
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
+        >
           <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
             {user?.firstName?.[0]?.toUpperCase() || 'T'}
           </div>
@@ -97,7 +101,44 @@ const Sidebar = ({ user, navigate, logout, isOpen, onToggle }: any) => {
             <p className="text-sm font-medium truncate">{user?.firstName || 'Trade Invest'}</p>
             <p className="text-xs text-gray-400">Plus</p>
           </div>
+          <ChevronDown className={`h-4 w-4 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
         </div>
+        
+        {/* Menu profil */}
+        {showProfileMenu && (
+          <div className="absolute bottom-full left-3 right-3 mb-2 bg-[#2a2a2a] border border-[#404040] rounded-lg shadow-lg py-2">
+            <button 
+              onClick={() => {
+                navigate('/profile');
+                setShowProfileMenu(false);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-white hover:bg-[#3a3a3a] transition-colors"
+            >
+              <User className="h-4 w-4 inline mr-2" />
+              Mon profil
+            </button>
+            <button 
+              onClick={() => {
+                navigate('/settings');
+                setShowProfileMenu(false);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-white hover:bg-[#3a3a3a] transition-colors"
+            >
+              <Settings className="h-4 w-4 inline mr-2" />
+              Paramètres
+            </button>
+            <hr className="border-[#404040] my-2" />
+            <button 
+              onClick={() => {
+                logout();
+                setShowProfileMenu(false);
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-[#3a3a3a] transition-colors"
+            >
+              Déconnexion
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -245,18 +286,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
           </div>
         </div>
 
-        {/* Indicateur mémoire */}
-        <div className="flex items-center gap-4">
-          <div className="text-xs text-gray-400">
-            <span className="inline-flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              Utilisation de la mémoire : 272 Mo
-            </span>
-          </div>
-          <button className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors">
-            <User className="h-5 w-5 text-gray-400" />
-          </button>
-        </div>
+
       </div>
 
       {/* Zone de contenu */}
