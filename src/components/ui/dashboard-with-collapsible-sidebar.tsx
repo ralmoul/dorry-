@@ -23,9 +23,12 @@ import {
   FileText,
   Download,
   Clock,
+  MessageSquare,
+  Plus,
 } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
 
 export const DorryDashboard = () => {
   const [isDark, setIsDark] = useState(true); // Toujours en mode sombre pour correspondre au thème
@@ -65,7 +68,7 @@ export const DorryDashboard = () => {
 
       <div className="relative z-10 flex w-full">
         <Sidebar user={user} navigate={navigate} logout={logout} />
-        <DashboardContent isDark={isDark} setIsDark={setIsDark} user={user} navigate={navigate} />
+        <ChatContent isDark={isDark} setIsDark={setIsDark} user={user} navigate={navigate} />
       </div>
 
       {/* Styles pour l'animation float */}
@@ -91,7 +94,7 @@ export const DorryDashboard = () => {
 
 const Sidebar = ({ user, navigate, logout }: any) => {
   const [open, setOpen] = useState(true);
-  const [selected, setSelected] = useState("Dashboard");
+  const [selected, setSelected] = useState("new-conversation");
 
   const handleNavigation = (title: string, path?: string) => {
     setSelected(title);
@@ -99,6 +102,20 @@ const Sidebar = ({ user, navigate, logout }: any) => {
       navigate(path);
     }
   };
+
+  const handleNewConversation = () => {
+    setSelected("new-conversation");
+    // Ici on pourrait déclencher la création d'une nouvelle conversation
+  };
+
+  // Simuler un historique de conversations
+  const conversations = [
+    { id: '1', title: 'Analyse du marché', time: '2h', preview: 'Peux-tu analyser les tendances...' },
+    { id: '2', title: 'Stratégie marketing', time: '1j', preview: 'Comment améliorer notre...' },
+    { id: '3', title: 'Développement produit', time: '3j', preview: 'Quelles sont les meilleures...' },
+    { id: '4', title: 'Ressources humaines', time: '5j', preview: 'Comment optimiser le...' },
+    { id: '5', title: 'Finance et budget', time: '1sem', preview: 'Aide-moi à comprendre...' },
+  ];
 
   return (
     <nav
@@ -108,51 +125,37 @@ const Sidebar = ({ user, navigate, logout }: any) => {
     >
       <TitleSection open={open} user={user} />
 
-      <div className="space-y-1 mb-8">
-        <Option
-          Icon={Home}
-          title="Dashboard"
-          selected={selected}
-          setSelected={(title) => handleNavigation(title)}
-          open={open}
-        />
-        <Option
-          Icon={Mic}
-          title="Enregistrements"
-          selected={selected}
-          setSelected={(title) => handleNavigation(title)}
-          open={open}
-          notifs={3}
-        />
-        <Option
-          Icon={FileText}
-          title="Synthèses"
-          selected={selected}
-          setSelected={(title) => handleNavigation(title)}
-          open={open}
-        />
-        <Option
-          Icon={BarChart3}
-          title="Analytiques"
-          selected={selected}
-          setSelected={(title) => handleNavigation(title)}
-          open={open}
-        />
-        <Option
-          Icon={Download}
-          title="Exports"
-          selected={selected}
-          setSelected={(title) => handleNavigation(title)}
-          open={open}
-        />
-        <Option
-          Icon={Clock}
-          title="Historique"
-          selected={selected}
-          setSelected={(title) => handleNavigation(title)}
-          open={open}
-        />
+      {/* Nouvelle Conversation Button */}
+      <div className="mb-4">
+        <button
+          onClick={handleNewConversation}
+          className={`w-full flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 text-orange-200 hover:from-orange-500/30 hover:to-yellow-500/30 transition-all duration-200 ${
+            !open && 'justify-center'
+          }`}
+        >
+          <Plus className="h-4 w-4 flex-shrink-0" />
+          {open && <span className="text-sm font-medium">Nouvelle conversation</span>}
+        </button>
       </div>
+
+      {/* Historique des Conversations */}
+      {open && (
+        <div className="flex-1 overflow-y-auto mb-4">
+          <div className="px-3 py-2 text-xs font-medium text-orange-300/70 uppercase tracking-wide mb-2">
+            Historique
+          </div>
+          <div className="space-y-1">
+            {conversations.map((conversation) => (
+              <ConversationItem
+                key={conversation.id}
+                conversation={conversation}
+                isSelected={selected === conversation.id}
+                onSelect={() => setSelected(conversation.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {open && (
         <div className="border-t border-orange-500/20 pt-4 space-y-1">
@@ -178,6 +181,36 @@ const Sidebar = ({ user, navigate, logout }: any) => {
 
       <ToggleClose open={open} setOpen={setOpen} />
     </nav>
+  );
+};
+
+const ConversationItem = ({ conversation, isSelected, onSelect }: any) => {
+  return (
+    <button
+      onClick={onSelect}
+      className={`w-full p-3 rounded-lg text-left transition-all duration-200 ${
+        isSelected 
+          ? "bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-l-2 border-orange-400" 
+          : "hover:bg-orange-500/10"
+      }`}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <MessageSquare className="h-3 w-3 text-orange-400 flex-shrink-0" />
+            <h4 className="text-sm font-medium text-orange-200 truncate">
+              {conversation.title}
+            </h4>
+          </div>
+          <p className="text-xs text-orange-300/60 truncate">
+            {conversation.preview}
+          </p>
+        </div>
+        <span className="text-xs text-orange-400/50 ml-2 flex-shrink-0">
+          {conversation.time}
+        </span>
+      </div>
+    </button>
   );
 };
 
@@ -286,25 +319,67 @@ const ToggleClose = ({ open, setOpen }: any) => {
   );
 };
 
-const DashboardContent = ({ isDark, setIsDark, user, navigate }: any) => {
+const ChatContent = ({ isDark, setIsDark, user, navigate }: any) => {
   const capitalizeFirstLetter = (str: string) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
+  // Messages de démonstration
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      type: 'assistant',
+      content: `Bonjour ${user ? capitalizeFirstLetter(user.firstName) : 'utilisateur'} ! Je suis votre assistant IA Dorry. Comment puis-je vous aider aujourd'hui ?`,
+      timestamp: new Date(Date.now() - 10000)
+    }
+  ]);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const message = formData.get("message") as string;
+    
+    if (!message?.trim()) return;
+
+    // Ajouter le message utilisateur
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      content: message,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+
+    // Simuler une réponse de l'assistant
+    setTimeout(() => {
+      const assistantMessage = {
+        id: Date.now() + 1,
+        type: 'assistant',
+        content: `Merci pour votre message : "${message}". Je suis en cours de développement et je pourrai bientôt vous aider avec vos analyses et synthèses !`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    }, 1000);
+
+    // Réinitialiser le formulaire
+    event.currentTarget.reset();
+  };
+
   return (
-    <div className="flex-1 bg-slate-900/50 backdrop-blur-sm p-6 overflow-auto">
+    <div className="flex-1 bg-slate-900/50 backdrop-blur-sm flex flex-col h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between p-6 border-b border-orange-500/20">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent">
-            Dashboard
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent">
+            Chat avec Dorry
           </h1>
-          <p className="text-orange-100/70 mt-1">
-            Bienvenue {user ? capitalizeFirstLetter(user.firstName) : ''}, prêt à enregistrer ?
+          <p className="text-orange-100/70 text-sm mt-1">
+            Votre assistant IA pour l'analyse et la synthèse
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button className="relative p-2 rounded-lg bg-slate-800/50 border border-orange-500/20 text-orange-300 hover:text-orange-200 hover:bg-orange-500/10 transition-colors">
             <Bell className="h-5 w-5" />
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full"></span>
@@ -327,161 +402,37 @@ const DashboardContent = ({ isDark, setIsDark, user, navigate }: any) => {
           </button>
         </div>
       </div>
-      
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="p-6 rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-orange-500/10 transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-lg">
-              <Mic className="h-5 w-5 text-orange-400" />
-            </div>
-            <TrendingUp className="h-4 w-4 text-green-400" />
-          </div>
-          <h3 className="font-medium text-orange-100/70 mb-1">Enregistrements</h3>
-          <p className="text-2xl font-bold text-orange-200">24</p>
-          <p className="text-sm text-green-400 mt-1">+12% ce mois</p>
-        </div>
-        
-        <div className="p-6 rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-orange-500/10 transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg">
-              <FileText className="h-5 w-5 text-green-400" />
-            </div>
-            <TrendingUp className="h-4 w-4 text-green-400" />
-          </div>
-          <h3 className="font-medium text-orange-100/70 mb-1">Synthèses</h3>
-          <p className="text-2xl font-bold text-orange-200">18</p>
-          <p className="text-sm text-green-400 mt-1">+5% cette semaine</p>
-        </div>
-        
-        <div className="p-6 rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-orange-500/10 transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg">
-              <Clock className="h-5 w-5 text-purple-400" />
-            </div>
-            <TrendingUp className="h-4 w-4 text-green-400" />
-          </div>
-          <h3 className="font-medium text-orange-100/70 mb-1">Temps total</h3>
-          <p className="text-2xl font-bold text-orange-200">12h 34m</p>
-          <p className="text-sm text-green-400 mt-1">+8% aujourd'hui</p>
-        </div>
 
-        <div className="p-6 rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-orange-500/10 transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg">
-              <Download className="h-5 w-5 text-blue-400" />
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[70%] p-4 rounded-2xl ${
+                message.type === 'user'
+                  ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-black'
+                  : 'bg-slate-800/50 border border-orange-500/20 text-orange-100'
+              }`}
+            >
+              <p className="text-sm leading-relaxed">{message.content}</p>
+              <p className={`text-xs mt-2 ${
+                message.type === 'user' ? 'text-black/70' : 'text-orange-300/50'
+              }`}>
+                {message.timestamp.toLocaleTimeString()}
+              </p>
             </div>
-            <TrendingUp className="h-4 w-4 text-green-400" />
           </div>
-          <h3 className="font-medium text-orange-100/70 mb-1">Exports</h3>
-          <p className="text-2xl font-bold text-orange-200">7</p>
-          <p className="text-sm text-green-400 mt-1">+3 cette semaine</p>
-        </div>
+        ))}
       </div>
-      
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2">
-          <div className="rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent">
-                Activité récente
-              </h3>
-              <button className="text-sm text-orange-400 hover:text-orange-300 font-medium transition-colors">
-                Voir tout
-              </button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { icon: Mic, title: "Nouvel enregistrement", desc: "Réunion équipe marketing", time: "Il y a 2 min", color: "orange" },
-                { icon: FileText, title: "Synthèse générée", desc: "Entretien client - Projet A", time: "Il y a 5 min", color: "green" },
-                { icon: Download, title: "Export terminé", desc: "Rapport mensuel PDF", time: "Il y a 10 min", color: "blue" },
-                { icon: Activity, title: "Analyse complète", desc: "Détection des points clés", time: "Il y a 1h", color: "purple" },
-                { icon: Bell, title: "Nouvelle notification", desc: "Résultats de l'analyse IA", time: "Il y a 2h", color: "yellow" },
-              ].map((activity, i) => (
-                <div key={i} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-orange-500/5 transition-colors cursor-pointer">
-                  <div className={`p-2 rounded-lg ${
-                    activity.color === 'orange' ? 'bg-gradient-to-r from-orange-500/20 to-yellow-500/20' :
-                    activity.color === 'green' ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20' :
-                    activity.color === 'blue' ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20' :
-                    activity.color === 'purple' ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20' :
-                    'bg-gradient-to-r from-yellow-500/20 to-amber-500/20'
-                  }`}>
-                    <activity.icon className={`h-4 w-4 ${
-                      activity.color === 'orange' ? 'text-orange-400' :
-                      activity.color === 'green' ? 'text-green-400' :
-                      activity.color === 'blue' ? 'text-blue-400' :
-                      activity.color === 'purple' ? 'text-purple-400' :
-                      'text-yellow-400'
-                    }`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-orange-200 truncate">
-                      {activity.title}
-                    </p>
-                    <p className="text-xs text-orange-100/60 truncate">
-                      {activity.desc}
-                    </p>
-                  </div>
-                  <div className="text-xs text-orange-300/50">
-                    {activity.time}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* Quick Stats */}
-        <div className="space-y-6">
-          <div className="rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm p-6 shadow-sm">
-            <h3 className="text-lg font-semibold bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent mb-4">
-              Statistiques rapides
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-orange-100/70">Qualité audio</span>
-                <span className="text-sm font-medium text-orange-200">94%</span>
-              </div>
-              <div className="w-full bg-slate-700/50 rounded-full h-2">
-                <div className="bg-gradient-to-r from-orange-500 to-yellow-500 h-2 rounded-full" style={{ width: '94%' }}></div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-orange-100/70">Précision IA</span>
-                <span className="text-sm font-medium text-orange-200">87%</span>
-              </div>
-              <div className="w-full bg-slate-700/50 rounded-full h-2">
-                <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: '87%' }}></div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-orange-100/70">Temps de traitement</span>
-                <span className="text-sm font-medium text-orange-200">2.3s</span>
-              </div>
-              <div className="w-full bg-slate-700/50 rounded-full h-2">
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style={{ width: '76%' }}></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-orange-500/20 bg-slate-800/30 backdrop-blur-sm p-6 shadow-sm">
-            <h3 className="text-lg font-semibold bg-gradient-to-r from-orange-300 to-yellow-400 bg-clip-text text-transparent mb-4">
-              Derniers enregistrements
-            </h3>
-            <div className="space-y-3">
-              {['Réunion équipe', 'Entretien client', 'Formation interne', 'Brainstorming'].map((recording, i) => (
-                <div key={i} className="flex items-center justify-between py-2">
-                  <span className="text-sm text-orange-100/70">{recording}</span>
-                  <span className="text-sm font-medium text-orange-200">
-                    {Math.floor(Math.random() * 30 + 5)}min
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Input Area */}
+      <div className="p-6 border-t border-orange-500/20">
+        <form onSubmit={handleSubmit}>
+          <PromptBox name="message" />
+        </form>
       </div>
     </div>
   );
