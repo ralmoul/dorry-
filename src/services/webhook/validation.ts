@@ -11,7 +11,7 @@ export const validateUser = (user: User | null): void => {
 };
 
 export const validateWebhookUrl = (): void => {
-  if (WEBHOOK_URL !== 'https://n8n.srv938173.hstgr.cloud/webhook-test/11980a15-4394-40a7-a207-915d7cd9bdd1') {
+  if (WEBHOOK_URL !== 'https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613') {
     console.error('❌ [WEBHOOK] ERREUR CRITIQUE: URL incorrecte!');
     throw new Error('URL webhook incorrecte');
   }
