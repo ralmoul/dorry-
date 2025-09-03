@@ -107,6 +107,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [selectedModel, setSelectedModel] = useState("Dorry Pro");
   const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const promptBoxRef = React.useRef<HTMLTextAreaElement>(null);
 
   // Phrases d'accueil dynamiques
   const welcomePhrases = [
@@ -128,7 +129,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
     { id: 'dorry-analyst', name: 'Dorry Analyst', description: 'Spécialisé en analyse' },
   ];
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const message = formData.get("message") as string;
@@ -144,18 +145,51 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
 
     setMessages(prev => [...prev, userMessage]);
 
-    // Simuler une réponse de l'assistant
-    setTimeout(() => {
-      const assistantMessage = {
+    // Réinitialiser le formulaire immédiatement
+    event.currentTarget.reset();
+    if (promptBoxRef.current) {
+      promptBoxRef.current.value = '';
+    }
+
+    try {
+      // Envoyer au webhook N8N
+      const response = await fetch('https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          user: user?.firstName || 'Utilisateur',
+          timestamp: new Date().toISOString(),
+          model: selectedModel
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Ajouter la réponse de l'assistant
+        const assistantMessage = {
+          id: Date.now() + 1,
+          type: 'assistant',
+          content: data.response || `Message reçu et traité par Dorry. Votre demande : "${message}" a été transmise avec succès.`,
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        throw new Error('Erreur webhook');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi au webhook:', error);
+      
+      // Message d'erreur
+      const errorMessage = {
         id: Date.now() + 1,
         type: 'assistant',
-        content: `Je comprends votre demande : "${message}". Je suis Dorry, votre assistant IA spécialisé dans l'analyse et la synthèse. Je peux vous aider à traiter et analyser vos informations de manière efficace.`,
+        content: `Désolé, une erreur s'est produite lors de l'envoi de votre message. Je travaille en mode local pour le moment. Votre message était : "${message}"`,
       };
-      setMessages(prev => [...prev, assistantMessage]);
-    }, 1000);
-
-    // Réinitialiser le formulaire
-    event.currentTarget.reset();
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   return (
@@ -266,7 +300,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
         <div className="border-t border-[#404040] p-4">
           <div className="max-w-3xl mx-auto">
             <form onSubmit={handleSubmit}>
-              <PromptBox name="message" />
+              <PromptBox ref={promptBoxRef} name="message" />
             </form>
           </div>
         </div>

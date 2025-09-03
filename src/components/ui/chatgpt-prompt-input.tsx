@@ -54,6 +54,15 @@ export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
     React.useImperativeHandle(ref, () => internalTextareaRef.current!, []);
     React.useLayoutEffect(() => { const textarea = internalTextareaRef.current; if (textarea) { textarea.style.height = "auto"; const newHeight = Math.min(textarea.scrollHeight, 200); textarea.style.height = `${newHeight}px`; } }, [value]);
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => { setValue(e.target.value); if (props.onChange) props.onChange(e); };
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const form = e.currentTarget.closest('form');
+        if (form && hasValue) {
+          form.requestSubmit();
+        }
+      }
+    };
     const handlePlusClick = () => { fileInputRef.current?.click(); };
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file && file.type.startsWith("image/")) { const reader = new FileReader(); reader.onloadend = () => { setImagePreview(reader.result as string); }; reader.readAsDataURL(file); } event.target.value = ""; };
     const handleRemoveImage = (e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); setImagePreview(null); if(fileInputRef.current) { fileInputRef.current.value = ""; } };
@@ -67,7 +76,7 @@ export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
         
         {imagePreview && ( <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}> <div className="relative mb-1 w-fit rounded-[1rem] px-1 pt-1"> <button type="button" className="transition-transform" onClick={() => setIsImageDialogOpen(true)}> <img src={imagePreview} alt="Image preview" className="h-14.5 w-14.5 rounded-[1rem]" /> </button> <button onClick={handleRemoveImage} className="absolute right-2 top-2 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-[#404040] text-white transition-colors hover:bg-[#515151]" aria-label="Remove image"> <XIcon className="h-4 w-4" /> </button> </div> <DialogContent> <img src={imagePreview} alt="Full size preview" className="w-full max-h-[95vh] object-contain rounded-[24px]" /> </DialogContent> </Dialog> )}
         
-        <textarea ref={internalTextareaRef} rows={1} value={value} onChange={handleInputChange} placeholder="Message Dorry..." className="custom-scrollbar w-full resize-none border-0 bg-transparent p-3 text-white placeholder:text-gray-400 focus:ring-0 focus-visible:outline-none min-h-12" {...props} />
+        <textarea ref={internalTextareaRef} rows={1} value={value} onChange={handleInputChange} onKeyDown={handleKeyDown} placeholder="Message Dorry..." className="custom-scrollbar w-full resize-none border-0 bg-transparent p-3 text-white placeholder:text-gray-400 focus:ring-0 focus-visible:outline-none min-h-12" {...props} />
         
         <div className="mt-0.5 p-1 pt-0">
           <TooltipProvider delayDuration={100}>
@@ -118,7 +127,7 @@ export const PromptBox = React.forwardRef<HTMLTextAreaElement, React.TextareaHTM
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button type="submit" disabled={!hasValue} className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none bg-white text-black hover:bg-gray-200 disabled:bg-gray-600">
+                    <button type="submit" disabled={!hasValue} className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none bg-gray-600 text-white hover:bg-gray-500 disabled:bg-gray-700">
                       <SendIcon className="h-6 w-6" />
                       <span className="sr-only">Send message</span>
                     </button>
