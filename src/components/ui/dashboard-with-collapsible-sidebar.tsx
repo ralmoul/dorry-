@@ -200,9 +200,18 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
         },
         body: JSON.stringify({
           message: message,
-          user: user?.firstName || 'Utilisateur',
+          user: {
+            firstName: user?.firstName || '',
+            lastName: user?.lastName || '',
+            email: user?.email || '',
+            id: user?.id || '',
+            fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+            // Ajout d'autres infos utilisateur disponibles
+            ...user
+          },
           timestamp: new Date().toISOString(),
-          model: selectedModel
+          model: selectedModel,
+          messageType: 'text' // Pour différencier text/vocal plus tard
         }),
       });
 
