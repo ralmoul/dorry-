@@ -8,8 +8,6 @@ interface AIVoiceInputProps {
   onStart?: () => void;
   onStop?: (duration: number, audioBlob?: Blob) => void;
   visualizerBars?: number;
-  demoMode?: boolean;
-  demoInterval?: number;
   className?: string;
 }
 
@@ -17,17 +15,13 @@ export function AIVoiceInput({
   onStart,
   onStop,
   visualizerBars = 48,
-  demoMode = false,
-  demoInterval = 3000,
   className
 }: AIVoiceInputProps) {
-  // VOTRE INTERFACE VISUELLE (inchangée)
-  const [submitted, setSubmitted] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
-  const [isDemo, setIsDemo] = useState(false); // Toujours désactiver le mode demo
   
-  // MA LOGIQUE AUDIO (ajoutée)
+  // LOGIQUE AUDIO RÉELLE
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
@@ -36,117 +30,76 @@ export function AIVoiceInput({
     setIsClient(true);
   }, []);
 
-  // LOGIQUE AUDIO COMPLÈTE AVEC DEBUG
-  const startRealRecording = async () => {
+  const startRecording = async () => {
     try {
-      console.log('🎤 DEBUT startRealRecording - Demande accès microphone...');
+      console.log('🎤 DÉBUT enregistrement - Demande microphone...');
       
-      // Vérifier si getUserMedia existe
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('getUserMedia non supporté par ce navigateur');
-      }
-      
-      console.log('📱 getUserMedia disponible, demande permission...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log('✅ MICROPHONE AUTORISÉ ! Stream reçu:', stream);
+      console.log('✅ MICROPHONE OK ! Stream:', stream);
       setAudioStream(stream);
       
       const recorder = new MediaRecorder(stream);
       audioChunksRef.current = [];
-      console.log('🎙️ MediaRecorder créé, état:', recorder.state);
       
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
-          console.log('🎵 DONNÉES AUDIO REÇUES:', event.data.size, 'bytes');
+          console.log('🎵 Audio reçu:', event.data.size, 'bytes');
         }
       };
       
       recorder.onstop = () => {
-        console.log('⏹️ ENREGISTREMENT ARRÊTÉ, création blob...');
+        console.log('⏹️ STOP ! Création blob...');
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        console.log('📦 BLOB CRÉÉ:', { 
-          size: audioBlob.size, 
-          type: audioBlob.type,
-          duration: time,
-          chunks: audioChunksRef.current.length
-        });
+        console.log('📦 BLOB:', { size: audioBlob.size, duration: time });
         
-        // Nettoyer le stream
+        // Nettoyer
         stream.getTracks().forEach(track => track.stop());
         setAudioStream(null);
         
-        // APPEL CRITIQUE : onStop avec l'audio
-        console.log('📞 APPEL onStop avec blob...');
+        // ENVOYER !
+        console.log('📞 APPEL onStop...');
         onStop?.(time, audioBlob);
-        console.log('✅ onStop appelé !');
       };
       
-      console.log('▶️ Démarrage enregistrement...');
       recorder.start();
       setMediaRecorder(recorder);
       onStart?.();
-      console.log('✅ ENREGISTREMENT DÉMARRÉ ! État:', recorder.state);
+      console.log('🔴 ENREGISTREMENT DÉMARRÉ !');
       
     } catch (error) {
-      console.error('❌ ERREUR MICROPHONE CRITIQUE:', error);
-      console.error('Type erreur:', error.name);
-      console.error('Message:', error.message);
-      
-      // Afficher une alerte pour debug
-      alert(`ERREUR MICROPHONE: ${error.message}\n\nVérifiez que vous avez autorisé l'accès au microphone !`);
+      console.error('❌ ERREUR:', error);
+      alert(`Erreur microphone: ${error.message}`);
     }
   };
 
-  const stopRealRecording = () => {
+  const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
-      console.log('🛑 Arrêt du MediaRecorder...');
+      console.log('🛑 ARRÊT...');
       mediaRecorder.stop();
       setMediaRecorder(null);
     }
   };
 
+  // Timer
   useEffect(() => {
-    console.log('🔄 useEffect submitted changé:', submitted);
     let intervalId: NodeJS.Timeout;
 
-    if (submitted && !isDemo) {
-      console.log('▶️ DÉMARRAGE enregistrement réel...');
-      // Démarrer VRAIMENT l'enregistrement
-      startRealRecording();
+    if (isRecording) {
+      console.log('▶️ START enregistrement');
+      startRecording();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else if (!submitted) {
-      console.log('⏹️ ARRÊT enregistrement...');
-      // Arrêter VRAIMENT l'enregistrement
-      stopRealRecording();
-      setTime(0);
+    } else if (time > 0) {
+      console.log('⏹️ STOP enregistrement');
+      stopRecording();
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [submitted, isDemo]);
-
-  useEffect(() => {
-    if (!isDemo) return;
-
-    let timeoutId: NodeJS.Timeout;
-    const runAnimation = () => {
-      setSubmitted(true);
-      timeoutId = setTimeout(() => {
-        setSubmitted(false);
-        timeoutId = setTimeout(runAnimation, 1000);
-      }, demoInterval);
-    };
-
-    const initialTimeout = setTimeout(runAnimation, 100);
-    return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(initialTimeout);
-    };
-  }, [isDemo, demoInterval]);
+  }, [isRecording]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -154,18 +107,14 @@ export function AIVoiceInput({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-
   const handleClick = () => {
-    console.log('🖱️ CLICK sur le bouton micro, état actuel:', { submitted, isDemo });
-    
-    if (isDemo) {
-      console.log('🎭 Mode demo désactivé');
-      setIsDemo(false);
-      setSubmitted(false);
+    console.log('🖱️ CLICK ! État actuel:', isRecording);
+    if (isRecording) {
+      setIsRecording(false);
+      setTime(0);
     } else {
-      const newSubmitted = !submitted;
-      console.log('🔄 Changement état submitted:', submitted, '->', newSubmitted);
-      setSubmitted(newSubmitted);
+      setTime(0);
+      setIsRecording(true);
     }
   };
 
@@ -175,14 +124,14 @@ export function AIVoiceInput({
         <button
           className={cn(
             "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
-            submitted
+            isRecording
               ? "bg-none"
               : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
           )}
           type="button"
           onClick={handleClick}
         >
-          {submitted ? (
+          {isRecording ? (
             <div
               className="w-6 h-6 rounded-sm animate-spin bg-black dark:bg-white cursor-pointer pointer-events-auto"
               style={{ animationDuration: "3s" }}
@@ -195,7 +144,7 @@ export function AIVoiceInput({
         <span
           className={cn(
             "font-mono text-sm transition-opacity duration-300",
-            submitted
+            isRecording
               ? "text-black/70 dark:text-white/70"
               : "text-black/30 dark:text-white/30"
           )}
@@ -209,12 +158,12 @@ export function AIVoiceInput({
               key={i}
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
-                submitted
+                isRecording
                   ? "bg-white/30"
                   : "bg-white/10 h-1"
               )}
               style={
-                submitted && isClient
+                isRecording && isClient
                   ? {
                       height: `${20 + Math.random() * 80}%`,
                       animationDelay: `${i * 0.05}s`,
@@ -226,7 +175,7 @@ export function AIVoiceInput({
         </div>
 
         <p className="h-4 text-xs text-black/70 dark:text-white/70">
-          {submitted ? "Listening..." : "Click to speak"}
+          {isRecording ? "Listening..." : "Click to speak"}
         </p>
       </div>
     </div>
