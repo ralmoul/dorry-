@@ -20,6 +20,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
+import { AIVoiceInput } from '@/components/ui/ai-voice-input';
 
 export const DorryDashboard = () => {
   const { user, logout } = useAuth();
@@ -149,6 +150,13 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
   const [selectedModel, setSelectedModel] = useState("Dorry Pro");
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const promptBoxRef = React.useRef<HTMLTextAreaElement>(null);
+
+  // Effacer les messages quand on change de modèle
+  const handleModelChange = (newModel: string) => {
+    setSelectedModel(newModel);
+    setMessages([]); // Nouvelle conversation
+    setShowModelDropdown(false);
+  };
 
   // Phrases d'accueil dynamiques
   const welcomePhrases = [
@@ -282,10 +290,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
                 {models.map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => {
-                      setSelectedModel(model.name);
-                      setShowModelDropdown(false);
-                    }}
+                    onClick={() => handleModelChange(model.name)}
                     className="w-full text-left p-3 hover:bg-[#3a3a3a] transition-colors first:rounded-t-lg last:rounded-b-lg"
                   >
                     <div className="font-medium text-white">{model.name}</div>
@@ -335,9 +340,21 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
         {/* Zone de saisie */}
         <div className="border-t border-[#404040] p-4">
           <div className="max-w-3xl mx-auto">
-            <form onSubmit={handleSubmit}>
-              <PromptBox ref={promptBoxRef} name="message" />
-            </form>
+            {selectedModel === "Dorry Compte rendu" ? (
+              // Mode vocal pour Compte rendu
+              <AIVoiceInput 
+                onStart={() => console.log('Enregistrement vocal démarré')}
+                onStop={(duration) => {
+                  console.log(`Enregistrement terminé: ${duration}s`);
+                  // TODO: Envoyer l'audio au webhook
+                }}
+              />
+            ) : (
+              // Mode texte pour Dorry Pro
+              <form onSubmit={handleSubmit}>
+                <PromptBox ref={promptBoxRef} name="message" />
+              </form>
+            )}
           </div>
         </div>
       </div>
