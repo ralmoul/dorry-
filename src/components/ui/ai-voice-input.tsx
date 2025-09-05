@@ -152,7 +152,7 @@ export function AIVoiceInput({
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
                 submitted
-                  ? "bg-white/30 animate-pulse"
+                  ? "bg-white/30"
                   : "bg-white/10 h-1"
               )}
               style={
