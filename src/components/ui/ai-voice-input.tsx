@@ -1,40 +1,69 @@
 "use client";
 
-import { Mic, Send, Square } from "lucide-react";
+import { Mic } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface AIVoiceInputProps {
   onStart?: () => void;
   onStop?: (duration: number) => void;
-  onSend?: (audioBlob: Blob, duration: number) => void;
+  visualizerBars?: number;
+  demoMode?: boolean;
+  demoInterval?: number;
   className?: string;
 }
 
 export function AIVoiceInput({
   onStart,
   onStop,
-  onSend,
+  visualizerBars = 48,
+  demoMode = false,
+  demoInterval = 3000,
   className
 }: AIVoiceInputProps) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [hasRecording, setHasRecording] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [time, setTime] = useState(0);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [isClient, setIsClient] = useState(false);
+  const [isDemo, setIsDemo] = useState(demoMode);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
-    if (isRecording) {
+    if (submitted) {
       onStart?.();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
+    } else {
+      onStop?.(time);
+      setTime(0);
     }
 
     return () => clearInterval(intervalId);
-  }, [isRecording, onStart]);
+  }, [submitted, time, onStart, onStop]);
+
+  useEffect(() => {
+    if (!isDemo) return;
+
+    let timeoutId: NodeJS.Timeout;
+    const runAnimation = () => {
+      setSubmitted(true);
+      timeoutId = setTimeout(() => {
+        setSubmitted(false);
+        timeoutId = setTimeout(runAnimation, 1000);
+      }, demoInterval);
+    };
+
+    const initialTimeout = setTimeout(runAnimation, 100);
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(initialTimeout);
+    };
+  }, [isDemo, demoInterval]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -42,105 +71,74 @@ export function AIVoiceInput({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: BlobPart[] = [];
-
-      recorder.ondataavailable = (e) => chunks.push(e.data);
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/wav' });
-        setAudioBlob(blob);
-        setHasRecording(true);
-        onStop?.(time);
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-      setTime(0);
-    } catch (error) {
-      console.error('Erreur microphone:', error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && isRecording) {
-      mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
-    }
-  };
-
-  const handleSend = () => {
-    if (audioBlob) {
-      onSend?.(audioBlob, time);
-      // Reset après envoi
-      setHasRecording(false);
-      setAudioBlob(null);
-      setTime(0);
-    }
-  };
-
-  const handleMicClick = () => {
-    if (isRecording) {
-      stopRecording();
-    } else if (!hasRecording) {
-      startRecording();
+  const handleClick = () => {
+    if (isDemo) {
+      setIsDemo(false);
+      setSubmitted(false);
+    } else {
+      setSubmitted((prev) => !prev);
     }
   };
 
   return (
     <div className={cn("w-full py-4", className)}>
-      <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-4">
-        
-        {/* Bouton principal */}
+      <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
         <button
-          className="w-16 h-16 rounded-full flex items-center justify-center bg-[#2a2a2a] hover:bg-[#3a3a3a] transition-colors"
+          className={cn(
+            "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
+            submitted
+              ? "bg-none"
+              : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
+          )}
           type="button"
-          onClick={handleMicClick}
+          onClick={handleClick}
         >
-          {isRecording ? (
-            <Square className="w-6 h-6 text-white" />
+          {submitted ? (
+            <div
+              className="w-6 h-6 rounded-sm animate-spin bg-black dark:bg-white cursor-pointer pointer-events-auto"
+              style={{ animationDuration: "3s" }}
+            />
           ) : (
-            <Mic className="w-6 h-6 text-white" />
+            <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
           )}
         </button>
 
-        {/* Timer */}
-        <span className="font-mono text-sm text-white">
+        <span
+          className={cn(
+            "font-mono text-sm transition-opacity duration-300",
+            submitted
+              ? "text-black/70 dark:text-white/70"
+              : "text-black/30 dark:text-white/30"
+          )}
+        >
           {formatTime(time)}
         </span>
 
-        {/* Visualiseur simple */}
-        {isRecording && (
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="w-1 h-6 bg-white/50 rounded animate-pulse"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              />
-            ))}
-          </div>
-        )}
+        <div className="h-4 w-64 flex items-center justify-center gap-0.5">
+          {[...Array(visualizerBars)].map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                "w-0.5 rounded-full transition-all duration-300",
+                submitted
+                  ? "bg-black/50 dark:bg-white/50 animate-pulse"
+                  : "bg-black/10 dark:bg-white/10 h-1"
+              )}
+              style={
+                submitted && isClient
+                  ? {
+                      height: `${20 + Math.random() * 80}%`,
+                      animationDelay: `${i * 0.05}s`,
+                    }
+                  : undefined
+              }
+            />
+          ))}
+        </div>
 
-        {/* Status */}
-        <p className="text-xs text-white/70">
-          {isRecording ? "Enregistrement..." : hasRecording ? "Prêt à envoyer" : "Cliquez pour enregistrer"}
+        <p className="h-4 text-xs text-black/70 dark:text-white/70">
+          {submitted ? "Listening..." : "Click to speak"}
         </p>
-
-        {/* Bouton d'envoi */}
-        {hasRecording && (
-          <button
-            onClick={handleSend}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-full transition-colors"
-          >
-            <Send className="w-4 h-4" />
-            Envoyer
-          </button>
-        )}
       </div>
     </div>
   );
