@@ -39,11 +39,13 @@ export function AIVoiceInput({
     let intervalId: NodeJS.Timeout;
 
     if (submitted) {
+      console.log('🎤 Démarrage enregistrement...');
       startRecording();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else {
+    } else if (mediaRecorder) {
+      console.log('⏹️ Arrêt enregistrement...');
       stopRecording();
       setTime(0);
     }
