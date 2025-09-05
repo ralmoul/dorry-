@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 interface AIVoiceInputProps {
   onStart?: () => void;
   onStop?: (duration: number, audioBlob?: Blob) => void;
+  onSend?: (duration: number, audioBlob: Blob) => void;
   visualizerBars?: number;
   demoMode?: boolean;
   demoInterval?: number;
@@ -16,6 +17,7 @@ interface AIVoiceInputProps {
 export function AIVoiceInput({
   onStart,
   onStop,
+  onSend,
   visualizerBars = 48,
   demoMode = false,
   demoInterval = 3000,
@@ -27,6 +29,9 @@ export function AIVoiceInput({
   const [isDemo, setIsDemo] = useState(demoMode);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<BlobPart[]>([]);
+  const [hasRecording, setHasRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedDuration, setRecordedDuration] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
@@ -82,6 +87,9 @@ export function AIVoiceInput({
       recorder.ondataavailable = (e) => chunks.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/wav' });
+        setRecordedBlob(blob);
+        setRecordedDuration(time);
+        setHasRecording(true);
         onStop?.(time, blob);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -168,8 +176,28 @@ export function AIVoiceInput({
         </div>
 
         <p className="h-4 text-xs text-black/70 dark:text-white/70">
-          {submitted ? "Listening..." : "Click to speak"}
+          {submitted ? "Listening..." : hasRecording ? "Ready to send" : "Click to speak"}
         </p>
+
+        {/* Bouton d'envoi */}
+        {hasRecording && (
+          <button
+            onClick={() => {
+              if (recordedBlob && onSend) {
+                onSend(recordedDuration, recordedBlob);
+                setHasRecording(false);
+                setRecordedBlob(null);
+                setRecordedDuration(0);
+              }
+            }}
+            className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-full transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Envoyer
+          </button>
+        )}
       </div>
     </div>
   );
