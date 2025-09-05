@@ -36,43 +36,65 @@ export function AIVoiceInput({
     setIsClient(true);
   }, []);
 
-  // LOGIQUE AUDIO COMPLÈTE
+  // LOGIQUE AUDIO COMPLÈTE AVEC DEBUG
   const startRealRecording = async () => {
     try {
-      console.log('🎤 Demande accès microphone...');
+      console.log('🎤 DEBUT startRealRecording - Demande accès microphone...');
+      
+      // Vérifier si getUserMedia existe
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia non supporté par ce navigateur');
+      }
+      
+      console.log('📱 getUserMedia disponible, demande permission...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('✅ MICROPHONE AUTORISÉ ! Stream reçu:', stream);
       setAudioStream(stream);
       
       const recorder = new MediaRecorder(stream);
       audioChunksRef.current = [];
+      console.log('🎙️ MediaRecorder créé, état:', recorder.state);
       
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
-          console.log('🎵 Données audio reçues:', event.data.size);
+          console.log('🎵 DONNÉES AUDIO REÇUES:', event.data.size, 'bytes');
         }
       };
       
       recorder.onstop = () => {
-        console.log('⏹️ Enregistrement arrêté, création blob...');
+        console.log('⏹️ ENREGISTREMENT ARRÊTÉ, création blob...');
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        console.log('📦 Blob créé:', { size: audioBlob.size, duration: time });
+        console.log('📦 BLOB CRÉÉ:', { 
+          size: audioBlob.size, 
+          type: audioBlob.type,
+          duration: time,
+          chunks: audioChunksRef.current.length
+        });
         
         // Nettoyer le stream
         stream.getTracks().forEach(track => track.stop());
         setAudioStream(null);
         
-        // Appeler onStop avec l'audio
+        // APPEL CRITIQUE : onStop avec l'audio
+        console.log('📞 APPEL onStop avec blob...');
         onStop?.(time, audioBlob);
+        console.log('✅ onStop appelé !');
       };
       
+      console.log('▶️ Démarrage enregistrement...');
       recorder.start();
       setMediaRecorder(recorder);
       onStart?.();
-      console.log('✅ Enregistrement démarré');
+      console.log('✅ ENREGISTREMENT DÉMARRÉ ! État:', recorder.state);
       
     } catch (error) {
-      console.error('❌ Erreur microphone:', error);
+      console.error('❌ ERREUR MICROPHONE CRITIQUE:', error);
+      console.error('Type erreur:', error.name);
+      console.error('Message:', error.message);
+      
+      // Afficher une alerte pour debug
+      alert(`ERREUR MICROPHONE: ${error.message}\n\nVérifiez que vous avez autorisé l'accès au microphone !`);
     }
   };
 
