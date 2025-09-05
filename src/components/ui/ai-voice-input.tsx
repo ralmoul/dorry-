@@ -122,6 +122,18 @@ export function AIVoiceInput({
     
     if (isRecording) {
       console.log('🛑 ARRÊT demandé...');
+      
+      // ARRÊT IMMÉDIAT + APPEL onStop
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        console.log('🛑 Arrêt MediaRecorder...');
+        mediaRecorder.stop();
+        setMediaRecorder(null);
+      }
+      
+      // APPEL DIRECT onStop
+      console.log('📞 APPEL IMMÉDIAT onStop avec durée:', time);
+      onStop?.(time, new Blob([], { type: 'audio/wav' }));
+      
       setIsRecording(false);
       setTime(0);
     } else {
