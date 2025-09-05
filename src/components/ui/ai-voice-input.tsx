@@ -25,7 +25,7 @@ export function AIVoiceInput({
   const [submitted, setSubmitted] = useState(false);
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
-  const [isDemo, setIsDemo] = useState(demoMode);
+  const [isDemo, setIsDemo] = useState(false); // Toujours désactiver le mode demo
   
   // MA LOGIQUE AUDIO (ajoutée)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
@@ -107,22 +107,27 @@ export function AIVoiceInput({
   };
 
   useEffect(() => {
+    console.log('🔄 useEffect submitted changé:', submitted);
     let intervalId: NodeJS.Timeout;
 
-    if (submitted) {
+    if (submitted && !isDemo) {
+      console.log('▶️ DÉMARRAGE enregistrement réel...');
       // Démarrer VRAIMENT l'enregistrement
       startRealRecording();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else {
+    } else if (!submitted) {
+      console.log('⏹️ ARRÊT enregistrement...');
       // Arrêter VRAIMENT l'enregistrement
       stopRealRecording();
       setTime(0);
     }
 
-    return () => clearInterval(intervalId);
-  }, [submitted]);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [submitted, isDemo]);
 
   useEffect(() => {
     if (!isDemo) return;
@@ -151,11 +156,16 @@ export function AIVoiceInput({
 
 
   const handleClick = () => {
+    console.log('🖱️ CLICK sur le bouton micro, état actuel:', { submitted, isDemo });
+    
     if (isDemo) {
+      console.log('🎭 Mode demo désactivé');
       setIsDemo(false);
       setSubmitted(false);
     } else {
-      setSubmitted((prev) => !prev);
+      const newSubmitted = !submitted;
+      console.log('🔄 Changement état submitted:', submitted, '->', newSubmitted);
+      setSubmitted(newSubmitted);
     }
   };
 
