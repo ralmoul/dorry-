@@ -1,7 +1,7 @@
 "use client";
 
 import { Mic } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface AIVoiceInputProps {
@@ -21,32 +21,81 @@ export function AIVoiceInput({
   demoInterval = 3000,
   className
 }: AIVoiceInputProps) {
+  // VOTRE INTERFACE VISUELLE (inchangée)
   const [submitted, setSubmitted] = useState(false);
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isDemo, setIsDemo] = useState(demoMode);
+  
+  // MA LOGIQUE AUDIO (ajoutée)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<BlobPart[]>([]);
-  const [hasRecording, setHasRecording] = useState(false);
-  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
-  const [recordedDuration, setRecordedDuration] = useState(0);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  // LOGIQUE AUDIO COMPLÈTE
+  const startRealRecording = async () => {
+    try {
+      console.log('🎤 Demande accès microphone...');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setAudioStream(stream);
+      
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+          console.log('🎵 Données audio reçues:', event.data.size);
+        }
+      };
+      
+      recorder.onstop = () => {
+        console.log('⏹️ Enregistrement arrêté, création blob...');
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        console.log('📦 Blob créé:', { size: audioBlob.size, duration: time });
+        
+        // Nettoyer le stream
+        stream.getTracks().forEach(track => track.stop());
+        setAudioStream(null);
+        
+        // Appeler onStop avec l'audio
+        onStop?.(time, audioBlob);
+      };
+      
+      recorder.start();
+      setMediaRecorder(recorder);
+      onStart?.();
+      console.log('✅ Enregistrement démarré');
+      
+    } catch (error) {
+      console.error('❌ Erreur microphone:', error);
+    }
+  };
+
+  const stopRealRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      console.log('🛑 Arrêt du MediaRecorder...');
+      mediaRecorder.stop();
+      setMediaRecorder(null);
+    }
+  };
+
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     if (submitted) {
-      console.log('🎤 Démarrage enregistrement...');
-      startRecording();
+      // Démarrer VRAIMENT l'enregistrement
+      startRealRecording();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else if (mediaRecorder) {
-      console.log('⏹️ Arrêt enregistrement...');
-      stopRecording();
+    } else {
+      // Arrêter VRAIMENT l'enregistrement
+      stopRealRecording();
       setTime(0);
     }
 
@@ -78,35 +127,6 @@ export function AIVoiceInput({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: BlobPart[] = [];
-
-      recorder.ondataavailable = (e) => chunks.push(e.data);
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/wav' });
-        console.log('🎤 Audio enregistré:', { duration: time, blobSize: blob.size });
-        onStop?.(time, blob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setAudioChunks(chunks);
-      onStart?.();
-    } catch (error) {
-      console.error('Erreur microphone:', error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-      setMediaRecorder(null);
-    }
-  };
 
   const handleClick = () => {
     if (isDemo) {
