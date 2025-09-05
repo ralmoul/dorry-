@@ -21,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
 import { AIVoiceInput } from '@/components/ui/ai-voice-input';
+import { VoiceMessage } from '@/components/ui/voice-message';
 
 export const DorryDashboard = () => {
   const { user, logout } = useAuth();
@@ -189,6 +190,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
       id: Date.now(),
       type: 'user',
       content: message,
+      messageType: 'text'
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -249,6 +251,67 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
       console.error('Erreur lors de l\'envoi au webhook:', error);
       
       // Pas de message d'erreur, on attend juste la vraie réponse du webhook
+    }
+  };
+
+  // Gestion des messages vocaux
+  const handleVoiceSend = async (audioBlob: Blob, duration: number) => {
+    try {
+      // Créer URL temporaire pour l'audio
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Ajouter le message vocal à la conversation
+      const voiceMessage = {
+        id: Date.now(),
+        type: 'user',
+        content: `Message vocal (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
+        messageType: 'voice',
+        audioUrl,
+        duration,
+        transcription: 'Transcription en cours...' // TODO: Intégrer Whisper
+      };
+      setMessages(prev => [...prev, voiceMessage]);
+
+      // Préparer FormData pour envoyer l'audio
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'voice-message.wav');
+      formData.append('user', JSON.stringify({
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        company: user?.company || '',
+        id: user?.id || '',
+        fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+        ...user
+      }));
+      formData.append('timestamp', new Date().toISOString());
+      formData.append('model', selectedModel);
+      formData.append('messageType', 'voice');
+      formData.append('duration', duration.toString());
+
+      // Envoyer au webhook N8N
+      const response = await fetch('https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.text();
+        
+        // Filtrer les messages "Workflow was started"
+        if (!data.includes('Workflow was started') && !data.includes('workflow')) {
+          const assistantMessage = {
+            id: Date.now() + 1,
+            type: 'assistant',
+            content: data,
+            messageType: 'text'
+          };
+          setMessages(prev => [...prev, assistantMessage]);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur envoi vocal:', error);
     }
   };
 
@@ -323,10 +386,19 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
               {messages.map((message) => (
                 <div key={message.id} className={`py-4 ${message.type === 'user' ? 'text-right' : ''}`}>
                   {message.type === 'user' ? (
-                    // Message utilisateur à droite, dans une bulle ronde grise
-                    <div className="inline-block bg-[#2f2f2f] text-white px-4 py-2 rounded-3xl max-w-[80%]">
-                      <p className="leading-relaxed">{message.content}</p>
-                    </div>
+                    message.messageType === 'voice' ? (
+                      <VoiceMessage
+                        audioUrl={message.audioUrl}
+                        duration={message.duration}
+                        transcription={message.transcription}
+                        isUser={true}
+                      />
+                    ) : (
+                      // Message texte utilisateur à droite, dans une bulle ronde grise
+                      <div className="inline-block bg-[#2f2f2f] text-white px-4 py-2 rounded-3xl max-w-[80%]">
+                        <p className="leading-relaxed">{message.content}</p>
+                      </div>
+                    )
                   ) : (
                     // Message assistant à gauche, texte direct sans bulle
                     <p className="text-white leading-relaxed">{message.content}</p>
@@ -344,10 +416,8 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
               // Mode vocal pour Compte rendu
               <AIVoiceInput 
                 onStart={() => console.log('Enregistrement vocal démarré')}
-                onStop={(duration) => {
-                  console.log(`Enregistrement terminé: ${duration}s`);
-                  // TODO: Envoyer l'audio au webhook
-                }}
+                onStop={(duration) => console.log(`Enregistrement terminé: ${duration}s`)}
+                onSend={handleVoiceSend}
               />
             ) : (
               // Mode texte pour Dorry Pro
