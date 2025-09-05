@@ -294,14 +294,17 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'voice-message.wav');
       
-      // DONNÉES UTILISATEUR EN CHAMPS SÉPARÉS
-      formData.append('firstName', user?.firstName || '');
-      formData.append('lastName', user?.lastName || '');
-      formData.append('email', user?.email || '');
-      formData.append('phone', user?.phone || '');
-      formData.append('company', user?.company || '');
-      formData.append('userId', user?.id || '');
-      formData.append('fullName', `${user?.firstName || ''} ${user?.lastName || ''}`.trim());
+      // DONNÉES UTILISATEUR COMME AVANT (en string JSON)
+      formData.append('user', JSON.stringify({
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        company: user?.company || '',
+        id: user?.id || '',
+        fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+        ...user
+      }));
       
       formData.append('message', `Message vocal de ${duration} secondes`);
       formData.append('timestamp', new Date().toISOString());

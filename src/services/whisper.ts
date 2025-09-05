@@ -23,8 +23,10 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
       return 'Clé API non configurée - ajoutez VITE_OPENAI_API_KEY dans Vercel';
     }
 
-    // Convertir le Blob en File pour OpenAI avec format WebM
-    const audioFile = new File([audioBlob], 'audio.webm', { type: 'audio/webm' });
+    // Convertir le Blob en File pour OpenAI avec le bon format
+    const fileExtension = audioBlob.type.includes('mp4') ? '.mp4' : 
+                         audioBlob.type.includes('wav') ? '.wav' : '.webm';
+    const audioFile = new File([audioBlob], `audio${fileExtension}`, { type: audioBlob.type });
     
     // Appeler l'API Whisper
     const transcription = await client.audio.transcriptions.create({

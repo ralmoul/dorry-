@@ -40,8 +40,16 @@ export function AIVoiceInput({
       console.log('✅ MICROPHONE OK ! Stream:', stream);
       setAudioStream(stream);
       
-      // Forcer le format WebM pour OpenAI
-      const options = { mimeType: 'audio/webm' };
+      // Essayer différents formats compatibles
+      let options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options = { mimeType: 'audio/webm' };
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        options = { mimeType: 'audio/mp4' };
+      } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+        options = { mimeType: 'audio/wav' };
+      }
+      
       const recorder = new MediaRecorder(stream, options);
       console.log('🎙️ MediaRecorder avec format:', recorder.mimeType);
       audioChunksRef.current = [];
