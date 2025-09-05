@@ -292,7 +292,9 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
     
     try {
       const formData = new FormData();
+      console.log('📦 AUDIO BLOB POUR WEBHOOK:', { size: audioBlob.size, type: audioBlob.type });
       formData.append('audio', audioBlob, 'voice-message.wav');
+      console.log('✅ Audio ajouté au FormData');
       
       // DONNÉES UTILISATEUR COMME AVANT (en string JSON)
       formData.append('user', JSON.stringify({
