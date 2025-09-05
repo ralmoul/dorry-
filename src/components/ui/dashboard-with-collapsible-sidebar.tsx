@@ -21,7 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
 import { AIVoiceInput } from '@/components/ui/ai-voice-input';
-import { VoiceMessage } from '@/components/ui/voice-message';
+import { SimpleVoiceMessage } from '@/components/ui/simple-voice-message';
 import { transcribeAudio } from '@/services/whisper';
 
 export const DorryDashboard = () => {
@@ -255,98 +255,96 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
     }
   };
 
-  // Gestion des messages vocaux
+  // Gestion des messages vocaux - VERSION SIMPLE QUI MARCHE
   const handleVoiceStop = async (duration: number, audioBlob?: Blob) => {
-    console.log('🎤 handleVoiceStop appelé:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size });
+    console.log('🎤 DEBUT handleVoiceStop:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size });
     
-    if (duration > 0 && audioBlob) {
-      // Créer l'ID du message pour le mettre à jour
-      const messageId = Date.now();
+    if (!audioBlob || duration <= 0) {
+      console.log('❌ Pas d\'audio ou durée nulle');
+      return;
+    }
+
+    // 1. Ajouter IMMÉDIATEMENT le message vocal à la conversation
+    const messageId = Date.now();
+    const voiceMessage = {
+      id: messageId,
+      type: 'user',
+      content: `Message vocal (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
+      messageType: 'voice',
+      duration,
+      transcription: 'Transcription en cours...'
+    };
+    
+    console.log('💬 Ajout message vocal au chat');
+    setMessages(prev => [...prev, voiceMessage]);
+
+    // 2. Envoyer IMMÉDIATEMENT au webhook N8N
+    console.log('📤 ENVOI AU WEBHOOK MAINTENANT...');
+    
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'voice-message.wav');
+      formData.append('user', JSON.stringify({
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+        email: user?.email || '',
+        phone: user?.phone || '',
+        company: user?.company || '',
+        id: user?.id || '',
+        fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+        ...user
+      }));
+      formData.append('message', `Message vocal de ${duration} secondes`);
+      formData.append('timestamp', new Date().toISOString());
+      formData.append('model', selectedModel);
+      formData.append('messageType', 'voice');
+      formData.append('duration', duration.toString());
+
+      console.log('🌐 Fetch vers webhook...');
+      const response = await fetch('https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613', {
+        method: 'POST',
+        body: formData,
+      });
       
-      // Ajouter le message vocal à la conversation
-      const voiceMessage = {
-        id: messageId,
-        type: 'user',
-        content: `Message vocal (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
-        messageType: 'voice',
-        duration,
-        transcription: 'Transcription en cours...'
-      };
-      setMessages(prev => [...prev, voiceMessage]);
+      console.log('✅ Réponse reçue:', { status: response.status, ok: response.ok });
 
-      // Envoyer IMMÉDIATEMENT au webhook (sans attendre Whisper)
-      try {
-        // Préparer FormData pour envoyer l'audio au webhook
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'voice-message.wav');
-        formData.append('user', JSON.stringify({
-          firstName: user?.firstName || '',
-          lastName: user?.lastName || '',
-          email: user?.email || '',
-          phone: user?.phone || '',
-          company: user?.company || '',
-          id: user?.id || '',
-          fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-          ...user
-        }));
-        formData.append('message', `Message vocal de ${duration} secondes`);
-        formData.append('timestamp', new Date().toISOString());
-        formData.append('model', selectedModel);
-        formData.append('messageType', 'voice');
-        formData.append('duration', duration.toString());
-
-        // Envoyer au webhook N8N
-        console.log('📤 Envoi au webhook N8N...', { 
-          url: 'https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613',
-          formDataKeys: Array.from(formData.keys())
-        });
+      if (response.ok) {
+        const data = await response.text();
+        console.log('📄 Contenu réponse:', data);
         
-        const response = await fetch('https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        console.log('📥 Réponse webhook:', { status: response.status, ok: response.ok });
-
-        if (response.ok) {
-          const data = await response.text();
-          console.log('📄 Données reçues:', data);
-          
-          // Filtrer les messages "Workflow was started"
-          if (!data.includes('Workflow was started') && !data.includes('workflow')) {
-            const assistantMessage = {
-              id: Date.now() + 1,
-              type: 'assistant',
-              content: data,
-              messageType: 'text'
-            };
-            setMessages(prev => [...prev, assistantMessage]);
-          }
-        } else {
-          console.error('❌ Erreur webhook:', response.status, response.statusText);
+        if (!data.includes('Workflow was started') && !data.includes('workflow')) {
+          const assistantMessage = {
+            id: Date.now() + 1,
+            type: 'assistant',
+            content: data,
+            messageType: 'text'
+          };
+          setMessages(prev => [...prev, assistantMessage]);
+          console.log('💬 Réponse assistant ajoutée');
         }
-      } catch (error) {
-        console.error('❌ Erreur envoi vocal:', error);
+      } else {
+        console.error('❌ Erreur HTTP:', response.status, response.statusText);
       }
+    } catch (error) {
+      console.error('❌ ERREUR FETCH:', error);
+    }
 
-      // Transcrire avec Whisper EN PARALLÈLE (optionnel)
-      try {
-        const transcription = await transcribeAudio(audioBlob);
-        
-        // Mettre à jour le message avec la transcription
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, transcription }
-            : msg
-        ));
-      } catch (error) {
-        console.error('Erreur transcription:', error);
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, transcription: 'Transcription non disponible' }
-            : msg
-        ));
-      }
+    // 3. Transcription en parallèle (optionnel)
+    try {
+      const transcription = await transcribeAudio(audioBlob);
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, transcription }
+          : msg
+      ));
+      console.log('📝 Transcription mise à jour');
+    } catch (error) {
+      console.error('Erreur transcription:', error);
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, transcription: 'Transcription non disponible' }
+          : msg
+      ));
     }
   };
 
@@ -423,11 +421,9 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
                   {message.type === 'user' ? (
                     message.messageType === 'voice' ? (
                       // Message vocal avec transcription
-                      <VoiceMessage
-                        audioUrl="" // Pas d'URL pour le moment
+                      <SimpleVoiceMessage
                         duration={message.duration}
                         transcription={message.transcription}
-                        isUser={true}
                       />
                     ) : (
                       // Message texte utilisateur à droite, dans une bulle ronde grise
