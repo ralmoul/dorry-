@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
 import { AIVoiceInput } from '@/components/ui/ai-voice-input';
 import { VoiceMessage } from '@/components/ui/voice-message';
+import { transcribeAudio } from '@/services/whisper';
 
 export const DorryDashboard = () => {
   const { user, logout } = useAuth();
@@ -255,43 +256,56 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
   };
 
   // Gestion des messages vocaux
-  const handleVoiceStop = async (duration: number) => {
-    if (duration > 0) {
+  const handleVoiceStop = async (duration: number, audioBlob?: Blob) => {
+    if (duration > 0 && audioBlob) {
+      // Créer l'ID du message pour le mettre à jour
+      const messageId = Date.now();
+      
       // Ajouter le message vocal à la conversation
       const voiceMessage = {
-        id: Date.now(),
+        id: messageId,
         type: 'user',
         content: `Message vocal (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
         messageType: 'voice',
         duration,
-        transcription: 'Transcription en cours...' // TODO: Intégrer Whisper
+        transcription: 'Transcription en cours...'
       };
       setMessages(prev => [...prev, voiceMessage]);
 
       try {
-        // Envoyer au webhook N8N avec les infos utilisateur
+        // Transcrire avec Whisper
+        const transcription = await transcribeAudio(audioBlob);
+        
+        // Mettre à jour le message avec la transcription
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, transcription }
+            : msg
+        ));
+
+        // Préparer FormData pour envoyer l'audio au webhook
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'voice-message.wav');
+        formData.append('user', JSON.stringify({
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          company: user?.company || '',
+          id: user?.id || '',
+          fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+          ...user
+        }));
+        formData.append('message', transcription); // Envoyer aussi la transcription
+        formData.append('timestamp', new Date().toISOString());
+        formData.append('model', selectedModel);
+        formData.append('messageType', 'voice');
+        formData.append('duration', duration.toString());
+
+        // Envoyer au webhook N8N
         const response = await fetch('https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: `Message vocal de ${duration} secondes`,
-            user: {
-              firstName: user?.firstName || '',
-              lastName: user?.lastName || '',
-              email: user?.email || '',
-              phone: user?.phone || '',
-              company: user?.company || '',
-              id: user?.id || '',
-              fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-              ...user
-            },
-            timestamp: new Date().toISOString(),
-            model: selectedModel,
-            messageType: 'voice',
-            duration: duration
-          }),
+          body: formData,
         });
 
         if (response.ok) {
@@ -310,6 +324,12 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
         }
       } catch (error) {
         console.error('Erreur envoi vocal:', error);
+        // Mettre à jour avec l'erreur
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, transcription: 'Erreur lors de la transcription' }
+            : msg
+        ));
       }
     }
   };
@@ -386,13 +406,13 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
                 <div key={message.id} className={`py-4 ${message.type === 'user' ? 'text-right' : ''}`}>
                   {message.type === 'user' ? (
                     message.messageType === 'voice' ? (
-                      // Message vocal simple
-                      <div className="inline-block bg-[#2f2f2f] text-white px-4 py-2 rounded-3xl max-w-[80%]">
-                        <div className="flex items-center gap-2">
-                          <Mic className="w-4 h-4" />
-                          <p className="leading-relaxed">{message.content}</p>
-                        </div>
-                      </div>
+                      // Message vocal avec transcription
+                      <VoiceMessage
+                        audioUrl="" // Pas d'URL pour le moment
+                        duration={message.duration}
+                        transcription={message.transcription}
+                        isUser={true}
+                      />
                     ) : (
                       // Message texte utilisateur à droite, dans une bulle ronde grise
                       <div className="inline-block bg-[#2f2f2f] text-white px-4 py-2 rounded-3xl max-w-[80%]">

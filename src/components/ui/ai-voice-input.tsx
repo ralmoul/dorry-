@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface AIVoiceInputProps {
   onStart?: () => void;
-  onStop?: (duration: number) => void;
+  onStop?: (duration: number, audioBlob?: Blob) => void;
   visualizerBars?: number;
   demoMode?: boolean;
   demoInterval?: number;
@@ -25,6 +25,8 @@ export function AIVoiceInput({
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isDemo, setIsDemo] = useState(demoMode);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<BlobPart[]>([]);
 
   useEffect(() => {
     setIsClient(true);
@@ -34,17 +36,17 @@ export function AIVoiceInput({
     let intervalId: NodeJS.Timeout;
 
     if (submitted) {
-      onStart?.();
+      startRecording();
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
     } else {
-      onStop?.(time);
+      stopRecording();
       setTime(0);
     }
 
     return () => clearInterval(intervalId);
-  }, [submitted, time, onStart, onStop]);
+  }, [submitted]);
 
   useEffect(() => {
     if (!isDemo) return;
@@ -69,6 +71,35 @@ export function AIVoiceInput({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/wav' });
+        onStop?.(time, blob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setAudioChunks(chunks);
+      onStart?.();
+    } catch (error) {
+      console.error('Erreur microphone:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      setMediaRecorder(null);
+    }
   };
 
   const handleClick = () => {
