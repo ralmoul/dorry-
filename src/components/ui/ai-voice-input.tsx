@@ -129,11 +129,11 @@ export function AIVoiceInput({
       // APPEL DIRECT onStop
       console.log('📞 APPEL IMMÉDIAT onStop avec durée:', time);
       
-      // Créer un blob audio réel ou utiliser celui du MediaRecorder
-      let audioBlob = new Blob([], { type: 'audio/wav' });
+      // Créer un blob audio réel avec format WebM pour OpenAI
+      let audioBlob = new Blob([], { type: 'audio/webm' });
       if (audioChunksRef.current.length > 0) {
-        audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        console.log('📦 Blob avec vraies données:', audioBlob.size);
+        audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        console.log('📦 Blob avec vraies données:', audioBlob.size, 'type:', audioBlob.type);
       } else {
         console.log('⚠️ Pas de données audio, blob vide');
       }

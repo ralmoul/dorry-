@@ -463,6 +463,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
               <AIVoiceInput 
                 onStart={() => console.log('Enregistrement vocal démarré')}
                 onStop={handleVoiceStop}
+                key="voice-input" 
               />
             ) : (
               // Mode texte pour Dorry Pro
