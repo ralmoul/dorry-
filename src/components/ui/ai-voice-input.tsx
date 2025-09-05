@@ -108,11 +108,16 @@ export function AIVoiceInput({
   };
 
   const handleClick = () => {
-    console.log('🖱️ CLICK ! État actuel:', isRecording);
+    console.log('🖱️ CLICK DÉTECTÉ ! État actuel:', isRecording);
+    console.log('🖱️ onStart fonction:', typeof onStart);
+    console.log('🖱️ onStop fonction:', typeof onStop);
+    
     if (isRecording) {
+      console.log('🛑 ARRÊT demandé...');
       setIsRecording(false);
       setTime(0);
     } else {
+      console.log('▶️ DÉMARRAGE demandé...');
       setTime(0);
       setIsRecording(true);
     }
