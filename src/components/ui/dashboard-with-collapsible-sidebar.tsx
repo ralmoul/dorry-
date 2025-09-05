@@ -256,13 +256,22 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
   };
 
   // Gestion des messages vocaux - VERSION SIMPLE QUI MARCHE
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  
   const handleVoiceStop = async (duration: number, audioBlob?: Blob) => {
-    console.log('🎤 DEBUT handleVoiceStop:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size });
+    console.log('🎤 DEBUT handleVoiceStop:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size, isProcessing: isProcessingVoice });
+    
+    if (isProcessingVoice) {
+      console.log('⚠️ Déjà en cours de traitement, ignore');
+      return;
+    }
     
     if (!audioBlob || duration <= 0) {
       console.log('❌ Pas d\'audio ou durée nulle');
       return;
     }
+    
+    setIsProcessingVoice(true);
 
     // 1. Ajouter IMMÉDIATEMENT le message vocal à la conversation
     const messageId = Date.now();
@@ -284,16 +293,16 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
     try {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'voice-message.wav');
-      formData.append('user', JSON.stringify({
-        firstName: user?.firstName || '',
-        lastName: user?.lastName || '',
-        email: user?.email || '',
-        phone: user?.phone || '',
-        company: user?.company || '',
-        id: user?.id || '',
-        fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-        ...user
-      }));
+      
+      // DONNÉES UTILISATEUR EN CHAMPS SÉPARÉS
+      formData.append('firstName', user?.firstName || '');
+      formData.append('lastName', user?.lastName || '');
+      formData.append('email', user?.email || '');
+      formData.append('phone', user?.phone || '');
+      formData.append('company', user?.company || '');
+      formData.append('userId', user?.id || '');
+      formData.append('fullName', `${user?.firstName || ''} ${user?.lastName || ''}`.trim());
+      
       formData.append('message', `Message vocal de ${duration} secondes`);
       formData.append('timestamp', new Date().toISOString());
       formData.append('model', selectedModel);
@@ -331,7 +340,9 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
 
     // 3. Transcription en parallèle (optionnel)
     try {
+      console.log('📝 Début transcription...');
       const transcription = await transcribeAudio(audioBlob);
+      console.log('📝 Transcription reçue:', transcription);
       setMessages(prev => prev.map(msg => 
         msg.id === messageId 
           ? { ...msg, transcription }
@@ -339,13 +350,16 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
       ));
       console.log('📝 Transcription mise à jour');
     } catch (error) {
-      console.error('Erreur transcription:', error);
+      console.error('❌ Erreur transcription:', error);
       setMessages(prev => prev.map(msg => 
         msg.id === messageId 
-          ? { ...msg, transcription: 'Transcription non disponible' }
+          ? { ...msg, transcription: 'Erreur lors de la transcription' }
           : msg
       ));
     }
+    
+    // Réinitialiser le flag de traitement
+    setIsProcessingVoice(false);
   };
 
   return (
