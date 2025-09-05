@@ -183,6 +183,13 @@ export function AIVoiceInput({
         {hasRecording && (
           <button
             onClick={() => {
+              console.log('🔘 Bouton Envoyer cliqué:', { 
+                hasBlob: !!recordedBlob, 
+                duration: recordedDuration, 
+                hasOnSend: !!onSend,
+                blobSize: recordedBlob?.size 
+              });
+              
               if (recordedBlob && onSend) {
                 onSend(recordedDuration, recordedBlob);
                 setHasRecording(false);

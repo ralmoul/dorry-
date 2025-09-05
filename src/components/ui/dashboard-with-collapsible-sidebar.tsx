@@ -257,6 +257,8 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
 
   // Gestion des messages vocaux
   const handleVoiceStop = async (duration: number, audioBlob?: Blob) => {
+    console.log('🎤 handleVoiceStop appelé:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size });
+    
     if (duration > 0 && audioBlob) {
       // Créer l'ID du message pour le mettre à jour
       const messageId = Date.now();
@@ -303,10 +305,17 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
         formData.append('duration', duration.toString());
 
         // Envoyer au webhook N8N
+        console.log('📤 Envoi au webhook N8N...', { 
+          url: 'https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613',
+          formDataKeys: Array.from(formData.keys())
+        });
+        
         const response = await fetch('https://n8n.srv938173.hstgr.cloud/webhook-test/7e21fc77-8e1e-4a40-a98c-746f44b6d613', {
           method: 'POST',
           body: formData,
         });
+        
+        console.log('📥 Réponse webhook:', { status: response.status, ok: response.ok });
 
         if (response.ok) {
           const data = await response.text();
