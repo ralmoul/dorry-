@@ -79,14 +79,8 @@ export function AIVoiceInput({
       console.log('🛑 ARRÊT du MediaRecorder...');
       mediaRecorder.stop();
       setMediaRecorder(null);
-    } else {
-      console.log('⚠️ Pas de MediaRecorder actif, appel direct onStop');
-      // Si pas de MediaRecorder, on appelle quand même onStop
-      if (time > 0) {
-        console.log('📞 APPEL DIRECT onStop avec durée:', time);
-        onStop?.(time, new Blob([], { type: 'audio/wav' })); // Blob vide pour test
-      }
     }
+    // PAS D'APPEL onStop ici - seulement dans handleClick
   };
 
   // Timer
