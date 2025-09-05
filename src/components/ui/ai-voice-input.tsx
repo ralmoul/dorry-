@@ -85,25 +85,21 @@ export function AIVoiceInput({
     // PAS D'APPEL onStop ici - seulement dans handleClick
   };
 
-  // Timer
+  // Timer uniquement
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     if (isRecording) {
-      console.log('▶️ START enregistrement');
-      startRecording();
+      console.log('⏰ Démarrage timer...');
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else if (!isRecording && time > 0) {
-      console.log('⏹️ STOP enregistrement maintenant');
-      stopRecording();
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isRecording, time]);
+  }, [isRecording]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -111,7 +107,7 @@ export function AIVoiceInput({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleClick = () => {
+  const handleClick = async () => {
     console.log('🖱️ CLICK DÉTECTÉ ! État actuel:', isRecording);
     console.log('🖱️ onStart fonction:', typeof onStart);
     console.log('🖱️ onStop fonction:', typeof onStop);
@@ -126,7 +122,7 @@ export function AIVoiceInput({
         setMediaRecorder(null);
       }
       
-      // APPEL DIRECT onStop
+      // APPEL DIRECT onStop - UNE SEULE FOIS
       console.log('📞 APPEL IMMÉDIAT onStop avec durée:', time);
       
       // Créer un blob audio réel avec format WebM pour OpenAI
@@ -143,9 +139,12 @@ export function AIVoiceInput({
       setIsRecording(false);
       setTime(0);
     } else {
-      console.log('▶️ DÉMARRAGE demandé...');
+      console.log('▶️ DÉMARRAGE IMMÉDIAT...');
       setTime(0);
       setIsRecording(true);
+      
+      // DÉMARRER L'ENREGISTREMENT IMMÉDIATEMENT
+      await startRecording();
     }
   };
 
