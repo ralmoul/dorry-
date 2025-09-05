@@ -256,7 +256,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
   };
 
   // Gestion des messages vocaux
-  const handleVoiceStop = async (duration: number, audioBlob: Blob) => {
+  const handleVoiceStop = async (duration: number, audioBlob?: Blob) => {
     console.log('🎤 handleVoiceStop appelé:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size });
     
     if (duration > 0 && audioBlob) {
@@ -452,8 +452,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
               // Mode vocal pour Compte rendu
               <AIVoiceInput 
                 onStart={() => console.log('Enregistrement vocal démarré')}
-                onStop={(duration) => console.log(`Enregistrement terminé: ${duration}s`)}
-                onSend={handleVoiceStop}
+                onStop={handleVoiceStop}
               />
             ) : (
               // Mode texte pour Dorry Pro
