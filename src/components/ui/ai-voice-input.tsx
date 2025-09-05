@@ -74,10 +74,18 @@ export function AIVoiceInput({
   };
 
   const stopRecording = () => {
+    console.log('🛑 stopRecording appelé, mediaRecorder:', mediaRecorder?.state);
     if (mediaRecorder && mediaRecorder.state === 'recording') {
-      console.log('🛑 ARRÊT...');
+      console.log('🛑 ARRÊT du MediaRecorder...');
       mediaRecorder.stop();
       setMediaRecorder(null);
+    } else {
+      console.log('⚠️ Pas de MediaRecorder actif, appel direct onStop');
+      // Si pas de MediaRecorder, on appelle quand même onStop
+      if (time > 0) {
+        console.log('📞 APPEL DIRECT onStop avec durée:', time);
+        onStop?.(time, new Blob([], { type: 'audio/wav' })); // Blob vide pour test
+      }
     }
   };
 
@@ -91,15 +99,15 @@ export function AIVoiceInput({
       intervalId = setInterval(() => {
         setTime((t) => t + 1);
       }, 1000);
-    } else if (time > 0) {
-      console.log('⏹️ STOP enregistrement');
+    } else if (!isRecording && time > 0) {
+      console.log('⏹️ STOP enregistrement maintenant');
       stopRecording();
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isRecording]);
+  }, [isRecording, time]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
