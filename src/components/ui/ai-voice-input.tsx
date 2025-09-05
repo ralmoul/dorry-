@@ -17,6 +17,8 @@ export function AIVoiceInput({
   visualizerBars = 48,
   className
 }: AIVoiceInputProps) {
+  console.log('🎤 AIVoiceInput rendu, onStop:', typeof onStop);
+  
   const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
@@ -126,7 +128,17 @@ export function AIVoiceInput({
       
       // APPEL DIRECT onStop
       console.log('📞 APPEL IMMÉDIAT onStop avec durée:', time);
-      onStop?.(time, new Blob([], { type: 'audio/wav' }));
+      
+      // Créer un blob audio réel ou utiliser celui du MediaRecorder
+      let audioBlob = new Blob([], { type: 'audio/wav' });
+      if (audioChunksRef.current.length > 0) {
+        audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        console.log('📦 Blob avec vraies données:', audioBlob.size);
+      } else {
+        console.log('⚠️ Pas de données audio, blob vide');
+      }
+      
+      onStop?.(time, audioBlob);
       
       setIsRecording(false);
       setTime(0);
