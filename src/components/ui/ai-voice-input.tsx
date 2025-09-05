@@ -40,7 +40,10 @@ export function AIVoiceInput({
       console.log('✅ MICROPHONE OK ! Stream:', stream);
       setAudioStream(stream);
       
-      const recorder = new MediaRecorder(stream);
+      // Forcer le format WebM pour OpenAI
+      const options = { mimeType: 'audio/webm' };
+      const recorder = new MediaRecorder(stream, options);
+      console.log('🎙️ MediaRecorder avec format:', recorder.mimeType);
       audioChunksRef.current = [];
       
       recorder.ondataavailable = (event) => {
@@ -125,10 +128,12 @@ export function AIVoiceInput({
       // APPEL DIRECT onStop - UNE SEULE FOIS
       console.log('📞 APPEL IMMÉDIAT onStop avec durée:', time);
       
-      // Créer un blob audio réel avec format WebM pour OpenAI
+      // Créer un blob audio réel avec le bon format
       let audioBlob = new Blob([], { type: 'audio/webm' });
       if (audioChunksRef.current.length > 0) {
-        audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        // Utiliser le même type que le MediaRecorder
+        const mimeType = mediaRecorder?.mimeType || 'audio/webm';
+        audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         console.log('📦 Blob avec vraies données:', audioBlob.size, 'type:', audioBlob.type);
       } else {
         console.log('⚠️ Pas de données audio, blob vide');
