@@ -256,7 +256,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
   };
 
   // Gestion des messages vocaux
-  const handleVoiceStop = async (duration: number, audioBlob?: Blob) => {
+  const handleVoiceStop = async (duration: number, audioBlob: Blob) => {
     console.log('🎤 handleVoiceStop appelé:', { duration, hasBlob: !!audioBlob, blobSize: audioBlob?.size });
     
     if (duration > 0 && audioBlob) {
@@ -274,17 +274,8 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
       };
       setMessages(prev => [...prev, voiceMessage]);
 
+      // Envoyer IMMÉDIATEMENT au webhook (sans attendre Whisper)
       try {
-        // Transcrire avec Whisper
-        const transcription = await transcribeAudio(audioBlob);
-        
-        // Mettre à jour le message avec la transcription
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, transcription }
-            : msg
-        ));
-
         // Préparer FormData pour envoyer l'audio au webhook
         const formData = new FormData();
         formData.append('audio', audioBlob, 'voice-message.wav');
@@ -298,7 +289,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
           fullName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
           ...user
         }));
-        formData.append('message', transcription); // Envoyer aussi la transcription
+        formData.append('message', `Message vocal de ${duration} secondes`);
         formData.append('timestamp', new Date().toISOString());
         formData.append('model', selectedModel);
         formData.append('messageType', 'voice');
@@ -319,6 +310,7 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
 
         if (response.ok) {
           const data = await response.text();
+          console.log('📄 Données reçues:', data);
           
           // Filtrer les messages "Workflow was started"
           if (!data.includes('Workflow was started') && !data.includes('workflow')) {
@@ -330,13 +322,28 @@ const ChatContent = ({ user, navigate, sidebarOpen, onToggleSidebar }: any) => {
             };
             setMessages(prev => [...prev, assistantMessage]);
           }
+        } else {
+          console.error('❌ Erreur webhook:', response.status, response.statusText);
         }
       } catch (error) {
-        console.error('Erreur envoi vocal:', error);
-        // Mettre à jour avec l'erreur
+        console.error('❌ Erreur envoi vocal:', error);
+      }
+
+      // Transcrire avec Whisper EN PARALLÈLE (optionnel)
+      try {
+        const transcription = await transcribeAudio(audioBlob);
+        
+        // Mettre à jour le message avec la transcription
         setMessages(prev => prev.map(msg => 
           msg.id === messageId 
-            ? { ...msg, transcription: 'Erreur lors de la transcription' }
+            ? { ...msg, transcription }
+            : msg
+        ));
+      } catch (error) {
+        console.error('Erreur transcription:', error);
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, transcription: 'Transcription non disponible' }
             : msg
         ));
       }
